@@ -8,7 +8,9 @@ const publicNav = [
   { name: "Auction", page: "Auction", icon: Gavel },
   { name: "Results", page: "Results", icon: ScrollText },
   { name: "Transactions", page: "Transactions", icon: History },
+  { name: "Activity", page: "Activity", icon: Zap },
   { name: "Punishments", page: "Punishments", icon: Shield },
+  { name: "Power", page: "Power", icon: Zap },
   { name: "Rules", page: "Rules", icon: BookOpen },
 ];
 
@@ -18,6 +20,7 @@ const adminNav = [
   { name: "Players", page: "AdminPlayers", icon: Trophy },
   { name: "DKP", page: "AdminDKP", icon: History },
   { name: "Penalties", page: "AdminPenalties", icon: Shield },
+  { name: "Event Config", page: "AdminEventConfig", icon: Settings2 },
   { name: "Settings", page: "AdminSettings", icon: Settings },
 ];
 
