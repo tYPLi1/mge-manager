@@ -155,7 +155,7 @@ export default function AdminAuctions() {
 
       // For each winner: create AuctionResult, DKPTransaction (bid), set cooldown
       for (const entry of previewRanking) {
-        const cooldownRounds = COOLDOWN_TABLE[entry.rank] || 1;
+        const cooldownRounds = cooldownTable[entry.rank] || 1;
         const cooldownDate = addDays(today, cooldownRounds * 7);
 
         await base44.entities.AuctionResult.create({
