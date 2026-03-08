@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Plus, RotateCcw } from "lucide-react";
+import { Shield, Plus, RotateCcw, Calculator } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -78,6 +78,39 @@ export default function AdminPenalties() {
     });
   };
 
+  // Compensation calculator state
+  const [compPlayer, setCompPlayer] = useState("");
+  const [compBidDkp, setCompBidDkp] = useState("");
+  const [compExpectedMedals, setCompExpectedMedals] = useState("");
+  const [compActualMedals, setCompActualMedals] = useState("");
+  const [compResult, setCompResult] = useState(null);
+
+  const compRefund = compBidDkp && compExpectedMedals && compActualMedals
+    ? Math.floor(((parseInt(compExpectedMedals) - parseInt(compActualMedals)) / parseInt(compExpectedMedals)) / 2 * parseInt(compBidDkp))
+    : 0;
+
+  const applyCompMutation = useMutation({
+    mutationFn: async () => {
+      const player = players.find((p) => p.id === compPlayer);
+      if (!player || compRefund <= 0) return;
+      await base44.entities.DKPTransaction.create({
+        player_id: compPlayer,
+        player_name: player.name,
+        amount: compRefund,
+        type: "compensation",
+        source: "MGE",
+        event_date: new Date().toISOString().split("T")[0],
+        note: `Compensation: bid ${compBidDkp} DKP, expected ${compExpectedMedals} medals, got ${compActualMedals}`,
+      });
+      await base44.entities.Player.update(compPlayer, {
+        total_dkp: (player.total_dkp || 0) + compRefund,
+      });
+      setCompResult(compRefund);
+      setCompPlayer(""); setCompBidDkp(""); setCompExpectedMedals(""); setCompActualMedals("");
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["players"] }),
+  });
+
   const activePenalties = penalties.filter((p) => p.status === "probation");
 
   return (
@@ -134,6 +167,55 @@ export default function AdminPenalties() {
         <Button onClick={handleCreate} disabled={!playerId || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
           <Plus className="w-4 h-4 mr-1" /> Apply Penalty
         </Button>
+      </div>
+
+      {/* Compensation Calculator */}
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
+        <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-amber-400" /> Compensation Calculator
+        </h3>
+        <p className="text-xs text-gray-500 mb-4">Formula: floor(((Missing Medals / Expected Medals) / 2) × Bid DKP)</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Player</Label>
+            <Select value={compPlayer} onValueChange={setCompPlayer}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue placeholder="Player..." />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {players.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Bid DKP</Label>
+            <Input type="number" value={compBidDkp} onChange={(e) => { setCompBidDkp(e.target.value); setCompResult(null); }} className="bg-white/5 border-white/10 text-white" />
+          </div>
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Expected Medals</Label>
+            <Input type="number" value={compExpectedMedals} onChange={(e) => { setCompExpectedMedals(e.target.value); setCompResult(null); }} className="bg-white/5 border-white/10 text-white" />
+          </div>
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Actual Medals</Label>
+            <Input type="number" value={compActualMedals} onChange={(e) => { setCompActualMedals(e.target.value); setCompResult(null); }} className="bg-white/5 border-white/10 text-white" />
+          </div>
+        </div>
+        {compBidDkp && compExpectedMedals && compActualMedals && (
+          <div className="flex items-center gap-4">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-2">
+              <span className="text-xs text-gray-400">Refund: </span>
+              <span className="text-emerald-400 font-mono font-bold text-lg">+{compRefund} DKP</span>
+            </div>
+            <Button
+              onClick={() => applyCompMutation.mutate()}
+              disabled={!compPlayer || compRefund <= 0 || applyCompMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm"
+            >
+              Apply Compensation
+            </Button>
+            {compResult !== null && <span className="text-xs text-emerald-400">✓ Applied +{compResult} DKP</span>}
+          </div>
+        )}
       </div>
 
       {/* Active Penalties */}
