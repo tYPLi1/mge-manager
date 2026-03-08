@@ -126,6 +126,8 @@ export default function AdminDKP() {
           <Plus className="w-4 h-4 mr-1" /> Apply Adjustment
         </Button>
       </div>
+
+      <EventUpload players={players} eventTypes={eventTypes} />
     </div>
   );
 }
