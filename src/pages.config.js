@@ -47,13 +47,26 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import Leaderboard from './pages/Leaderboard';
+import Auction from './pages/Auction';
+import Results from './pages/Results';
+import Transactions from './pages/Transactions';
+import Punishments from './pages/Punishments';
+import Rules from './pages/Rules';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "Leaderboard": Leaderboard,
+    "Auction": Auction,
+    "Results": Results,
+    "Transactions": Transactions,
+    "Punishments": Punishments,
+    "Rules": Rules,
 }
 
 export const pagesConfig = {
+    mainPage: "Leaderboard",
     Pages: PAGES,
     Layout: __Layout,
 };
