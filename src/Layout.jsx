@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Trophy, Gavel, ScrollText, History, Shield, Zap, BookOpen, Settings, Menu, X, ChevronRight } from "lucide-react";
+import { Trophy, Gavel, ScrollText, History, Shield, Zap, BookOpen, Settings, Menu, X, ChevronRight, Settings2 } from "lucide-react";
 
 const publicNav = [
   { name: "Leaderboard", page: "Leaderboard", icon: Trophy },
