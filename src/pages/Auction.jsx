@@ -34,6 +34,7 @@ export default function Auction() {
   const [bidPassword, setBidPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [bidError, setBidError] = useState("");
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
