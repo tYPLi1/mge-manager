@@ -71,7 +71,6 @@ export default function AdminDKP() {
   return (
     <div>
       <PageHeader title="DKP Management" icon={History} />
-      <EventUpload players={players} eventTypes={eventTypes} />
 
       {/* Manual Adjustment */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
