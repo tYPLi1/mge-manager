@@ -239,9 +239,15 @@ export default function Auction() {
                     </div>
                   )}
 
+                  {bidError && (
+                    <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-3.5 h-3.5" /> {bidError}
+                    </div>
+                  )}
+
                   <Button
                     onClick={handleSubmit}
-                    disabled={!selectedPlayer || !bidAmount || isOnCooldown || submitting}
+                    disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting}
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
                   >
                     {submitting ? "Submitting..." : "Submit Bid"}
