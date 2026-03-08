@@ -2,6 +2,8 @@ import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Search, ArrowUpDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Input } from "@/components/ui/input";
 import StatusBadge from "@/components/dkp/StatusBadge";
 import DKPValue from "@/components/dkp/DKPValue";
