@@ -72,7 +72,11 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Admin Dashboard" icon={Zap} />
+      <PageHeader title="Admin Dashboard" icon={Zap}>
+        <button onClick={exportData} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-xs hover:bg-white/10 transition-colors">
+          <Download className="w-3.5 h-3.5" /> Export Data
+        </button>
+      </PageHeader>
 
       {/* Open Auction Card */}
       {openAuction && (
