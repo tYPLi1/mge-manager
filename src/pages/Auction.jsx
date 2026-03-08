@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // v2
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Gavel, Clock, Send, Lock, AlertTriangle, Ban } from "lucide-react";
