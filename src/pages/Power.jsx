@@ -6,7 +6,7 @@ import PageHeader from "@/components/dkp/PageHeader";
 
 export default function Power() {
   const { data: players = [], isLoading } = useQuery({
-    queryKey: ["players-power"],
+    queryKey: ["players"],
     queryFn: () => base44.entities.Player.list("-power", 500),
   });
 
@@ -14,14 +14,14 @@ export default function Power() {
 
   return (
     <div>
-      <PageHeader title="Power Ranking" subtitle="Ranked by Macht (Power)" icon={Zap} />
+      <PageHeader title="Power Ranking" subtitle="Ranked by Power" icon={Zap} />
       <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#0d1117] border-b border-white/5">
             <tr>
               <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Rank</th>
               <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Player</th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Power (Macht)</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Power</th>
               <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Group</th>
             </tr>
           </thead>

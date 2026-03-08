@@ -47,40 +47,40 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Leaderboard from './pages/Leaderboard';
-import Auction from './pages/Auction';
-import Results from './pages/Results';
-import Transactions from './pages/Transactions';
-import Punishments from './pages/Punishments';
-import Rules from './pages/Rules';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminPlayers from './pages/AdminPlayers';
+import Activity from './pages/Activity';
 import AdminAuctions from './pages/AdminAuctions';
 import AdminDKP from './pages/AdminDKP';
-import AdminPenalties from './pages/AdminPenalties';
-import AdminSettings from './pages/AdminSettings';
-import Activity from './pages/Activity';
-import Power from './pages/Power';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminEventConfig from './pages/AdminEventConfig';
+import AdminPenalties from './pages/AdminPenalties';
+import AdminPlayers from './pages/AdminPlayers';
+import AdminSettings from './pages/AdminSettings';
+import Auction from './pages/Auction';
+import Leaderboard from './pages/Leaderboard';
+import Power from './pages/Power';
+import Punishments from './pages/Punishments';
+import Results from './pages/Results';
+import Rules from './pages/Rules';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Leaderboard": Leaderboard,
-    "Auction": Auction,
-    "Results": Results,
-    "Transactions": Transactions,
-    "Punishments": Punishments,
-    "Rules": Rules,
-    "AdminDashboard": AdminDashboard,
-    "AdminPlayers": AdminPlayers,
+    "Activity": Activity,
     "AdminAuctions": AdminAuctions,
     "AdminDKP": AdminDKP,
-    "AdminPenalties": AdminPenalties,
-    "AdminSettings": AdminSettings,
-    "Activity": Activity,
-    "Power": Power,
+    "AdminDashboard": AdminDashboard,
     "AdminEventConfig": AdminEventConfig,
+    "AdminPenalties": AdminPenalties,
+    "AdminPlayers": AdminPlayers,
+    "AdminSettings": AdminSettings,
+    "Auction": Auction,
+    "Leaderboard": Leaderboard,
+    "Power": Power,
+    "Punishments": Punishments,
+    "Results": Results,
+    "Rules": Rules,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {
