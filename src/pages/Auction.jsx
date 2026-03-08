@@ -189,6 +189,19 @@ export default function Auction() {
                     </div>
                   )}
 
+                  {isAuctionBanned && (
+                    <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                      <Ban className="w-3.5 h-3.5" />
+                      You are auction-banned and cannot place bids.
+                    </div>
+                  )}
+
+                  {selectedPlayerData && (
+                    <div className="text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+                      Available DKP: <span className="text-amber-400 font-mono font-bold">{currentDkp}</span>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
