@@ -62,7 +62,6 @@ export default function Auction() {
   const isAuctionBanned = selectedPlayerData?.auction_ban_count > 0;
   const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
   const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
-  const [bidError, setBidError] = useState("");
 
   const handleSubmit = async () => {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
