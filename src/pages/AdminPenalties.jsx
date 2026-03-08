@@ -49,20 +49,24 @@ export default function AdminPenalties() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const player = players.find((p) => p.id === data.player_id);
-      await base44.entities.Penalty.create({
-        ...data,
-        player_name: player?.name,
-      });
-      // Deduct DKP if applicable
-      if (data.dkp_deducted > 0) {
+      await base44.entities.Penalty.create({ ...data, player_name: player?.name });
+
+      if (data.level === 3) {
+        // Level 3: set total_dkp to 0
+        const currentTotal = player?.total_dkp || 0;
+        if (currentTotal > 0) {
+          await base44.entities.DKPTransaction.create({
+            player_id: data.player_id, player_name: player?.name,
+            amount: -currentTotal, type: "penalty",
+            source: "Level 3 Penalty", event_date: data.offense_date, note: data.note,
+          });
+          await base44.entities.Player.update(data.player_id, { total_dkp: 0, auction_ban_count: (player?.auction_ban_count || 0) + 1 });
+        }
+      } else if (data.dkp_deducted > 0) {
         await base44.entities.DKPTransaction.create({
-          player_id: data.player_id,
-          player_name: player?.name,
-          amount: -data.dkp_deducted,
-          type: "penalty",
-          source: `Level ${data.level} Penalty`,
-          event_date: data.offense_date,
-          note: data.note,
+          player_id: data.player_id, player_name: player?.name,
+          amount: -data.dkp_deducted, type: "penalty",
+          source: `Level ${data.level} Penalty`, event_date: data.offense_date, note: data.note,
         });
         await base44.entities.Player.update(data.player_id, {
           total_dkp: (player?.total_dkp || 0) - data.dkp_deducted,
@@ -72,9 +76,7 @@ export default function AdminPenalties() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["penalties"] });
       queryClient.invalidateQueries({ queryKey: ["players"] });
-      setPlayerId("");
-      setNote("");
-      setDkpDeducted("0");
+      setPlayerId(""); setNote(""); setStolenBidAmount("");
     },
   });
 
