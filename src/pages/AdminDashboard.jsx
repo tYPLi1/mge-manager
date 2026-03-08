@@ -25,6 +25,37 @@ export default function AdminDashboard() {
 
   const openAuction = auctions.find((a) => a.status === "open" || a.status === "closed");
 
+  const exportData = async () => {
+    const [allPlayers, allTxns, allPenalties, allOffenseResets] = await Promise.all([
+      base44.entities.Player.list("-total_dkp", 1000),
+      base44.entities.DKPTransaction.list("-event_date", 5000),
+      base44.entities.Penalty.list("-offense_date", 1000),
+      base44.entities.OffenseResetLog.list("-offense_date", 1000),
+    ]);
+    const wb = XLSX.utils.book_new();
+    const today = new Date().toISOString().split("T")[0];
+
+    const leaderboard = allPlayers.map((p, i) => ({
+      Rank: i + 1, Name: p.name, Total_DKP: p.total_dkp || 0, DKP_Spent: p.dkp_spent || 0,
+      Current_DKP: (p.total_dkp || 0) - (p.dkp_spent || 0), Cooldown_Until: p.cooldown_until || "", Power: p.power || 0,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leaderboard), "Leaderboard");
+
+    const txnData = allTxns.map(t => ({ Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source, Note: t.note || "" }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(txnData), "DKP_Log");
+
+    const probData = allPenalties.filter(p => p.status === "probation").map(p => ({ Player: p.player_name, Level: p.level, Offense: p.offense_count, Date: p.offense_date, DKP: p.dkp_deducted || 0, Note: p.note || "" }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(probData.length ? probData : [{}]), "Probation");
+
+    const cooldownData = allPlayers.filter(p => p.cooldown_until && new Date(p.cooldown_until) > new Date()).map(p => ({ Name: p.name, Cooldown_Until: p.cooldown_until }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cooldownData.length ? cooldownData : [{}]), "Player_On_Cooldown");
+
+    const resetData = allOffenseResets.map(r => ({ Player: r.player_name, Offense_Count: r.offense_count, Offense_Date: r.offense_date, Eligible_Reset: r.eligible_reset_date || "", Status: r.status, Notes: r.notes || "" }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resetData.length ? resetData : [{}]), "Offense_Reset_log");
+
+    XLSX.writeFile(wb, `DKP_Export_${today}.xlsx`);
+  };
+
   const stats = [
     { label: "Total Players", value: players.length, color: "from-blue-500/20 to-cyan-500/20", border: "border-blue-500/20" },
     { label: "Active Penalties", value: penalties.length, color: "from-red-500/20 to-orange-500/20", border: "border-red-500/20" },
