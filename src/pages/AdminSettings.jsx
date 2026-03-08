@@ -97,6 +97,18 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* MGE Targets */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">MGE Targets (JSON)</h3>
+          <p className="text-xs text-gray-500 mb-3">rank, medals, target score per rank 1–10</p>
+          <Textarea
+            value={form.mge_targets || ""}
+            onChange={(e) => setForm({ ...form, mge_targets: e.target.value })}
+            rows={6}
+            className="bg-white/5 border-white/10 text-white font-mono text-xs"
+          />
+        </div>
+
         {/* Rules Text */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">Rules Text (Markdown)</h3>
