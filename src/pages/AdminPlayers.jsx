@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -13,6 +13,8 @@ export default function AdminPlayers() {
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editCooldown, setEditCooldown] = useState("");
+  const [editingPowerId, setEditingPowerId] = useState(null);
+  const [editPower, setEditPower] = useState("");
   const queryClient = useQueryClient();
 
   const { data: players = [], isLoading } = useQuery({
@@ -110,7 +112,27 @@ export default function AdminPlayers() {
                       <StatusBadge cooldownUntil={p.cooldown_until} />
                     )}
                   </td>
-                  <td className="px-3 py-2.5 hidden md:table-cell text-sm text-gray-400 font-mono">{p.power?.toLocaleString() || "—"}</td>
+                  <td className="px-3 py-2.5 hidden md:table-cell">
+                    {editingPowerId === p.id ? (
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          value={editPower}
+                          onChange={(e) => setEditPower(e.target.value)}
+                          className="w-32 h-7 text-xs bg-white/5 border-white/10 text-white"
+                        />
+                        <button onClick={() => { updateMutation.mutate({ id: p.id, data: { power: parseInt(editPower) || 0 } }); setEditingPowerId(null); }} className="text-emerald-400 hover:text-emerald-300"><Save className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setEditingPowerId(null)} className="text-gray-500 hover:text-gray-300"><X className="w-3.5 h-3.5" /></button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-gray-400 font-mono">{p.power?.toLocaleString() || "—"}</span>
+                        <button onClick={() => { setEditingPowerId(p.id); setEditPower(String(p.power || 0)); }} className="text-gray-600 hover:text-amber-400 transition-colors">
+                          <Zap className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                  </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1">
                       <button
