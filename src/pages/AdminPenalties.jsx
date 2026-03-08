@@ -13,10 +13,28 @@ export default function AdminPenalties() {
   const [playerId, setPlayerId] = useState("");
   const [level, setLevel] = useState("1");
   const [offenseCount, setOffenseCount] = useState("1");
-  const [dkpDeducted, setDkpDeducted] = useState("0");
   const [offenseDate, setOffenseDate] = useState(new Date().toISOString().split("T")[0]);
   const [note, setNote] = useState("");
+  const [stolenBidAmount, setStolenBidAmount] = useState("");
   const queryClient = useQueryClient();
+
+  // Auto-calculate DKP deduction based on level + offense count
+  const calcDkpDeduction = (lvl, cnt) => {
+    const l = parseInt(lvl), c = parseInt(cnt);
+    if (l === 1) {
+      // 1st=0, 2nd=-5, 3rd=-10, 4th=-20, 5th=-40...
+      if (c <= 1) return 0;
+      if (c === 2) return 5;
+      if (c === 3) return 10;
+      return 20 * Math.pow(2, c - 4);
+    }
+    if (l === 2) {
+      const stolenBid = parseInt(stolenBidAmount) || 0;
+      return Math.max(50, stolenBid);
+    }
+    return 0; // Level 3: handled specially
+  };
+  const dkpDeducted = calcDkpDeduction(level, offenseCount);
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
