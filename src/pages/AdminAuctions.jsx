@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 
-const MGE_TARGETS = [
+const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
   { rank: 2, medals: 80, target: 28000000 },
   { rank: 3, medals: 60, target: 26000000 },
@@ -20,8 +20,7 @@ const MGE_TARGETS = [
   { rank: 9, medals: 10, target: 14000000 },
   { rank: 10, medals: 10, target: 12000000 },
 ];
-
-const COOLDOWN_TABLE = { 1: 4, 2: 4, 3: 3, 4: 3, 5: 3, 6: 2, 7: 2, 8: 1, 9: 1, 10: 1 };
+const DEFAULT_COOLDOWN_TABLE = { 1: 4, 2: 4, 3: 3, 4: 3, 5: 3, 6: 2, 7: 2, 8: 1, 9: 1, 10: 1 };
 
 function addDays(dateStr, days) {
   const d = dateStr ? new Date(dateStr) : new Date();
