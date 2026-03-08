@@ -58,8 +58,26 @@ export default function Auction() {
     return new Date(selectedPlayerData.cooldown_until) > new Date();
   }, [selectedPlayerData]);
 
+  const isAuctionBanned = selectedPlayerData?.auction_ban_count > 0;
+  const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
+  const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
+  const [bidError, setBidError] = useState("");
+
   const handleSubmit = async () => {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
+    setBidError("");
+
+    // Validate password
+    if (currentAuction.has_password && bidPassword !== currentAuction.bid_password) {
+      setBidError("Incorrect auction password.");
+      return;
+    }
+    // Validate DKP
+    if (parseInt(bidAmount) > currentDkp) {
+      setBidError(`Insufficient DKP. You have ${currentDkp} available.`);
+      return;
+    }
+
     setSubmitting(true);
     await base44.entities.Bid.create({
       auction_id: currentAuction.id,
