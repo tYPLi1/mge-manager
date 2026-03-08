@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight } from "lucide-react";
+import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight, Download } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
+import * as XLSX from "xlsx";
 
 export default function AdminDashboard() {
   const { data: players = [] } = useQuery({
