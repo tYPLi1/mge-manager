@@ -62,6 +62,20 @@ export default function AdminAuctions() {
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
 
+  const mgeTargets = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "mge_targets")?.value;
+      return raw ? JSON.parse(raw) : DEFAULT_MGE_TARGETS;
+    } catch { return DEFAULT_MGE_TARGETS; }
+  }, [settings]);
+
+  const cooldownTable = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "cooldown_table")?.value;
+      return raw ? JSON.parse(raw) : DEFAULT_COOLDOWN_TABLE;
+    } catch { return DEFAULT_COOLDOWN_TABLE; }
+  }, [settings]);
+
   // Compute auction preview ranking
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
