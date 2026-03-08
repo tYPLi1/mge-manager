@@ -59,6 +59,9 @@ import AdminAuctions from './pages/AdminAuctions';
 import AdminDKP from './pages/AdminDKP';
 import AdminPenalties from './pages/AdminPenalties';
 import AdminSettings from './pages/AdminSettings';
+import Activity from './pages/Activity';
+import Power from './pages/Power';
+import AdminEventConfig from './pages/AdminEventConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +78,9 @@ export const PAGES = {
     "AdminDKP": AdminDKP,
     "AdminPenalties": AdminPenalties,
     "AdminSettings": AdminSettings,
+    "Activity": Activity,
+    "Power": Power,
+    "AdminEventConfig": AdminEventConfig,
 }
 
 export const pagesConfig = {
