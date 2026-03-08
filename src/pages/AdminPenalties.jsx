@@ -171,9 +171,17 @@ export default function AdminPenalties() {
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Offense Count</Label>
             <Input type="number" min="1" value={offenseCount} onChange={(e) => setOffenseCount(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
+          {level === "2" && (
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Stolen Bid Amount (optional)</Label>
+              <Input type="number" min="0" value={stolenBidAmount} onChange={(e) => setStolenBidAmount(e.target.value)} placeholder="0 = use 50 minimum" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+            </div>
+          )}
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP to Deduct</Label>
-            <Input type="number" min="0" value={dkpDeducted} onChange={(e) => setDkpDeducted(e.target.value)} className="bg-white/5 border-white/10 text-white" />
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Deduction (auto)</Label>
+            <div className={`bg-white/5 border border-white/10 rounded-md px-3 py-2 font-mono text-sm font-bold ${level === "3" ? "text-red-400" : dkpDeducted > 0 ? "text-orange-400" : "text-gray-500"}`}>
+              {level === "3" ? "Set to ZERO" : `-${dkpDeducted} DKP`}
+            </div>
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Offense Date</Label>
