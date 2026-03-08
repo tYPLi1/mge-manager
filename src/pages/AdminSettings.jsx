@@ -1,0 +1,126 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Settings, Save } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import PageHeader from "@/components/dkp/PageHeader";
+
+export default function AdminSettings() {
+  const [form, setForm] = useState({});
+  const queryClient = useQueryClient();
+
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+
+  useEffect(() => {
+    const map = {};
+    settings.forEach((s) => { map[s.key] = s.value; });
+    setForm(map);
+  }, [settings]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (updates) => {
+      for (const [key, value] of Object.entries(updates)) {
+        const existing = settings.find((s) => s.key === key);
+        if (existing) {
+          await base44.entities.AppSettings.update(existing.id, { value: String(value) });
+        } else {
+          await base44.entities.AppSettings.create({ key, value: String(value) });
+        }
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }),
+  });
+
+  const handleSave = () => saveMutation.mutate(form);
+
+  const getBool = (key) => form[key] === "true";
+  const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
+
+  return (
+    <div>
+      <PageHeader title="Settings" icon={Settings}>
+        <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+          <Save className="w-4 h-4 mr-1" /> Save All
+        </Button>
+      </PageHeader>
+
+      <div className="space-y-6">
+        {/* Friendly Zone */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Friendly Zone</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Enabled</Label>
+              <Switch checked={getBool("friendly_zone_enabled")} onCheckedChange={(v) => setBool("friendly_zone_enabled", v)} />
+            </div>
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Threshold</Label>
+              <Input type="number" value={form.friendly_zone_threshold || ""} onChange={(e) => setForm({ ...form, friendly_zone_threshold: e.target.value })} className="bg-white/5 border-white/10 text-white w-32" />
+            </div>
+          </div>
+        </div>
+
+        {/* Event Toggles */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Event DKP Toggles</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Wonder Contest DKP</Label>
+              <Switch checked={getBool("wonder_dkp_enabled")} onCheckedChange={(v) => setBool("wonder_dkp_enabled", v)} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Battle of Dawn DKP</Label>
+              <Switch checked={getBool("dawn_dkp_enabled")} onCheckedChange={(v) => setBool("dawn_dkp_enabled", v)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Auction Defaults */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Default Auction Close</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Day</Label>
+              <Input value={form.auction_close_day || ""} onChange={(e) => setForm({ ...form, auction_close_day: e.target.value })} className="bg-white/5 border-white/10 text-white" />
+            </div>
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Time (UTC)</Label>
+              <Input value={form.auction_close_time_utc || ""} onChange={(e) => setForm({ ...form, auction_close_time_utc: e.target.value })} className="bg-white/5 border-white/10 text-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* Rules Text */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Rules Text (Markdown)</h3>
+          <Textarea
+            value={form.rules_text || ""}
+            onChange={(e) => setForm({ ...form, rules_text: e.target.value })}
+            rows={10}
+            placeholder="Enter guild rules in markdown format..."
+            className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
+          />
+        </div>
+
+        {/* Cooldown Table */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Cooldown Table (Rounds per Rank)</h3>
+          <p className="text-xs text-gray-500 mb-3">JSON format: rank → number of rounds</p>
+          <Textarea
+            value={form.cooldown_table || ""}
+            onChange={(e) => setForm({ ...form, cooldown_table: e.target.value })}
+            rows={3}
+            className="bg-white/5 border-white/10 text-white font-mono text-sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

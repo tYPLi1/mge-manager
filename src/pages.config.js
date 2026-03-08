@@ -53,6 +53,12 @@ import Results from './pages/Results';
 import Transactions from './pages/Transactions';
 import Punishments from './pages/Punishments';
 import Rules from './pages/Rules';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminPlayers from './pages/AdminPlayers';
+import AdminAuctions from './pages/AdminAuctions';
+import AdminDKP from './pages/AdminDKP';
+import AdminPenalties from './pages/AdminPenalties';
+import AdminSettings from './pages/AdminSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +69,12 @@ export const PAGES = {
     "Transactions": Transactions,
     "Punishments": Punishments,
     "Rules": Rules,
+    "AdminDashboard": AdminDashboard,
+    "AdminPlayers": AdminPlayers,
+    "AdminAuctions": AdminAuctions,
+    "AdminDKP": AdminDKP,
+    "AdminPenalties": AdminPenalties,
+    "AdminSettings": AdminSettings,
 }
 
 export const pagesConfig = {
