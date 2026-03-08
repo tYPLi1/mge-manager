@@ -114,7 +114,9 @@ export default function Leaderboard() {
                         <span className="text-gray-500 text-xs font-mono pl-1">{idx + 1}</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-sm font-medium text-white">{player.name}</td>
+                    <td className="px-3 py-2.5 text-sm font-medium text-white">
+                      <Link to={createPageUrl(`PlayerDetail?id=${player.id}`)} className="hover:text-amber-400 transition-colors">{player.name}</Link>
+                    </td>
                     <td className="px-3 py-2.5"><DKPValue value={player.current_dkp} size="sm" /></td>
                     <td className="px-3 py-2.5 hidden sm:table-cell text-sm text-gray-400 font-mono">{player.total_dkp?.toLocaleString()}</td>
                     <td className="px-3 py-2.5 hidden sm:table-cell text-sm text-gray-400 font-mono">{player.dkp_spent?.toLocaleString()}</td>
