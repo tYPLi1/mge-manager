@@ -23,6 +23,11 @@ export default function AdminDKP() {
     queryFn: () => base44.entities.Player.list("name", 500),
   });
 
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["eventTypes"],
+    queryFn: () => base44.entities.EventType.list("sort_order", 20),
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const player = players.find((p) => p.id === data.player_id);
