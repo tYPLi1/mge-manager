@@ -91,7 +91,7 @@ export default function AdminPenalties() {
       player_id: playerId,
       level: parseInt(level),
       offense_count: parseInt(offenseCount),
-      dkp_deducted: parseInt(dkpDeducted) || 0,
+      dkp_deducted: dkpDeducted,
       offense_date: offenseDate,
       note,
       status: "probation",
