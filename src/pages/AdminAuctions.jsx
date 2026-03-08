@@ -111,10 +111,10 @@ export default function AdminAuctions() {
     return top10.map((b, i) => ({
       ...b,
       rank: i + 1,
-      target: MGE_TARGETS[i]?.target,
-      medals: MGE_TARGETS[i]?.medals,
+      target: mgeTargets[i]?.target,
+      medals: mgeTargets[i]?.medals,
     }));
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids]);
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Auction.create(data),
