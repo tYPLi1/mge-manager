@@ -1,10 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import { createHmac } from 'crypto';
 
 const DISCORD_PUBLIC_KEY = Deno.env.get('DISCORD_PUBLIC_KEY');
 
-// Verify Discord interaction signature
-function verifyDiscordRequest(req, rawBody) {
+// Verify Discord interaction signature using Web Crypto API
+async function verifyDiscordRequest(req, rawBody) {
   const signature = req.headers.get('X-Signature-Ed25519');
   const timestamp = req.headers.get('X-Signature-Timestamp');
 
@@ -12,12 +11,18 @@ function verifyDiscordRequest(req, rawBody) {
     return false;
   }
 
-  const message = timestamp + rawBody;
-  const expectedSignature = createHmac('sha256', DISCORD_PUBLIC_KEY)
-    .update(message)
-    .digest('hex');
-
-  return signature === expectedSignature;
+  try {
+    const message = timestamp + rawBody;
+    const encoder = new TextEncoder();
+    const keyBytes = Uint8Array.from(Buffer.from(DISCORD_PUBLIC_KEY, 'hex'));
+    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'Ed25519' }, false, ['verify']);
+    const sigBytes = Uint8Array.from(Buffer.from(signature, 'hex'));
+    
+    return await crypto.subtle.verify('Ed25519', key, sigBytes, encoder.encode(message));
+  } catch (e) {
+    console.error('Signature verification failed:', e);
+    return false;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -29,7 +34,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Only POST allowed' }, { status: 405 });
     }
 
-    if (!verifyDiscordRequest(req, rawBody)) {
+    const isValid = await verifyDiscordRequest(req, rawBody);
+    if (!isValid) {
       return Response.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
