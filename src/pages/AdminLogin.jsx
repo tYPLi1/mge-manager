@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Trophy, AlertCircle, Loader2 } from 'lucide-react';
+import { Trophy, AlertCircle, Loader2, ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 export default function AdminLogin() {
