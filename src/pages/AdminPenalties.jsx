@@ -116,7 +116,7 @@ export default function AdminPenalties() {
   const [compResult, setCompResult] = useState(null);
 
   const compRefund = compBidDkp && compExpectedMedals && compActualMedals
-    ? Math.floor(((parseInt(compExpectedMedals) - parseInt(compActualMedals)) / parseInt(compExpectedMedals)) / 2 * parseInt(compBidDkp))
+    ? Math.floor(((parseInt(compExpectedMedals) - parseInt(compActualMedals)) / parseInt(compExpectedMedals)) / (penaltyConfig.compensation_divisor ?? 2) * parseInt(compBidDkp))
     : 0;
 
   const applyCompMutation = useMutation({
