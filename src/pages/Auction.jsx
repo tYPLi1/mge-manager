@@ -291,7 +291,7 @@ export default function Auction() {
 
                   <Button
                     onClick={handleSubmit}
-                    disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting}
+                    disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting || alreadyBid}
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
                   >
                     {submitting ? "Submitting..." : "Submit Bid"}
