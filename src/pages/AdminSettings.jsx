@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
+import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 
 export default function AdminSettings() {
   const [form, setForm] = useState({});
@@ -45,21 +46,7 @@ export default function AdminSettings() {
   const getBool = (key) => form[key] === "true";
   const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
 
-  const sendManualMessageMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('sendDiscordMessage', {
-        message: form.discord_manual_message,
-        webhookUrl: form.discord_webhook_url,
-      });
-      if (!response.data.success) throw new Error(response.data.error);
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success('Message sent to Discord!');
-      setForm({ ...form, discord_manual_message: '' });
-    },
-    onError: (error) => toast.error(`Failed: ${error.message}`),
-  });
+
 
 
 
@@ -198,23 +185,11 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Penalty Notifications</Label>
               <Switch checked={getBool("discord_penalties_enabled")} onCheckedChange={(v) => setBool("discord_penalties_enabled", v)} />
             </div>
-            <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Manual Message</Label>
-              <Textarea
-                placeholder="Write your message here (supports markdown formatting)..."
-                value={form.discord_manual_message || ""}
-                onChange={(e) => setForm({ ...form, discord_manual_message: e.target.value })}
-                rows={8}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
-              />
-              <Button 
-                onClick={() => sendManualMessageMutation.mutate()} 
-                disabled={sendManualMessageMutation.isPending || !form.discord_webhook_url || !form.discord_manual_message}
-                className="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white"
-              >
-                <Send className="w-3.5 h-3.5 mr-2" /> Send to Discord
-              </Button>
-            </div>
+          </div>
+        </div>
+
+        {/* Manual Message Component */}
+        <DiscordNotificationPanel webhookUrl={form.discord_webhook_url} />
           </div>
         </div>
       </div>
