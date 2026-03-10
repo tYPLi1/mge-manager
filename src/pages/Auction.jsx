@@ -30,7 +30,7 @@ function CountdownTimer({ targetDate }) {
 export default function Auction() {
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [bidAmount, setBidAmount] = useState("");
-  const [mgeScore, setMgeScore] = useState("");
+
   const [bidPassword, setBidPassword] = useState("");
   const [wantFriendlyZone, setWantFriendlyZone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
