@@ -183,7 +183,7 @@ export default function Auction() {
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Bid Submitted!</h3>
                   <p className="text-sm text-gray-400">Your bid has been placed. Good luck!</p>
-                  <Button onClick={() => { setSubmitted(false); setBidAmount(""); setMgeScore(""); setSelectedPlayer(""); }} variant="outline" className="mt-4 border-white/10 text-gray-300 hover:bg-white/5">
+                  <Button onClick={() => { setSubmitted(false); setBidAmount(""); setSelectedPlayer(""); }} variant="outline" className="mt-4 border-white/10 text-gray-300 hover:bg-white/5">
                     Place Another Bid
                   </Button>
                 </div>
