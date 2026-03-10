@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/dkp/PageHeader";
+import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
 
 export default function AdminSettings() {
   const [form, setForm] = useState({});
