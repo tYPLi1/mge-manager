@@ -184,7 +184,7 @@ export default function EventUpload({ players, eventTypes }) {
           type="file"
           accept=".xlsx,.xls"
           disabled={!selectedEventType}
-          onChange={e => { if (e.target.files[0]) { setApplied(false); processFile(e.target.files[0]); } }}
+          onChange={e => { if (e.target.files[0]) { setApplied(false); setUnknownNames([]); processFile(e.target.files[0]); } }}
           className="text-gray-300 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-amber-500/20 file:text-amber-400 file:text-xs hover:file:bg-amber-500/30 disabled:opacity-50"
         />
       </div>
