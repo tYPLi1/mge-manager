@@ -132,6 +132,22 @@ export default function AdminSettings() {
             className="bg-white/5 border-white/10 text-white font-mono text-sm"
           />
         </div>
+
+        {/* Penalty Config */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-1">Penalty Configuration (JSON)</h3>
+          <p className="text-xs text-gray-500 mb-3">
+            <code className="text-amber-400">level1_offenses</code>: DKP deducted per offense count (index 0 = 1st offense).<br />
+            <code className="text-amber-400">level2_minimum</code>: Minimum DKP deduction for Level 2 (stolen bid offenses).<br />
+            Level 3 always resets total DKP to zero.
+          </p>
+          <Textarea
+            value={form.penalty_config || '{\n  "level1_offenses": [0, 5, 10, 20, 40, 80],\n  "level2_minimum": 50\n}'}
+            onChange={(e) => setForm({ ...form, penalty_config: e.target.value })}
+            rows={6}
+            className="bg-white/5 border-white/10 text-white font-mono text-sm"
+          />
+        </div>
       </div>
     </div>
   );
