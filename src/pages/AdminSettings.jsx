@@ -65,6 +65,22 @@ export default function AdminSettings() {
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
+  const sendManualMessageMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('sendDiscordMessage', {
+        message: form.discord_manual_message,
+        webhookUrl: form.discord_webhook_url,
+      });
+      if (!response.data.success) throw new Error(response.data.error);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Message sent to Discord!');
+      setForm({ ...form, discord_manual_message: '' });
+    },
+    onError: (error) => toast.error(`Failed: ${error.message}`),
+  });
+
   return (
     <div>
       <PageHeader title="Settings" icon={Settings}>
