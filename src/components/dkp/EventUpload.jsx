@@ -95,6 +95,14 @@ export default function EventUpload({ players, eventTypes }) {
     reader.readAsBinaryString(file);
   };
 
+  const createMissingPlayers = async () => {
+    setCreatingPlayers(true);
+    await base44.entities.Player.bulkCreate(unknownNames.map(name => ({ name, total_dkp: 0, dkp_spent: 0 })));
+    queryClient.invalidateQueries({ queryKey: ["players"] });
+    setCreatingPlayers(false);
+    setUnknownNames([]);
+  };
+
   const applyResults = async () => {
     if (!preview || !selectedEventType) return;
     setApplying(true);
