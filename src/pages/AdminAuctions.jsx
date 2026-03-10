@@ -271,29 +271,28 @@ export default function AdminAuctions() {
   const handleDeleteAuction = async (auction, refundDkp) => {
     const today = new Date().toISOString().split("T")[0];
 
-    // If confirmed and refund requested, reverse DKP
-    if (refundDkp) {
+    // If confirmed: clear cooldowns (always) and optionally refund DKP
+    if (auction.status === "confirmed") {
       const results = await base44.entities.AuctionResult.filter({ auction_id: auction.id });
       for (const result of results) {
         const player = players.find((p) => p.id === result.player_id);
-        // Create refund transaction
-        await base44.entities.DKPTransaction.create({
-          player_id: result.player_id,
-          player_name: result.player_name,
-          amount: result.dkp_bid,
-          type: "compensation",
-          source: "MGE",
-          event_date: today,
-          note: `Refund: ${auction.title}`,
-        });
-        // Restore dkp_spent
-        if (player) {
-          await base44.entities.Player.update(result.player_id, {
-            dkp_spent: Math.max(0, (player.dkp_spent || 0) - result.dkp_bid),
+        if (refundDkp) {
+          await base44.entities.DKPTransaction.create({
+            player_id: result.player_id,
+            player_name: result.player_name,
+            amount: result.dkp_bid,
+            type: "compensation",
+            source: "MGE",
+            event_date: today,
+            note: `Refund: ${auction.title}`,
           });
         }
+        if (player) {
+          const updates = { cooldown_until: null }; // always clear cooldown when deleting auction
+          if (refundDkp) updates.dkp_spent = Math.max(0, (player.dkp_spent || 0) - result.dkp_bid);
+          await base44.entities.Player.update(result.player_id, updates);
+        }
       }
-      // Delete auction results
       for (const result of results) {
         await base44.entities.AuctionResult.delete(result.id);
       }
@@ -339,8 +338,8 @@ export default function AdminAuctions() {
         <h3 className="text-sm font-semibold text-white mb-4">Create New Auction</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Titel</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="z.B. MGE Round 15" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Title</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. MGE Round 15" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block flex items-center gap-1">
@@ -417,7 +416,7 @@ export default function AdminAuctions() {
                 <button
                   onClick={() => setDeleteModal(a)}
                   className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded hover:bg-red-500/10"
-                  title="Auktion löschen"
+                  title="Delete auction"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -478,7 +477,7 @@ export default function AdminAuctions() {
                             </button>
                             <button
                               onClick={() => {
-                                const reason = prompt("Grund für das Löschen dieses Gebots:");
+                                const reason = prompt("Reason for deleting this bid:");
                                 if (reason !== null) deleteBidMutation.mutate({ id: b.id, reason });
                               }}
                               className="text-gray-500 hover:text-red-400 transition-colors"
@@ -509,11 +508,11 @@ export default function AdminAuctions() {
                 <table className="w-full mb-4">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Rang</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Spieler</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Gebot</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Medaillen</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Ziel Score</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Rank</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Medals</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Target Score</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Cooldown</th>
                     </tr>
                   </thead>
@@ -535,7 +534,7 @@ export default function AdminAuctions() {
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{entry.target?.toLocaleString()}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden md:table-cell">
-                          +{(cooldownTable[entry.rank] || 1) * 7} Tage
+                          +{(cooldownTable[entry.rank] || 1) * 7} days
                         </td>
                       </tr>
                     ))}
