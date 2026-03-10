@@ -183,6 +183,14 @@ export default function Layout({ children, currentPageName }) {
               })}
             </nav>
 
+            <Link
+              to={createPageUrl("AdminDashboard")}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:text-amber-400 hover:bg-white/5 transition-colors border border-white/5"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Admin
+            </Link>
+
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="md:hidden p-2 text-gray-400 hover:text-white"
