@@ -112,7 +112,6 @@ export default function Auction() {
       player_id: selectedPlayer,
       player_name: selectedPlayerData?.name,
       dkp_bid: parseInt(bidAmount),
-      mge_score: mgeScore ? parseInt(mgeScore) : null,
       want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
     });
     setSubmitted(true);
