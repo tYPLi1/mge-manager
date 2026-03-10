@@ -189,6 +189,29 @@ export default function EventUpload({ players, eventTypes }) {
         />
       </div>
 
+      {unknownNames.length > 0 && (
+        <div className="mb-4 p-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10">
+          <div className="flex items-start gap-2 mb-2">
+            <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-yellow-400 mb-1">
+                {unknownNames.length} unbekannte Spieler — werden übersprungen:
+              </p>
+              <p className="text-xs text-yellow-300/80 font-mono">{unknownNames.join(", ")}</p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={createMissingPlayers}
+            disabled={creatingPlayers}
+            className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/30 text-xs mt-1"
+          >
+            <UserPlus className="w-3.5 h-3.5 mr-1" />
+            {creatingPlayers ? "Erstelle..." : `${unknownNames.length} Spieler erstellen & Datei neu laden`}
+          </Button>
+        </div>
+      )}
+
       {preview && (
         <div>
           <div className="flex items-center justify-between mb-3">
