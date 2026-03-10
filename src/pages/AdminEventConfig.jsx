@@ -145,11 +145,11 @@ function EventEditor({ et, onSave, isSaving }) {
       ) : (
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <Label className="text-gray-500 text-xs block mb-1">DKP wenn Anwesend (Y)</Label>
+            <Label className="text-gray-500 text-xs block mb-1">DKP if Present (Y)</Label>
             <Input type="number" value={draft.dkp_yn_present ?? ""} onChange={(e) => set("dkp_yn_present", Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold w-28" />
           </div>
           <div>
-            <Label className="text-gray-500 text-xs block mb-1">DKP wenn Abwesend (N)</Label>
+            <Label className="text-gray-500 text-xs block mb-1">DKP if Absent (N)</Label>
             <Input type="number" value={draft.dkp_yn_absent ?? ""} onChange={(e) => set("dkp_yn_absent", Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold w-28" />
           </div>
         </div>
