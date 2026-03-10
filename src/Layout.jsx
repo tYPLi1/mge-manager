@@ -38,6 +38,7 @@ const sharedStyle = `
 
 export default function Layout({ children, currentPageName }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
   const isAdmin = currentPageName?.startsWith("Admin");
 
@@ -47,15 +48,33 @@ export default function Layout({ children, currentPageName }) {
       const session = localStorage.getItem("adminSession");
       if (!session) {
         navigate(createPageUrl("AdminLogin"));
+        setSessionChecked(true);
         return;
       }
       const parsed = JSON.parse(session);
       if (new Date(parsed.expiresAt) <= new Date()) {
         localStorage.removeItem("adminSession");
         navigate(createPageUrl("AdminLogin"));
+        setSessionChecked(true);
+        return;
       }
+      setSessionChecked(true);
+    } else {
+      setSessionChecked(true);
     }
   }, [isAdmin, navigate]);
+
+  // Don't render admin layout until session is checked
+  if (isAdmin && !sessionChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0a0e1a]">
+        <style>{`
+          :root { --dkp-gold: #f59e0b; --dkp-positive: #10b981; --dkp-negative: #ef4444; }
+          body { background: #0a0e1a; }
+        `}</style>
+      </div>
+    );
+  }
 
   // ── Admin layout: dark sidebar ──────────────────────────────────────────
   if (isAdmin) {
