@@ -49,15 +49,17 @@ export default function EventUpload({ players, eventTypes }) {
       if (isYN) {
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }).slice(1);
         const results = [];
+        const missing = [];
         for (const row of rows) {
           const name = row[0]?.toString().trim();
           const participated = row[1]?.toString().trim().toUpperCase();
           if (!name || !participated) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
-          if (!player) continue;
+          if (!player) { missing.push(name); continue; }
           const dkp = participated === "Y" ? (selectedEventType.dkp_yn_present ?? 5) : (selectedEventType.dkp_yn_absent ?? -5);
           results.push({ playerId: player.id, playerName: player.name, dkp, group: participated === "Y" ? "Present" : "Absent" });
         }
+        setUnknownNames(missing);
         setPreview(results);
       } else {
         let sheetName = wb.SheetNames[0];
