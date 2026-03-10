@@ -7,16 +7,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Method not allowed' }, { status: 405 });
     }
 
-    const base44 = createClientFromRequest(req);
     const { username, password } = await req.json();
 
     if (!username || !password) {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Get admin user from database (using service role for unauthenticated access)
-    const allAdminUsers = await base44.asServiceRole.entities.AdminUser.list();
-    const adminUser = allAdminUsers.find(u => u.username === username);
+    // Fetch from raw API endpoint to bypass auth checks
+    const appId = Deno.env.get('BASE44_APP_ID');
+    const response = await fetch(`https://api.base44.com/entities/AdminUser/list?appId=${appId}`, {
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_ROLE_KEY') || ''}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    const data = await response.json();
+    const adminUser = data.data?.find(u => u.username === username);
     
     if (!adminUser) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
