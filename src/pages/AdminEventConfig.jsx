@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings2, ChevronDown, ChevronUp, Save, Plus, Minus } from "lucide-react";
+import { Settings2, ChevronDown, ChevronUp, Save, Plus, Minus, Trash2, PlusCircle, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageHeader from "@/components/dkp/PageHeader";
 
 function DkpRankEditor({ label, tableJson, color = "text-amber-400", onChange }) {
@@ -75,6 +76,26 @@ function EventEditor({ et, onSave, isSaving }) {
 
   return (
     <div className="border-t border-white/5 p-4 space-y-5">
+      {/* Name & Key editing */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-white/5">
+        <div>
+          <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
+          <Input
+            value={draft.display_name}
+            onChange={(e) => set("display_name", e.target.value)}
+            className="bg-white/5 border-white/10 text-white h-8"
+          />
+        </div>
+        <div>
+          <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
+          <Input
+            value={draft.key}
+            onChange={(e) => set("key", e.target.value)}
+            className="bg-white/5 border-white/10 text-amber-400 font-mono h-8"
+          />
+        </div>
+      </div>
+
       {draft.participation_type === "ranked" ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -147,8 +168,79 @@ function EventEditor({ et, onSave, isSaving }) {
   );
 }
 
+function CreateEventModal({ onClose, onCreate }) {
+  const [form, setForm] = useState({
+    display_name: "",
+    key: "",
+    participation_type: "ranked",
+    sort_order: 99,
+    active: true,
+    has_prep_stage: false,
+    has_war_stage: true,
+    top20_enabled: true,
+    dkp_yn_present: 5,
+    dkp_yn_absent: -5,
+    dkp_top20_fallback: 20,
+    dkp_outside_fallback: 0,
+    war_ranking_cutoff: 100,
+  });
+
+  const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-white font-bold text-lg">Neues Event erstellen</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
+            <Input value={form.display_name} onChange={(e) => set("display_name", e.target.value)} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-white" />
+          </div>
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
+            <Input value={form.key} onChange={(e) => set("key", e.target.value.toUpperCase())} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-amber-400 font-mono" />
+          </div>
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">Typ</Label>
+            <Select value={form.participation_type} onValueChange={(v) => set("participation_type", v)}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ranked">Ranked (Platzierung)</SelectItem>
+                <SelectItem value="yn">Y/N (Anwesenheit)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">Sortierung</Label>
+            <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} className="bg-white/5 border-white/10 text-white w-24" />
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Abbrechen</Button>
+          <Button
+            onClick={() => onCreate(form)}
+            disabled={!form.display_name || !form.key}
+            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+          >
+            Erstellen
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminEventConfig() {
   const [expanded, setExpanded] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: eventTypes = [] } = useQuery({
@@ -161,9 +253,32 @@ export default function AdminEventConfig() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["event-types"] }),
   });
 
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.EventType.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-types"] });
+      setShowCreate(false);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.EventType.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-types"] });
+      setDeleteConfirm(null);
+    },
+  });
+
   return (
     <div>
-      <PageHeader title="Event Configuration" subtitle="DKP-Regeln pro Event-Typ" icon={Settings2} />
+      <PageHeader title="Event Configuration" subtitle="DKP-Regeln pro Event-Typ" icon={Settings2}>
+        <Button
+          onClick={() => setShowCreate(true)}
+          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5"
+        >
+          <PlusCircle className="w-4 h-4" /> Neues Event
+        </Button>
+      </PageHeader>
 
       <div className="space-y-3">
         {eventTypes.map((et) => (
@@ -182,7 +297,7 @@ export default function AdminEventConfig() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                   et.active
                     ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
@@ -190,6 +305,29 @@ export default function AdminEventConfig() {
                 }`}>
                   {et.active ? "Aktiv" : "Inaktiv"}
                 </span>
+                {deleteConfirm === et.id ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => deleteMutation.mutate(et.id)}
+                      className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                    >
+                      Löschen
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(null)}
+                      className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10"
+                    >
+                      Abbrechen
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setDeleteConfirm(et.id)}
+                    className="text-gray-600 hover:text-red-400 transition-colors p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => setExpanded(expanded === et.id ? null : et.id)}
                   className="text-gray-500 hover:text-gray-300 transition-colors"
@@ -209,6 +347,13 @@ export default function AdminEventConfig() {
           </div>
         ))}
       </div>
+
+      {showCreate && (
+        <CreateEventModal
+          onClose={() => setShowCreate(false)}
+          onCreate={(data) => createMutation.mutate(data)}
+        />
+      )}
     </div>
   );
 }
