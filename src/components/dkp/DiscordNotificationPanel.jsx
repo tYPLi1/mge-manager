@@ -9,12 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 export default function DiscordNotificationPanel({ webhookUrl }) {
+  const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
   const sendManualMessageMutation = useMutation({
     mutationFn: async () => {
+      const fullMessage = title ? `**${title}**\n\n${message}` : message;
       const response = await base44.functions.invoke('sendDiscordMessage', {
-        message,
+        message: fullMessage,
         webhookUrl,
       });
       if (!response.data.success) throw new Error(response.data.error);
@@ -22,6 +24,7 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
     },
     onSuccess: () => {
       toast.success('Message sent to Discord!');
+      setTitle('');
       setMessage('');
     },
     onError: (error) => toast.error(`Failed: ${error.message}`),
@@ -57,8 +60,17 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
       {/* Manual Message */}
       <div>
         <h3 className="text-sm font-semibold text-white mb-4">📢 Manual Discord Message</h3>
-        
+
         <div className="space-y-3">
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Title (Optional)</Label>
+            <Input
+              placeholder="Message title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+            />
+          </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Message</Label>
             <Textarea
