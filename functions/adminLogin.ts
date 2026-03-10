@@ -31,8 +31,14 @@ Deno.serve(async (req) => {
 
     const base44 = createClientFromRequest(req);
 
-    // Find admin user
-    const users = await base44.asServiceRole.entities.AdminUser.filter({ username });
+    // Find admin user (using service role to bypass auth)
+    let users;
+    try {
+      users = await base44.asServiceRole.entities.AdminUser.filter({ username });
+    } catch (err) {
+      // Fallback if service role also fails
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
     
     if (users.length === 0) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
