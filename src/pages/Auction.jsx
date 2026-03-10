@@ -248,6 +248,28 @@ export default function Auction() {
                     </div>
                   </div>
 
+                  {eligibleForFriendlyZone && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={wantFriendlyZone}
+                          onChange={(e) => setWantFriendlyZone(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 rounded accent-emerald-500"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-emerald-400 flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" />
+                            Friendly Zone
+                          </p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            Du hast ≤ {friendlyZoneThreshold} DKP verfügbar. Aktiviere diese Option, um für den Friendly-Zone-Platz zu kandidieren.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
+
                   {currentAuction.has_password && (
                     <div>
                       <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Auction Password</Label>
