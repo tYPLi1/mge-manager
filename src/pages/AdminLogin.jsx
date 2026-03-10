@@ -134,22 +134,23 @@ export default function AdminLogin() {
         {/* Base44 Login Button */}
         <Button
           onClick={() => base44.auth.redirectToLogin(createPageUrl('AdminDashboard'))}
-          variant="outline"
-          className="w-full mt-6 border-white/20 text-gray-300 hover:text-white hover:bg-white/5"
+          className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
         >
           Sign in with Base44
         </Button>
 
+        {/* Back to Public Site Button */}
+        <Link
+          to={createPageUrl("Leaderboard")}
+          className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-sm font-medium text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to Public Site
+        </Link>
+
         {/* Footer */}
-        <div className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-gray-500 space-y-3">
+        <div className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-gray-500">
           <p>Session expires after 10 minutes of inactivity</p>
-          <Link
-            to={createPageUrl("Leaderboard")}
-            className="flex items-center justify-center gap-2 text-gray-400 hover:text-gray-200 transition-colors"
-          >
-            <ChevronLeft className="w-3 h-3" />
-            Back to Public Site
-          </Link>
         </div>
       </div>
     </div>
