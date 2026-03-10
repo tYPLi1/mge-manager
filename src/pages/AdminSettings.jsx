@@ -190,8 +190,6 @@ export default function AdminSettings() {
 
         {/* Manual Message Component */}
         <DiscordNotificationPanel webhookUrl={form.discord_webhook_url} />
-          </div>
-        </div>
       </div>
     </div>
   );
