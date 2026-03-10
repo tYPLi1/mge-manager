@@ -16,15 +16,34 @@ export default function AdminLogin() {
 
   // Check if already logged in
   useEffect(() => {
-    const session = localStorage.getItem('adminSession');
-    if (session) {
-      const parsed = JSON.parse(session);
-      if (new Date(parsed.expiresAt) > new Date()) {
-        navigate(createPageUrl('AdminDashboard'));
-      } else {
-        localStorage.removeItem('adminSession');
+    const checkAuth = async () => {
+      // Check AdminUser session
+      const session = localStorage.getItem('adminSession');
+      if (session) {
+        const parsed = JSON.parse(session);
+        if (new Date(parsed.expiresAt) > new Date()) {
+          navigate(createPageUrl('AdminDashboard'));
+          return;
+        } else {
+          localStorage.removeItem('adminSession');
+        }
       }
-    }
+
+      // Check if Base44 user is admin
+      try {
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (isAuthenticated) {
+          const user = await base44.auth.me();
+          if (user?.role === 'admin') {
+            navigate(createPageUrl('AdminDashboard'));
+          }
+        }
+      } catch (error) {
+        // Not authenticated, stay on login page
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
   const handleLogin = async (e) => {
