@@ -76,20 +76,24 @@ export default function Auction() {
   });
 
   useEffect(() => {
-    const unsub1 = base44.entities.Auction.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["auctions"] });
-    });
-    const unsub2 = base44.entities.Bid.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["bids-public"] });
-    });
-    const unsub3 = base44.entities.Player.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["players"] });
-    });
-    return () => {
-      unsub1();
-      unsub2();
-      unsub3();
-    };
+    try {
+      const unsub1 = base44.entities.Auction.subscribe(() => {
+        queryClient.invalidateQueries({ queryKey: ["auctions"] });
+      });
+      const unsub2 = base44.entities.Bid.subscribe(() => {
+        queryClient.invalidateQueries({ queryKey: ["bids-public"] });
+      });
+      const unsub3 = base44.entities.Player.subscribe(() => {
+        queryClient.invalidateQueries({ queryKey: ["players"] });
+      });
+      return () => {
+        unsub1();
+        unsub2();
+        unsub3();
+      };
+    } catch (e) {
+      console.error("Subscribe error:", e);
+    }
   }, [queryClient]);
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
