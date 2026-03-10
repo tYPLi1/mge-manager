@@ -69,15 +69,17 @@ export default function EventUpload({ players, eventTypes }) {
         if (!ws) { alert(`Sheet "${sheetName}" not found in file`); return; }
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1 }).slice(1);
         const parsed = [];
+        const missing = [];
         for (const row of rows) {
           const name = row[0]?.toString().trim();
           const serverRank = parseInt(row[1]);
           const power = parseFloat(row[2]) || null;
           if (!name || !serverRank || isNaN(serverRank)) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
-          if (!player) continue;
+          if (!player) { missing.push(name); continue; }
           parsed.push({ player, serverRank, power: power ?? (player.power || 0) });
         }
+        setUnknownNames(missing);
         const sortedByPower = [...parsed].sort((a, b) => b.power - a.power);
         const results = parsed.map(entry => {
           const powerRank = sortedByPower.findIndex(s => s.player.id === entry.player.id) + 1;
