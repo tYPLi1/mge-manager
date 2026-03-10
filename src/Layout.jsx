@@ -222,6 +222,16 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 );
               })}
+              <div className="border-t border-white/5 pt-2 mt-1">
+                <Link
+                  to={createPageUrl("AdminDashboard")}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                >
+                  <Settings className="w-4 h-4" />
+                  Admin
+                </Link>
+              </div>
             </div>
           </div>
         )}
