@@ -19,6 +19,18 @@ export default function AdminPenalties() {
   const [stolenBidAmount, setStolenBidAmount] = useState("");
   const queryClient = useQueryClient();
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+
+  const penaltyConfig = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "penalty_config")?.value;
+      return raw ? JSON.parse(raw) : { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50 };
+    } catch { return { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50, compensation_divisor: 2 }; }
+  }, [settings]);
+
   // Auto-calculate DKP deduction based on level + offense count
   const calcDkpDeduction = (lvl, cnt) => {
     const l = parseInt(lvl), c = parseInt(cnt);
@@ -33,18 +45,6 @@ export default function AdminPenalties() {
     return 0; // Level 3: handled specially
   };
   const dkpDeducted = calcDkpDeduction(level, offenseCount);
-
-  const { data: settings = [] } = useQuery({
-    queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
-  });
-
-  const penaltyConfig = useMemo(() => {
-    try {
-      const raw = settings.find((s) => s.key === "penalty_config")?.value;
-      return raw ? JSON.parse(raw) : { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50 };
-    } catch { return { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50, compensation_divisor: 2 }; }
-  }, [settings]);
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
