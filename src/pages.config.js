@@ -51,7 +51,6 @@ import Activity from './pages/Activity';
 import AdminAuctions from './pages/AdminAuctions';
 import AdminDKP from './pages/AdminDKP';
 import AdminDashboard from './pages/AdminDashboard';
-import AdminEventConfig from './pages/AdminEventConfig';
 import AdminPenalties from './pages/AdminPenalties';
 import AdminPlayers from './pages/AdminPlayers';
 import AdminSettings from './pages/AdminSettings';
@@ -71,7 +70,6 @@ export const PAGES = {
     "AdminAuctions": AdminAuctions,
     "AdminDKP": AdminDKP,
     "AdminDashboard": AdminDashboard,
-    "AdminEventConfig": AdminEventConfig,
     "AdminPenalties": AdminPenalties,
     "AdminPlayers": AdminPlayers,
     "AdminSettings": AdminSettings,
