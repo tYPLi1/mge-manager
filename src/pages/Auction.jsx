@@ -70,6 +70,22 @@ export default function Auction() {
   const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
   const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+  const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
+  const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
+
+  const alreadyBid = useMemo(() => {
+    if (!selectedPlayer || !currentAuction) return false;
+    return allBids.some(
+      (b) => b.player_id === selectedPlayer && b.auction_id === currentAuction?.id && !b.is_deleted
+    );
+  }, [allBids, selectedPlayer, currentAuction]);
+
+  const eligibleForFriendlyZone = friendlyZoneEnabled && currentDkp <= friendlyZoneThreshold;
+
   const handleSubmit = async () => {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
     setBidError("");
