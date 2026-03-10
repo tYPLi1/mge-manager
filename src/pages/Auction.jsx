@@ -32,6 +32,7 @@ export default function Auction() {
   const [bidAmount, setBidAmount] = useState("");
   const [mgeScore, setMgeScore] = useState("");
   const [bidPassword, setBidPassword] = useState("");
+  const [wantFriendlyZone, setWantFriendlyZone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bidError, setBidError] = useState("");
