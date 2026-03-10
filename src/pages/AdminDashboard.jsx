@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight, Download } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
+import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import * as XLSX from "xlsx";
 
 export default function AdminDashboard() {
@@ -106,8 +107,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Discord Notifications */}
+      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Discord Notifications</h2>
+      <DiscordNotificationPanel />
+
       {/* Quick Links */}
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h2>
+      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {quickLinks.map((link) => {
           const Icon = link.icon;
