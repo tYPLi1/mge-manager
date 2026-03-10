@@ -123,7 +123,16 @@ export default function Layout({ children, currentPageName }) {
             })}
           </nav>
 
-          <div className="p-3 border-t border-white/5">
+          <div className="p-3 border-t border-white/5 space-y-2">
+            <button
+              onClick={() => {
+                localStorage.removeItem('adminSession');
+                navigate(createPageUrl('Leaderboard'));
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Logout
+            </button>
             <Link
               to={createPageUrl("Leaderboard")}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors"
@@ -166,11 +175,21 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 );
               })}
-              <div className="border-t border-white/5 pt-2 mt-2">
+              <div className="border-t border-white/5 pt-2 mt-2 space-y-2">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('adminSession');
+                    setMobileOpen(false);
+                    navigate(createPageUrl('Leaderboard'));
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-white bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 rounded-lg transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Logout
+                </button>
                 <Link
                   to={createPageUrl("Leaderboard")}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-gray-500 hover:text-gray-300"
+                  className="flex items-center justify-center gap-3 px-4 py-3 text-sm text-gray-500 hover:text-gray-300 hover:bg-white/5 rounded-lg transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" /> Public Site
                 </Link>
