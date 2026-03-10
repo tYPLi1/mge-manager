@@ -162,7 +162,8 @@ export default function AdminAuctions() {
     const activeBids = bids.filter((b) => !b.is_deleted);
     const sorted = [...activeBids].sort((a, b) => {
       if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
-      return (b.mge_score || 0) - (a.mge_score || 0);
+      // Bei gleichen Geboten: wer zuerst geboten hat, gewinnt (ältestes created_date = kleinerer Wert)
+      return new Date(a.created_date) - new Date(b.created_date);
     });
     const top10 = sorted.slice(0, 10);
 
