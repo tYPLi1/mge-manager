@@ -154,7 +154,7 @@ export default function AdminSettings() {
             <div>
               <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Discord Webhook URL</Label>
               <Input
-                type="password"
+                type="text"
                 placeholder="https://discord.com/api/webhooks/..."
                 value={form.discord_webhook_url || ""}
                 onChange={(e) => setForm({ ...form, discord_webhook_url: e.target.value })}
