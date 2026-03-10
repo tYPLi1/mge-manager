@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Plus, RotateCcw, Calculator } from "lucide-react";
+import { Shield, Plus, RotateCcw, Calculator, CheckCircle, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
+import { toast } from "sonner";
 
 export default function AdminPenalties() {
   const [playerId, setPlayerId] = useState("");
@@ -17,6 +18,7 @@ export default function AdminPenalties() {
   const [offenseDate, setOffenseDate] = useState(new Date().toISOString().split("T")[0]);
   const [note, setNote] = useState("");
   const [stolenBidAmount, setStolenBidAmount] = useState("");
+  const [pendingMessage, setPendingMessage] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: settings = [] } = useQuery({
@@ -84,10 +86,17 @@ export default function AdminPenalties() {
       }
     },
     onSuccess: () => {
+      const playerName = players.find(p => p.id === playerId)?.name || "Spieler";
+      toast.success(`✓ Bestrafung für ${playerName} angewendet`);
       queryClient.invalidateQueries({ queryKey: ["penalties"] });
       queryClient.invalidateQueries({ queryKey: ["players"] });
       setPlayerId(""); setNote(""); setStolenBidAmount("");
+      setPendingMessage(null);
     },
+    onError: (error) => {
+      toast.error("Fehler beim Speichern der Bestrafung");
+      setPendingMessage(null);
+    }
   });
 
   const resetMutation = useMutation({
@@ -138,7 +147,14 @@ export default function AdminPenalties() {
       setCompResult(compRefund);
       setCompPlayer(""); setCompBidDkp(""); setCompExpectedMedals(""); setCompActualMedals("");
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["players"] }),
+    onSuccess: () => {
+      const playerName = players.find(p => p.id === compPlayer)?.name || "Spieler";
+      toast.success(`✓ Kompensation von +${compRefund} DKP für ${playerName} angewendet`);
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    },
+    onError: () => {
+      toast.error("Fehler beim Speichern der Kompensation");
+    }
   });
 
   const activePenalties = penalties.filter((p) => p.status === "probation");
@@ -193,9 +209,12 @@ export default function AdminPenalties() {
             <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
           </div>
         </div>
-        <Button onClick={handleCreate} disabled={!playerId || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-          <Plus className="w-4 h-4 mr-1" /> Apply Penalty
-        </Button>
+        <div className="mt-4 flex items-center gap-3">
+          <Button onClick={handleCreate} disabled={!playerId || createMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+            <Plus className="w-4 h-4 mr-1" /> {createMutation.isPending ? "Speichern..." : "Apply Penalty"}
+          </Button>
+          {createMutation.isPending && <span className="text-xs text-gray-400">Wird gespeichert...</span>}
+        </div>
       </div>
 
       {/* Compensation Calculator */}
