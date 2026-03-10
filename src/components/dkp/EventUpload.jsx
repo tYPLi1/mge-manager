@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Download, CheckCircle } from "lucide-react";
+import { Download, CheckCircle, AlertTriangle, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
