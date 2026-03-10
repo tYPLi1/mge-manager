@@ -30,7 +30,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
       <div className="bg-[#111827] rounded-xl border border-white/10 max-w-4xl w-full max-h-[80vh] flex flex-col">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">
-            {preview.some(p => p.type === "new") ? "Neue & Geänderte Spieler" : "Änderungsvorschau"}
+            {preview.some(p => p.type === "new") ? "New & Updated Players" : "Import Preview"}
           </h2>
           <div className="flex items-center gap-2">
             <Button
@@ -41,11 +41,11 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
             >
               {selected.size === preview.length ? (
                 <>
-                  <XSquare className="w-4 h-4 mr-1" /> Alle abwählen
+                  <XSquare className="w-4 h-4 mr-1" /> Deselect All
                 </>
               ) : (
                 <>
-                  <CheckSquare className="w-4 h-4 mr-1" /> Alle wählen
+                  <CheckSquare className="w-4 h-4 mr-1" /> Select All
                 </>
               )}
             </Button>
