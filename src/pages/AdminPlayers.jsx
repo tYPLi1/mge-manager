@@ -262,6 +262,7 @@ export default function AdminPlayers() {
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         className="h-7 text-xs bg-white/5 border-white/20 text-white w-36"
+                        placeholder="Name"
                       />
                     </td>
                     <td className="px-3 py-2">
