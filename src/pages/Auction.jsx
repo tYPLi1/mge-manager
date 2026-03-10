@@ -224,28 +224,16 @@ export default function Auction() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={bidAmount}
-                        onChange={(e) => setBidAmount(e.target.value)}
-                        placeholder="Enter DKP amount"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">MGE Score (Optional)</Label>
-                      <Input
-                        type="number"
-                        value={mgeScore}
-                        onChange={(e) => setMgeScore(e.target.value)}
-                        placeholder="Score"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
-                      />
-                    </div>
+                  <div>
+                    <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={bidAmount}
+                      onChange={(e) => setBidAmount(e.target.value)}
+                      placeholder="Enter DKP amount"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                    />
                   </div>
 
                   {eligibleForFriendlyZone && (
