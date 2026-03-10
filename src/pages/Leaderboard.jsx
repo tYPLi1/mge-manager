@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trophy, Search, ArrowUpDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -14,10 +14,19 @@ export default function Leaderboard() {
   const [sortField, setSortField] = useState("current_dkp");
   const [sortDir, setSortDir] = useState("desc");
 
+  const queryClient = useQueryClient();
+
   const { data: players = [], isLoading } = useQuery({
     queryKey: ["players"],
     queryFn: () => base44.entities.Player.list("-total_dkp", 500),
   });
+
+  useEffect(() => {
+    const unsubscribe = base44.entities.Player.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    });
+    return () => unsubscribe();
+  }, [queryClient]);
 
   const sorted = useMemo(() => {
     const withDkp = players.map((p) => ({

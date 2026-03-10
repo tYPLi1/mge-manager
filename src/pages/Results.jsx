@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScrollText, ChevronRight, Medal } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 
 export default function Results() {
   const [selectedAuction, setSelectedAuction] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: auctions = [], isLoading } = useQuery({
     queryKey: ["auctions-confirmed"],
@@ -18,6 +19,19 @@ export default function Results() {
     queryFn: () => selectedAuction ? base44.entities.AuctionResult.filter({ auction_id: selectedAuction.id }, "rank", 10) : [],
     enabled: !!selectedAuction,
   });
+
+  useEffect(() => {
+    const unsub1 = base44.entities.Auction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["auctions-confirmed"] });
+    });
+    const unsub2 = base44.entities.AuctionResult.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["results"] });
+    });
+    return () => {
+      unsub1();
+      unsub2();
+    };
+  }, [queryClient]);
 
   const mgeTargets = [
     { rank: 1, medals: 100, target: 30000000 },

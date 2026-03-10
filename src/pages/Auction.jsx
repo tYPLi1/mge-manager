@@ -36,6 +36,7 @@ export default function Auction() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bidError, setBidError] = useState("");
+  const queryClient = useQueryClient();
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
@@ -50,7 +51,10 @@ export default function Auction() {
   const { data: allBids = [] } = useQuery({
     queryKey: ["bids-public"],
     queryFn: () => base44.entities.Bid.list("-created_date", 2000),
-    refetchInterval: 30000,
+  });
+
+  const { data: auctions: auctionsQuery = [] } = useQuery({
+    queryKey: ["auctions"],
   });
 
   const currentAuction = useMemo(() => {
@@ -74,6 +78,23 @@ export default function Auction() {
     queryKey: ["settings"],
     queryFn: () => base44.entities.AppSettings.list(),
   });
+
+  useEffect(() => {
+    const unsub1 = base44.entities.Auction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["auctions"] });
+    });
+    const unsub2 = base44.entities.Bid.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["bids-public"] });
+    });
+    const unsub3 = base44.entities.Player.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    });
+    return () => {
+      unsub1();
+      unsub2();
+      unsub3();
+    };
+  }, [queryClient]);
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
 
