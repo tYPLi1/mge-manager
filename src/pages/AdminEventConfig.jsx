@@ -119,7 +119,7 @@ function EventEditor({ et, onSave, isSaving }) {
 
           {draft.has_prep_stage && (
             <DkpRankEditor
-              label="Prep Stage DKP (Rang 1–N)"
+              label="Prep Stage DKP (Rank 1–N)"
               tableJson={draft.dkp_table_prep || "[]"}
               color="text-amber-400"
               onChange={(v) => set("dkp_table_prep", v)}
@@ -263,7 +263,7 @@ function CreateEventModal({ onClose, onCreate }) {
 
               {form.has_prep_stage && (
                 <DkpRankEditor
-                  label="Prep Stage DKP (Rang 1–N)"
+                  label="Prep Stage DKP (Rank 1–N)"
                   tableJson={form.dkp_table_prep}
                   color="text-amber-400"
                   onChange={(v) => set("dkp_table_prep", v)}
