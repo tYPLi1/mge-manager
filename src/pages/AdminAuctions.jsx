@@ -435,6 +435,7 @@ export default function AdminAuctions() {
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Spieler</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Gebot</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">MGE Score</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">FZ</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Aktionen</th>
                     </tr>
                   </thead>
