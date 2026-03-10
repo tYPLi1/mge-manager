@@ -62,6 +62,7 @@ import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
 import Transactions from './pages/Transactions';
+import AdminEventConfig from './pages/AdminEventConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "Results": Results,
     "Rules": Rules,
     "Transactions": Transactions,
+    "AdminEventConfig": AdminEventConfig,
 }
 
 export const pagesConfig = {
