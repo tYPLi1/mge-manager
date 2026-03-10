@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 export default function DiscordNotificationPanel({ webhookUrl }) {
   const [message, setMessage] = useState("");
-  const [auctionId, setAuctionId] = useState("");
 
   const sendManualMessageMutation = useMutation({
     mutationFn: async () => {
@@ -28,59 +27,31 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
-  const testAuctionMutation = useMutation({
+  const testMessageMutation = useMutation({
     mutationFn: async () => {
-      const response = await base44.functions.invoke('notifyAuctionOpened', { auctionId });
+      const response = await base44.functions.invoke('sendDiscordMessage', {
+        message: '✅ **Discord Integration Test**\nWebhook is working correctly!',
+        webhookUrl,
+      });
+      if (!response.data.success) throw new Error(response.data.error);
       return response.data;
     },
-    onSuccess: () => toast.success('Auction notification sent!'),
-    onError: (error) => toast.error(`Failed: ${error.message}`),
-  });
-
-  const testResultsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('notifyAuctionResults', { auctionId });
-      return response.data;
-    },
-    onSuccess: () => toast.success('Results notification sent!'),
+    onSuccess: () => toast.success('Test message sent!'),
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 p-5 space-y-6">
-      {/* Test Buttons */}
+      {/* Test Button */}
       <div>
-        <h3 className="text-sm font-semibold text-white mb-4">🧪 Test Discord Notifications</h3>
-        
-        <div className="space-y-3 p-4 bg-white/5 rounded-lg">
-          <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Auction ID</Label>
-            <Input
-              value={auctionId}
-              onChange={(e) => setAuctionId(e.target.value)}
-              placeholder="Enter auction ID"
-              className="bg-white/5 border-white/10 text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              onClick={() => testAuctionMutation.mutate()}
-              disabled={testAuctionMutation.isPending || !auctionId}
-              size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white"
-            >
-              <Send className="w-3.5 h-3.5 mr-1.5" /> Auction Opened
-            </Button>
-            <Button
-              onClick={() => testResultsMutation.mutate()}
-              disabled={testResultsMutation.isPending || !auctionId}
-              size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              <Send className="w-3.5 h-3.5 mr-1.5" /> Results
-            </Button>
-          </div>
-        </div>
+        <Button
+          onClick={() => testMessageMutation.mutate()}
+          disabled={testMessageMutation.isPending || !webhookUrl}
+          size="sm"
+          className="bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          <Send className="w-3.5 h-3.5 mr-1.5" /> Test Discord Connection
+        </Button>
       </div>
 
       {/* Manual Message */}
