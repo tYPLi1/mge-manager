@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -109,7 +109,18 @@ export default function AdminPlayers() {
                         <button onClick={() => setEditingId(null)} className="text-gray-500 hover:text-gray-300"><X className="w-3.5 h-3.5" /></button>
                       </div>
                     ) : (
-                      <StatusBadge cooldownUntil={p.cooldown_until} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge cooldownUntil={p.cooldown_until} />
+                        {p.cooldown_until && new Date(p.cooldown_until) > new Date() && (
+                          <button
+                            onClick={() => { if (confirm(`Clear cooldown for ${p.name}?`)) updateMutation.mutate({ id: p.id, data: { cooldown_until: null } }); }}
+                            className="text-gray-600 hover:text-red-400 transition-colors"
+                            title="Clear cooldown"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="px-3 py-2.5 hidden md:table-cell">
