@@ -165,21 +165,7 @@ export default function Auction() {
 
                   <div>
                     <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Select Your Name</Label>
-                    <Select value={selectedPlayer} onValueChange={setSelectedPlayer}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                        <SelectValue placeholder="Choose player..." />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {players.map((p) => {
-                          const onCd = p.cooldown_until && new Date(p.cooldown_until) > new Date();
-                          return (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.name}{onCd ? " (On Cooldown)" : ""}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                    <PlayerSearchSelect players={players} value={selectedPlayer} onValueChange={setSelectedPlayer} placeholder="Namen eingeben..." />
                   </div>
 
                   {isOnCooldown && (
