@@ -37,6 +37,18 @@ export default function AdminPenalties() {
   };
   const dkpDeducted = calcDkpDeduction(level, offenseCount);
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+
+  const penaltyConfig = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "penalty_config")?.value;
+      return raw ? JSON.parse(raw) : { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50 };
+    } catch { return { level1_offenses: [0, 5, 10, 20, 40, 80], level2_minimum: 50 }; }
+  }, [settings]);
+
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
     queryFn: () => base44.entities.Player.list("name", 500),
