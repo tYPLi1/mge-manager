@@ -9,7 +9,10 @@ Deno.serve(async (req) => {
     // Handle automation trigger (has event data) or manual trigger (has auctionId)
     let auction;
     if (event?.type) {
-      // Automation trigger
+      // Automation trigger - only notify if status changed to 'open'
+      if (data.status !== 'open') {
+        return Response.json({ success: true });
+      }
       auction = data;
     } else {
       // Manual trigger - check admin
