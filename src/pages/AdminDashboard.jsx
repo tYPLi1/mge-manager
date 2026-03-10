@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -9,6 +9,14 @@ import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel"
 import * as XLSX from "xlsx";
 
 export default function AdminDashboard() {
+  const [webhookUrl, setWebhookUrl] = useState("");
+
+  useEffect(() => {
+    base44.entities.AppSettings.filter({ key: "discord_webhook_url" }).then((results) => {
+      if (results.length > 0) setWebhookUrl(results[0].value);
+    });
+  }, []);
+
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
     queryFn: () => base44.entities.Player.list("-total_dkp", 500),
@@ -109,7 +117,7 @@ export default function AdminDashboard() {
 
       {/* Discord Notifications */}
       <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Discord Notifications</h2>
-      <DiscordNotificationPanel />
+      <DiscordNotificationPanel webhookUrl={webhookUrl} />
 
       {/* Quick Links */}
       <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6">Quick Actions</h2>
