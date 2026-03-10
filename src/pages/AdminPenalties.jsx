@@ -144,7 +144,7 @@ export default function AdminPenalties() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Player</Label>
-            <PlayerSearchSelect players={players} value={playerId} onValueChange={setPlayerId} placeholder="Spieler suchen..." />
+            <PlayerSearchSelect players={players} value={playerId} onValueChange={setPlayerId} placeholder="Search player..." />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Level</Label>
@@ -198,7 +198,7 @@ export default function AdminPenalties() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Player</Label>
-            <PlayerSearchSelect players={players} value={compPlayer} onValueChange={setCompPlayer} placeholder="Spieler suchen..." />
+            <PlayerSearchSelect players={players} value={compPlayer} onValueChange={setCompPlayer} placeholder="Search player..." />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Bid DKP</Label>

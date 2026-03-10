@@ -92,17 +92,17 @@ export default function Auction() {
 
     // Prüfe ob bereits geboten
     if (alreadyBid) {
-      setBidError("Du hast für diese Auktion bereits ein Gebot abgegeben.");
+      setBidError("You have already placed a bid for this auction.");
       return;
     }
     // Validate password
     if (currentAuction.has_password && bidPassword !== currentAuction.bid_password) {
-      setBidError("Falsches Auktions-Passwort.");
+      setBidError("Incorrect auction password.");
       return;
     }
     // Validate DKP
     if (parseInt(bidAmount) > currentDkp) {
-      setBidError(`Nicht genug DKP. Verfügbar: ${currentDkp}`);
+      setBidError(`Not enough DKP. Available: ${currentDkp}`);
       return;
     }
 
@@ -206,14 +206,14 @@ export default function Auction() {
                   {isAuctionBanned && (
                     <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                       <Ban className="w-3.5 h-3.5" />
-                      Du bist gesperrt und kannst keine Gebote abgeben.
+                      You are banned and cannot place any bids.
                     </div>
                   )}
 
                   {alreadyBid && (
                     <div className="flex items-center gap-2 text-xs text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2">
                       <AlertTriangle className="w-3.5 h-3.5" />
-                      Du hast für diese Auktion bereits ein Gebot abgegeben.
+                      You have already placed a bid for this auction.
                     </div>
                   )}
 
@@ -250,7 +250,7 @@ export default function Auction() {
                             Friendly Zone
                           </p>
                           <p className="text-xs text-gray-400 mt-0.5">
-                            Du hast ≤ {friendlyZoneThreshold} DKP verfügbar. Aktiviere diese Option, um für den Friendly-Zone-Platz zu kandidieren.
+                            You have ≤ {friendlyZoneThreshold} DKP available. Enable this option to be eligible for the Friendly Zone slot.
                           </p>
                         </div>
                       </label>
