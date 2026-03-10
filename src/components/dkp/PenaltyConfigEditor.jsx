@@ -114,6 +114,37 @@ export default function PenaltyConfigEditor({ value, onChange }) {
         </div>
       </div>
 
+      {/* Auto Reset */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
+          <h4 className="text-sm font-semibold text-blue-400">Auto-Reset (Days after Offense)</h4>
+        </div>
+        <p className="text-xs text-gray-500 mb-3 ml-4">
+          Penalties are automatically reset after this many days. Leave empty to disable auto-reset for that level.
+        </p>
+        <div className="flex flex-wrap gap-5 ml-4">
+          {[1, 2, 3].map((lvl) => {
+            const key = `level${lvl}_reset_days`;
+            const colors = { 1: "text-yellow-400", 2: "text-orange-400", 3: "text-red-400" };
+            return (
+              <div key={lvl} className="flex items-center gap-2">
+                <span className={`text-xs font-semibold ${colors[lvl]} min-w-[48px]`}>Level {lvl}:</span>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="—"
+                  value={config[key] ?? ""}
+                  onChange={(e) => update({ ...config, [key]: e.target.value === "" ? null : parseInt(e.target.value) })}
+                  className="bg-white/5 border-white/10 text-white w-20 h-8 text-sm placeholder:text-gray-600"
+                />
+                <span className="text-xs text-gray-500">days</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Compensation */}
       <div>
         <div className="flex items-center gap-2 mb-1">
