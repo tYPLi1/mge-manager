@@ -90,14 +90,19 @@ export default function Auction() {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
     setBidError("");
 
+    // Prüfe ob bereits geboten
+    if (alreadyBid) {
+      setBidError("Du hast für diese Auktion bereits ein Gebot abgegeben.");
+      return;
+    }
     // Validate password
     if (currentAuction.has_password && bidPassword !== currentAuction.bid_password) {
-      setBidError("Incorrect auction password.");
+      setBidError("Falsches Auktions-Passwort.");
       return;
     }
     // Validate DKP
     if (parseInt(bidAmount) > currentDkp) {
-      setBidError(`Insufficient DKP. You have ${currentDkp} available.`);
+      setBidError(`Nicht genug DKP. Verfügbar: ${currentDkp}`);
       return;
     }
 
@@ -108,6 +113,7 @@ export default function Auction() {
       player_name: selectedPlayerData?.name,
       dkp_bid: parseInt(bidAmount),
       mge_score: mgeScore ? parseInt(mgeScore) : null,
+      want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
     });
     setSubmitted(true);
     setSubmitting(false);
