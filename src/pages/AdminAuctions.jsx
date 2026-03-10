@@ -45,7 +45,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
       <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-bold text-lg">Auktion löschen</h2>
+          <h2 className="text-white font-bold text-lg">Delete Auction</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
 
@@ -56,7 +56,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
 
         {isConfirmed && (
           <div className="space-y-3">
-            <p className="text-gray-300 text-sm">Diese Auktion wurde bereits bestätigt und DKP wurde abgezogen. Möchtest du die DKP zurückgeben?</p>
+            <p className="text-gray-300 text-sm">This auction has already been confirmed and DKP was deducted. Do you want to refund the DKP?</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setRefundDkp(true)}
@@ -66,7 +66,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
                     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                 }`}
               >
-                ✓ Ja, DKP zurückgeben
+                ✓ Yes, refund DKP
               </button>
               <button
                 onClick={() => setRefundDkp(false)}
@@ -76,30 +76,30 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
                     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                 }`}
               >
-                ✗ Nein, einfach löschen
+                ✗ No, just delete
               </button>
             </div>
             {refundDkp && (
               <p className="text-xs text-gray-500">
-                DKP wird als „Compensation" zurückgebucht und der Betrag aus dkp_spent abgezogen.
+                DKP will be refunded as "Compensation" and deducted from dkp_spent.
               </p>
             )}
           </div>
         )}
 
         {!isConfirmed && (
-          <p className="text-gray-400 text-sm">Die Auktion und alle zugehörigen Gebote werden dauerhaft gelöscht.</p>
+          <p className="text-gray-400 text-sm">The auction and all associated bids will be permanently deleted.</p>
         )}
 
         <div className="flex gap-3 pt-1">
-          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Abbrechen</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Cancel</Button>
           <Button
             onClick={handleDelete}
             disabled={deleting}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white"
           >
             <Trash2 className="w-4 h-4 mr-1" />
-            {deleting ? "Löschen..." : "Löschen"}
+            {deleting ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </div>
@@ -335,7 +335,7 @@ export default function AdminAuctions() {
 
       {/* Create Auction */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Neue Auktion erstellen</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Create New Auction</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Titel</Label>
@@ -343,27 +343,27 @@ export default function AdminAuctions() {
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Start (auto-öffnen)
+              <Clock className="w-3 h-3" /> Start (auto-open)
             </Label>
             <Input type="datetime-local" value={scheduledOpen} onChange={(e) => setScheduledOpen(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Enddatum / -Zeit</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">End Date / Time</Label>
             <Input type="datetime-local" value={scheduledClose} onChange={(e) => setScheduledClose(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Passwort (optional)</Label>
-            <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Leer = kein Passwort" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Password (optional)</Label>
+            <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Empty = no password" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
           </div>
         </div>
         {scheduledOpen && (
           <p className="text-xs text-amber-400/70 mt-2 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            Auktion wird automatisch geöffnet am {new Date(scheduledOpen).toLocaleString("de-CH")}
+            Auction auto-opens on {new Date(scheduledOpen).toLocaleString("de-CH")}
           </p>
         )}
         <Button onClick={handleCreate} disabled={!title || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-          <Plus className="w-4 h-4 mr-1" /> Auktion erstellen
+          <Plus className="w-4 h-4 mr-1" /> Create Auction
         </Button>
       </div>
 
@@ -394,22 +394,22 @@ export default function AdminAuctions() {
               <div className="flex items-center gap-2 flex-wrap">
                 {a.status === "draft" && (
                   <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "open" })} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
-                    <Play className="w-3 h-3 mr-1" /> Öffnen
+                    <Play className="w-3 h-3 mr-1" /> Open
                   </Button>
                 )}
                 {a.status === "open" && (
                   <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "closed" })} className="bg-red-600 hover:bg-red-700 text-white text-xs">
-                    <Square className="w-3 h-3 mr-1" /> Schliessen
+                    <Square className="w-3 h-3 mr-1" /> Close
                   </Button>
                 )}
                 {(a.status === "open" || a.status === "closed") && (
                   <Button size="sm" variant="outline" onClick={() => { setViewBids(viewBids?.id === a.id ? null : a); setShowPreview(false); }} className="border-white/10 text-gray-300 text-xs hover:bg-white/5">
-                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Ausblenden" : "Gebote"}
+                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : "Bids"}
                   </Button>
                 )}
                 {a.status === "closed" && viewBids?.id === a.id && (
                   <Button size="sm" onClick={() => setShowPreview(!showPreview)} className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs hover:bg-amber-500/30">
-                    {showPreview ? "Vorschau ausblenden" : "Ranking vorschau"}
+                    {showPreview ? "Hide Preview" : "Ranking Preview"}
                   </Button>
                 )}
                 {/* Delete Button */}
@@ -427,17 +427,17 @@ export default function AdminAuctions() {
             {viewBids?.id === a.id && !showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs text-gray-500">{activeBids.length} aktive Gebote{deletedBids.length > 0 ? ` · ${deletedBids.length} gelöscht` : ""}</p>
+                  <p className="text-xs text-gray-500">{activeBids.length} active bids{deletedBids.length > 0 ? ` · ${deletedBids.length} deleted` : ""}</p>
                 </div>
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/5">
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">#</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Spieler</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Gebot</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">MGE Score</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Friendly Zone</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Aktionen</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -498,10 +498,10 @@ export default function AdminAuctions() {
             {viewBids?.id === a.id && showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-semibold text-white">Vorschau: Top 10 Ranking</p>
+                  <p className="text-sm font-semibold text-white">Preview: Top 10 Ranking</p>
                   {friendlyZoneEnabled && (
                     <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5">
-                      Friendly Zone aktiv (Schwelle: {friendlyZoneThreshold} DKP)
+                      Friendly Zone active (Threshold: {friendlyZoneThreshold} DKP)
                     </span>
                   )}
                 </div>
@@ -546,9 +546,9 @@ export default function AdminAuctions() {
                   className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  {confirmMutation.isPending ? "Bestätige..." : "Bestätigen & Ergebnisse publizieren"}
+                  {confirmMutation.isPending ? "Confirming..." : "Confirm & Publish Results"}
                 </Button>
-                <p className="text-xs text-gray-500 mt-2">DKP wird abgezogen, Cooldowns gesetzt und Ergebnisse öffentlich publiziert.</p>
+                <p className="text-xs text-gray-500 mt-2">DKP will be deducted, cooldowns set and results published publicly.</p>
               </div>
             )}
           </div>
