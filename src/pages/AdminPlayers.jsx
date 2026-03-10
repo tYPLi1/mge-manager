@@ -305,7 +305,7 @@ export default function AdminPlayers() {
                         <StatusBadge cooldownUntil={p.cooldown_until} />
                         {p.cooldown_until && new Date(p.cooldown_until) > new Date() && (
                           <button
-                            onClick={() => { if (confirm(`Cooldown für ${p.name} löschen?`)) updateMutation.mutate({ id: p.id, data: { cooldown_until: null } }); }}
+                            onClick={() => { if (confirm(`Clear cooldown for ${p.name}?`)) updateMutation.mutate({ id: p.id, data: { cooldown_until: null } }); }}
                             className="text-gray-600 hover:text-red-400 transition-colors"
                           >
                             <XCircle className="w-3.5 h-3.5" />
