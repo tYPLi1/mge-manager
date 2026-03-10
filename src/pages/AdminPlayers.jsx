@@ -321,12 +321,12 @@ export default function AdminPlayers() {
                         <button
                           onClick={() => startEdit(p)}
                           className="p-1.5 rounded hover:bg-white/5 text-gray-500 hover:text-amber-400 transition-colors"
-                          title="Bearbeiten"
-                        >
+                          title="Edit"
+                          >
                           <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => { if (confirm(`${p.name} löschen?`)) deleteMutation.mutate(p.id); }}
+                          </button>
+                          <button
+                          onClick={() => { if (confirm(`Delete ${p.name}?`)) deleteMutation.mutate(p.id); }}
                           className="p-1.5 rounded hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
