@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import { hash } from 'npm:bcryptjs@2.4.3';
+import bcrypt from 'npm:bcryptjs@2.4.3';
 
 Deno.serve(async (req) => {
   try {
@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     }
 
     // Hash the password
-    const password_hash = await hash(password, 10);
+    const password_hash = await bcrypt.hash(password, 10);
 
     // Create the admin user
     const adminUser = await base44.asServiceRole.entities.AdminUser.create({
