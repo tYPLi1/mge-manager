@@ -76,7 +76,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                         ? "bg-green-500/20 text-green-400"
                         : "bg-blue-500/20 text-blue-400"
                     }`}>
-                      {item.type === "new" ? "NEU" : "GEÄNDERT"}
+                      {item.type === "new" ? "NEW" : "UPDATED"}
                     </span>
                     <span className="text-white font-medium">{item.name}</span>
                   </div>
