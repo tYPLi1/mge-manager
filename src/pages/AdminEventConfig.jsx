@@ -79,7 +79,7 @@ function EventEditor({ et, onSave, isSaving }) {
       {/* Name & Key editing */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-white/5">
         <div>
-          <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
+          <Label className="text-gray-500 text-xs block mb-1">Display Name</Label>
           <Input
             value={draft.display_name}
             onChange={(e) => set("display_name", e.target.value)}
@@ -87,7 +87,7 @@ function EventEditor({ et, onSave, isSaving }) {
           />
         </div>
         <div>
-          <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
+          <Label className="text-gray-500 text-xs block mb-1">Key (Short Code)</Label>
           <Input
             value={draft.key}
             onChange={(e) => set("key", e.target.value)}
@@ -161,7 +161,7 @@ function EventEditor({ et, onSave, isSaving }) {
           disabled={!isDirty || isSaving}
           className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5"
         >
-          <Save className="w-3.5 h-3.5" /> Speichern
+          <Save className="w-3.5 h-3.5" /> Save
         </Button>
       </div>
     </div>
@@ -195,7 +195,7 @@ function CreateEventModal({ onClose, onCreate }) {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
       <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
-          <h2 className="text-white font-bold text-lg">Neues Event erstellen</h2>
+          <h2 className="text-white font-bold text-lg">Create New Event</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
 
@@ -203,27 +203,27 @@ function CreateEventModal({ onClose, onCreate }) {
           {/* Basic info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
-              <Input value={form.display_name} onChange={(e) => set("display_name", e.target.value)} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-white" />
+              <Label className="text-gray-500 text-xs block mb-1">Display Name</Label>
+              <Input value={form.display_name} onChange={(e) => set("display_name", e.target.value)} placeholder="e.g. MEE" className="bg-white/5 border-white/10 text-white" />
             </div>
             <div>
-              <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
-              <Input value={form.key} onChange={(e) => set("key", e.target.value.toUpperCase())} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-amber-400 font-mono" />
+              <Label className="text-gray-500 text-xs block mb-1">Key (Short Code)</Label>
+              <Input value={form.key} onChange={(e) => set("key", e.target.value.toUpperCase())} placeholder="e.g. MEE" className="bg-white/5 border-white/10 text-amber-400 font-mono" />
             </div>
             <div>
-              <Label className="text-gray-500 text-xs block mb-1">Typ</Label>
+              <Label className="text-gray-500 text-xs block mb-1">Type</Label>
               <Select value={form.participation_type} onValueChange={(v) => set("participation_type", v)}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ranked">Ranked (Platzierung)</SelectItem>
-                  <SelectItem value="yn">Y/N (Anwesenheit)</SelectItem>
+                  <SelectItem value="ranked">Ranked (Placement)</SelectItem>
+                  <SelectItem value="yn">Y/N (Attendance)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-gray-500 text-xs block mb-1">Sortierung</Label>
+              <Label className="text-gray-500 text-xs block mb-1">Sort Order</Label>
               <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
             </div>
           </div>
@@ -232,11 +232,11 @@ function CreateEventModal({ onClose, onCreate }) {
           {isYN ? (
             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
               <div>
-                <Label className="text-gray-500 text-xs block mb-1">DKP wenn Anwesend (Y)</Label>
+                <Label className="text-gray-500 text-xs block mb-1">DKP if Present (Y)</Label>
                 <Input type="number" value={form.dkp_yn_present} onChange={(e) => set("dkp_yn_present", Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold" />
               </div>
               <div>
-                <Label className="text-gray-500 text-xs block mb-1">DKP wenn Abwesend (N)</Label>
+                <Label className="text-gray-500 text-xs block mb-1">DKP if Absent (N)</Label>
                 <Input type="number" value={form.dkp_yn_absent} onChange={(e) => set("dkp_yn_absent", Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold" />
               </div>
             </div>
@@ -290,13 +290,13 @@ function CreateEventModal({ onClose, onCreate }) {
         </div>
 
         <div className="flex gap-3 p-6 pt-4 border-t border-white/5">
-          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Abbrechen</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Cancel</Button>
           <Button
             onClick={() => onCreate(form)}
             disabled={!form.display_name || !form.key}
             className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
-            Erstellen
+            Create
           </Button>
         </div>
       </div>
@@ -338,12 +338,12 @@ export default function AdminEventConfig() {
 
   return (
     <div>
-      <PageHeader title="Event Configuration" subtitle="DKP-Regeln pro Event-Typ" icon={Settings2}>
+      <PageHeader title="Event Configuration" subtitle="DKP rules per event type" icon={Settings2}>
         <Button
           onClick={() => setShowCreate(true)}
           className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5"
         >
-          <PlusCircle className="w-4 h-4" /> Neues Event
+          <PlusCircle className="w-4 h-4" /> New Event
         </Button>
       </PageHeader>
 
@@ -370,7 +370,7 @@ export default function AdminEventConfig() {
                     ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
                     : "bg-gray-500/15 text-gray-500 border border-gray-500/20"
                 }`}>
-                  {et.active ? "Aktiv" : "Inaktiv"}
+                  {et.active ? "Active" : "Inactive"}
                 </span>
                 {deleteConfirm === et.id ? (
                   <div className="flex items-center gap-1">
@@ -378,13 +378,13 @@ export default function AdminEventConfig() {
                       onClick={() => deleteMutation.mutate(et.id)}
                       className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
                     >
-                      Löschen
+                      Delete
                     </button>
                     <button
                       onClick={() => setDeleteConfirm(null)}
                       className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10"
                     >
-                      Abbrechen
+                      Cancel
                     </button>
                   </div>
                 ) : (

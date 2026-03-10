@@ -250,6 +250,7 @@ export default function AdminAuctions() {
           source: "MGE",
           event_date: today,
           note: `${viewBids.title} — Rank ${entry.rank}`,
+
         });
 
         const player = players.find((p) => p.id === entry.player_id);
@@ -283,7 +284,7 @@ export default function AdminAuctions() {
           type: "compensation",
           source: "MGE",
           event_date: today,
-          note: `Rückerstattung: ${auction.title}`,
+          note: `Refund: ${auction.title}`,
         });
         // Restore dkp_spent
         if (player) {
@@ -385,10 +386,10 @@ export default function AdminAuctions() {
                   </span>
                   {a.scheduled_open && a.status === "draft" && (
                     <span className="text-xs text-amber-400/70 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> Startet: {new Date(a.scheduled_open).toLocaleString("de-CH")}
+                      <Clock className="w-3 h-3" /> Opens: {new Date(a.scheduled_open).toLocaleString("de-CH")}
                     </span>
                   )}
-                  {a.scheduled_close && <span className="text-xs text-gray-500">Endet: {new Date(a.scheduled_close).toLocaleString("de-CH")}</span>}
+                  {a.scheduled_close && <span className="text-xs text-gray-500">Closes: {new Date(a.scheduled_close).toLocaleString("de-CH")}</span>}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -490,7 +491,7 @@ export default function AdminAuctions() {
                     ))}
                   </tbody>
                 </table>
-                {activeBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">Noch keine Gebote</p>}
+                {activeBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">No bids yet</p>}
               </div>
             )}
 
