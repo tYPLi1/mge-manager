@@ -65,21 +65,7 @@ export default function AdminSettings() {
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
-  const sendManualMessageMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('sendDiscordMessage', {
-        message: form.discord_manual_message,
-        webhookUrl: form.discord_webhook_url,
-      });
-      if (!response.data.success) throw new Error(response.data.error);
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success('Message sent to Discord!');
-      setForm({ ...form, discord_manual_message: '' });
-    },
-    onError: (error) => toast.error(`Failed: ${error.message}`),
-  });
+
 
   return (
     <div>
@@ -216,21 +202,22 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Penalty Notifications</Label>
               <Switch checked={getBool("discord_penalties_enabled")} onCheckedChange={(v) => setBool("discord_penalties_enabled", v)} />
             </div>
-            <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Manual Message</Label>
-              <Textarea
-                placeholder="Write your message here (supports markdown formatting)..."
-                value={form.discord_manual_message || ""}
-                onChange={(e) => setForm({ ...form, discord_manual_message: e.target.value })}
-                rows={8}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
-              />
+            <div className="flex gap-2 mt-2">
               <Button 
-                onClick={() => sendManualMessageMutation.mutate()} 
-                disabled={sendManualMessageMutation.isPending || !form.discord_webhook_url || !form.discord_manual_message}
-                className="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white"
+                onClick={() => testWebhookMutation.mutate()} 
+                disabled={testWebhookMutation.isPending || !form.discord_webhook_url}
+                variant="outline"
+                className="flex-1 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
               >
-                <Send className="w-3.5 h-3.5 mr-2" /> Send to Discord
+                <Send className="w-3.5 h-3.5 mr-2" /> Test Message
+              </Button>
+              <Button 
+                onClick={() => testLeaderboardMutation.mutate()} 
+                disabled={testLeaderboardMutation.isPending || !form.discord_webhook_url}
+                variant="outline"
+                className="flex-1 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+              >
+                <Send className="w-3.5 h-3.5 mr-2" /> Send Top 30
               </Button>
             </div>
           </div>
