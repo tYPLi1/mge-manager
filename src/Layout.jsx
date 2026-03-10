@@ -41,10 +41,11 @@ export default function Layout({ children, currentPageName }) {
   const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
   const isAdmin = currentPageName?.startsWith("Admin");
+  const isAdminLogin = currentPageName === "AdminLogin";
 
-  // Check session for admin pages
+  // Check session for admin pages (but not AdminLogin)
   useEffect(() => {
-    if (isAdmin) {
+    if (isAdmin && !isAdminLogin) {
       const session = localStorage.getItem("adminSession");
       if (!session) {
         navigate(createPageUrl("AdminLogin"));
@@ -62,7 +63,12 @@ export default function Layout({ children, currentPageName }) {
     } else {
       setSessionChecked(true);
     }
-  }, [isAdmin, navigate]);
+  }, [isAdmin, isAdminLogin, navigate]);
+
+  // AdminLogin doesn't need the layout
+  if (isAdminLogin) {
+    return children;
+  }
 
   // Don't render admin layout until session is checked
   if (isAdmin && !sessionChecked) {
