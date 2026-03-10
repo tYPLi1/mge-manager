@@ -1,22 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const BCRYPT_COST = 10;
-
-// Simple bcrypt implementation using Web Crypto API
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-async function verifyPassword(password, hash) {
-  const passwordHash = await hashPassword(password);
-  return passwordHash === hash;
-}
-
 Deno.serve(async (req) => {
   try {
     if (req.method !== 'POST') {
@@ -29,14 +12,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Hash the provided password
-    const passwordHash = await hashPassword(password);
-    
     // Get credentials from environment variables
     const ADMIN_USERNAME = Deno.env.get('ADMIN_USERNAME');
-    const ADMIN_PASSWORD_HASH = Deno.env.get('ADMIN_PASSWORD_HASH');
+    const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD');
     
-    if (!ADMIN_USERNAME || !ADMIN_PASSWORD_HASH) {
+    if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
       return Response.json({ error: 'Admin credentials not configured' }, { status: 500 });
     }
     
@@ -44,7 +24,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     
-    if (passwordHash !== ADMIN_PASSWORD_HASH) {
+    if (password !== ADMIN_PASSWORD) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     
