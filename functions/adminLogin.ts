@@ -15,13 +15,12 @@ Deno.serve(async (req) => {
     }
 
     // Get admin user from database (using service role for unauthenticated access)
-    const adminUsers = await base44.asServiceRole.entities.AdminUser.filter({ username });
+    const allAdminUsers = await base44.asServiceRole.entities.AdminUser.list();
+    const adminUser = allAdminUsers.find(u => u.username === username);
     
-    if (!adminUsers || adminUsers.length === 0) {
+    if (!adminUser) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
-
-    const adminUser = adminUsers[0];
 
     // Check if active
     if (!adminUser.is_active) {
