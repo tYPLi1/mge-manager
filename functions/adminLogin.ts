@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Get admin user from database
+    // Get admin user from database (using service role for unauthenticated access)
     const adminUsers = await base44.asServiceRole.entities.AdminUser.filter({ username });
     
     if (!adminUsers || adminUsers.length === 0) {
