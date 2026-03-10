@@ -18,6 +18,7 @@ export default function AdminPlayers() {
   const [editCooldown, setEditCooldown] = useState("");
   const [editPower, setEditPower] = useState("");
   const [importing, setImporting] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
   const fileRef = useRef();
   const queryClient = useQueryClient();
 
