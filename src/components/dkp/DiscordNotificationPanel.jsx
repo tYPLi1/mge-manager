@@ -46,7 +46,7 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
       <div>
         <Button
           onClick={() => testMessageMutation.mutate()}
-          disabled={testMessageMutation.isPending || !webhookUrl}
+          disabled={testMessageMutation.isPending}
           size="sm"
           className="bg-slate-700 hover:bg-slate-600 text-white"
         >
@@ -70,11 +70,11 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
             />
           </div>
           <Button 
-            onClick={() => sendManualMessageMutation.mutate()} 
-            disabled={sendManualMessageMutation.isPending || !webhookUrl || !message}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+           onClick={() => sendManualMessageMutation.mutate()} 
+           disabled={sendManualMessageMutation.isPending || !message}
+           className="w-full bg-amber-500 hover:bg-amber-600 text-white"
           >
-            <Send className="w-3.5 h-3.5 mr-2" /> Send to Discord
+           <Send className="w-3.5 h-3.5 mr-2" /> Send to Discord
           </Button>
         </div>
       </div>
