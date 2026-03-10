@@ -169,12 +169,14 @@ export default function AdminAuctions() {
     if (friendlyZoneEnabled && top10.length >= 10) {
       const rank10Bid = top10[9];
       const rank10Player = players.find((p) => p.id === rank10Bid.player_id);
-      const currentDkp = rank10Player ? (rank10Player.total_dkp - rank10Player.dkp_spent) : 999;
-      if (currentDkp >= friendlyZoneThreshold) {
+      const rank10Dkp = rank10Player ? (rank10Player.total_dkp - rank10Player.dkp_spent) : 999;
+      // Rank 10 ist NICHT Friendly-Zone-berechtigt → suche einen opt-in Kandidaten ausserhalb Top 10
+      if (rank10Dkp > friendlyZoneThreshold || !rank10Bid.want_friendly_zone) {
         const eligibleBid = sorted.slice(10).find((b) => {
+          if (!b.want_friendly_zone) return false;
           const pl = players.find((p) => p.id === b.player_id);
           if (!pl) return false;
-          return (pl.total_dkp - pl.dkp_spent) < friendlyZoneThreshold;
+          return (pl.total_dkp - pl.dkp_spent) <= friendlyZoneThreshold;
         });
         if (eligibleBid) top10[9] = { ...eligibleBid, _friendlyZone: true };
       }
