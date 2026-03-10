@@ -45,26 +45,6 @@ export default function AdminSettings() {
   const getBool = (key) => form[key] === "true";
   const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
 
-  const testWebhookMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('testDiscordWebhook', {});
-      if (!response.data.success) throw new Error(response.data.error);
-      return response.data;
-    },
-    onSuccess: () => toast.success('Test message sent to Discord!'),
-    onError: (error) => toast.error(`Failed: ${error.message}`),
-  });
-
-  const testLeaderboardMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('testLeaderboardMessage', {});
-      if (!response.data.success) throw new Error(response.data.error);
-      return response.data;
-    },
-    onSuccess: () => toast.success('Leaderboard sent to Discord!'),
-    onError: (error) => toast.error(`Failed: ${error.message}`),
-  });
-
   const sendManualMessageMutation = useMutation({
     mutationFn: async () => {
       const response = await base44.functions.invoke('sendDiscordMessage', {
