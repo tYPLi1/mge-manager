@@ -196,6 +196,10 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Event Upload Notifications</Label>
               <Switch checked={getBool("discord_events_enabled")} onCheckedChange={(v) => setBool("discord_events_enabled", v)} />
             </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Penalty Notifications</Label>
+              <Switch checked={getBool("discord_penalties_enabled")} onCheckedChange={(v) => setBool("discord_penalties_enabled", v)} />
+            </div>
             <div className="flex gap-2 mt-2">
               <Button 
                 onClick={() => testWebhookMutation.mutate()} 
