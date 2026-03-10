@@ -176,9 +176,9 @@ export default function AdminPlayers() {
     <div>
       <PageHeader title="Player Management" subtitle={`${players.length} Spieler`} icon={Users} />
 
-      {/* Add Player + Import */}
+      {/* Add Player + Import + Export */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mb-6">
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap mb-3">
           <Input
             placeholder="Neuer Spielername..."
             value={newName}
@@ -193,17 +193,33 @@ export default function AdminPlayers() {
           >
             <Plus className="w-4 h-4 mr-1" /> Hinzufügen
           </Button>
+        </div>
+        <div className="flex gap-3 flex-wrap">
+          <Button
+            variant="outline"
+            className="border-white/10 text-gray-300 hover:text-white hover:bg-white/5"
+            onClick={downloadTemplate}
+          >
+            <Download className="w-4 h-4 mr-1" /> Vorlage
+          </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 text-gray-300 hover:text-white hover:bg-white/5"
+            onClick={downloadCurrent}
+            disabled={players.length === 0}
+          >
+            <Download className="w-4 h-4 mr-1" /> Aktueller Stand
+          </Button>
           <Button
             variant="outline"
             className="border-white/10 text-gray-300 hover:text-white hover:bg-white/5"
             onClick={() => fileRef.current?.click()}
             disabled={importing}
           >
-            <Upload className="w-4 h-4 mr-1" /> {importing ? "Importiere..." : "Excel importieren"}
+            <Upload className="w-4 h-4 mr-1" /> {importing ? "Importiere..." : "Datei importieren"}
           </Button>
           <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
         </div>
-        <p className="text-xs text-gray-600 mt-2">Excel: Spalte A = Spielername (ab Zeile 2)</p>
       </div>
 
       {/* Search */}
