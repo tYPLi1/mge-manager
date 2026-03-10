@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Plus, RotateCcw, Calculator } from "lucide-react";
@@ -23,15 +23,12 @@ export default function AdminPenalties() {
   const calcDkpDeduction = (lvl, cnt) => {
     const l = parseInt(lvl), c = parseInt(cnt);
     if (l === 1) {
-      // 1st=0, 2nd=-5, 3rd=-10, 4th=-20, 5th=-40...
-      if (c <= 1) return 0;
-      if (c === 2) return 5;
-      if (c === 3) return 10;
-      return 20 * Math.pow(2, c - 4);
+      const offenses = penaltyConfig.level1_offenses || [0, 5, 10, 20, 40, 80];
+      return offenses[Math.min(c - 1, offenses.length - 1)] ?? 0;
     }
     if (l === 2) {
       const stolenBid = parseInt(stolenBidAmount) || 0;
-      return Math.max(50, stolenBid);
+      return Math.max(penaltyConfig.level2_minimum ?? 50, stolenBid);
     }
     return 0; // Level 3: handled specially
   };
