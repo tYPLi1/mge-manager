@@ -24,14 +24,16 @@ Deno.serve(async (req) => {
 
     const title = isCompensation ? '💰 DKP Kompensation' : '⚠️ DKP Strafzug';
     const color = isCompensation ? 65280 : 16711680; // Green or Red
+    
+    const sourceText = data.source || (isCompensation ? 'MGE' : 'Offense');
 
     const embed = {
       title: title,
       description: `**${data.player_name}**`,
       fields: [
         { name: 'Betrag', value: `${data.amount > 0 ? '+' : ''}${data.amount} DKP`, inline: true },
-        { name: 'Typ', value: data.type.charAt(0).toUpperCase() + data.type.slice(1), inline: true },
-        { name: 'Grund', value: data.note || 'Keine Notiz', inline: false }
+        { name: 'Grund', value: sourceText, inline: true },
+        { name: 'Details', value: data.note || 'Keine Notiz', inline: false }
       ],
       color: color,
       timestamp: new Date().toISOString()
