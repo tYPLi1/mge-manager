@@ -198,14 +198,7 @@ export default function AdminPenalties() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Player</Label>
-            <Select value={compPlayer} onValueChange={setCompPlayer}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                <SelectValue placeholder="Player..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-60">
-                {players.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <PlayerSearchSelect players={players} value={compPlayer} onValueChange={setCompPlayer} placeholder="Spieler suchen..." />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Bid DKP</Label>
