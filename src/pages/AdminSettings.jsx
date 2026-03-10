@@ -55,6 +55,16 @@ export default function AdminSettings() {
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
+  const testLeaderboardMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('testLeaderboardMessage', {});
+      if (!response.data.success) throw new Error(response.data.error);
+      return response.data;
+    },
+    onSuccess: () => toast.success('Leaderboard sent to Discord!'),
+    onError: (error) => toast.error(`Failed: ${error.message}`),
+  });
+
   return (
     <div>
       <PageHeader title="Settings" icon={Settings}>
@@ -186,14 +196,24 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Event Upload Notifications</Label>
               <Switch checked={getBool("discord_events_enabled")} onCheckedChange={(v) => setBool("discord_events_enabled", v)} />
             </div>
-            <Button 
-              onClick={() => testWebhookMutation.mutate()} 
-              disabled={testWebhookMutation.isPending || !form.discord_webhook_url}
-              variant="outline"
-              className="w-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 mt-2"
-            >
-              <Send className="w-3.5 h-3.5 mr-2" /> Send Test Message
-            </Button>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                onClick={() => testWebhookMutation.mutate()} 
+                disabled={testWebhookMutation.isPending || !form.discord_webhook_url}
+                variant="outline"
+                className="flex-1 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+              >
+                <Send className="w-3.5 h-3.5 mr-2" /> Test Message
+              </Button>
+              <Button 
+                onClick={() => testLeaderboardMutation.mutate()} 
+                disabled={testLeaderboardMutation.isPending || !form.discord_webhook_url}
+                variant="outline"
+                className="flex-1 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+              >
+                <Send className="w-3.5 h-3.5 mr-2" /> Send Top 30
+              </Button>
+            </div>
           </div>
         </div>
       </div>
