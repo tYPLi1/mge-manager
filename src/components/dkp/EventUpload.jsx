@@ -194,20 +194,20 @@ export default function EventUpload({ players, eventTypes }) {
           <div className="flex items-start gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-yellow-400 mb-1">
-                {unknownNames.length} unbekannte Spieler — werden übersprungen:
-              </p>
-              <p className="text-xs text-yellow-300/80 font-mono">{unknownNames.join(", ")}</p>
+             <p className="text-xs font-semibold text-yellow-400 mb-1">
+               {unknownNames.length} unknown players — will be skipped:
+             </p>
+             <p className="text-xs text-yellow-300/80 font-mono">{unknownNames.join(", ")}</p>
             </div>
-          </div>
-          <Button
+            </div>
+            <Button
             size="sm"
             onClick={createMissingPlayers}
             disabled={creatingPlayers}
             className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/30 text-xs mt-1"
-          >
+            >
             <UserPlus className="w-3.5 h-3.5 mr-1" />
-            {creatingPlayers ? "Erstelle..." : `${unknownNames.length} Spieler erstellen & Datei neu laden`}
+            {creatingPlayers ? "Creating..." : `Create ${unknownNames.length} players & reload`}
           </Button>
         </div>
       )}

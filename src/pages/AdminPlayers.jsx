@@ -62,12 +62,12 @@ export default function AdminPlayers() {
 
   const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP erworben", "DKP ausgegeben", "Cooldown (YYYY-MM-DD)", "Power"],
+      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
     ]);
     ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Spieler");
-    XLSX.writeFile(wb, "Spieler-Vorlage.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Players");
+    XLSX.writeFile(wb, "Players-Template.xlsx");
   };
 
   const downloadCurrent = () => {
@@ -79,13 +79,13 @@ export default function AdminPlayers() {
       p.power || 0,
     ]);
     const ws = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP erworben", "DKP ausgegeben", "Cooldown (YYYY-MM-DD)", "Power"],
+      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
       ...data,
     ]);
     ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Spieler");
-    XLSX.writeFile(wb, `Spieler-Stand-${new Date().toISOString().split("T")[0]}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Players");
+    XLSX.writeFile(wb, `Players-State-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
   const handleImport = async (e) => {
@@ -139,7 +139,7 @@ export default function AdminPlayers() {
     if (preview.length > 0) {
       setPreviewData(preview);
     } else {
-      alert("Keine neuen oder geänderten Spieler gefunden.");
+      alert("No new or changed players found.");
     }
     setImporting(false);
     e.target.value = "";
@@ -164,7 +164,7 @@ export default function AdminPlayers() {
 
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setPreviewData(null);
-    alert(`${newPlayers.length} neue Spieler, ${updates.length} aktualisiert.`);
+    alert(`${newPlayers.length} new players, ${updates.length} updated.`);
   };
 
   const filtered = useMemo(() =>
