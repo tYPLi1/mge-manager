@@ -183,46 +183,113 @@ function CreateEventModal({ onClose, onCreate }) {
     dkp_top20_fallback: 20,
     dkp_outside_fallback: 0,
     war_ranking_cutoff: 100,
+    dkp_table_prep: "[]",
+    dkp_table_war_top20: "[]",
+    dkp_table_war_outside: "[]",
   });
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+  const isYN = form.participation_type === "yn";
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
           <h2 className="text-white font-bold text-lg">Neues Event erstellen</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="space-y-3">
-          <div>
-            <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
-            <Input value={form.display_name} onChange={(e) => set("display_name", e.target.value)} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-white" />
+        <div className="overflow-y-auto flex-1 p-6 space-y-5">
+          {/* Basic info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-gray-500 text-xs block mb-1">Anzeigename</Label>
+              <Input value={form.display_name} onChange={(e) => set("display_name", e.target.value)} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-white" />
+            </div>
+            <div>
+              <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
+              <Input value={form.key} onChange={(e) => set("key", e.target.value.toUpperCase())} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-amber-400 font-mono" />
+            </div>
+            <div>
+              <Label className="text-gray-500 text-xs block mb-1">Typ</Label>
+              <Select value={form.participation_type} onValueChange={(v) => set("participation_type", v)}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ranked">Ranked (Platzierung)</SelectItem>
+                  <SelectItem value="yn">Y/N (Anwesenheit)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-gray-500 text-xs block mb-1">Sortierung</Label>
+              <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
+            </div>
           </div>
-          <div>
-            <Label className="text-gray-500 text-xs block mb-1">Kürzel (Key)</Label>
-            <Input value={form.key} onChange={(e) => set("key", e.target.value.toUpperCase())} placeholder="z.B. MEE" className="bg-white/5 border-white/10 text-amber-400 font-mono" />
-          </div>
-          <div>
-            <Label className="text-gray-500 text-xs block mb-1">Typ</Label>
-            <Select value={form.participation_type} onValueChange={(v) => set("participation_type", v)}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ranked">Ranked (Platzierung)</SelectItem>
-                <SelectItem value="yn">Y/N (Anwesenheit)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-gray-500 text-xs block mb-1">Sortierung</Label>
-            <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} className="bg-white/5 border-white/10 text-white w-24" />
-          </div>
+
+          {/* DKP Config */}
+          {isYN ? (
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
+              <div>
+                <Label className="text-gray-500 text-xs block mb-1">DKP wenn Anwesend (Y)</Label>
+                <Input type="number" value={form.dkp_yn_present} onChange={(e) => set("dkp_yn_present", Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold" />
+              </div>
+              <div>
+                <Label className="text-gray-500 text-xs block mb-1">DKP wenn Abwesend (N)</Label>
+                <Input type="number" value={form.dkp_yn_absent} onChange={(e) => set("dkp_yn_absent", Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold" />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-5 pt-2 border-t border-white/5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-gray-500 text-xs block mb-1">Prep Stage</Label>
+                  <Switch checked={form.has_prep_stage} onCheckedChange={(v) => set("has_prep_stage", v)} />
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-xs block mb-1">War Stage</Label>
+                  <Switch checked={form.has_war_stage} onCheckedChange={(v) => set("has_war_stage", v)} />
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
+                  <Input type="number" value={form.dkp_top20_fallback} onChange={(e) => set("dkp_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
+                  <Input type="number" value={form.dkp_outside_fallback} onChange={(e) => set("dkp_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                </div>
+              </div>
+
+              {form.has_prep_stage && (
+                <DkpRankEditor
+                  label="Prep Stage DKP (Rang 1–N)"
+                  tableJson={form.dkp_table_prep}
+                  color="text-amber-400"
+                  onChange={(v) => set("dkp_table_prep", v)}
+                />
+              )}
+              {form.has_war_stage && (
+                <DkpRankEditor
+                  label="War — Top 20 Power Players"
+                  tableJson={form.dkp_table_war_top20}
+                  color="text-amber-400"
+                  onChange={(v) => set("dkp_table_war_top20", v)}
+                />
+              )}
+              {form.has_war_stage && (
+                <DkpRankEditor
+                  label="War — Outside Top 20"
+                  tableJson={form.dkp_table_war_outside}
+                  color="text-blue-400"
+                  onChange={(v) => set("dkp_table_war_outside", v)}
+                />
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 p-6 pt-4 border-t border-white/5">
           <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Abbrechen</Button>
           <Button
             onClick={() => onCreate(form)}
