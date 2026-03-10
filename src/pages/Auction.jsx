@@ -47,6 +47,12 @@ export default function Auction() {
     queryFn: () => base44.entities.Player.list("name", 500),
   });
 
+  const { data: allBids = [] } = useQuery({
+    queryKey: ["bids-public"],
+    queryFn: () => base44.entities.Bid.list("-created_date", 2000),
+    refetchInterval: 30000,
+  });
+
   const currentAuction = useMemo(() => {
     return auctions.find((a) => a.status === "open") || auctions.find((a) => a.status === "closed") || auctions.find((a) => a.status === "draft");
   }, [auctions]);
