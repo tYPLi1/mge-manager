@@ -461,6 +461,9 @@ export default function AdminAuctions() {
                           )}
                         </td>
                         <td className="px-2 py-1.5 text-sm text-gray-400 hidden sm:table-cell">{b.mge_score || "—"}</td>
+                        <td className="px-2 py-1.5 hidden md:table-cell">
+                          {b.want_friendly_zone ? <span className="text-xs text-emerald-400">✓</span> : <span className="text-xs text-gray-600">—</span>}
+                        </td>
                         <td className="px-2 py-1.5">
                           <div className="flex items-center gap-1">
                             <button
