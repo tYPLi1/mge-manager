@@ -27,6 +27,11 @@ export default function AdminPlayers() {
     queryFn: () => base44.entities.Player.list("name", 500),
   });
 
+  const { data: penalties = [] } = useQuery({
+    queryKey: ["penalties"],
+    queryFn: () => base44.entities.Penalty.list("-offense_date", 1000),
+  });
+
   const createMutation = useMutation({
     mutationFn: (name) => base44.entities.Player.create({ name, total_dkp: 0, dkp_spent: 0 }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["players"] }); setNewName(""); },
@@ -71,20 +76,39 @@ export default function AdminPlayers() {
   };
 
   const downloadCurrent = () => {
-    const data = players.map(p => [
+    const wb = XLSX.utils.book_new();
+    
+    // Players sheet
+    const playerData = players.map(p => [
       p.name,
       p.total_dkp || 0,
       p.dkp_spent || 0,
       p.cooldown_until || "",
       p.power || 0,
     ]);
-    const ws = XLSX.utils.aoa_to_sheet([
+    const playerWs = XLSX.utils.aoa_to_sheet([
       ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
-      ...data,
+      ...playerData,
     ]);
-    ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Players");
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, playerWs, "Players");
+
+    // Penalties sheet
+    const penaltyData = penalties.filter(p => p.status === "probation").map(p => [
+      p.player_name,
+      p.level,
+      p.offense_count,
+      p.offense_date,
+      p.dkp_deducted || 0,
+      p.note || "",
+    ]);
+    const penaltyWs = XLSX.utils.aoa_to_sheet([
+      ["Player", "Level", "Offense #", "Date", "DKP Deducted", "Note"],
+      ...penaltyData,
+    ]);
+    penaltyWs["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, penaltyWs, "Penalties");
+
     XLSX.writeFile(wb, `Players-State-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
