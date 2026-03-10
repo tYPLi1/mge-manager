@@ -12,21 +12,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Fetch from raw API endpoint to bypass auth checks
-    const appId = Deno.env.get('BASE44_APP_ID');
-    const response = await fetch(`https://api.base44.com/entities/AdminUser/list?appId=${appId}`, {
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_ROLE_KEY') || ''}`,
-        'Content-Type': 'application/json'
-      }
+    // Get all admin users via helper function
+    const usersResponse = await fetch(new URL(req.url).origin + '/api/functions/getAdminUser', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
     });
 
-    if (!response.ok) {
+    if (!usersResponse.ok) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const data = await response.json();
-    const adminUser = data.data?.find(u => u.username === username);
+    const usersData = await usersResponse.json();
+    const adminUser = usersData.data?.find(u => u.username === username);
     
     if (!adminUser) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
