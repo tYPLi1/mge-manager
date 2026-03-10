@@ -144,12 +144,11 @@ export default function AdminSettings() {
         </div>
 
         {/* Discord Integration */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Discord Notifications</h3>
-          <p className="text-xs text-gray-500 mb-4">
-            Get notified on Discord when auctions open, results are ready, and event data is uploaded.
-            <br />Use <code className="bg-black/30 px-1.5 py-0.5 rounded text-xs">/set-dkp-channel</code> in Discord to configure the channel.
-          </p>
+         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+           <h3 className="text-sm font-semibold text-white mb-4">Discord Notifications</h3>
+           <p className="text-xs text-gray-500 mb-4">
+             Get notified on Discord when auctions open, results are ready, and event data is uploaded.
+           </p>
           <div className="space-y-4">
             <div>
               <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Discord Webhook URL</Label>
