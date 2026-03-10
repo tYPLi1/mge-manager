@@ -207,7 +207,14 @@ export default function Auction() {
                   {isAuctionBanned && (
                     <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                       <Ban className="w-3.5 h-3.5" />
-                      You are auction-banned and cannot place bids.
+                      Du bist gesperrt und kannst keine Gebote abgeben.
+                    </div>
+                  )}
+
+                  {alreadyBid && (
+                    <div className="flex items-center gap-2 text-xs text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Du hast für diese Auktion bereits ein Gebot abgegeben.
                     </div>
                   )}
 
