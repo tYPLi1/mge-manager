@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
+import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 
 export default function AdminPenalties() {
   const [playerId, setPlayerId] = useState("");
