@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings, Save } from "lucide-react";
+import { Settings, Save, Send } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,16 @@ export default function AdminSettings() {
 
   const getBool = (key) => form[key] === "true";
   const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
+
+  const testWebhookMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('testDiscordWebhook', {});
+      if (!response.data.success) throw new Error(response.data.error);
+      return response.data;
+    },
+    onSuccess: () => toast.success('Test message sent to Discord!'),
+    onError: (error) => toast.error(`Failed: ${error.message}`),
+  });
 
   return (
     <div>
@@ -175,6 +186,14 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Event Upload Notifications</Label>
               <Switch checked={getBool("discord_events_enabled")} onCheckedChange={(v) => setBool("discord_events_enabled", v)} />
             </div>
+            <Button 
+              onClick={() => testWebhookMutation.mutate()} 
+              disabled={testWebhookMutation.isPending || !form.discord_webhook_url}
+              variant="outline"
+              className="w-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 mt-2"
+            >
+              <Send className="w-3.5 h-3.5 mr-2" /> Send Test Message
+            </Button>
           </div>
         </div>
       </div>
