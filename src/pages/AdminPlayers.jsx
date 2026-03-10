@@ -181,13 +181,13 @@ export default function AdminPlayers() {
           onCancel={() => setPreviewData(null)}
         />
       )}
-      <PageHeader title="Player Management" subtitle={`${players.length} Spieler`} icon={Users} />
+      <PageHeader title="Player Management" subtitle={`${players.length} Players`} icon={Users} />
 
       {/* Add Player + Import + Export */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mb-6">
         <div className="flex gap-3 flex-wrap mb-3">
           <Input
-            placeholder="Neuer Spielername..."
+            placeholder="New player name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 flex-1 min-w-40"
@@ -198,7 +198,7 @@ export default function AdminPlayers() {
             disabled={!newName || createMutation.isPending}
             className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
-            <Plus className="w-4 h-4 mr-1" /> Hinzufügen
+            <Plus className="w-4 h-4 mr-1" /> Add
           </Button>
         </div>
         <div className="flex gap-3 flex-wrap">
@@ -207,7 +207,7 @@ export default function AdminPlayers() {
             className="border-white/10 text-gray-300 hover:text-white hover:bg-white/5"
             onClick={downloadTemplate}
           >
-            <Download className="w-4 h-4 mr-1" /> Vorlage
+            <Download className="w-4 h-4 mr-1" /> Template
           </Button>
           <Button
             variant="outline"
@@ -215,7 +215,7 @@ export default function AdminPlayers() {
             onClick={downloadCurrent}
             disabled={players.length === 0}
           >
-            <Download className="w-4 h-4 mr-1" /> Aktueller Stand
+            <Download className="w-4 h-4 mr-1" /> Current State
           </Button>
           <Button
             variant="outline"
@@ -223,7 +223,7 @@ export default function AdminPlayers() {
             onClick={() => fileRef.current?.click()}
             disabled={importing}
           >
-            <Upload className="w-4 h-4 mr-1" /> {importing ? "Importiere..." : "Datei importieren"}
+            <Upload className="w-4 h-4 mr-1" /> {importing ? "Importing..." : "Import File"}
           </Button>
           <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
         </div>
@@ -233,7 +233,7 @@ export default function AdminPlayers() {
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
         <Input
-          placeholder="Suchen..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 w-64"
