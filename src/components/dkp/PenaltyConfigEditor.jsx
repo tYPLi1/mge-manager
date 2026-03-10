@@ -8,6 +8,9 @@ const DEFAULT_CONFIG = {
   level1_offenses: [0, 5, 10, 20, 40, 80],
   level2_minimum: 50,
   compensation_divisor: 2,
+  level1_reset_days: null,
+  level2_reset_days: null,
+  level3_reset_days: null,
 };
 
 export default function PenaltyConfigEditor({ value, onChange }) {
