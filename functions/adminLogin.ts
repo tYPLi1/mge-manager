@@ -29,14 +29,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    const base44 = createClientFromRequest(req);
-
-    // Find admin user (using service role to bypass auth)
-    let users;
-    try {
-      users = await base44.asServiceRole.entities.AdminUser.filter({ username });
-    } catch (err) {
-      // Fallback if service role also fails
+    // Hash the provided password
+    const passwordHash = await hashPassword(password);
+    
+    // For now, store credentials in a simple way
+    // Check against the known credentials
+    const ADMIN_USERNAME = 'tYPLi1';
+    const ADMIN_PASSWORD_HASH = await hashPassword('19Ti97fr0211@');
+    
+    if (username !== ADMIN_USERNAME) {
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+    
+    if (passwordHash !== ADMIN_PASSWORD_HASH) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     
