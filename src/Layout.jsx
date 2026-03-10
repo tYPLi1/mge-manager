@@ -38,7 +38,24 @@ const sharedStyle = `
 
 export default function Layout({ children, currentPageName }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
   const isAdmin = currentPageName?.startsWith("Admin");
+
+  // Check session for admin pages
+  useEffect(() => {
+    if (isAdmin) {
+      const session = localStorage.getItem("adminSession");
+      if (!session) {
+        navigate(createPageUrl("AdminLogin"));
+        return;
+      }
+      const parsed = JSON.parse(session);
+      if (new Date(parsed.expiresAt) <= new Date()) {
+        localStorage.removeItem("adminSession");
+        navigate(createPageUrl("AdminLogin"));
+      }
+    }
+  }, [isAdmin, navigate]);
 
   // ── Admin layout: dark sidebar ──────────────────────────────────────────
   if (isAdmin) {
