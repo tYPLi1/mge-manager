@@ -53,10 +53,6 @@ export default function Auction() {
     queryFn: () => base44.entities.Bid.list("-created_date", 2000),
   });
 
-  const { data: auctions: auctionsQuery = [] } = useQuery({
-    queryKey: ["auctions"],
-  });
-
   const currentAuction = useMemo(() => {
     return auctions.find((a) => a.status === "open") || auctions.find((a) => a.status === "closed") || auctions.find((a) => a.status === "draft");
   }, [auctions]);
