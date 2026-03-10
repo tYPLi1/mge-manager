@@ -3,18 +3,36 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    // Only admin can trigger notifications
-    if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    
     const body = await req.json();
-    const { eventName, eventDate, playersUpdated, totalDkpDistributed, rankings } = body;
+    const { event, data } = body;
 
-    if (!eventName || !eventDate) {
-      return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
+    // Handle automation trigger (DKPTransaction) or manual trigger
+    let eventName, eventDate, playersUpdated, totalDkpDistributed, rankings;
+    
+    if (event?.type) {
+      // Automation trigger - single DKPTransaction
+      if (data?.source && data?.source_stage && data?.amount) {
+        eventName = `${data.source}${data.source_stage ? ' - ' + data.source_stage : ''}`;
+        eventDate = data.event_date;
+        playersUpdated = 1;
+        totalDkpDistributed = data.amount;
+        rankings = [];
+      }
+    } else {
+      // Manual trigger
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const { eventName: name, eventDate: date, playersUpdated: players, totalDkpDistributed: total, rankings: ranks } = body;
+      if (!name || !date) {
+        return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
+      }
+      eventName = name;
+      eventDate = date;
+      playersUpdated = players;
+      totalDkpDistributed = total;
+      rankings = ranks;
     }
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();

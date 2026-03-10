@@ -3,22 +3,30 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    // Only admin can trigger notifications
-    if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    
     const body = await req.json();
-    const { auctionId } = body;
+    const { event, data } = body;
 
-    if (!auctionId) {
-      return Response.json({ error: 'Missing auctionId' }, { status: 400 });
+    // Handle automation trigger (has event data) or manual trigger (has auctionId)
+    let auction, auctionId;
+    if (event?.type) {
+      // Automation trigger
+      auction = data;
+      auctionId = data.id;
+    } else {
+      // Manual trigger - check admin
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const { auctionId: id } = body;
+      if (!id) {
+        return Response.json({ error: 'Missing auctionId' }, { status: 400 });
+      }
+      auctionId = id;
+      auction = await base44.asServiceRole.entities.Auction.get(auctionId);
     }
 
-    // Fetch auction, results & settings
-    const auction = await base44.asServiceRole.entities.Auction.get(auctionId);
+    // Fetch results & settings
     const results = await base44.asServiceRole.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
     const settings = await base44.asServiceRole.entities.AppSettings.list();
     
