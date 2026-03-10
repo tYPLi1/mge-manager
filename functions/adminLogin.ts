@@ -32,10 +32,13 @@ Deno.serve(async (req) => {
     // Hash the provided password
     const passwordHash = await hashPassword(password);
     
-    // For now, store credentials in a simple way
-    // Check against the known credentials
-    const ADMIN_USERNAME = 'tYPLi1';
-    const ADMIN_PASSWORD_HASH = await hashPassword('19Ti97fr0211@');
+    // Get credentials from environment variables
+    const ADMIN_USERNAME = Deno.env.get('ADMIN_USERNAME');
+    const ADMIN_PASSWORD_HASH = Deno.env.get('ADMIN_PASSWORD_HASH');
+    
+    if (!ADMIN_USERNAME || !ADMIN_PASSWORD_HASH) {
+      return Response.json({ error: 'Admin credentials not configured' }, { status: 500 });
+    }
     
     if (username !== ADMIN_USERNAME) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });

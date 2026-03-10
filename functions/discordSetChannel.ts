@@ -14,9 +14,10 @@ async function verifyDiscordRequest(req, rawBody) {
   try {
     const message = timestamp + rawBody;
     const encoder = new TextEncoder();
-    const keyBytes = Uint8Array.from(Buffer.from(DISCORD_PUBLIC_KEY, 'hex'));
+    // Convert hex string to Uint8Array without Buffer
+    const keyBytes = new Uint8Array(DISCORD_PUBLIC_KEY.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
     const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'Ed25519' }, false, ['verify']);
-    const sigBytes = Uint8Array.from(Buffer.from(signature, 'hex'));
+    const sigBytes = new Uint8Array(signature.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
     
     return await crypto.subtle.verify('Ed25519', key, sigBytes, encoder.encode(message));
   } catch (e) {
