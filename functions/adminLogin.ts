@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import { compare } from 'npm:bcryptjs@2.4.3';
+import bcrypt from 'npm:bcryptjs@2.4.3';
 
 Deno.serve(async (req) => {
   try {
@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     }
 
     // Verify password hash
-    const passwordMatch = await compare(password, adminUser.password_hash);
+    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
     
     if (!passwordMatch) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
