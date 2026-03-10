@@ -144,16 +144,7 @@ export default function AdminPenalties() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Player</Label>
-            <Select value={playerId} onValueChange={setPlayerId}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                <SelectValue placeholder="Select player..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-60">
-                {players.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <PlayerSearchSelect players={players} value={playerId} onValueChange={setPlayerId} placeholder="Spieler suchen..." />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Level</Label>
