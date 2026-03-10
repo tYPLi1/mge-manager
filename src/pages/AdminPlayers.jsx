@@ -70,9 +70,9 @@ export default function AdminPlayers() {
     
     // Players sheet
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
+      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Penalties sheet
@@ -95,12 +95,13 @@ export default function AdminPlayers() {
       p.dkp_spent || 0,
       p.cooldown_until || "",
       p.power || 0,
+      p.updated_date || "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
+      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Penalties sheet
@@ -143,6 +144,7 @@ export default function AdminPlayers() {
         const dkpSpent = parseInt(row[2]) || 0;
         const cooldown = row[3]?.toString().trim() || null;
         const power = parseInt(row[4]) || 0;
+        const fileUpdatedDate = row[5]?.toString().trim();
 
         const existing = playersMap.get(name.toLowerCase());
         if (!existing) {
@@ -156,6 +158,19 @@ export default function AdminPlayers() {
             power,
           });
         } else {
+          // Check if file is outdated
+          if (fileUpdatedDate && existing.updated_date && fileUpdatedDate < existing.updated_date) {
+            preview.push({
+              type: "outdated",
+              entity: "player",
+              id: existing.id,
+              name,
+              fileDate: fileUpdatedDate,
+              dbDate: existing.updated_date,
+            });
+            continue;
+          }
+
           const changes = {};
           if (existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
           if (existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
