@@ -60,6 +60,34 @@ export default function AdminPlayers() {
     });
   };
 
+  const downloadTemplate = () => {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["Name", "DKP erworben", "DKP ausgegeben", "Cooldown (YYYY-MM-DD)", "Power"],
+    ]);
+    ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Spieler");
+    XLSX.writeFile(wb, "Spieler-Vorlage.xlsx");
+  };
+
+  const downloadCurrent = () => {
+    const data = players.map(p => [
+      p.name,
+      p.total_dkp || 0,
+      p.dkp_spent || 0,
+      p.cooldown_until || "",
+      p.power || 0,
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["Name", "DKP erworben", "DKP ausgegeben", "Cooldown (YYYY-MM-DD)", "Power"],
+      ...data,
+    ]);
+    ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Spieler");
+    XLSX.writeFile(wb, `Spieler-Stand-${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   const handleImport = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -67,25 +95,76 @@ export default function AdminPlayers() {
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array" });
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }).slice(1);
-    const existingNames = new Set(players.map(p => p.name.toLowerCase()));
-    const newPlayers = [];
+
+    const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
+    const preview = [];
+
     for (const row of rows) {
       const name = row[0]?.toString().trim();
       if (!name) continue;
-      if (!existingNames.has(name.toLowerCase())) {
-        newPlayers.push({ name, total_dkp: 0, dkp_spent: 0 });
-        existingNames.add(name.toLowerCase());
+
+      const dkpEarned = parseInt(row[1]) || 0;
+      const dkpSpent = parseInt(row[2]) || 0;
+      const cooldown = row[3]?.toString().trim() || null;
+      const power = parseInt(row[4]) || 0;
+
+      const existing = playersMap.get(name.toLowerCase());
+      if (!existing) {
+        preview.push({
+          type: "new",
+          name,
+          total_dkp: dkpEarned,
+          dkp_spent: dkpSpent,
+          cooldown_until: cooldown,
+          power,
+        });
+      } else {
+        const changes = {};
+        if (existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
+        if (existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
+        if (existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
+        if (existing.power !== power) changes.power = { old: existing.power, new: power };
+
+        if (Object.keys(changes).length > 0) {
+          preview.push({
+            type: "update",
+            id: existing.id,
+            name,
+            changes,
+          });
+        }
       }
     }
-    if (newPlayers.length > 0) {
-      await base44.entities.Player.bulkCreate(newPlayers);
-      queryClient.invalidateQueries({ queryKey: ["players"] });
-      alert(`${newPlayers.length} Spieler importiert.`);
+
+    if (preview.length > 0) {
+      setPreviewData(preview);
     } else {
-      alert("Keine neuen Spieler gefunden.");
+      alert("Keine neuen oder geänderten Spieler gefunden.");
     }
     setImporting(false);
     e.target.value = "";
+  };
+
+  const confirmImport = async (items) => {
+    setImporting(true);
+    const newPlayers = items.filter(p => p.type === "new").map(({ type, ...rest }) => rest);
+    const updates = items.filter(p => p.type === "update");
+
+    if (newPlayers.length > 0) {
+      await base44.entities.Player.bulkCreate(newPlayers);
+    }
+
+    for (const item of updates) {
+      const updateData = {};
+      Object.entries(item.changes).forEach(([key, { new: val }]) => {
+        updateData[key] = val;
+      });
+      await base44.entities.Player.update(item.id, updateData);
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["players"] });
+    setPreviewData(null);
+    alert(`${newPlayers.length} neue Spieler, ${updates.length} aktualisiert.`);
   };
 
   const filtered = useMemo(() =>
