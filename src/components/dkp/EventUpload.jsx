@@ -14,6 +14,8 @@ export default function EventUpload({ players, eventTypes }) {
   const [stage, setStage] = useState("war");
   const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
   const [preview, setPreview] = useState(null);
+  const [unknownNames, setUnknownNames] = useState([]);
+  const [creatingPlayers, setCreatingPlayers] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
   const fileRef = useRef(null);
