@@ -250,7 +250,7 @@ export default function AdminPlayers() {
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Cooldown</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Power</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase w-24">Aktionen</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase w-24">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
