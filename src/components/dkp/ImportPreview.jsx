@@ -107,14 +107,14 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
 
         <div className="p-4 border-t border-white/10 flex gap-2 justify-end">
           <Button variant="outline" onClick={onCancel} className="border-white/10 text-gray-300">
-            <X className="w-4 h-4 mr-1" /> Abbrechen
+            <X className="w-4 h-4 mr-1" /> Cancel
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={selected.size === 0}
             className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
-            <Check className="w-4 h-4 mr-1" /> {selected.size} annehmen
+            <Check className="w-4 h-4 mr-1" /> Accept {selected.size}
           </Button>
         </div>
       </div>
