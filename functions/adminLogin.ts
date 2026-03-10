@@ -13,15 +13,10 @@ Deno.serve(async (req) => {
     }
 
     // Get credentials from environment variables
-    const ADMIN_USERNAME = Deno.env.get('ADMIN_USERNAME');
     const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD');
     
-    if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD) {
       return Response.json({ error: 'Admin credentials not configured' }, { status: 500 });
-    }
-    
-    if (username !== ADMIN_USERNAME) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     
     if (password !== ADMIN_PASSWORD) {
