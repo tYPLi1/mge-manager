@@ -92,10 +92,12 @@ export default function EventUpload({ players, eventTypes }) {
   const applyResults = async () => {
     if (!preview || !selectedEventType) return;
     setApplying(true);
-    for (const entry of preview) {
-      if (entry.dkp === 0) continue;
-      const player = players.find(p => p.id === entry.playerId);
-      await base44.entities.DKPTransaction.create({
+
+    const toApply = preview.filter(entry => entry.dkp !== 0);
+
+    // Bulk create all transactions in one request
+    await base44.entities.DKPTransaction.bulkCreate(
+      toApply.map(entry => ({
         player_id: entry.playerId,
         player_name: entry.playerName,
         amount: entry.dkp,
@@ -103,11 +105,17 @@ export default function EventUpload({ players, eventTypes }) {
         source: selectedEventType.key,
         source_stage: isYN ? null : stage,
         event_date: eventDate,
-      });
+      }))
+    );
+
+    // Update player totals sequentially
+    for (const entry of toApply) {
+      const player = players.find(p => p.id === entry.playerId);
       await base44.entities.Player.update(entry.playerId, {
         total_dkp: (player?.total_dkp || 0) + entry.dkp,
       });
     }
+
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setApplied(true);
     setApplying(false);
