@@ -11,12 +11,18 @@ Deno.serve(async (req) => {
     
     if (event?.type) {
       // Automation trigger - single DKPTransaction
+      // Skip if this is a penalty/compensation (those are handled by notifyPenalty)
+      if (data?.type === 'penalty' || data?.type === 'compensation') {
+        return Response.json({ success: true });
+      }
       if (data?.source && data?.source_stage && data?.amount) {
         eventName = `${data.source}${data.source_stage ? ' - ' + data.source_stage : ''}`;
         eventDate = data.event_date;
         playersUpdated = 1;
         totalDkpDistributed = data.amount;
         rankings = [];
+      } else {
+        return Response.json({ success: true });
       }
     } else {
       // Manual trigger
