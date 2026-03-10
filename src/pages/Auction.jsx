@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Gavel, Clock, Send, Lock, AlertTriangle, Ban } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
+import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 
 function CountdownTimer({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState("");
