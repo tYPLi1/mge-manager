@@ -1,29 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
 export default function AdminSessionGuard({ children }) {
   const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = () => {
-      const session = localStorage.getItem('adminSession');
-      
-      if (!session) {
-        navigate(createPageUrl('AdminLogin'));
-        return;
-      }
+    const checkAuthorization = async () => {
+      try {
+        // Check AdminUser session from localStorage
+        const adminSession = localStorage.getItem('adminSession');
+        if (adminSession) {
+          const parsed = JSON.parse(adminSession);
+          if (new Date(parsed.expiresAt) > new Date()) {
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
+          } else {
+            localStorage.removeItem('adminSession');
+            localStorage.removeItem('adminLastActivity');
+          }
+        }
 
-      const parsed = JSON.parse(session);
-      if (new Date(parsed.expiresAt) <= new Date()) {
-        localStorage.removeItem('adminSession');
-        localStorage.removeItem('adminLastActivity');
+        // Check if Base44 user is admin
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (isAuthenticated) {
+          const user = await base44.auth.me();
+          if (user?.role === 'admin') {
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // No valid admin session or Base44 admin user
         navigate(createPageUrl('AdminLogin'));
-        return;
+        setLoading(false);
+      } catch (error) {
+        console.error('Authorization check failed:', error);
+        navigate(createPageUrl('AdminLogin'));
+        setLoading(false);
       }
     };
+
+    checkAuthorization();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
 
     const handleActivity = () => {
       const session = localStorage.getItem('adminSession');
@@ -36,12 +65,6 @@ export default function AdminSessionGuard({ children }) {
       }
     };
 
-    // Check session on mount
-    checkSession();
-
-    // Check session periodically
-    const sessionCheckInterval = setInterval(checkSession, 30000); // Every 30 seconds
-
     // Track activity
     const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
     activityEvents.forEach(event => {
@@ -49,15 +72,17 @@ export default function AdminSessionGuard({ children }) {
     });
 
     return () => {
-      clearInterval(sessionCheckInterval);
       activityEvents.forEach(event => {
         window.removeEventListener(event, handleActivity);
       });
     };
-  }, [navigate]);
+  }, [isAuthorized]);
 
-  const session = localStorage.getItem('adminSession');
-  if (!session) {
+  if (loading) {
+    return null;
+  }
+
+  if (!isAuthorized) {
     return null;
   }
 
