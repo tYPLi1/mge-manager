@@ -174,6 +174,13 @@ export default function AdminPlayers() {
 
   return (
     <div>
+      {previewData && (
+        <ImportPreview
+          preview={previewData}
+          onConfirm={confirmImport}
+          onCancel={() => setPreviewData(null)}
+        />
+      )}
       <PageHeader title="Player Management" subtitle={`${players.length} Spieler`} icon={Users} />
 
       {/* Add Player + Import + Export */}
