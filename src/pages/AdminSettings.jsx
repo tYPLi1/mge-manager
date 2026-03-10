@@ -142,6 +142,42 @@ export default function AdminSettings() {
             onChange={(val) => setForm({ ...form, penalty_config: val })}
           />
         </div>
+
+        {/* Discord Integration */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Discord Notifications</h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Get notified on Discord when auctions open, results are ready, and event data is uploaded.
+            <br />Use <code className="bg-black/30 px-1.5 py-0.5 rounded text-xs">/set-dkp-channel</code> in Discord to configure the channel.
+          </p>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Discord Webhook URL</Label>
+              <Input
+                type="password"
+                placeholder="https://discord.com/api/webhooks/..."
+                value={form.discord_webhook_url || ""}
+                onChange={(e) => setForm({ ...form, discord_webhook_url: e.target.value })}
+                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Create a webhook: Server → Channel → Edit → Integrations → Webhooks
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Auction Notifications</Label>
+              <Switch checked={getBool("discord_auction_enabled")} onCheckedChange={(v) => setBool("discord_auction_enabled", v)} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Results Notifications</Label>
+              <Switch checked={getBool("discord_results_enabled")} onCheckedChange={(v) => setBool("discord_results_enabled", v)} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Event Upload Notifications</Label>
+              <Switch checked={getBool("discord_events_enabled")} onCheckedChange={(v) => setBool("discord_events_enabled", v)} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
