@@ -141,7 +141,7 @@ export default function Auction() {
 
   if (!currentAuction) {
     return (
-      <div>
+      <div className="bg-[#0a0e1a] min-h-screen">
         <PageHeader title="MGE Auction" icon={Gavel} />
         <div className="bg-[#111827] rounded-xl border border-white/5 p-12 text-center">
           <Gavel className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -153,7 +153,7 @@ export default function Auction() {
   }
 
   return (
-    <div>
+    <div className="bg-[#0a0e1a] min-h-screen">
       <PageHeader title="MGE Auction" subtitle={currentAuction.title} icon={Gavel} />
 
       <div className="grid gap-6 lg:grid-cols-3">
