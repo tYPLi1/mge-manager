@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get Discord webhook URL from settings
-    const settings = await base44.entities.AppSettings.list();
+    // Get Discord webhook URL from settings using service role
+    const settings = await base44.asServiceRole.entities.AppSettings.list();
     const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
 
     if (!webhookUrl) {
