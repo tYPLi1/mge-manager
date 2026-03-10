@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap, XCircle, Upload, Download } from "lucide-react";
@@ -31,6 +31,22 @@ export default function AdminPlayers() {
     queryKey: ["penalties"],
     queryFn: () => base44.entities.Penalty.list("-offense_date", 1000),
   });
+
+  // Real-time subscriptions
+  useEffect(() => {
+    const unsubscribePlayers = base44.entities.Player.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    });
+
+    const unsubscribePenalties = base44.entities.Penalty.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ["penalties"] });
+    });
+
+    return () => {
+      unsubscribePlayers();
+      unsubscribePenalties();
+    };
+  }, [queryClient]);
 
   const createMutation = useMutation({
     mutationFn: (name) => base44.entities.Player.create({ name, total_dkp: 0, dkp_spent: 0 }),
