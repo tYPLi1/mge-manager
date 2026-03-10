@@ -57,12 +57,12 @@ import AdminPlayers from './pages/AdminPlayers';
 import AdminSettings from './pages/AdminSettings';
 import Auction from './pages/Auction';
 import Leaderboard from './pages/Leaderboard';
+import PlayerDetail from './pages/PlayerDetail';
 import Power from './pages/Power';
 import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
 import Transactions from './pages/Transactions';
-import PlayerDetail from './pages/PlayerDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -77,12 +77,12 @@ export const PAGES = {
     "AdminSettings": AdminSettings,
     "Auction": Auction,
     "Leaderboard": Leaderboard,
+    "PlayerDetail": PlayerDetail,
     "Power": Power,
     "Punishments": Punishments,
     "Results": Results,
     "Rules": Rules,
     "Transactions": Transactions,
-    "PlayerDetail": PlayerDetail,
 }
 
 export const pagesConfig = {
