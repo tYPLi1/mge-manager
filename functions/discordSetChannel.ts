@@ -47,55 +47,10 @@ Deno.serve(async (req) => {
       return Response.json({ type: 1 });
     }
 
-    // Handle command (APPLICATION_COMMAND type = 2)
-    if (interaction.type === 2) {
-      const commandName = interaction.data.name;
-      const options = interaction.data.options || [];
-
-      if (commandName === 'set-dkp-channel') {
-        const channelId = options.find(o => o.name === 'channel')?.value;
-        
-        if (!channelId) {
-          return Response.json({
-            type: 4,
-            data: { content: '❌ Please specify a channel.' },
-          });
-        }
-
-        // Save channel setting
-        const base44 = createClientFromRequest(req);
-        const settings = await base44.asServiceRole.entities.AppSettings.list();
-        const existing = settings.find(s => s.key === 'discord_auction_channel');
-
-        if (existing) {
-          await base44.asServiceRole.entities.AppSettings.update(existing.id, {
-            value: channelId,
-          });
-        } else {
-          await base44.asServiceRole.entities.AppSettings.create({
-            key: 'discord_auction_channel',
-            value: channelId,
-          });
-        }
-
-        return Response.json({
-          type: 4,
-          data: { content: `✅ DKP notifications will be sent to <#${channelId}>` },
-        });
-      }
-
-      return Response.json({
-        type: 4,
-        data: { content: '❌ Unknown command.' },
-      });
-    }
-
-    return Response.json({ error: 'Unknown interaction type' }, { status: 400 });
+    // All other interactions are ignored (no command handling)
+    return Response.json({ error: 'Webhook verification only' }, { status: 400 });
   } catch (error) {
     console.error('discordSetChannel error:', error);
-    return Response.json({
-      type: 4,
-      data: { content: '❌ An error occurred.' },
-    });
+    return Response.json({ error: 'Server error' }, { status: 500 });
   }
 });
