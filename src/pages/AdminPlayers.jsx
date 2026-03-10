@@ -66,12 +66,22 @@ export default function AdminPlayers() {
   };
 
   const downloadTemplate = () => {
-    const ws = XLSX.utils.aoa_to_sheet([
+    const wb = XLSX.utils.book_new();
+    
+    // Players sheet
+    const playerWs = XLSX.utils.aoa_to_sheet([
       ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power"],
     ]);
-    ws["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Players");
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, playerWs, "Players");
+
+    // Penalties sheet
+    const penaltyWs = XLSX.utils.aoa_to_sheet([
+      ["Player Name", "Level", "Offense #", "Date (YYYY-MM-DD)", "DKP Deducted", "Status", "Note"],
+    ]);
+    penaltyWs["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 15 }, { wch: 12 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, penaltyWs, "Penalties");
+
     XLSX.writeFile(wb, "Players-Template.xlsx");
   };
 
@@ -118,44 +128,102 @@ export default function AdminPlayers() {
     setImporting(true);
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array" });
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }).slice(1);
-
-    const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
     const preview = [];
 
-    for (const row of rows) {
-      const name = row[0]?.toString().trim();
-      if (!name) continue;
+    // Process Players sheet
+    if (wb.Sheets["Players"]) {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets["Players"], { header: 1 }).slice(1);
+      const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
 
-      const dkpEarned = parseInt(row[1]) || 0;
-      const dkpSpent = parseInt(row[2]) || 0;
-      const cooldown = row[3]?.toString().trim() || null;
-      const power = parseInt(row[4]) || 0;
+      for (const row of rows) {
+        const name = row[0]?.toString().trim();
+        if (!name) continue;
 
-      const existing = playersMap.get(name.toLowerCase());
-      if (!existing) {
-        preview.push({
-          type: "new",
-          name,
-          total_dkp: dkpEarned,
-          dkp_spent: dkpSpent,
-          cooldown_until: cooldown,
-          power,
-        });
-      } else {
-        const changes = {};
-        if (existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
-        if (existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
-        if (existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
-        if (existing.power !== power) changes.power = { old: existing.power, new: power };
+        const dkpEarned = parseInt(row[1]) || 0;
+        const dkpSpent = parseInt(row[2]) || 0;
+        const cooldown = row[3]?.toString().trim() || null;
+        const power = parseInt(row[4]) || 0;
 
-        if (Object.keys(changes).length > 0) {
+        const existing = playersMap.get(name.toLowerCase());
+        if (!existing) {
           preview.push({
-            type: "update",
-            id: existing.id,
+            type: "new",
+            entity: "player",
             name,
-            changes,
+            total_dkp: dkpEarned,
+            dkp_spent: dkpSpent,
+            cooldown_until: cooldown,
+            power,
           });
+        } else {
+          const changes = {};
+          if (existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
+          if (existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
+          if (existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
+          if (existing.power !== power) changes.power = { old: existing.power, new: power };
+
+          if (Object.keys(changes).length > 0) {
+            preview.push({
+              type: "update",
+              entity: "player",
+              id: existing.id,
+              name,
+              changes,
+            });
+          }
+        }
+      }
+    }
+
+    // Process Penalties sheet
+    if (wb.Sheets["Penalties"]) {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets["Penalties"], { header: 1 }).slice(1);
+      const penaltiesMap = new Map(penalties.map(p => [p.id, p]));
+
+      for (const row of rows) {
+        const playerName = row[0]?.toString().trim();
+        const level = parseInt(row[1]);
+        const offenseCount = parseInt(row[2]);
+        const offenseDate = row[3]?.toString().trim();
+        const dkpDeducted = parseInt(row[4]) || 0;
+        const status = row[5]?.toString().trim() || "probation";
+        const note = row[6]?.toString().trim() || "";
+
+        if (!playerName || !level || !offenseDate) continue;
+
+        const existingPenalty = Array.from(penaltiesMap.values()).find(
+          p => p.player_name === playerName && p.offense_date === offenseDate
+        );
+
+        if (!existingPenalty) {
+          preview.push({
+            type: "new",
+            entity: "penalty",
+            player_name: playerName,
+            level,
+            offense_count: offenseCount,
+            offense_date: offenseDate,
+            dkp_deducted: dkpDeducted,
+            status,
+            note,
+          });
+        } else {
+          const changes = {};
+          if (existingPenalty.level !== level) changes.level = { old: existingPenalty.level, new: level };
+          if (existingPenalty.offense_count !== offenseCount) changes.offense_count = { old: existingPenalty.offense_count, new: offenseCount };
+          if (existingPenalty.dkp_deducted !== dkpDeducted) changes.dkp_deducted = { old: existingPenalty.dkp_deducted, new: dkpDeducted };
+          if (existingPenalty.status !== status) changes.status = { old: existingPenalty.status, new: status };
+          if (existingPenalty.note !== note) changes.note = { old: existingPenalty.note, new: note };
+
+          if (Object.keys(changes).length > 0) {
+            preview.push({
+              type: "update",
+              entity: "penalty",
+              id: existingPenalty.id,
+              player_name: playerName,
+              changes,
+            });
+          }
         }
       }
     }
@@ -171,14 +239,16 @@ export default function AdminPlayers() {
 
   const confirmImport = async (items) => {
     setImporting(true);
-    const newPlayers = items.filter(p => p.type === "new").map(({ type, ...rest }) => rest);
-    const updates = items.filter(p => p.type === "update");
+    const newPlayers = items.filter(p => p.type === "new" && p.entity === "player").map(({ type, entity, ...rest }) => rest);
+    const playerUpdates = items.filter(p => p.type === "update" && p.entity === "player");
+    const newPenalties = items.filter(p => p.type === "new" && p.entity === "penalty").map(({ type, entity, ...rest }) => rest);
+    const penaltyUpdates = items.filter(p => p.type === "update" && p.entity === "penalty");
 
     if (newPlayers.length > 0) {
       await base44.entities.Player.bulkCreate(newPlayers);
     }
 
-    for (const item of updates) {
+    for (const item of playerUpdates) {
       const updateData = {};
       Object.entries(item.changes).forEach(([key, { new: val }]) => {
         updateData[key] = val;
@@ -186,9 +256,27 @@ export default function AdminPlayers() {
       await base44.entities.Player.update(item.id, updateData);
     }
 
+    if (newPenalties.length > 0) {
+      // Add player_id to new penalties
+      const penaltiesToCreate = await Promise.all(newPenalties.map(async (p) => {
+        const player = await base44.entities.Player.list().then(list => list.find(pl => pl.name === p.player_name));
+        return { ...p, player_id: player?.id };
+      }));
+      await base44.entities.Penalty.bulkCreate(penaltiesToCreate.filter(p => p.player_id));
+    }
+
+    for (const item of penaltyUpdates) {
+      const updateData = {};
+      Object.entries(item.changes).forEach(([key, { new: val }]) => {
+        updateData[key] = val;
+      });
+      await base44.entities.Penalty.update(item.id, updateData);
+    }
+
     queryClient.invalidateQueries({ queryKey: ["players"] });
+    queryClient.invalidateQueries({ queryKey: ["penalties"] });
     setPreviewData(null);
-    alert(`${newPlayers.length} new players, ${updates.length} updated.`);
+    alert(`${newPlayers.length} new players, ${playerUpdates.length} updated, ${newPenalties.length} new penalties, ${penaltyUpdates.length} penalty updates.`);
   };
 
   const filtered = useMemo(() =>
