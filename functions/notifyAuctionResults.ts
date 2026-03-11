@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
     // Handle automation trigger (has event data) or manual trigger (has auctionId)
     let auction, auctionId;
     if (event?.type) {
-      // Automation trigger - only notify if status changed to 'confirmed' or 'closed'
-      if (data.status !== 'confirmed' && data.status !== 'closed') {
+      // Automation trigger - only notify if status changed to 'confirmed'
+      if (data.status !== 'confirmed') {
         return Response.json({ success: true });
       }
       auction = data;
