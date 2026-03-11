@@ -64,6 +64,7 @@ import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
 import Transactions from './pages/Transactions';
+import Charts from './pages/Charts';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "Results": Results,
     "Rules": Rules,
     "Transactions": Transactions,
+    "Charts": Charts,
 }
 
 export const pagesConfig = {
