@@ -25,13 +25,35 @@ export default function Leaderboard() {
     queryFn: () => base44.entities.DKPTransaction.list("-event_date", 5000),
   });
 
+  const { data: eventTypes = [], isLoading: etLoading } = useQuery({
+    queryKey: ["event-types"],
+    queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
+  });
+
   useEffect(() => {
     const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
     const unsub2 = base44.entities.DKPTransaction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["transactions-activity"] }));
     return () => { unsub1(); unsub2(); };
   }, [queryClient]);
 
-  const isLoading = pLoading || txLoading;
+  const isLoading = pLoading || txLoading || etLoading;
+
+  // Build dynamic event columns from EventType entity
+  const eventColumns = useMemo(() => {
+    const cols = [];
+    eventTypes.forEach(et => {
+      if (et.has_prep_stage) {
+        cols.push({ key: `${et.key}_prep`, label: `${et.display_name} Prep` });
+      }
+      if (et.has_war_stage) {
+        cols.push({ key: `${et.key}_war`, label: `${et.display_name} War` });
+      }
+      if (!et.has_prep_stage && !et.has_war_stage) {
+        cols.push({ key: et.key, label: et.display_name });
+      }
+    });
+    return cols;
+  }, [eventTypes]);
 
   // Compute power ranks
   const powerRanks = useMemo(() => {
@@ -41,34 +63,38 @@ export default function Leaderboard() {
     return map;
   }, [players]);
 
+  // Set of event keys that count toward activity (exclude MGE/auction events)
+  const activityKeys = useMemo(() => {
+    const keys = new Set();
+    eventTypes.forEach(et => {
+      if (et.has_prep_stage) keys.add(`${et.key}_prep`);
+      if (et.has_war_stage) keys.add(`${et.key}_war`);
+      if (!et.has_prep_stage && !et.has_war_stage) keys.add(et.key);
+    });
+    return keys;
+  }, [eventTypes]);
+
   // Build enriched player data
   const enrichedPlayers = useMemo(() => {
     const eventMap = {};
     players.forEach(p => {
-      eventMap[p.id] = {
-        MEE_prep: { count: 0, dkp: 0 },
-        MEE_war: { count: 0, dkp: 0 },
-        GEE: { count: 0, dkp: 0 },
-        DDE: { count: 0, dkp: 0 },
-        Wonder: { count: 0, dkp: 0 },
-        Dawn: { count: 0, dkp: 0 },
-        total_events: 0,
-        activity_score: 0,
-      };
+      const entry = { total_events: 0, activity_score: 0 };
+      eventColumns.forEach(col => { entry[col.key] = { count: 0, dkp: 0 }; });
+      eventMap[p.id] = entry;
     });
 
     transactions.filter(t => t.type === "earn").forEach(t => {
       const e = eventMap[t.player_id];
       if (!e) return;
       let key = t.source;
-      if (t.source === "MEE" && t.source_stage) key = `MEE_${t.source_stage}`;
+      if (t.source_stage) key = `${t.source}_${t.source_stage}`;
       if (e[key] !== undefined) {
         e[key].count++;
         e[key].dkp += t.amount;
         e.total_events++;
       }
-      // Activity score: only count actual event participation, exclude MGE/auction
-      if (t.source !== "MGE" && t.source !== "KING") {
+      // Activity score: only count actual event participation keys
+      if (activityKeys.has(key)) {
         e.activity_score += t.amount;
       }
     });
@@ -79,7 +105,7 @@ export default function Leaderboard() {
       powerRank: powerRanks[p.id] || 0,
       ...eventMap[p.id],
     }));
-  }, [players, transactions, powerRanks]);
+  }, [players, transactions, powerRanks, eventColumns, activityKeys]);
 
   // Filter & sort
   const filtered = useMemo(() => {
@@ -144,6 +170,7 @@ export default function Leaderboard() {
         sortField={sortField}
         sortDir={sortDir}
         onSort={toggleSort}
+        eventColumns={eventColumns}
       />
     </div>
   );
