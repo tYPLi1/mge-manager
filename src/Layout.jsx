@@ -12,9 +12,7 @@ const publicNav = [
   { name: "Auction", page: "Auction", icon: Gavel },
   { name: "Results", page: "Results", icon: ScrollText },
   { name: "Transactions", page: "Transactions", icon: History },
-  { name: "Activity", page: "Activity", icon: Zap },
   { name: "Punishments", page: "Punishments", icon: Shield },
-  { name: "Power", page: "Power", icon: Zap },
   { name: "Charts", page: "Charts", icon: BarChart3 },
   { name: "Rules", page: "Rules", icon: BookOpen },
 ];
