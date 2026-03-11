@@ -21,7 +21,7 @@ export default function PlayerDetail() {
 
   const { data: transactions = [] } = useQuery({
     queryKey: ["transactions", playerId],
-    queryFn: () => base44.entities.DKPTransaction.filter({ player_id: playerId }, "-event_date", 200),
+    queryFn: () => base44.entities.DKPTransaction.filter({ player_id: playerId }, "-event_date", 500),
     enabled: !!playerId,
   });
 

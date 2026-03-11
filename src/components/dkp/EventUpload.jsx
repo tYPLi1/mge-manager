@@ -122,12 +122,26 @@ export default function EventUpload({ players, eventTypes }) {
       }))
     );
 
-    // Update player totals sequentially
+    // Update player totals and power
     for (const entry of toApply) {
       const player = players.find(p => p.id === entry.playerId);
-      await base44.entities.Player.update(entry.playerId, {
-        total_dkp: (player?.total_dkp || 0) + entry.dkp,
-      });
+      const updateData = { total_dkp: (player?.total_dkp || 0) + entry.dkp };
+
+      // Update power from parsed data if available (ranked events with power column)
+      const parsedEntry = preview.find(p => p.playerId === entry.playerId);
+      if (parsedEntry?.power && parsedEntry.power > 0) {
+        updateData.power = parsedEntry.power;
+        // Log power history
+        await base44.entities.PowerHistory.create({
+          player_id: entry.playerId,
+          player_name: entry.playerName,
+          power: parsedEntry.power,
+          recorded_at: eventDate,
+          source: selectedEventType.key,
+        });
+      }
+
+      await base44.entities.Player.update(entry.playerId, updateData);
     }
 
     queryClient.invalidateQueries({ queryKey: ["players"] });
