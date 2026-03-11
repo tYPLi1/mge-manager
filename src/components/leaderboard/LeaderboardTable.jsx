@@ -5,14 +5,7 @@ import { ArrowUpDown } from "lucide-react";
 import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
 
-const EVENT_COLUMNS = [
-  { key: "MEE_prep", label: "MEE Prep" },
-  { key: "MEE_war", label: "MEE War" },
-  { key: "GEE", label: "GEE" },
-  { key: "DDE", label: "DDE" },
-  { key: "Wonder", label: "Wonder" },
-  { key: "Dawn", label: "BoD" },
-];
+// Event columns are now passed as props from Leaderboard page
 
 function SortHeader({ field, sortField, sortDir, onSort, children, className = "", align = "left" }) {
   const isActive = sortField === field;
@@ -43,7 +36,7 @@ function EventCell({ data }) {
   );
 }
 
-export default function LeaderboardTable({ data, isLoading, sortField, sortDir, onSort }) {
+export default function LeaderboardTable({ data, isLoading, sortField, sortDir, onSort, eventColumns = [] }) {
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
       <div className="overflow-x-auto">
@@ -58,7 +51,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
               <SortHeader field="power" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">Power</SortHeader>
               <SortHeader field="powerRank" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Rank</SortHeader>
               <SortHeader field="cooldown_until" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Status</SortHeader>
-              {EVENT_COLUMNS.map(col => (
+              {eventColumns.map(col => (
                 <SortHeader key={col.key} field={`evt_${col.key}`} sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">
                   {col.label}
                 </SortHeader>
@@ -70,7 +63,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
             {isLoading ? (
               Array(12).fill(0).map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  {Array(14).fill(0).map((_, j) => (
+                  {Array(9 + eventColumns.length).fill(0).map((_, j) => (
                     <td key={j} className="px-2.5 py-3"><div className="h-4 w-10 bg-gray-700/50 rounded" /></td>
                   ))}
                 </tr>
@@ -110,7 +103,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
                     ) : <span className="text-gray-700">—</span>}
                   </td>
                   <td className="px-2.5 py-2 text-center"><StatusBadge cooldownUntil={p.cooldown_until} /></td>
-                  {EVENT_COLUMNS.map(col => (
+                  {eventColumns.map(col => (
                     <EventCell key={col.key} data={p[col.key]} />
                   ))}
                   <td className="px-2.5 py-2 text-center text-xs font-mono text-amber-400 font-medium">{(p.activity_score || 0).toLocaleString()}</td>
