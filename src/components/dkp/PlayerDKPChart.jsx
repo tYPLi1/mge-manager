@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -10,33 +12,57 @@ const RANGE_OPTIONS = [
   { label: "All", weeks: null },
 ];
 
-const EVENT_LINES = [
-  { key: "MEE_prep", label: "MEE Prep", color: "#f59e0b" },
-  { key: "MEE_war", label: "MEE War", color: "#f97316" },
-  { key: "GEE", label: "GEE", color: "#10b981" },
-  { key: "DDE", label: "DDE", color: "#3b82f6" },
-  { key: "Wonder", label: "Wonder", color: "#a855f7" },
-  { key: "Dawn", label: "BoD", color: "#ec4899" },
-  { key: "earn_total", label: "Total Earned", color: "#22d3ee" },
-  { key: "loss_total", label: "Deductions", color: "#ef4444" },
-];
+const LINE_COLORS = ["#f59e0b", "#f97316", "#10b981", "#3b82f6", "#a855f7", "#ec4899", "#14b8a6", "#8b5cf6", "#f43f5e", "#06b6d4"];
 
 function getEventKey(t) {
-  if (t.source === "MEE" && t.source_stage) return `MEE_${t.source_stage}`;
+  if (t.source_stage) return `${t.source}_${t.source_stage}`;
   return t.source;
 }
 
 export default function PlayerDKPChart({ transactions }) {
-  const [rangeIdx, setRangeIdx] = useState(2);
-  const [visibleLines, setVisibleLines] = useState(() => {
-    const m = {};
-    EVENT_LINES.forEach(e => { m[e.key] = true; });
-    return m;
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["event-types"],
+    queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
   });
+
+  // Build dynamic event lines from EventType entity
+  const eventLines = useMemo(() => {
+    const lines = [];
+    let colorIdx = 0;
+    eventTypes.forEach(et => {
+      if (et.has_prep_stage) {
+        lines.push({ key: `${et.key}_prep`, label: `${et.display_name} Prep`, color: LINE_COLORS[colorIdx % LINE_COLORS.length] });
+        colorIdx++;
+      }
+      if (et.has_war_stage) {
+        lines.push({ key: `${et.key}_war`, label: `${et.display_name} War`, color: LINE_COLORS[colorIdx % LINE_COLORS.length] });
+        colorIdx++;
+      }
+      if (!et.has_prep_stage && !et.has_war_stage) {
+        lines.push({ key: et.key, label: et.display_name, color: LINE_COLORS[colorIdx % LINE_COLORS.length] });
+        colorIdx++;
+      }
+    });
+    lines.push({ key: "earn_total", label: "Total Earned", color: "#22d3ee" });
+    lines.push({ key: "loss_total", label: "Deductions", color: "#ef4444" });
+    return lines;
+  }, [eventTypes]);
+
+  const [rangeIdx, setRangeIdx] = useState(2);
+  const [visibleLines, setVisibleLines] = useState({});
   const scrollRef = useRef(null);
 
+  // Keep visibleLines in sync when eventLines change
+  useMemo(() => {
+    setVisibleLines(prev => {
+      const next = {};
+      eventLines.forEach(e => { next[e.key] = prev[e.key] !== undefined ? prev[e.key] : true; });
+      return next;
+    });
+  }, [eventLines]);
+
   const chartData = useMemo(() => {
-    if (!transactions.length) return [];
+    if (!transactions.length || !eventLines.length) return [];
 
     const sorted = [...transactions].sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
     const range = RANGE_OPTIONS[rangeIdx];
@@ -48,7 +74,9 @@ export default function PlayerDKPChart({ transactions }) {
     filtered.forEach(t => {
       const d = t.event_date;
       if (!byDate[d]) {
-        byDate[d] = { date: d, MEE_prep: 0, MEE_war: 0, GEE: 0, DDE: 0, Wonder: 0, Dawn: 0, earn_total: 0, loss_total: 0 };
+        const point = { date: d, earn_total: 0, loss_total: 0 };
+        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "loss_total") point[e.key] = 0; });
+        byDate[d] = point;
       }
       const evtKey = getEventKey(t);
       if (byDate[d][evtKey] !== undefined && t.amount > 0) {
@@ -65,11 +93,11 @@ export default function PlayerDKPChart({ transactions }) {
     const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
     const cumulative = [];
     const running = {};
-    EVENT_LINES.forEach(e => { running[e.key] = 0; });
+    eventLines.forEach(e => { running[e.key] = 0; });
 
     dates.forEach(d => {
       const point = { date: d.date };
-      EVENT_LINES.forEach(e => {
+      eventLines.forEach(e => {
         running[e.key] += d[e.key] || 0;
         point[e.key] = running[e.key];
       });
@@ -79,7 +107,7 @@ export default function PlayerDKPChart({ transactions }) {
     });
 
     return cumulative;
-  }, [transactions, rangeIdx]);
+  }, [transactions, rangeIdx, eventLines]);
 
   const toggleLine = (key) => {
     setVisibleLines(prev => ({ ...prev, [key]: !prev[key] }));
@@ -114,7 +142,7 @@ export default function PlayerDKPChart({ transactions }) {
 
       {/* Event toggle checkboxes */}
       <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
-        {EVENT_LINES.map(e => (
+        {eventLines.map(e => (
           <label key={e.key} className="flex items-center gap-1.5 cursor-pointer select-none group">
             <input
               type="checkbox"
@@ -191,7 +219,7 @@ export default function PlayerDKPChart({ transactions }) {
                       );
                     }}
                   />
-                  {EVENT_LINES.map(e =>
+                  {eventLines.map(e =>
                     visibleLines[e.key] && (
                       <Line
                         key={e.key}
