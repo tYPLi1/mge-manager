@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
+import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import { toast } from "sonner";
 
 export default function AdminPenalties() {
@@ -19,12 +20,16 @@ export default function AdminPenalties() {
   const [note, setNote] = useState("");
   const [stolenBidAmount, setStolenBidAmount] = useState("");
   const [pendingMessage, setPendingMessage] = useState(null);
+  const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
     queryFn: () => base44.entities.AppSettings.list(),
   });
+
+  const webhookUrl = settings.find(s => s.key === "discord_webhook_url")?.value;
+  const penaltiesEnabled = settings.find(s => s.key === "discord_penalties_enabled")?.value === "true";
 
   const penaltyConfig = useMemo(() => {
     try {
@@ -106,7 +111,7 @@ export default function AdminPenalties() {
 
   const handleCreate = () => {
     if (!playerId) return;
-    createMutation.mutate({
+    const penaltyData = {
       player_id: playerId,
       level: parseInt(level),
       offense_count: parseInt(offenseCount),
@@ -114,7 +119,29 @@ export default function AdminPenalties() {
       offense_date: offenseDate,
       note,
       status: "probation",
-    });
+    };
+    const playerName = players.find(p => p.id === playerId)?.name || "Spieler";
+
+    if (penaltiesEnabled && webhookUrl) {
+      const embed = {
+        title: "⚠️ DKP Strafzug",
+        description: `**${playerName}**`,
+        fields: [
+          { name: "Level", value: `Level ${level}`, inline: true },
+          { name: "Betrag", value: `-${dkpDeducted} DKP`, inline: true },
+          { name: "Offense #", value: String(offenseCount), inline: true },
+          { name: "Details", value: note || "Keine Notiz", inline: false },
+        ],
+        color: level === "3" ? 0xff0000 : level === "2" ? 0xff8c00 : 0xffa500,
+        timestamp: new Date().toISOString(),
+      };
+      setDiscordPreview({
+        embed,
+        onSent: () => createMutation.mutate(penaltyData),
+      });
+    } else {
+      createMutation.mutate(penaltyData);
+    }
   };
 
   // Compensation calculator state
@@ -302,6 +329,16 @@ export default function AdminPenalties() {
           <div className="p-8 text-center text-gray-500 text-sm">No active penalties</div>
         )}
       </div>
+
+      {discordPreview && (
+        <DiscordPreviewModal
+          embed={discordPreview.embed}
+          webhookUrl={webhookUrl}
+          channelId={null}
+          onClose={() => setDiscordPreview(null)}
+          onSent={discordPreview.onSent}
+        />
+      )}
     </div>
   );
 }
