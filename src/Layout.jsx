@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Trophy, Gavel, ScrollText, History, Shield, Zap, BookOpen,
-  Settings, Menu, X, ChevronLeft, Settings2,
+  Settings, Menu, X, ChevronLeft, Settings2, BarChart3,
 } from "lucide-react";
 import AdminGuard from "@/components/AdminGuard";
 
@@ -15,6 +15,7 @@ const publicNav = [
   { name: "Activity", page: "Activity", icon: Zap },
   { name: "Punishments", page: "Punishments", icon: Shield },
   { name: "Power", page: "Power", icon: Zap },
+  { name: "Charts", page: "Charts", icon: BarChart3 },
   { name: "Rules", page: "Rules", icon: BookOpen },
 ];
 
