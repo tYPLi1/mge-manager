@@ -26,10 +26,6 @@ Deno.serve(async (req) => {
       }
     } else {
       // Manual trigger
-      const user = await base44.auth.me();
-      if (!user || user.role !== 'admin') {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
       const { eventName: name, eventDate: date, playersUpdated: players, totalDkpDistributed: total, rankings: ranks } = body;
       if (!name || !date) {
         return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });

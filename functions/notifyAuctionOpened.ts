@@ -15,11 +15,7 @@ Deno.serve(async (req) => {
       }
       auction = data;
     } else {
-      // Manual trigger - check admin
-      const user = await base44.auth.me();
-      if (!user || user.role !== 'admin') {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
+      // Manual trigger
       const { auctionId } = body;
       if (!auctionId) {
         return Response.json({ error: 'Missing auctionId' }, { status: 400 });
