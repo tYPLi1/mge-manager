@@ -258,7 +258,7 @@ export default function AdminAuctions() {
   });
 
   const doConfirm = async () => {
-    if (!viewBids || previewRanking.length === 0) return;
+    if (!viewBids) return;
     const today = new Date().toISOString().split("T")[0];
 
     await base44.entities.Auction.update(viewBids.id, {
@@ -307,9 +307,9 @@ export default function AdminAuctions() {
 
   const confirmMutation = useMutation({
     mutationFn: async () => {
-      if (!viewBids || previewRanking.length === 0) return;
+      if (!viewBids) return;
 
-      if (resultsEnabled && webhookUrl) {
+      if (resultsEnabled && webhookUrl && previewRanking.length > 0) {
         const topResults = previewRanking.slice(0, 3);
         const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join("\n");
         const embed = {
@@ -642,7 +642,7 @@ export default function AdminAuctions() {
                 </table>
                 <Button
                   onClick={() => confirmMutation.mutate()}
-                  disabled={confirmMutation.isPending || previewRanking.length === 0}
+                  disabled={confirmMutation.isPending}
                   className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
