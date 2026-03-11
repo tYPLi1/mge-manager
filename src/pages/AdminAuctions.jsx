@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -212,27 +213,34 @@ export default function AdminAuctions() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auctions"] }),
   });
 
-  const handleOpenAuction = (auction) => {
-    if (auctionEnabled && webhookUrl) {
-      const embed = {
-        title: "🔔 New Auction Opened!",
-        description: auction.title,
-        color: 0xf59e0b,
-        fields: [
-          { name: "Status", value: "OPEN", inline: true },
-          { name: "Closes", value: auction.scheduled_close ? new Date(auction.scheduled_close).toLocaleString("de-CH") : "TBD", inline: true },
-        ],
-        footer: { text: "DKP System" },
-      };
-      if (auction.has_password) {
-        embed.fields.push({ name: "Password", value: `||${auction.bid_password}||`, inline: false });
+  const handleOpenAuction = async (auction) => {
+    // Open the auction first
+    statusMutation.mutate({ id: auction.id, status: "open" });
+
+    // Then send stored Discord message if available
+    if (auctionEnabled && webhookUrl && auction.discord_embed) {
+      const embed = JSON.parse(auction.discord_embed);
+      if (auction.discord_extra_text?.trim()) {
+        embed.description = (embed.description || "") + "\n\n" + auction.discord_extra_text.trim();
       }
-      setDiscordPreview({
-        embed,
-        onSent: () => statusMutation.mutate({ id: auction.id, status: "open" }),
-      });
-    } else {
-      statusMutation.mutate({ id: auction.id, status: "open" });
+      const discordPayload = {
+        content: channelId ? `<#${channelId}>` : undefined,
+        embeds: [embed],
+      };
+      try {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(discordPayload),
+        });
+        if (res.ok) {
+          toast.success("Discord Nachricht gesendet!");
+        } else {
+          toast.error("Discord Fehler: " + await res.text());
+        }
+      } catch (err) {
+        toast.error("Discord Fehler: " + err.message);
+      }
     }
   };
 
@@ -367,16 +375,54 @@ export default function AdminAuctions() {
     queryClient.invalidateQueries();
   };
 
-  const handleCreate = () => {
-    const data = {
-      title,
-      status: scheduledOpen ? "draft" : "draft",
-      scheduled_open: scheduledOpen || null,
-      scheduled_close: scheduledClose || null,
-      bid_password: password || null,
-      has_password: !!password,
+  const buildAuctionEmbed = () => {
+    const embed = {
+      title: "🔔 New Auction Opened!",
+      description: title,
+      color: 0xf59e0b,
+      fields: [
+        { name: "Status", value: "OPEN", inline: true },
+        { name: "Closes", value: scheduledClose ? new Date(scheduledClose).toLocaleString("de-CH") : "TBD", inline: true },
+      ],
+      footer: { text: "DKP System" },
     };
-    createMutation.mutate(data);
+    if (password) {
+      embed.fields.push({ name: "Password", value: `||${password}||`, inline: false });
+    }
+    return embed;
+  };
+
+  const handleCreate = () => {
+    if (!title) return;
+
+    if (auctionEnabled && webhookUrl) {
+      // Show preview modal — save embed + extra text on auction when confirmed
+      setDiscordPreview({
+        embed: buildAuctionEmbed(),
+        onSent: (extraText) => {
+          const embed = buildAuctionEmbed();
+          createMutation.mutate({
+            title,
+            status: "draft",
+            scheduled_open: scheduledOpen || null,
+            scheduled_close: scheduledClose || null,
+            bid_password: password || null,
+            has_password: !!password,
+            discord_embed: JSON.stringify(embed),
+            discord_extra_text: extraText || "",
+          });
+        },
+      });
+    } else {
+      createMutation.mutate({
+        title,
+        status: "draft",
+        scheduled_open: scheduledOpen || null,
+        scheduled_close: scheduledClose || null,
+        bid_password: password || null,
+        has_password: !!password,
+      });
+    }
   };
 
   const activeBids = bids.filter((b) => !b.is_deleted);
