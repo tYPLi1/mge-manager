@@ -212,6 +212,30 @@ export default function AdminAuctions() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auctions"] }),
   });
 
+  const handleOpenAuction = (auction) => {
+    if (auctionEnabled && webhookUrl) {
+      const embed = {
+        title: "🔔 New Auction Opened!",
+        description: auction.title,
+        color: 0xf59e0b,
+        fields: [
+          { name: "Status", value: "OPEN", inline: true },
+          { name: "Closes", value: auction.scheduled_close ? new Date(auction.scheduled_close).toLocaleString("de-CH") : "TBD", inline: true },
+        ],
+        footer: { text: "DKP System" },
+      };
+      if (auction.has_password) {
+        embed.fields.push({ name: "Password", value: `||${auction.bid_password}||`, inline: false });
+      }
+      setDiscordPreview({
+        embed,
+        onSent: () => statusMutation.mutate({ id: auction.id, status: "open" }),
+      });
+    } else {
+      statusMutation.mutate({ id: auction.id, status: "open" });
+    }
+  };
+
   const deleteBidMutation = useMutation({
     mutationFn: ({ id, reason }) => base44.entities.Bid.update(id, { is_deleted: true, deleted_reason: reason }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] }),
@@ -401,7 +425,7 @@ export default function AdminAuctions() {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {a.status === "draft" && (
-                  <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "open" })} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                  <Button size="sm" onClick={() => handleOpenAuction(a)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
                     <Play className="w-3 h-3 mr-1" /> Open
                   </Button>
                 )}
