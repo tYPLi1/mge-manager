@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
+import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 
 const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
@@ -117,6 +118,7 @@ export default function AdminAuctions() {
   const [editBid, setEditBid] = useState(null);
   const [editDkp, setEditDkp] = useState("");
   const [deleteModal, setDeleteModal] = useState(null);
+  const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: auctions = [] } = useQuery({
@@ -139,6 +141,12 @@ export default function AdminAuctions() {
     queryKey: ["settings"],
     queryFn: () => base44.entities.AppSettings.list(),
   });
+
+  const webhookUrl = settings.find((s) => s.key === "discord_webhook_url")?.value;
+  const auctionEnabled = settings.find((s) => s.key === "discord_auction_enabled")?.value === "true";
+  const resultsEnabled = settings.find((s) => s.key === "discord_results_enabled")?.value === "true";
+  const channelId = settings.find((s) => s.key === "discord_auction_channel")?.value;
+  const appUrl = ""; // URLs handled by embed only
 
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
