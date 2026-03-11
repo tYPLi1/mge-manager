@@ -295,6 +295,16 @@ export default function AdminPlayers() {
       Object.entries(item.changes).forEach(([key, { new: val }]) => {
         updateData[key] = val;
       });
+      // Log power history if power changed
+      if (item.changes.power) {
+        await base44.entities.PowerHistory.create({
+          player_id: item.id,
+          player_name: item.name,
+          power: item.changes.power.new,
+          recorded_at: new Date().toISOString().split("T")[0],
+          source: "import",
+        });
+      }
       await base44.entities.Player.update(item.id, updateData);
     }
 
