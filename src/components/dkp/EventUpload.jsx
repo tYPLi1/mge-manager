@@ -87,7 +87,7 @@ export default function EventUpload({ players, eventTypes }) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const tableType = stage === "prep" ? "prep" : (isTop20 || entry.serverRank <= 10 ? "war_top20" : "war_outside");
           const dkp = rankToDkp(selectedEventType, tableType, entry.serverRank, withinCutoff);
-          return { playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, dkp, group: isTop20 ? "Top 20" : "Outside" };
+          return { playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, dkp, group: isTop20 ? "Top 20" : "Outside", power: entry.power };
         });
         setPreview(results);
       }
