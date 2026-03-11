@@ -399,6 +399,7 @@ export default function AdminAuctions() {
       // Show preview modal — save embed + extra text on auction when confirmed
       setDiscordPreview({
         embed: buildAuctionEmbed(),
+        sendNow: false,
         onSent: (extraText) => {
           const embed = buildAuctionEmbed();
           createMutation.mutate({
@@ -668,6 +669,7 @@ export default function AdminAuctions() {
           embed={discordPreview.embed}
           webhookUrl={webhookUrl}
           channelId={channelId}
+          sendNow={discordPreview.sendNow !== undefined ? discordPreview.sendNow : true}
           onClose={() => setDiscordPreview(null)}
           onSent={discordPreview.onSent}
         />
