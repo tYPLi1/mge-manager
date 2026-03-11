@@ -50,14 +50,14 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
         <table className="w-full">
           <thead className="bg-[#0d1117] border-b border-white/5">
             <tr>
-              <th className="px-2.5 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-10">#</th>
-              <th className="px-2.5 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider sticky left-0 bg-[#0d1117] z-10">Name</th>
+              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} className="w-10">#</SortHeader>
+              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} className="sticky left-0 bg-[#0d1117] z-10">Name</SortHeader>
               <SortHeader field="current_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort}>DKP</SortHeader>
               <SortHeader field="total_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort}>Earned</SortHeader>
               <SortHeader field="dkp_spent" sortField={sortField} sortDir={sortDir} onSort={onSort}>Spent</SortHeader>
               <SortHeader field="power" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">Power</SortHeader>
-              <th className="px-2.5 py-2.5 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Rank</th>
-              <th className="px-2.5 py-2.5 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+              <SortHeader field="powerRank" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Rank</SortHeader>
+              <SortHeader field="cooldown_until" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Status</SortHeader>
               {EVENT_COLUMNS.map(col => (
                 <SortHeader key={col.key} field={`evt_${col.key}`} sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">
                   {col.label}
