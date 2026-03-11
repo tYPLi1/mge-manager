@@ -249,54 +249,75 @@ export default function AdminAuctions() {
     },
   });
 
+  const doConfirm = async () => {
+    if (!viewBids || previewRanking.length === 0) return;
+    const today = new Date().toISOString().split("T")[0];
+
+    await base44.entities.Auction.update(viewBids.id, {
+      status: "confirmed",
+      confirmed_at: new Date().toISOString(),
+    });
+
+    for (const entry of previewRanking) {
+      const cooldownRounds = cooldownTable[entry.rank] || 1;
+      const cooldownDate = addDays(today, cooldownRounds * 7);
+
+      await base44.entities.AuctionResult.create({
+        auction_id: viewBids.id,
+        player_id: entry.player_id,
+        player_name: entry.player_name,
+        rank: entry.rank,
+        bid_id: entry.id,
+        dkp_bid: entry.dkp_bid,
+        target_score: entry.target,
+        hero_medals: entry.medals,
+      });
+
+      await base44.entities.DKPTransaction.create({
+        player_id: entry.player_id,
+        player_name: entry.player_name,
+        amount: -entry.dkp_bid,
+        type: "bid",
+        source: "MGE",
+        event_date: today,
+        note: `${viewBids.title} — Rank ${entry.rank}`,
+      });
+
+      const player = players.find((p) => p.id === entry.player_id);
+      if (player) {
+        await base44.entities.Player.update(entry.player_id, {
+          dkp_spent: (player.dkp_spent || 0) + entry.dkp_bid,
+          cooldown_until: cooldownDate,
+        });
+      }
+    }
+
+    queryClient.invalidateQueries();
+    setShowPreview(false);
+    setViewBids(null);
+  };
+
   const confirmMutation = useMutation({
     mutationFn: async () => {
       if (!viewBids || previewRanking.length === 0) return;
-      const today = new Date().toISOString().split("T")[0];
 
-      await base44.entities.Auction.update(viewBids.id, {
-        status: "confirmed",
-        confirmed_at: new Date().toISOString(),
-      });
-
-      for (const entry of previewRanking) {
-        const cooldownRounds = cooldownTable[entry.rank] || 1;
-        const cooldownDate = addDays(today, cooldownRounds * 7);
-
-        await base44.entities.AuctionResult.create({
-          auction_id: viewBids.id,
-          player_id: entry.player_id,
-          player_name: entry.player_name,
-          rank: entry.rank,
-          bid_id: entry.id,
-          dkp_bid: entry.dkp_bid,
-          target_score: entry.target,
-          hero_medals: entry.medals,
-        });
-
-        await base44.entities.DKPTransaction.create({
-          player_id: entry.player_id,
-          player_name: entry.player_name,
-          amount: -entry.dkp_bid,
-          type: "bid",
-          source: "MGE",
-          event_date: today,
-          note: `${viewBids.title} — Rank ${entry.rank}`,
-
-        });
-
-        const player = players.find((p) => p.id === entry.player_id);
-        if (player) {
-          await base44.entities.Player.update(entry.player_id, {
-            dkp_spent: (player.dkp_spent || 0) + entry.dkp_bid,
-            cooldown_until: cooldownDate,
-          });
-        }
+      if (resultsEnabled && webhookUrl) {
+        const topResults = previewRanking.slice(0, 3);
+        const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join("\n");
+        const embed = {
+          title: "🏆 Auction Results Ready",
+          description: viewBids.title,
+          color: 0x10b981,
+          fields: [
+            { name: "Top Winners", value: resultsText || "No results", inline: false },
+            { name: "Total Participants", value: String(previewRanking.length), inline: true },
+          ],
+          footer: { text: "DKP System" },
+        };
+        setDiscordPreview({ embed, onSent: doConfirm });
+      } else {
+        await doConfirm();
       }
-
-      queryClient.invalidateQueries();
-      setShowPreview(false);
-      setViewBids(null);
     },
   });
 
