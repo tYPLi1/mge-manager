@@ -17,13 +17,19 @@ export default function PlayerPowerChart({ powerHistory, currentPower }) {
   const chartData = useMemo(() => {
     if (!powerHistory.length && !currentPower) return [];
 
-    const sorted = [...powerHistory].sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+    let data = [...powerHistory].sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+
+    // If no history but current power exists, show current power as a single data point
+    if (data.length === 0 && currentPower) {
+      data = [{ recorded_at: new Date().toISOString().split("T")[0], power: currentPower }];
+    }
+
     const range = RANGE_OPTIONS[rangeIdx];
     const cutoff = range.weeks
       ? new Date(Date.now() - range.weeks * 7 * 86400000)
       : null;
 
-    const filtered = cutoff ? sorted.filter(h => new Date(h.recorded_at) >= cutoff) : sorted;
+    const filtered = cutoff ? data.filter(h => new Date(h.recorded_at) >= cutoff) : data;
 
     return filtered.map(h => ({
       date: h.recorded_at,

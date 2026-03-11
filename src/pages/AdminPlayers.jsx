@@ -70,13 +70,24 @@ export default function AdminPlayers() {
     setEditPower(String(p.power || 0));
   };
 
-  const saveEdit = (p) => {
+  const saveEdit = async (p) => {
+    const newPower = parseInt(editPower) || 0;
+    // Log power history if power changed
+    if (newPower !== (p.power || 0)) {
+      await base44.entities.PowerHistory.create({
+        player_id: p.id,
+        player_name: editName.trim() || p.name,
+        power: newPower,
+        recorded_at: new Date().toISOString().split("T")[0],
+        source: "manual",
+      });
+    }
     updateMutation.mutate({
       id: p.id,
       data: {
         name: editName.trim() || p.name,
         cooldown_until: editCooldown || null,
-        power: parseInt(editPower) || 0,
+        power: newPower,
       },
     });
   };
