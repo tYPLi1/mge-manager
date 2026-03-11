@@ -121,7 +121,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
         </table>
       </div>
       {!isLoading && data.length === 0 && (
-        <div className="text-center py-12 text-gray-500">Keine Spieler gefunden</div>
+        <div className="text-center py-12 text-gray-500">No players found</div>
       )}
     </div>
   );
