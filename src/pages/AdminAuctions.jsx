@@ -616,6 +616,16 @@ export default function AdminAuctions() {
           onDelete={handleDeleteAuction}
         />
       )}
+
+      {discordPreview && (
+        <DiscordPreviewModal
+          embed={discordPreview.embed}
+          webhookUrl={webhookUrl}
+          channelId={channelId}
+          onClose={() => setDiscordPreview(null)}
+          onSent={discordPreview.onSent}
+        />
+      )}
     </div>
   );
 }
