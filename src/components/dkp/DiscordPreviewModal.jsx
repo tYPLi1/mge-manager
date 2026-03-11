@@ -6,21 +6,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onClose, onSent, components: btnComponents }) {
+export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onClose, onSent, sendNow = true, components: btnComponents }) {
   const [extraText, setExtraText] = useState("");
   const [sending, setSending] = useState(false);
   const [skipDiscord, setSkipDiscord] = useState(false);
 
   const handleSend = async () => {
     if (skipDiscord) {
-      onSent?.();
+      onSent?.(extraText);
       onClose();
       return;
     }
 
     if (!webhookUrl) {
       toast.error("Discord Webhook URL nicht konfiguriert");
-      onSent?.();
+      onSent?.(extraText);
+      onClose();
+      return;
+    }
+
+    // If sendNow is false, we just save without sending (for deferred sends like auction creation)
+    if (sendNow === false) {
+      toast.success("Discord Nachricht wird beim Start gesendet");
+      onSent?.(extraText);
       onClose();
       return;
     }
@@ -56,12 +64,12 @@ export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onCl
     }
 
     setSending(false);
-    onSent?.();
+    onSent?.(extraText);
     onClose();
   };
 
   const handleSkip = () => {
-    onSent?.();
+    onSent?.(extraText);
     onClose();
   };
 
