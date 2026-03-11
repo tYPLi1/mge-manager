@@ -53,6 +53,7 @@ export default function Leaderboard() {
         Wonder: { count: 0, dkp: 0 },
         Dawn: { count: 0, dkp: 0 },
         total_events: 0,
+        activity_score: 0,
       };
     });
 
@@ -65,6 +66,7 @@ export default function Leaderboard() {
         e[key].count++;
         e[key].dkp += t.amount;
         e.total_events++;
+        e.activity_score += t.amount;
       }
     });
 
