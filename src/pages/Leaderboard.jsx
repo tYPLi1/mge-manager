@@ -98,6 +98,13 @@ export default function Leaderboard() {
         const key = sortField.replace("evt_", "");
         av = a[key]?.dkp || 0;
         bv = b[key]?.dkp || 0;
+      } else if (sortField === "name") {
+        av = a.name?.toLowerCase() || "";
+        bv = b.name?.toLowerCase() || "";
+        return sortDir === "desc" ? bv.localeCompare(av) : av.localeCompare(bv);
+      } else if (sortField === "cooldown_until") {
+        av = a.cooldown_until ? new Date(a.cooldown_until).getTime() : 0;
+        bv = b.cooldown_until ? new Date(b.cooldown_until).getTime() : 0;
       } else {
         av = a[sortField] ?? 0;
         bv = b[sortField] ?? 0;
