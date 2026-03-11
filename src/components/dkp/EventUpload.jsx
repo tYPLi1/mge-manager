@@ -1,13 +1,14 @@
 import React, { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { base44 } from "@/api/base44Client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, CheckCircle, AlertTriangle, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { rankToDkp } from "@/components/dkp/rankToDkp";
+import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 
 export default function EventUpload({ players, eventTypes }) {
   const [eventTypeId, setEventTypeId] = useState("");
@@ -18,8 +19,17 @@ export default function EventUpload({ players, eventTypes }) {
   const [creatingPlayers, setCreatingPlayers] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [discordPreview, setDiscordPreview] = useState(null);
   const fileRef = useRef(null);
   const queryClient = useQueryClient();
+
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+  const webhookUrl = settings.find(s => s.key === "discord_webhook_url")?.value;
+  const eventsEnabled = settings.find(s => s.key === "discord_events_enabled")?.value === "true";
+  const channelId = settings.find(s => s.key === "discord_auction_channel")?.value;
 
   const selectedEventType = eventTypes.find(e => e.id === eventTypeId);
   const isYN = selectedEventType?.participation_type === "yn";
@@ -103,13 +113,12 @@ export default function EventUpload({ players, eventTypes }) {
     setUnknownNames([]);
   };
 
-  const applyResults = async () => {
+  const doApply = async () => {
     if (!preview || !selectedEventType) return;
     setApplying(true);
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
 
-    // Bulk create all transactions in one request
     await base44.entities.DKPTransaction.bulkCreate(
       toApply.map(entry => ({
         player_id: entry.playerId,
@@ -122,16 +131,12 @@ export default function EventUpload({ players, eventTypes }) {
       }))
     );
 
-    // Update player totals and power
     for (const entry of toApply) {
       const player = players.find(p => p.id === entry.playerId);
       const updateData = { total_dkp: (player?.total_dkp || 0) + entry.dkp };
-
-      // Update power from parsed data if available (ranked events with power column)
       const parsedEntry = preview.find(p => p.playerId === entry.playerId);
       if (parsedEntry?.power && parsedEntry.power > 0) {
         updateData.power = parsedEntry.power;
-        // Log power history
         await base44.entities.PowerHistory.create({
           player_id: entry.playerId,
           player_name: entry.playerName,
@@ -140,7 +145,6 @@ export default function EventUpload({ players, eventTypes }) {
           source: selectedEventType.key,
         });
       }
-
       await base44.entities.Player.update(entry.playerId, updateData);
     }
 
@@ -149,6 +153,33 @@ export default function EventUpload({ players, eventTypes }) {
     setApplying(false);
     setPreview(null);
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const applyResults = async () => {
+    if (!preview || !selectedEventType) return;
+
+    const toApply = preview.filter(entry => entry.dkp !== 0);
+    const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
+    const top5 = [...toApply].sort((a, b) => b.dkp - a.dkp).slice(0, 5);
+    const rankingsText = top5.map((r, i) => `${i + 1}. **${r.playerName}** (+${r.dkp} DKP)`).join("\n");
+    const stageName = isYN ? "" : ` - ${stage}`;
+
+    if (eventsEnabled && webhookUrl) {
+      const embed = {
+        title: "📊 Event Data Uploaded",
+        description: `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("de-CH")}`,
+        color: 0x8b5cf6,
+        fields: [
+          { name: "Players Updated", value: String(toApply.length), inline: true },
+          { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
+          { name: "Top Rankings", value: rankingsText || "No ranking data", inline: false },
+        ],
+        footer: { text: "DKP System" },
+      };
+      setDiscordPreview({ embed, onSent: doApply });
+    } else {
+      await doApply();
+    }
   };
 
   return (
@@ -267,6 +298,16 @@ export default function EventUpload({ players, eventTypes }) {
         <div className="flex items-center gap-2 text-emerald-400 text-sm mt-3">
           <CheckCircle className="w-4 h-4" /> DKP applied successfully!
         </div>
+      )}
+
+      {discordPreview && (
+        <DiscordPreviewModal
+          embed={discordPreview.embed}
+          webhookUrl={webhookUrl}
+          channelId={channelId}
+          onClose={() => setDiscordPreview(null)}
+          onSent={discordPreview.onSent}
+        />
       )}
     </div>
   );
