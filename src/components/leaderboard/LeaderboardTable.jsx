@@ -63,7 +63,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
                   {col.label}
                 </SortHeader>
               ))}
-              <SortHeader field="total_events" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Events</SortHeader>
+              <SortHeader field="activity_score" sortField={sortField} sortDir={sortDir} onSort={onSort} align="center">Activity</SortHeader>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -113,7 +113,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
                   {EVENT_COLUMNS.map(col => (
                     <EventCell key={col.key} data={p[col.key]} />
                   ))}
-                  <td className="px-2.5 py-2 text-center text-xs font-mono text-gray-400">{p.total_events || 0}</td>
+                  <td className="px-2.5 py-2 text-center text-xs font-mono text-amber-400 font-medium">{(p.activity_score || 0).toLocaleString()}</td>
                 </tr>
               ))
             )}
