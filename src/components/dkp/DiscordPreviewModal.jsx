@@ -1,0 +1,158 @@
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { X, Send, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onClose, onSent, components: btnComponents }) {
+  const [extraText, setExtraText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [skipDiscord, setSkipDiscord] = useState(false);
+
+  const handleSend = async () => {
+    if (skipDiscord) {
+      onSent?.();
+      onClose();
+      return;
+    }
+
+    if (!webhookUrl) {
+      toast.error("Discord Webhook URL nicht konfiguriert");
+      onSent?.();
+      onClose();
+      return;
+    }
+
+    setSending(true);
+    const finalEmbed = { ...embed };
+    if (extraText.trim()) {
+      finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
+    }
+
+    const discordPayload = {
+      content: channelId ? `<#${channelId}>` : undefined,
+      embeds: [finalEmbed],
+    };
+    if (btnComponents) {
+      discordPayload.components = btnComponents;
+    }
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(discordPayload),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        toast.error(`Discord Fehler: ${err}`);
+      } else {
+        toast.success("Discord Nachricht gesendet!");
+      }
+    } catch (err) {
+      toast.error(`Fehler: ${err.message}`);
+    }
+
+    setSending(false);
+    onSent?.();
+    onClose();
+  };
+
+  const handleSkip = () => {
+    onSent?.();
+    onClose();
+  };
+
+  // Render embed preview
+  const colorHex = embed.color ? `#${embed.color.toString(16).padStart(6, "0")}` : "#f59e0b";
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-white font-bold text-lg flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Vorschau
+          </h2>
+          <button onClick={handleSkip} className="text-gray-500 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Embed Preview */}
+        <div className="bg-[#2f3136] rounded-lg overflow-hidden">
+          <div className="flex">
+            <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
+            <div className="p-3 flex-1 space-y-2">
+              {embed.title && (
+                <p className="text-white font-semibold text-sm">{embed.title}</p>
+              )}
+              {embed.description && (
+                <p className="text-gray-300 text-xs whitespace-pre-wrap">{embed.description}</p>
+              )}
+              {embed.fields?.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {embed.fields.map((f, i) => (
+                    <div key={i} className={f.inline === false ? "col-span-2" : ""}>
+                      <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
+                      <p className="text-gray-200 text-xs">{f.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {embed.footer && (
+                <p className="text-gray-500 text-[10px] mt-2 border-t border-white/5 pt-1.5">{embed.footer.text}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {extraText.trim() && (
+          <div className="bg-[#2f3136] rounded-lg overflow-hidden">
+            <div className="flex">
+              <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
+              <div className="p-3 flex-1">
+                <p className="text-gray-400 text-xs font-semibold mb-1">+ Zusatztext</p>
+                <p className="text-gray-200 text-xs whitespace-pre-wrap">{extraText}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Extra Text Input */}
+        <div>
+          <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
+            Zusätzlicher Text (optional)
+          </Label>
+          <Textarea
+            placeholder="z.B. Hinweise, Kommentare..."
+            value={extraText}
+            onChange={(e) => setExtraText(e.target.value)}
+            rows={3}
+            className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 text-sm"
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-1">
+          <Button
+            variant="outline"
+            onClick={handleSkip}
+            className="flex-1 border-white/10 text-gray-400 hover:text-white"
+          >
+            Ohne Discord fortfahren
+          </Button>
+          <Button
+            onClick={handleSend}
+            disabled={sending}
+            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            <Send className="w-4 h-4 mr-1.5" />
+            {sending ? "Sende..." : "Senden & Fortfahren"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
