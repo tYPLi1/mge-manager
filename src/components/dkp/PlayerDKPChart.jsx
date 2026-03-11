@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const RANGE_OPTIONS = [
@@ -90,7 +90,7 @@ export default function PlayerDKPChart({ transactions }) {
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
             <div style={{ width: barWidth, minHeight: 200 }}>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -104,32 +104,44 @@ export default function PlayerDKPChart({ transactions }) {
                     width={35}
                   />
                   <Tooltip
-                    contentStyle={{ background: "#1f2937", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
-                    labelStyle={{ color: "#9ca3af" }}
                     content={({ active, payload, label }) => {
                       if (!active || !payload?.length) return null;
                       const item = chartData.find(d => d.date === label);
                       return (
                         <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 text-xs">
                           <p className="text-gray-400 mb-1">{label}</p>
-                          {item?.sources.map((s, i) => (
-                            <p key={i} className="text-gray-300">{s}</p>
-                          ))}
+                          {item?.earn > 0 && <p className="text-emerald-400">+{item.earn} earned</p>}
+                          {item?.loss < 0 && <p className="text-red-400">{item.loss} deducted</p>}
+                          <div className="border-t border-white/10 mt-1 pt-1">
+                            {item?.sources.map((s, i) => (
+                              <p key={i} className="text-gray-300">{s}</p>
+                            ))}
+                          </div>
                         </div>
                       );
                     }}
                   />
-                  <Bar dataKey="earn" stackId="a" radius={[3, 3, 0, 0]}>
-                    {chartData.map((_, i) => (
-                      <Cell key={i} fill="#10b981" />
-                    ))}
-                  </Bar>
-                  <Bar dataKey="loss" stackId="a" radius={[0, 0, 3, 3]}>
-                    {chartData.map((_, i) => (
-                      <Cell key={i} fill="#ef4444" />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  <Line
+                    type="monotone"
+                    dataKey="earn"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: "#10b981", stroke: "#10b981" }}
+                    activeDot={{ r: 5, fill: "#10b981" }}
+                    name="Earned"
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="loss"
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: "#ef4444", stroke: "#ef4444" }}
+                    activeDot={{ r: 5, fill: "#ef4444" }}
+                    name="Deducted"
+                    connectNulls
+                  />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
