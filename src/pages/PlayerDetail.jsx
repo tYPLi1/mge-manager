@@ -7,6 +7,8 @@ import { Trophy, ArrowLeft } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
+import PlayerDKPChart from "@/components/dkp/PlayerDKPChart";
+import PlayerPowerChart from "@/components/dkp/PlayerPowerChart";
 
 export default function PlayerDetail() {
   const params = new URLSearchParams(window.location.search);
@@ -26,6 +28,12 @@ export default function PlayerDetail() {
   const { data: penalties = [] } = useQuery({
     queryKey: ["penalties-player", playerId],
     queryFn: () => base44.entities.Penalty.filter({ player_id: playerId }, "-offense_date", 50),
+    enabled: !!playerId,
+  });
+
+  const { data: powerHistory = [] } = useQuery({
+    queryKey: ["powerHistory", playerId],
+    queryFn: () => base44.entities.PowerHistory.filter({ player_id: playerId }, "recorded_at", 500),
     enabled: !!playerId,
   });
 
@@ -92,6 +100,10 @@ export default function PlayerDetail() {
           <p className="font-mono text-white text-lg font-bold">{player.auction_ban_count || 0}</p>
         </div>
       </div>
+
+      {/* Charts */}
+      <PlayerDKPChart transactions={transactions} />
+      <PlayerPowerChart powerHistory={powerHistory} currentPower={player.power} />
 
       {/* Transaction History */}
       <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Transaction History ({transactions.length})</h3>
