@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const RANGE_OPTIONS = [
@@ -10,8 +10,29 @@ const RANGE_OPTIONS = [
   { label: "All", weeks: null },
 ];
 
+const EVENT_LINES = [
+  { key: "MEE_prep", label: "MEE Prep", color: "#f59e0b" },
+  { key: "MEE_war", label: "MEE War", color: "#f97316" },
+  { key: "GEE", label: "GEE", color: "#10b981" },
+  { key: "DDE", label: "DDE", color: "#3b82f6" },
+  { key: "Wonder", label: "Wonder", color: "#a855f7" },
+  { key: "Dawn", label: "BoD", color: "#ec4899" },
+  { key: "earn_total", label: "Total Earned", color: "#22d3ee" },
+  { key: "loss_total", label: "Deductions", color: "#ef4444" },
+];
+
+function getEventKey(t) {
+  if (t.source === "MEE" && t.source_stage) return `MEE_${t.source_stage}`;
+  return t.source;
+}
+
 export default function PlayerDKPChart({ transactions }) {
   const [rangeIdx, setRangeIdx] = useState(2);
+  const [visibleLines, setVisibleLines] = useState(() => {
+    const m = {};
+    EVENT_LINES.forEach(e => { m[e.key] = true; });
+    return m;
+  });
   const scrollRef = useRef(null);
 
   const chartData = useMemo(() => {
@@ -19,35 +40,56 @@ export default function PlayerDKPChart({ transactions }) {
 
     const sorted = [...transactions].sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
     const range = RANGE_OPTIONS[rangeIdx];
-    const cutoff = range.weeks
-      ? new Date(Date.now() - range.weeks * 7 * 86400000)
-      : null;
-
+    const cutoff = range.weeks ? new Date(Date.now() - range.weeks * 7 * 86400000) : null;
     const filtered = cutoff ? sorted.filter(t => new Date(t.event_date) >= cutoff) : sorted;
 
-    // Group by date
+    // Group by date, accumulate per event
     const byDate = {};
     filtered.forEach(t => {
       const d = t.event_date;
-      if (!byDate[d]) byDate[d] = { date: d, earn: 0, loss: 0, sources: [] };
-      if (t.amount >= 0) {
-        byDate[d].earn += t.amount;
-      } else {
-        byDate[d].loss += t.amount;
+      if (!byDate[d]) {
+        byDate[d] = { date: d, MEE_prep: 0, MEE_war: 0, GEE: 0, DDE: 0, Wonder: 0, Dawn: 0, earn_total: 0, loss_total: 0 };
       }
-      byDate[d].sources.push(`${t.source}${t.source_stage ? ` (${t.source_stage})` : ""}: ${t.amount > 0 ? "+" : ""}${t.amount}`);
+      const evtKey = getEventKey(t);
+      if (byDate[d][evtKey] !== undefined && t.amount > 0) {
+        byDate[d][evtKey] += t.amount;
+      }
+      if (t.amount >= 0) {
+        byDate[d].earn_total += t.amount;
+      } else {
+        byDate[d].loss_total += t.amount;
+      }
     });
 
-    return Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Convert to cumulative
+    const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const cumulative = [];
+    const running = {};
+    EVENT_LINES.forEach(e => { running[e.key] = 0; });
+
+    dates.forEach(d => {
+      const point = { date: d.date };
+      EVENT_LINES.forEach(e => {
+        running[e.key] += d[e.key] || 0;
+        point[e.key] = running[e.key];
+      });
+      // loss_total is negative, make it positive for display
+      point.loss_total = Math.abs(point.loss_total);
+      cumulative.push(point);
+    });
+
+    return cumulative;
   }, [transactions, rangeIdx]);
 
-  const scroll = (dir) => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir * 200, behavior: "smooth" });
-    }
+  const toggleLine = (key) => {
+    setVisibleLines(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const barWidth = Math.max(chartData.length * 50, 400);
+  const scroll = (dir) => {
+    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 200, behavior: "smooth" });
+  };
+
+  const chartWidth = Math.max(chartData.length * 60, 500);
 
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mb-6">
@@ -70,6 +112,35 @@ export default function PlayerDKPChart({ transactions }) {
         </div>
       </div>
 
+      {/* Event toggle checkboxes */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
+        {EVENT_LINES.map(e => (
+          <label key={e.key} className="flex items-center gap-1.5 cursor-pointer select-none group">
+            <input
+              type="checkbox"
+              checked={visibleLines[e.key]}
+              onChange={() => toggleLine(e.key)}
+              className="sr-only"
+            />
+            <span
+              className={`w-3 h-3 rounded-sm border-2 flex items-center justify-center transition-all ${
+                visibleLines[e.key] ? "border-transparent" : "border-gray-600"
+              }`}
+              style={{ backgroundColor: visibleLines[e.key] ? e.color : "transparent" }}
+            >
+              {visibleLines[e.key] && (
+                <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </span>
+            <span className={`text-xs font-medium transition-colors ${visibleLines[e.key] ? "text-gray-200" : "text-gray-600"}`}>
+              {e.label}
+            </span>
+          </label>
+        ))}
+      </div>
+
       {chartData.length === 0 ? (
         <div className="text-center text-gray-500 text-sm py-8">No data for this period</div>
       ) : (
@@ -88,8 +159,8 @@ export default function PlayerDKPChart({ transactions }) {
           </button>
 
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
-            <div style={{ width: barWidth, minHeight: 200 }}>
-              <ResponsiveContainer width="100%" height={200}>
+            <div style={{ width: chartWidth, minHeight: 220 }}>
+              <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
@@ -101,46 +172,40 @@ export default function PlayerDKPChart({ transactions }) {
                     tick={{ fill: "#6b7280", fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
-                    width={35}
+                    width={40}
                   />
                   <Tooltip
                     content={({ active, payload, label }) => {
                       if (!active || !payload?.length) return null;
-                      const item = chartData.find(d => d.date === label);
                       return (
                         <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 text-xs">
-                          <p className="text-gray-400 mb-1">{label}</p>
-                          {item?.earn > 0 && <p className="text-emerald-400">+{item.earn} earned</p>}
-                          {item?.loss < 0 && <p className="text-red-400">{item.loss} deducted</p>}
-                          <div className="border-t border-white/10 mt-1 pt-1">
-                            {item?.sources.map((s, i) => (
-                              <p key={i} className="text-gray-300">{s}</p>
-                            ))}
-                          </div>
+                          <p className="text-gray-400 mb-1.5 font-medium">{label}</p>
+                          {payload.map((p, i) => (
+                            <div key={i} className="flex items-center gap-2 py-0.5">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                              <span className="text-gray-300">{p.name}:</span>
+                              <span className="font-mono font-medium" style={{ color: p.color }}>{p.value}</span>
+                            </div>
+                          ))}
                         </div>
                       );
                     }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="earn"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "#10b981", stroke: "#10b981" }}
-                    activeDot={{ r: 5, fill: "#10b981" }}
-                    name="Earned"
-                    connectNulls
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="loss"
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "#ef4444", stroke: "#ef4444" }}
-                    activeDot={{ r: 5, fill: "#ef4444" }}
-                    name="Deducted"
-                    connectNulls
-                  />
+                  {EVENT_LINES.map(e =>
+                    visibleLines[e.key] && (
+                      <Line
+                        key={e.key}
+                        type="monotone"
+                        dataKey={e.key}
+                        stroke={e.color}
+                        strokeWidth={2}
+                        dot={{ r: 2.5, fill: e.color, stroke: e.color }}
+                        activeDot={{ r: 4, fill: e.color }}
+                        name={e.label}
+                        connectNulls
+                      />
+                    )
+                  )}
                 </LineChart>
               </ResponsiveContainer>
             </div>
