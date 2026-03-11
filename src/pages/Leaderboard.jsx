@@ -122,7 +122,7 @@ export default function Leaderboard() {
 
   return (
     <div>
-      <PageHeader title="DKP Leaderboard" subtitle={`${players.length} Spieler`} icon={Trophy} />
+      <PageHeader title="DKP Leaderboard" subtitle={`${players.length} Players`} icon={Trophy} />
       <LeaderboardFilters
         search={search}
         setSearch={setSearch}

@@ -57,6 +57,7 @@ import AdminPenalties from './pages/AdminPenalties';
 import AdminPlayers from './pages/AdminPlayers';
 import AdminSettings from './pages/AdminSettings';
 import Auction from './pages/Auction';
+import Charts from './pages/Charts';
 import Leaderboard from './pages/Leaderboard';
 import PlayerDetail from './pages/PlayerDetail';
 import Power from './pages/Power';
@@ -64,7 +65,6 @@ import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
 import Transactions from './pages/Transactions';
-import Charts from './pages/Charts';
 import __Layout from './Layout.jsx';
 
 
@@ -79,6 +79,7 @@ export const PAGES = {
     "AdminPlayers": AdminPlayers,
     "AdminSettings": AdminSettings,
     "Auction": Auction,
+    "Charts": Charts,
     "Leaderboard": Leaderboard,
     "PlayerDetail": PlayerDetail,
     "Power": Power,
@@ -86,7 +87,6 @@ export const PAGES = {
     "Results": Results,
     "Rules": Rules,
     "Transactions": Transactions,
-    "Charts": Charts,
 }
 
 export const pagesConfig = {

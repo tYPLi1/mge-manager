@@ -24,7 +24,7 @@ export default function LeaderboardFilters({ search, setSearch, powerGroup, setP
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Spieler suchen..."
+            placeholder="Search player..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
