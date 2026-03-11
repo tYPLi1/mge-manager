@@ -66,6 +66,9 @@ export default function Leaderboard() {
         e[key].count++;
         e[key].dkp += t.amount;
         e.total_events++;
+      }
+      // Activity score: only count actual event participation, exclude MGE/auction
+      if (t.source !== "MGE" && t.source !== "KING") {
         e.activity_score += t.amount;
       }
     });
