@@ -122,21 +122,6 @@ export default function AdminSettings() {
           </p>
         </div>
 
-        {/* Auction Defaults */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Default Auction Close</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Day</Label>
-              <Input value={form.auction_close_day || ""} onChange={(e) => setForm({ ...form, auction_close_day: e.target.value })} className="bg-white/5 border-white/10 text-white" />
-            </div>
-            <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Time (UTC)</Label>
-              <Input value={form.auction_close_time_utc || ""} onChange={(e) => setForm({ ...form, auction_close_time_utc: e.target.value })} className="bg-white/5 border-white/10 text-white" />
-            </div>
-          </div>
-        </div>
-
         {/* MGE Targets */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">MGE Targets (JSON)</h3>
