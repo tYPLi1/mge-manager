@@ -3,10 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight, Download } from "lucide-react";
+import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
-import * as XLSX from "xlsx";
 
 export default function AdminDashboard() {
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -42,50 +41,6 @@ export default function AdminDashboard() {
 
   const openAuction = auctions.find((a) => a.status === "open" || a.status === "closed");
 
-  const exportData = async () => {
-    const [allPlayers, allTxns, allPenalties, allOffenseResets] = await Promise.all([
-      base44.entities.Player.list("-total_dkp", 1000),
-      base44.entities.DKPTransaction.list("-event_date", 10000),
-      base44.entities.Penalty.list("-offense_date", 1000),
-      base44.entities.OffenseResetLog.list("-offense_date", 1000),
-    ]);
-    const wb = XLSX.utils.book_new();
-    const today = new Date().toISOString().split("T")[0];
-
-    const leaderboard = allPlayers.map((p, i) => ({
-      Rank: i + 1, Name: p.name, Total_DKP: p.total_dkp || 0, DKP_Spent: p.dkp_spent || 0,
-      Current_DKP: (p.total_dkp || 0) - (p.dkp_spent || 0), Cooldown_Until: p.cooldown_until || "", Power: p.power || 0,
-    }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leaderboard), "Leaderboard");
-
-    const txnData = allTxns.map(t => ({ Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source, Stage: t.source_stage || "", Note: t.note || "" }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(txnData), "DKP_Log");
-
-    // DKP History per player: cumulative DKP over time
-    const playerTxnMap = {};
-    allTxns.sort((a, b) => (a.event_date || "").localeCompare(b.event_date || "") || (a.created_date || "").localeCompare(b.created_date || ""));
-    allTxns.forEach(t => {
-      if (!playerTxnMap[t.player_name]) playerTxnMap[t.player_name] = { running: 0, rows: [] };
-      playerTxnMap[t.player_name].running += t.amount;
-      playerTxnMap[t.player_name].rows.push({
-        Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source,
-        Stage: t.source_stage || "", Cumulative_DKP: playerTxnMap[t.player_name].running, Note: t.note || "",
-      });
-    });
-    const historyData = Object.values(playerTxnMap).flatMap(p => p.rows);
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(historyData.length ? historyData : [{}]), "DKP_History");
-
-    const probData = allPenalties.filter(p => p.status === "probation").map(p => ({ Player: p.player_name, Level: p.level, Offense: p.offense_count, Date: p.offense_date, DKP: p.dkp_deducted || 0, Note: p.note || "" }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(probData.length ? probData : [{}]), "Probation");
-
-    const cooldownData = allPlayers.filter(p => p.cooldown_until && new Date(p.cooldown_until) > new Date()).map(p => ({ Name: p.name, Cooldown_Until: p.cooldown_until }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cooldownData.length ? cooldownData : [{}]), "Player_On_Cooldown");
-
-    const resetData = allOffenseResets.map(r => ({ Player: r.player_name, Offense_Count: r.offense_count, Offense_Date: r.offense_date, Eligible_Reset: r.eligible_reset_date || "", Status: r.status, Notes: r.notes || "" }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resetData.length ? resetData : [{}]), "Offense_Reset_log");
-
-    XLSX.writeFile(wb, `DKP_Export_${today}.xlsx`);
-  };
 
   const stats = [
     { label: "Total Players", value: players.length, color: "from-blue-500/20 to-cyan-500/20", border: "border-blue-500/20" },
@@ -103,11 +58,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Admin Dashboard" icon={Zap}>
-        <button onClick={exportData} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-xs hover:bg-white/10 transition-colors">
-          <Download className="w-3.5 h-3.5" /> Export Data
-        </button>
-      </PageHeader>
+      <PageHeader title="Admin Dashboard" icon={Zap} />
 
       {/* Open Auction Card */}
       {openAuction && (
