@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const exportData = async () => {
     const [allPlayers, allTxns, allPenalties, allOffenseResets] = await Promise.all([
       base44.entities.Player.list("-total_dkp", 1000),
-      base44.entities.DKPTransaction.list("-event_date", 5000),
+      base44.entities.DKPTransaction.list("-event_date", 10000),
       base44.entities.Penalty.list("-offense_date", 1000),
       base44.entities.OffenseResetLog.list("-offense_date", 1000),
     ]);
@@ -58,8 +58,22 @@ export default function AdminDashboard() {
     }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leaderboard), "Leaderboard");
 
-    const txnData = allTxns.map(t => ({ Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source, Note: t.note || "" }));
+    const txnData = allTxns.map(t => ({ Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source, Stage: t.source_stage || "", Note: t.note || "" }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(txnData), "DKP_Log");
+
+    // DKP History per player: cumulative DKP over time
+    const playerTxnMap = {};
+    allTxns.sort((a, b) => (a.event_date || "").localeCompare(b.event_date || "") || (a.created_date || "").localeCompare(b.created_date || ""));
+    allTxns.forEach(t => {
+      if (!playerTxnMap[t.player_name]) playerTxnMap[t.player_name] = { running: 0, rows: [] };
+      playerTxnMap[t.player_name].running += t.amount;
+      playerTxnMap[t.player_name].rows.push({
+        Date: t.event_date, Player: t.player_name, Amount: t.amount, Type: t.type, Source: t.source,
+        Stage: t.source_stage || "", Cumulative_DKP: playerTxnMap[t.player_name].running, Note: t.note || "",
+      });
+    });
+    const historyData = Object.values(playerTxnMap).flatMap(p => p.rows);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(historyData.length ? historyData : [{}]), "DKP_History");
 
     const probData = allPenalties.filter(p => p.status === "probation").map(p => ({ Player: p.player_name, Level: p.level, Offense: p.offense_count, Date: p.offense_date, DKP: p.dkp_deducted || 0, Note: p.note || "" }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(probData.length ? probData : [{}]), "Probation");
