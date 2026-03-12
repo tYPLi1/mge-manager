@@ -158,20 +158,37 @@ export default function AdminPlayers() {
     const wb = XLSX.read(buf, { type: "array" });
     const preview = [];
 
-    // Process Players sheet
+    // Process Players sheet — header-based column detection
     if (wb.Sheets["Players"]) {
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets["Players"], { header: 1 }).slice(1);
+      const allRows = XLSX.utils.sheet_to_json(wb.Sheets["Players"], { header: 1 });
+      const headerRow = (allRows[0] || []).map(h => String(h).trim().toLowerCase());
+      const col = (label) => headerRow.indexOf(label.toLowerCase());
+      const nameCol = col("name");
+      if (nameCol === -1) { alert("Players sheet missing 'Name' column."); setImporting(false); return; }
+      const dkpEarnedCol = col("dkp earned");
+      const dkpSpentCol = col("dkp spent");
+      const cooldownCol = headerRow.findIndex(h => h.includes("cooldown"));
+      const powerCol = col("power");
+      const updatedCol = headerRow.findIndex(h => h.includes("last updated") || h.includes("updated"));
+
+      const rows = allRows.slice(1);
       const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
 
       for (const row of rows) {
-        const name = row[0]?.toString().trim();
+        const name = row[nameCol]?.toString().trim();
         if (!name) continue;
 
-        const dkpEarned = parseInt(row[1]) || 0;
-        const dkpSpent = parseInt(row[2]) || 0;
-        const cooldown = row[3]?.toString().trim() || null;
-        const power = parseInt(row[4]) || 0;
-        const fileUpdatedDate = row[5]?.toString().trim();
+        const hasDkpEarned = dkpEarnedCol !== -1;
+        const hasDkpSpent = dkpSpentCol !== -1;
+        const hasCooldown = cooldownCol !== -1;
+        const hasPower = powerCol !== -1;
+        const hasUpdated = updatedCol !== -1;
+
+        const dkpEarned = hasDkpEarned ? (parseInt(row[dkpEarnedCol]) || 0) : null;
+        const dkpSpent = hasDkpSpent ? (parseInt(row[dkpSpentCol]) || 0) : null;
+        const cooldown = hasCooldown ? (row[cooldownCol]?.toString().trim() || null) : null;
+        const power = hasPower ? (parseInt(row[powerCol]) || 0) : null;
+        const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
         const existing = playersMap.get(name.toLowerCase());
         if (!existing) {
@@ -179,39 +196,25 @@ export default function AdminPlayers() {
             type: "new",
             entity: "player",
             name,
-            total_dkp: dkpEarned,
-            dkp_spent: dkpSpent,
+            total_dkp: dkpEarned ?? 0,
+            dkp_spent: dkpSpent ?? 0,
             cooldown_until: cooldown,
-            power,
+            power: power ?? 0,
           });
         } else {
-          // Check if file is outdated
           if (fileUpdatedDate && existing.updated_date && fileUpdatedDate < existing.updated_date) {
-            preview.push({
-              type: "outdated",
-              entity: "player",
-              id: existing.id,
-              name,
-              fileDate: fileUpdatedDate,
-              dbDate: existing.updated_date,
-            });
+            preview.push({ type: "outdated", entity: "player", id: existing.id, name, fileDate: fileUpdatedDate, dbDate: existing.updated_date });
             continue;
           }
 
           const changes = {};
-          if (existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
-          if (existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
-          if (existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
-          if (existing.power !== power) changes.power = { old: existing.power, new: power };
+          if (hasDkpEarned && existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
+          if (hasDkpSpent && existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
+          if (hasCooldown && existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
+          if (hasPower && existing.power !== power) changes.power = { old: existing.power, new: power };
 
           if (Object.keys(changes).length > 0) {
-            preview.push({
-              type: "update",
-              entity: "player",
-              id: existing.id,
-              name,
-              changes,
-            });
+            preview.push({ type: "update", entity: "player", id: existing.id, name, changes });
           }
         }
       }
