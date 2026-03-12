@@ -143,6 +143,16 @@ export default function AdminAuctions() {
     queryFn: () => base44.entities.AppSettings.list(),
   });
 
+  const { data: transactions = [] } = useQuery({
+    queryKey: ["transactions-activity"],
+    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 5000),
+  });
+
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["event-types"],
+    queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
+  });
+
   const webhookUrl = settings.find((s) => s.key === "discord_webhook_url")?.value;
   const auctionEnabled = settings.find((s) => s.key === "discord_auction_enabled")?.value === "true";
   const resultsEnabled = settings.find((s) => s.key === "discord_results_enabled")?.value === "true";
@@ -168,15 +178,32 @@ export default function AdminAuctions() {
 
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
 
+  // Activity score per player (same logic as Leaderboard)
+  const activityScores = useMemo(() => {
+    const activityKeys = new Set();
+    eventTypes.forEach(et => {
+      if (et.has_prep_stage) activityKeys.add(`${et.key}_prep`);
+      if (et.has_war_stage) activityKeys.add(`${et.key}_war`);
+      if (!et.has_prep_stage && !et.has_war_stage) activityKeys.add(et.key);
+    });
+    const scores = {};
+    transactions.filter(t => t.type === "earn").forEach(t => {
+      let key = t.source;
+      if (t.source_stage) key = `${t.source}_${t.source_stage}`;
+      if (activityKeys.has(key)) {
+        scores[t.player_id] = (scores[t.player_id] || 0) + t.amount;
+      }
+    });
+    return scores;
+  }, [transactions, eventTypes]);
+
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
     const activeBids = bids.filter((b) => !b.is_deleted);
     const sorted = [...activeBids].sort((a, b) => {
       if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
       if (tiebreaker === "activity") {
-        const pA = players.find((p) => p.id === a.player_id);
-        const pB = players.find((p) => p.id === b.player_id);
-        return (pB?.total_dkp || 0) - (pA?.total_dkp || 0);
+        return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
       }
       return new Date(a.created_date) - new Date(b.created_date);
     });
@@ -204,7 +231,7 @@ export default function AdminAuctions() {
       target: mgeTargets[i]?.target,
       medals: mgeTargets[i]?.medals,
     }));
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker]);
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Auction.create(data),
