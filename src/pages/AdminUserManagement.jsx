@@ -98,13 +98,9 @@ export default function AdminUserManagement() {
   const handleToggle = async (userId) => {
     try {
       const data = await invoke("toggleActive", { userId });
-      // Update local state directly to fix button label
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: data.is_active } : u));
       toast.success(data.is_active ? "User activated" : "User deactivated");
-      // If deactivated, kick them out if they're currently logged in
-      if (!data.is_active) {
-        invalidateSessionIfMatch(userId);
-      }
+      // Reload from DB to ensure UI matches actual state
+      await loadUsers();
     } catch (err) {
       toast.error(err.message);
     }
