@@ -359,15 +359,32 @@ export default function AdminAuctions() {
 
       if (resultsEnabled && webhookUrl && previewRanking.length > 0) {
         const topResults = previewRanking.slice(0, 3);
-        const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join("\n");
+        const resultsText = topResults.map((r, i) => {
+          let line = `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`;
+          if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
+          return line;
+        }).join("\n");
+
+        const hasTiebreakers = previewRanking.some(r => r._tiebreaker);
+        const tiebreakerNote = hasTiebreakers
+          ? (tiebreaker === "activity"
+            ? "⚖ Gleichstand-Regel: Höherer Activity Score = besserer Rang"
+            : "⚖ Gleichstand-Regel: Wer zuerst geboten hat = besserer Rang")
+          : null;
+
+        const fields = [
+          { name: "Top Winners", value: resultsText || "No results", inline: false },
+          { name: "Total Participants", value: String(previewRanking.length), inline: true },
+        ];
+        if (tiebreakerNote) {
+          fields.push({ name: "Tiebreaker", value: tiebreakerNote, inline: false });
+        }
+
         const embed = {
           title: "🏆 Auction Results Ready",
           description: viewBids.title,
           color: 0x10b981,
-          fields: [
-            { name: "Top Winners", value: resultsText || "No results", inline: false },
-            { name: "Total Participants", value: String(previewRanking.length), inline: true },
-          ],
+          fields,
           footer: { text: "DKP System" },
         };
         setDiscordPreview({ embed, onSent: doConfirm });
@@ -677,6 +694,11 @@ export default function AdminAuctions() {
                         <td className="px-2 py-1.5 text-sm text-white">
                           {entry.player_name}
                           {entry._friendlyZone && <span className="ml-2 text-xs text-emerald-400">(Friendly Zone)</span>}
+                          {entry._tiebreaker && (
+                            <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
+                              ⚖ {entry._tiebreaker}
+                            </span>
+                          )}
                         </td>
                         <td className="px-2 py-1.5"><DKPValue value={entry.dkp_bid} size="sm" /></td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
