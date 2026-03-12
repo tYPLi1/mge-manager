@@ -54,33 +54,6 @@ Deno.serve(async (req) => {
       if (closeAt <= now) {
         await base44.asServiceRole.entities.Auction.update(auction.id, { status: "closed" });
         closed++;
-
-        // Send Discord notification for auto-close
-        if (enabled && webhookUrl) {
-          const embed = {
-            title: "🔒 Auction Closed",
-            description: auction.title,
-            color: 0xef4444,
-            fields: [
-              { name: "Status", value: "CLOSED", inline: true },
-              { name: "Closed at", value: new Date().toLocaleString("de-CH", { timeZone: "Europe/Zurich" }), inline: true },
-            ],
-            footer: { text: "DKP System" },
-          };
-          const discordPayload = {
-            content: channelId ? `<#${channelId}>` : undefined,
-            embeds: [embed],
-          };
-          try {
-            await fetch(webhookUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(discordPayload),
-            });
-          } catch (err) {
-            console.error('Discord close notification failed for auction', auction.id, err.message);
-          }
-        }
       }
     }
 
