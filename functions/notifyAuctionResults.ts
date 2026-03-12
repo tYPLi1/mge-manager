@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
     const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
     const enabled = settings.find(s => s.key === 'discord_results_enabled')?.value === 'true';
     const channelId = settings.find(s => s.key === 'discord_auction_channel')?.value;
+    const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
 
     if (!webhookUrl || !enabled) {
       return Response.json({ status: 'disabled' }, { status: 200 });
@@ -43,14 +44,33 @@ Deno.serve(async (req) => {
     const topResults = results.slice(0, 3);
     const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join('\n');
 
+    // Check for ties among all results
+    const hasTies = results.some((r, i) => 
+      (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
+      (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
+    );
+
+    const tiebreakerNote = hasTies
+      ? (tiebreaker === 'activity'
+        ? '⚖ Tiebreaker: Higher Activity Score = higher rank'
+        : tiebreaker === 'last_event_dkp'
+        ? '⚖ Tiebreaker: Most DKP in last event = higher rank'
+        : '⚖ Tiebreaker: First to bid = higher rank')
+      : null;
+
+    const fields = [
+      { name: 'Top Winners', value: resultsText || 'No results', inline: false },
+      { name: 'Total Participants', value: String(results.length), inline: true },
+    ];
+    if (tiebreakerNote) {
+      fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
+    }
+
     const embed = {
       title: '🏆 Auction Results Ready',
       description: auction.title,
       color: 0x10b981,
-      fields: [
-        { name: 'Top Winners', value: resultsText || 'No results', inline: false },
-        { name: 'Total Participants', value: String(results.length), inline: true },
-      ],
+      fields,
       footer: { text: 'DKP System' },
     };
 

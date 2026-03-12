@@ -1,9 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScrollText, ChevronRight, Medal } from "lucide-react";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
+
+const DEFAULT_MGE_TARGETS = [
+  { rank: 1, medals: 100, target: 30000000 },
+  { rank: 2, medals: 80, target: 28000000 },
+  { rank: 3, medals: 60, target: 26000000 },
+  { rank: 4, medals: 40, target: 24000000 },
+  { rank: 5, medals: 20, target: 22000000 },
+  { rank: 6, medals: 15, target: 20000000 },
+  { rank: 7, medals: 15, target: 18000000 },
+  { rank: 8, medals: 10, target: 16000000 },
+  { rank: 9, medals: 10, target: 14000000 },
+  { rank: 10, medals: 10, target: 12000000 },
+];
 
 export default function Results() {
   const [selectedAuction, setSelectedAuction] = useState(null);
@@ -20,6 +33,11 @@ export default function Results() {
     enabled: !!selectedAuction,
   });
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+  });
+
   useEffect(() => {
     const unsub1 = base44.entities.Auction.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ["auctions-confirmed"] });
@@ -33,18 +51,26 @@ export default function Results() {
     };
   }, [queryClient]);
 
-  const mgeTargets = [
-    { rank: 1, medals: 100, target: 30000000 },
-    { rank: 2, medals: 80, target: 28000000 },
-    { rank: 3, medals: 60, target: 26000000 },
-    { rank: 4, medals: 40, target: 24000000 },
-    { rank: 5, medals: 20, target: 22000000 },
-    { rank: 6, medals: 15, target: 20000000 },
-    { rank: 7, medals: 15, target: 18000000 },
-    { rank: 8, medals: 10, target: 16000000 },
-    { rank: 9, medals: 10, target: 14000000 },
-    { rank: 10, medals: 10, target: 12000000 },
-  ];
+  const mgeTargets = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "mge_targets")?.value;
+      return raw ? JSON.parse(raw) : DEFAULT_MGE_TARGETS;
+    } catch { return DEFAULT_MGE_TARGETS; }
+  }, [settings]);
+
+  const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
+
+  // Detect if there are ties in this result set
+  const hasTies = results.some((r, i) =>
+    (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
+    (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
+  );
+
+  const tiebreakerLabel = tiebreaker === "activity"
+    ? "Activity Score"
+    : tiebreaker === "last_event_dkp"
+    ? "Last Event DKP"
+    : "First Come First Served";
 
   return (
     <div>
@@ -97,6 +123,11 @@ export default function Results() {
             <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
               <div className="p-4 border-b border-white/5">
                 <h3 className="font-semibold text-white">{selectedAuction.title}</h3>
+                {hasTies && (
+                  <p className="text-xs text-purple-400 mt-1">
+                    ⚖ Tiebreaker: {tiebreakerLabel}
+                  </p>
+                )}
               </div>
               <table className="w-full">
                 <thead className="bg-[#0d1117]">
@@ -109,8 +140,10 @@ export default function Results() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {results.map((r) => {
+                  {results.map((r, i) => {
                     const t = mgeTargets.find((m) => m.rank === r.rank);
+                    const isTied = (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
+                                   (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid);
                     return (
                       <tr key={r.id} className="hover:bg-white/[0.02]">
                         <td className="px-3 py-2.5">
@@ -120,7 +153,14 @@ export default function Results() {
                             {r.rank}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 text-sm font-medium text-white">{r.player_name}</td>
+                        <td className="px-3 py-2.5">
+                          <span className="text-sm font-medium text-white">{r.player_name}</span>
+                          {isTied && (
+                            <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
+                              ⚖ Tie
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-2.5"><DKPValue value={r.dkp_bid} size="sm" /></td>
                         <td className="px-3 py-2.5 hidden sm:table-cell">
                           <span className="flex items-center gap-1 text-sm text-gray-400">
