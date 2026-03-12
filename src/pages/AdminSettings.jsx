@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
@@ -19,6 +20,11 @@ export default function AdminSettings() {
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
     queryFn: () => base44.entities.AppSettings.list(),
+  });
+
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["event-types-settings"],
+    queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
   });
 
   useEffect(() => {
@@ -45,6 +51,21 @@ export default function AdminSettings() {
 
   const getBool = (key) => form[key] === "true";
   const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
+
+  // Parse the last_event_dkp_sources JSON array from settings
+  const getLastEventSources = () => {
+    try {
+      return form.last_event_dkp_sources ? JSON.parse(form.last_event_dkp_sources) : [];
+    } catch { return []; }
+  };
+
+  const toggleLastEventSource = (sourceKey) => {
+    const current = getLastEventSources();
+    const updated = current.includes(sourceKey)
+      ? current.filter(s => s !== sourceKey)
+      : [...current, sourceKey];
+    setForm({ ...form, last_event_dkp_sources: JSON.stringify(updated) });
+  };
 
 
 
@@ -93,10 +114,10 @@ export default function AdminSettings() {
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">Auction Tiebreaker</h3>
           <p className="text-xs text-gray-500 mb-3">When two players bid the same DKP, who gets the higher rank?</p>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "fcfs" })}
-              className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+              className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
                 (!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
                   ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
@@ -106,20 +127,60 @@ export default function AdminSettings() {
             </button>
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "activity" })}
-              className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+              className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
                 form.auction_tiebreaker === "activity"
                   ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              📊 Higher Activity (Activity Score)
+              📊 Activity Score
+            </button>
+            <button
+              onClick={() => setForm({ ...form, auction_tiebreaker: "last_event_dkp" })}
+              className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                form.auction_tiebreaker === "last_event_dkp"
+                  ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                  : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              🏅 Last Event DKP
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {(!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
               ? "The player who bids first gets the higher rank when bids are equal."
-              : "The player with the higher Activity Score (event DKP excluding MGE/Bids) gets the higher rank when bids are equal."}
+              : form.auction_tiebreaker === "activity"
+              ? "The player with the higher Activity Score gets the higher rank when bids are equal."
+              : "The player who earned the most DKP in the last event (from selected sources) gets the higher rank."}
           </p>
+
+          {/* Last Event DKP source checkboxes */}
+          {form.auction_tiebreaker === "last_event_dkp" && (
+            <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Which event sources count?</p>
+              {eventTypes.length === 0 && (
+                <p className="text-xs text-gray-500">No active events found.</p>
+              )}
+              <div className="space-y-2">
+                {eventTypes.map(et => {
+                  const sources = [];
+                  if (et.has_prep_stage) sources.push({ key: `${et.key}_prep`, label: `${et.display_name} — Prep` });
+                  if (et.has_war_stage) sources.push({ key: `${et.key}_war`, label: `${et.display_name} — War` });
+                  if (!et.has_prep_stage && !et.has_war_stage) sources.push({ key: et.key, label: et.display_name });
+                  const selected = getLastEventSources();
+                  return sources.map(src => (
+                    <label key={src.key} className="flex items-center gap-2.5 cursor-pointer group">
+                      <Checkbox
+                        checked={selected.includes(src.key)}
+                        onCheckedChange={() => toggleLastEventSource(src.key)}
+                      />
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{src.label}</span>
+                    </label>
+                  ));
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* MGE Targets */}
