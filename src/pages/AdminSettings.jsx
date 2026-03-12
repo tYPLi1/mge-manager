@@ -112,13 +112,13 @@ export default function AdminSettings() {
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              📊 Höhere Aktivität (Total DKP)
+              📊 Höhere Aktivität (Activity Score)
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {(!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
               ? "Wer zuerst bietet, bekommt bei gleichem Gebot den besseren Rang."
-              : "Wer mehr DKP insgesamt verdient hat, bekommt bei gleichem Gebot den besseren Rang."}
+              : "Wer den höheren Activity Score hat (Event-DKP ohne MGE/Bids), bekommt bei gleichem Gebot den besseren Rang."}
           </p>
         </div>
 
