@@ -108,6 +108,13 @@ export default function AdminSessionGuard({ children }) {
     return () => events.forEach(e => window.removeEventListener(e, handleActivity));
   }, [isAuthorized]);
 
-  if (loading || !isAuthorized) return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-gray-700 border-t-amber-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!isAuthorized) return null;
   return children;
 }
