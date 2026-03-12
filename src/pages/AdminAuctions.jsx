@@ -231,12 +231,12 @@ export default function AdminAuctions() {
       if (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) {
         _tiebreaker = tiebreaker === "activity"
           ? `Activity Score: ${activityScores[b.player_id] || 0}`
-          : `Früher geboten`;
+          : `Bid placed earlier`;
       }
       if (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid && !_tiebreaker) {
         _tiebreaker = tiebreaker === "activity"
           ? `Activity Score: ${activityScores[b.player_id] || 0}`
-          : `Früher geboten`;
+          : `Bid placed earlier`;
       }
       return {
         ...b,
@@ -368,8 +368,8 @@ export default function AdminAuctions() {
         const hasTiebreakers = previewRanking.some(r => r._tiebreaker);
         const tiebreakerNote = hasTiebreakers
           ? (tiebreaker === "activity"
-            ? "⚖ Gleichstand-Regel: Höherer Activity Score = besserer Rang"
-            : "⚖ Gleichstand-Regel: Wer zuerst geboten hat = besserer Rang")
+            ? "⚖ Tiebreaker: Higher Activity Score = higher rank"
+            : "⚖ Tiebreaker: First to bid = higher rank")
           : null;
 
         const fields = [

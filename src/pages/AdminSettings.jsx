@@ -92,7 +92,7 @@ export default function AdminSettings() {
         {/* Auction Tiebreaker */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">Auction Tiebreaker</h3>
-          <p className="text-xs text-gray-500 mb-3">Wenn zwei Spieler das gleiche DKP bieten, wer bekommt den besseren Rang?</p>
+          <p className="text-xs text-gray-500 mb-3">When two players bid the same DKP, who gets the higher rank?</p>
           <div className="flex gap-3">
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "fcfs" })}
@@ -112,13 +112,13 @@ export default function AdminSettings() {
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              📊 Höhere Aktivität (Activity Score)
+              📊 Higher Activity (Activity Score)
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {(!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
-              ? "Wer zuerst bietet, bekommt bei gleichem Gebot den besseren Rang."
-              : "Wer den höheren Activity Score hat (Event-DKP ohne MGE/Bids), bekommt bei gleichem Gebot den besseren Rang."}
+              ? "The player who bids first gets the higher rank when bids are equal."
+              : "The player with the higher Activity Score (event DKP excluding MGE/Bids) gets the higher rank when bids are equal."}
           </p>
         </div>
 
