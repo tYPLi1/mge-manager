@@ -209,8 +209,8 @@ export default function AdminSettings() {
 
         {/* Cooldown Table */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Cooldown Table (Rounds per Rank)</h3>
-          <p className="text-xs text-gray-500 mb-3">JSON format: rank → number of rounds</p>
+          <h3 className="text-sm font-semibold text-white mb-4">Cooldown Table (Tage pro Rang)</h3>
+          <p className="text-xs text-gray-500 mb-3">JSON format: Rang → Anzahl Tage Cooldown</p>
           <Textarea
             value={form.cooldown_table || ""}
             onChange={(e) => setForm({ ...form, cooldown_table: e.target.value })}
