@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
           source: source,
           source_stage: 'prep',
           event_date: eventDate,
-          note: 'Import from DKP_Log (prep)'
+          note: extraNote || 'Import from DKP_Log (prep)'
         });
       }
 
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
           source: source,
           source_stage: 'war',
           event_date: eventDate,
-          note: 'Import from DKP_Log (war)'
+          note: extraNote || 'Import from DKP_Log (war)'
         });
       }
 
@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
           source: source,
           source_stage: '',
           event_date: eventDate,
-          note: 'Import from DKP_Log (spend)'
+          note: extraNote || 'Import from DKP_Log (spend)'
         });
       }
     }
