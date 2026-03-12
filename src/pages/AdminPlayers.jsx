@@ -157,6 +157,38 @@ export default function AdminPlayers() {
     penaltyWs["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 30 }];
     XLSX.utils.book_append_sheet(wb, penaltyWs, "Penalties");
 
+    // DKP History sheet — sorted by player, then date
+    const sortedTx = [...transactions].sort((a, b) => {
+      const nameCompare = (a.player_name || "").localeCompare(b.player_name || "");
+      if (nameCompare !== 0) return nameCompare;
+      return (a.event_date || "").localeCompare(b.event_date || "");
+    });
+
+    // Calculate cumulative DKP per player
+    const cumulativeMap = {};
+    const txRows = sortedTx.map(tx => {
+      const name = tx.player_name || "Unknown";
+      if (!cumulativeMap[name]) cumulativeMap[name] = 0;
+      cumulativeMap[name] += (tx.amount || 0);
+      return [
+        name,
+        tx.type || "",
+        tx.source || "",
+        tx.source_stage || "",
+        tx.amount || 0,
+        cumulativeMap[name],
+        tx.event_date || "",
+        tx.note || "",
+      ];
+    });
+
+    const txWs = XLSX.utils.aoa_to_sheet([
+      ["Player", "Type", "Source", "Stage", "Amount", "Cumulative DKP", "Date", "Note"],
+      ...txRows,
+    ]);
+    txWs["!cols"] = [{ wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, txWs, "DKP_History");
+
     XLSX.writeFile(wb, `Players-State-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
