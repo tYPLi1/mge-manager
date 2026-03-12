@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       
       // Date could be in col F (index 5) or elsewhere
       let eventDate = '';
-      if (row[5]) {
+      if (row[6]) {
         const rawDate = row[5];
         if (typeof rawDate === 'number') {
           // Excel serial date: days since 1900-01-01 (with off-by-one bug)
