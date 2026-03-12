@@ -52,8 +52,9 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'userId required' }, { status: 400 });
       }
       const user = await base44.asServiceRole.entities.AdminUser.get(userId);
-      await base44.asServiceRole.entities.AdminUser.update(userId, { is_active: !user.is_active });
-      return Response.json({ success: true, message: `User ${user.is_active ? 'deactivated' : 'activated'}` });
+      const newActive = !user.is_active;
+      await base44.asServiceRole.entities.AdminUser.update(userId, { is_active: newActive });
+      return Response.json({ success: true, message: `User ${newActive ? 'activated' : 'deactivated'}`, userId: user.id, is_active: newActive });
     }
 
     if (action === 'delete') {
@@ -61,7 +62,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'userId required' }, { status: 400 });
       }
       await base44.asServiceRole.entities.AdminUser.delete(userId);
-      return Response.json({ success: true, message: 'User deleted' });
+      return Response.json({ success: true, message: 'User deleted', deletedUserId: userId });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
