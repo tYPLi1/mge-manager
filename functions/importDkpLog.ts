@@ -65,8 +65,8 @@ Deno.serve(async (req) => {
       const warDkp = Number(row[2]) || 0;
       const spendDkp = Number(row[3]) || 0;
       const source = row[4] ? String(row[4]).trim() : '';
+      const extraNote = row[5] ? String(row[5]).trim() : '';
       
-      // Date could be in col F (index 5) or elsewhere
       let eventDate = '';
       if (row[6]) {
         const rawDate = row[6];
