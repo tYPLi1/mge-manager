@@ -166,12 +166,18 @@ export default function AdminAuctions() {
     } catch { return DEFAULT_COOLDOWN_TABLE; }
   }, [settings]);
 
+  const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
+
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
     const activeBids = bids.filter((b) => !b.is_deleted);
     const sorted = [...activeBids].sort((a, b) => {
       if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
-      // Bei gleichen Geboten: wer zuerst geboten hat, gewinnt (ältestes created_date = kleinerer Wert)
+      if (tiebreaker === "activity") {
+        const pA = players.find((p) => p.id === a.player_id);
+        const pB = players.find((p) => p.id === b.player_id);
+        return (pB?.total_dkp || 0) - (pA?.total_dkp || 0);
+      }
       return new Date(a.created_date) - new Date(b.created_date);
     });
     const top10 = sorted.slice(0, 10);

@@ -89,6 +89,39 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* Auction Tiebreaker */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">Auction Tiebreaker</h3>
+          <p className="text-xs text-gray-500 mb-3">Wenn zwei Spieler das gleiche DKP bieten, wer bekommt den besseren Rang?</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setForm({ ...form, auction_tiebreaker: "fcfs" })}
+              className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                (!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
+                  ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                  : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              ⏱ First Come First Served
+            </button>
+            <button
+              onClick={() => setForm({ ...form, auction_tiebreaker: "activity" })}
+              className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                form.auction_tiebreaker === "activity"
+                  ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                  : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              📊 Höhere Aktivität (Total DKP)
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            {(!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
+              ? "Wer zuerst bietet, bekommt bei gleichem Gebot den besseren Rang."
+              : "Wer mehr DKP insgesamt verdient hat, bekommt bei gleichem Gebot den besseren Rang."}
+          </p>
+        </div>
+
         {/* Auction Defaults */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">Default Auction Close</h3>
