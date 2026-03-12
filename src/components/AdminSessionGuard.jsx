@@ -1,48 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 
-const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+function getSessionUserId() {
+  const raw = localStorage.getItem('adminSession');
+  if (!raw) return null;
+  try { return JSON.parse(raw).userId || null; } catch { return null; }
+}
+
+function forceLogout() {
+  localStorage.removeItem('adminSession');
+  localStorage.removeItem('adminLastActivity');
+  window.location.href = createPageUrl('Leaderboard');
+}
 
 export default function AdminSessionGuard({ children }) {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const userIdRef = useRef(null);
 
+  // --- Initial auth check ---
   useEffect(() => {
     const checkAuthorization = async () => {
-      try {
-        // Check AdminUser session from localStorage
-        const adminSession = localStorage.getItem('adminSession');
-        if (adminSession) {
-          const parsed = JSON.parse(adminSession);
-          if (new Date(parsed.expiresAt) > new Date()) {
-            // Verify the account is still active in the database
-            try {
-              const res = await base44.functions.invoke('verifyAdminSession', { userId: parsed.userId });
-              if (res.data.valid) {
-                setIsAuthorized(true);
-                setLoading(false);
-                return;
-              } else {
-                // Account was deactivated or deleted — clear session
-                localStorage.removeItem('adminSession');
-                localStorage.removeItem('adminLastActivity');
-              }
-            } catch {
-              // If verification fails (network error etc.), allow session to continue
+      const adminSession = localStorage.getItem('adminSession');
+      if (adminSession) {
+        const parsed = JSON.parse(adminSession);
+        if (new Date(parsed.expiresAt) > new Date()) {
+          try {
+            const res = await base44.functions.invoke('verifyAdminSession', { userId: parsed.userId });
+            if (res.data.valid) {
+              userIdRef.current = parsed.userId;
               setIsAuthorized(true);
               setLoading(false);
               return;
+            } else {
+              forceLogout();
+              return;
             }
-          } else {
-            localStorage.removeItem('adminSession');
-            localStorage.removeItem('adminLastActivity');
+          } catch {
+            userIdRef.current = parsed.userId;
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
           }
+        } else {
+          localStorage.removeItem('adminSession');
+          localStorage.removeItem('adminLastActivity');
         }
+      }
 
-        // Check if Base44 user is admin
+      try {
         const isAuthenticated = await base44.auth.isAuthenticated();
         if (isAuthenticated) {
           const user = await base44.auth.me();
@@ -52,20 +61,35 @@ export default function AdminSessionGuard({ children }) {
             return;
           }
         }
+      } catch {}
 
-        // No valid admin session or Base44 admin user
-        navigate(createPageUrl('AdminLogin'));
-        setLoading(false);
-      } catch (error) {
-        console.error('Authorization check failed:', error);
-        navigate(createPageUrl('AdminLogin'));
-        setLoading(false);
-      }
+      navigate(createPageUrl('AdminLogin'));
+      setLoading(false);
     };
 
     checkAuthorization();
   }, [navigate]);
 
+  // --- Real-time subscription: kick user when deactivated/deleted ---
+  useEffect(() => {
+    if (!isAuthorized) return;
+
+    const unsubscribe = base44.entities.AdminUser.subscribe((event) => {
+      const myId = userIdRef.current || getSessionUserId();
+      if (!myId) return;
+
+      if (event.type === 'delete' && event.id === myId) {
+        forceLogout();
+      }
+      if (event.type === 'update' && event.id === myId && event.data?.is_active === false) {
+        forceLogout();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isAuthorized]);
+
+  // --- Activity tracking to extend session ---
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -73,33 +97,17 @@ export default function AdminSessionGuard({ children }) {
       const session = localStorage.getItem('adminSession');
       if (session) {
         const parsed = JSON.parse(session);
-        const newExpiry = new Date(Date.now() + 10 * 60 * 1000);
-        parsed.expiresAt = newExpiry.toISOString();
+        parsed.expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
         localStorage.setItem('adminSession', JSON.stringify(parsed));
         localStorage.setItem('adminLastActivity', Date.now().toString());
       }
     };
 
-    // Track activity
-    const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
-    activityEvents.forEach(event => {
-      window.addEventListener(event, handleActivity);
-    });
-
-    return () => {
-      activityEvents.forEach(event => {
-        window.removeEventListener(event, handleActivity);
-      });
-    };
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, handleActivity));
+    return () => events.forEach(e => window.removeEventListener(e, handleActivity));
   }, [isAuthorized]);
 
-  if (loading) {
-    return null;
-  }
-
-  if (!isAuthorized) {
-    return null;
-  }
-
+  if (loading || !isAuthorized) return null;
   return children;
 }
