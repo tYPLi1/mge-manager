@@ -119,6 +119,13 @@ export default function AdminPlayers() {
     penaltyWs["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 15 }, { wch: 12 }, { wch: 30 }];
     XLSX.utils.book_append_sheet(wb, penaltyWs, "Penalties");
 
+    // DKP_History sheet
+    const txWs = XLSX.utils.aoa_to_sheet([
+      ["Player", "Type", "Source", "Stage", "Amount", "Date", "Note"],
+    ]);
+    txWs["!cols"] = [{ wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, txWs, "DKP_History");
+
     XLSX.writeFile(wb, "Players-Template.xlsx");
   };
 
