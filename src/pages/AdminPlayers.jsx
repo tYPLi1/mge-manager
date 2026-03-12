@@ -32,6 +32,11 @@ export default function AdminPlayers() {
     queryFn: () => base44.entities.Penalty.list("-offense_date", 1000),
   });
 
+  const { data: transactions = [] } = useQuery({
+    queryKey: ["transactions-export"],
+    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 10000),
+  });
+
   // Real-time subscriptions
   useEffect(() => {
     const unsubscribePlayers = base44.entities.Player.subscribe((event) => {
