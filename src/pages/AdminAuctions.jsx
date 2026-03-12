@@ -178,6 +178,13 @@ export default function AdminAuctions() {
 
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
 
+  const lastEventDkpSources = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "last_event_dkp_sources")?.value;
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  }, [settings]);
+
   // Activity score per player (same logic as Leaderboard)
   const activityScores = useMemo(() => {
     const activityKeys = new Set();
@@ -197,6 +204,28 @@ export default function AdminAuctions() {
     return scores;
   }, [transactions, eventTypes]);
 
+  // Last event DKP per player: find the most recent event_date for configured sources, sum DKP per player for that date
+  const lastEventDkpScores = useMemo(() => {
+    if (tiebreaker !== "last_event_dkp" || lastEventDkpSources.length === 0) return {};
+    const sourceSet = new Set(lastEventDkpSources);
+    // Filter relevant transactions
+    const relevant = transactions.filter(t => {
+      if (t.type !== "earn") return false;
+      let key = t.source;
+      if (t.source_stage) key = `${t.source}_${t.source_stage}`;
+      return sourceSet.has(key);
+    });
+    if (relevant.length === 0) return {};
+    // Find the latest event_date
+    const latestDate = relevant.reduce((max, t) => t.event_date > max ? t.event_date : max, relevant[0].event_date);
+    // Sum DKP per player for that date only
+    const scores = {};
+    relevant.filter(t => t.event_date === latestDate).forEach(t => {
+      scores[t.player_id] = (scores[t.player_id] || 0) + t.amount;
+    });
+    return scores;
+  }, [transactions, tiebreaker, lastEventDkpSources]);
+
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
     const activeBids = bids.filter((b) => !b.is_deleted);
@@ -204,6 +233,9 @@ export default function AdminAuctions() {
       if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
       if (tiebreaker === "activity") {
         return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
+      }
+      if (tiebreaker === "last_event_dkp") {
+        return (lastEventDkpScores[b.player_id] || 0) - (lastEventDkpScores[a.player_id] || 0);
       }
       return new Date(a.created_date) - new Date(b.created_date);
     });
@@ -228,15 +260,16 @@ export default function AdminAuctions() {
     // Detect tiebreaker situations: consecutive entries with same dkp_bid
     return top10.map((b, i) => {
       let _tiebreaker = null;
-      if (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) {
-        _tiebreaker = tiebreaker === "activity"
-          ? `Activity Score: ${activityScores[b.player_id] || 0}`
-          : `Bid placed earlier`;
-      }
-      if (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid && !_tiebreaker) {
-        _tiebreaker = tiebreaker === "activity"
-          ? `Activity Score: ${activityScores[b.player_id] || 0}`
-          : `Bid placed earlier`;
+      const hasTie = (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) ||
+                     (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid);
+      if (hasTie) {
+        if (tiebreaker === "activity") {
+          _tiebreaker = `Activity Score: ${activityScores[b.player_id] || 0}`;
+        } else if (tiebreaker === "last_event_dkp") {
+          _tiebreaker = `Last Event DKP: ${lastEventDkpScores[b.player_id] || 0}`;
+        } else {
+          _tiebreaker = `Bid placed earlier`;
+        }
       }
       return {
         ...b,
@@ -246,7 +279,7 @@ export default function AdminAuctions() {
         _tiebreaker,
       };
     });
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores]);
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores, lastEventDkpScores]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Auction.create(data),
@@ -369,6 +402,8 @@ export default function AdminAuctions() {
         const tiebreakerNote = hasTiebreakers
           ? (tiebreaker === "activity"
             ? "⚖ Tiebreaker: Higher Activity Score = higher rank"
+            : tiebreaker === "last_event_dkp"
+            ? "⚖ Tiebreaker: Most DKP in last event = higher rank"
             : "⚖ Tiebreaker: First to bid = higher rank")
           : null;
 
