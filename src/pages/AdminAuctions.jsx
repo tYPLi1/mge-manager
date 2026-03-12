@@ -204,7 +204,7 @@ export default function AdminAuctions() {
       target: mgeTargets[i]?.target,
       medals: mgeTargets[i]?.medals,
     }));
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets]);
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Auction.create(data),
