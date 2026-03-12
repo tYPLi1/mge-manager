@@ -6,6 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+
+function invalidateSessionIfMatch(userId) {
+  const session = localStorage.getItem("adminSession");
+  if (!session) return;
+  const parsed = JSON.parse(session);
+  if (parsed.userId === userId) {
+    localStorage.removeItem("adminSession");
+    localStorage.removeItem("adminLastActivity");
+    window.location.href = createPageUrl("AdminLogin");
+  }
+}
 
 export default function AdminUserManagement() {
   const [masterPassword, setMasterPassword] = useState("");
@@ -13,13 +26,12 @@ export default function AdminUserManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // New user form
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [creating, setCreating] = useState(false);
 
-  // Password change
   const [changingPwFor, setChangingPwFor] = useState(null);
   const [changedPw, setChangedPw] = useState("");
 
@@ -48,7 +60,7 @@ export default function AdminUserManagement() {
       setUsers(data.users);
       setAuthenticated(true);
     } catch {
-      toast.error("Falsches Passwort");
+      toast.error("Wrong password");
     } finally {
       setLoading(false);
     }
@@ -60,7 +72,7 @@ export default function AdminUserManagement() {
     setCreating(true);
     try {
       await invoke("create", { username: newUsername, password: newPassword });
-      toast.success(`Admin '${newUsername}' erstellt`);
+      toast.success(`Admin '${newUsername}' created`);
       setNewUsername("");
       setNewPassword("");
       await loadUsers();
@@ -75,7 +87,7 @@ export default function AdminUserManagement() {
     if (!changedPw) return;
     try {
       await invoke("changePassword", { userId, password: changedPw });
-      toast.success("Passwort geändert");
+      toast.success("Password changed");
       setChangingPwFor(null);
       setChangedPw("");
     } catch (err) {
@@ -85,26 +97,32 @@ export default function AdminUserManagement() {
 
   const handleToggle = async (userId) => {
     try {
-      await invoke("toggleActive", { userId });
-      await loadUsers();
-      toast.success("Status geändert");
+      const data = await invoke("toggleActive", { userId });
+      // Update local state directly to fix button label
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: data.is_active } : u));
+      toast.success(data.is_active ? "User activated" : "User deactivated");
+      // If deactivated, kick them out if they're currently logged in
+      if (!data.is_active) {
+        invalidateSessionIfMatch(userId);
+      }
     } catch (err) {
       toast.error(err.message);
     }
   };
 
   const handleDelete = async (userId, username) => {
-    if (!confirm(`Admin '${username}' wirklich löschen?`)) return;
+    if (!confirm(`Delete admin '${username}'?`)) return;
     try {
       await invoke("delete", { userId });
-      await loadUsers();
-      toast.success(`'${username}' gelöscht`);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      toast.success(`'${username}' deleted`);
+      // Kick them out if currently logged in
+      invalidateSessionIfMatch(userId);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  // Locked state
   if (!authenticated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -114,15 +132,15 @@ export default function AdminUserManagement() {
               <Lock className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h2 className="text-lg font-bold text-white text-center mb-2">Admin-Verwaltung</h2>
-          <p className="text-xs text-gray-500 text-center mb-6">Master-Passwort eingeben um fortzufahren</p>
+          <h2 className="text-lg font-bold text-white text-center mb-2">Admin Management</h2>
+          <p className="text-xs text-gray-500 text-center mb-6">Enter master password to continue</p>
           <form onSubmit={handleUnlock} className="space-y-4">
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
                 value={masterPassword}
                 onChange={(e) => setMasterPassword(e.target.value)}
-                placeholder="Master-Passwort"
+                placeholder="Master password"
                 className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 pr-10"
                 autoFocus
               />
@@ -140,7 +158,7 @@ export default function AdminUserManagement() {
               className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
-              Entsperren
+              Unlock
             </Button>
           </form>
         </div>
@@ -150,35 +168,35 @@ export default function AdminUserManagement() {
 
   return (
     <div>
-      <PageHeader title="Admin-Benutzer verwalten" icon={Shield} />
+      <PageHeader title="Manage Admin Users" icon={Shield} />
 
       {/* Create New */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Neuen Admin erstellen</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Create New Admin</h3>
         <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Benutzername</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Username</Label>
             <Input
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
-              placeholder="z.B. admin2"
+              placeholder="e.g. admin2"
               className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
             />
           </div>
           <div className="flex-1">
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Passwort</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Password</Label>
             <Input
               type="text"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Passwort"
+              placeholder="Password"
               className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
             />
           </div>
           <div className="flex items-end">
             <Button type="submit" disabled={!newUsername || !newPassword || creating} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
               {creating ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-              Erstellen
+              Create
             </Button>
           </div>
         </form>
@@ -187,12 +205,12 @@ export default function AdminUserManagement() {
       {/* User List */}
       <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
         <div className="p-4 border-b border-white/5">
-          <h3 className="text-sm font-semibold text-white">Bestehende Admins ({users.length})</h3>
+          <h3 className="text-sm font-semibold text-white">Existing Admins ({users.length})</h3>
         </div>
         {loading ? (
           <div className="p-8 text-center"><Loader2 className="w-5 h-5 text-gray-500 animate-spin mx-auto" /></div>
         ) : users.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">Keine Admin-Benutzer vorhanden</div>
+          <div className="p-8 text-center text-gray-500 text-sm">No admin users found</div>
         ) : (
           <div className="divide-y divide-white/5">
             {users.map((u) => (
@@ -207,8 +225,8 @@ export default function AdminUserManagement() {
                     <div>
                       <p className="text-sm font-medium text-white">{u.username}</p>
                       <p className="text-xs text-gray-500">
-                        Erstellt: {new Date(u.created_date).toLocaleDateString("de-CH")}
-                        {!u.is_active && <span className="ml-2 text-red-400">• Deaktiviert</span>}
+                        Created: {new Date(u.created_date).toLocaleDateString("en-US")}
+                        {!u.is_active && <span className="ml-2 text-red-400">• Disabled</span>}
                       </p>
                     </div>
                   </div>
@@ -219,7 +237,7 @@ export default function AdminUserManagement() {
                       onClick={() => { setChangingPwFor(changingPwFor === u.id ? null : u.id); setChangedPw(""); }}
                       className="border-white/10 text-gray-300 text-xs hover:bg-white/5"
                     >
-                      <KeyRound className="w-3 h-3 mr-1" /> Passwort
+                      <KeyRound className="w-3 h-3 mr-1" /> Password
                     </Button>
                     <Button
                       size="sm"
@@ -227,26 +245,25 @@ export default function AdminUserManagement() {
                       onClick={() => handleToggle(u.id)}
                       className={`border-white/10 text-xs hover:bg-white/5 ${u.is_active ? "text-amber-400" : "text-emerald-400"}`}
                     >
-                      {u.is_active ? <><UserX className="w-3 h-3 mr-1" /> Deaktivieren</> : <><UserCheck className="w-3 h-3 mr-1" /> Aktivieren</>}
+                      {u.is_active ? <><UserX className="w-3 h-3 mr-1" /> Disable</> : <><UserCheck className="w-3 h-3 mr-1" /> Enable</>}
                     </Button>
                     <button
                       onClick={() => handleDelete(u.id, u.username)}
                       className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded hover:bg-red-500/10"
-                      title="Löschen"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Password change inline */}
                 {changingPwFor === u.id && (
                   <div className="mt-3 flex items-center gap-2 pl-11">
                     <Input
                       type="text"
                       value={changedPw}
                       onChange={(e) => setChangedPw(e.target.value)}
-                      placeholder="Neues Passwort"
+                      placeholder="New password"
                       className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 text-sm w-60"
                       autoFocus
                     />
@@ -256,7 +273,7 @@ export default function AdminUserManagement() {
                       disabled={!changedPw}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
                     >
-                      Speichern
+                      Save
                     </Button>
                     <Button
                       size="sm"
@@ -264,7 +281,7 @@ export default function AdminUserManagement() {
                       onClick={() => { setChangingPwFor(null); setChangedPw(""); }}
                       className="border-white/10 text-gray-400 text-xs"
                     >
-                      Abbrechen
+                      Cancel
                     </Button>
                   </div>
                 )}
