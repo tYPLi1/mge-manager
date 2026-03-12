@@ -9,19 +9,22 @@ Deno.serve(async (req) => {
       return Response.json({ valid: false, reason: 'No userId provided' });
     }
 
-    // Use service role to check admin user - no end-user auth needed
-    const users = await base44.asServiceRole.entities.AdminUser.filter({ id: userId });
-    const user = users.length > 0 ? users[0] : null;
+    try {
+      const user = await base44.asServiceRole.entities.AdminUser.get(userId);
+      
+      if (!user) {
+        return Response.json({ valid: false, reason: 'User not found' });
+      }
 
-    if (!user) {
-      return Response.json({ valid: false, reason: 'User not found' });
+      if (!user.is_active) {
+        return Response.json({ valid: false, reason: 'User is disabled' });
+      }
+
+      return Response.json({ valid: true });
+    } catch (innerError) {
+      console.error('Get user error:', innerError.message);
+      return Response.json({ valid: false, reason: 'User not found or deleted' });
     }
-
-    if (!user.is_active) {
-      return Response.json({ valid: false, reason: 'User is disabled' });
-    }
-
-    return Response.json({ valid: true });
   } catch (error) {
     console.error('verifyAdminSession error:', error.message);
     return Response.json({ valid: false, reason: 'Verification failed' });
