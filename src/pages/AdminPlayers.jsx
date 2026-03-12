@@ -47,9 +47,14 @@ export default function AdminPlayers() {
       queryClient.invalidateQueries({ queryKey: ["penalties"] });
     });
 
+    const unsubscribeTransactions = base44.entities.DKPTransaction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["transactions-export"] });
+    });
+
     return () => {
       unsubscribePlayers();
       unsubscribePenalties();
+      unsubscribeTransactions();
     };
   }, [queryClient]);
 
