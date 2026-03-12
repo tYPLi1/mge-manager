@@ -10,8 +10,10 @@ Deno.serve(async (req) => {
     let auction;
     if (event?.type) {
       // Automation trigger - only notify if status changed to 'open'
-      if (data.status !== 'open') {
-        return Response.json({ success: true });
+      // Also skip if old_data was already 'open' (no real status change)
+      const old_data = body.old_data;
+      if (data.status !== 'open' || old_data?.status === 'open') {
+        return Response.json({ success: true, skipped: true });
       }
       auction = data;
     } else {
