@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight, Download } from "lucide-react";
@@ -31,6 +31,14 @@ export default function AdminDashboard() {
     queryKey: ["penalties-active"],
     queryFn: () => base44.entities.Penalty.filter({ status: "probation" }, "-offense_date", 50),
   });
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
+    const unsub2 = base44.entities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
+    const unsub3 = base44.entities.Penalty.subscribe(() => queryClient.invalidateQueries({ queryKey: ["penalties-active"] }));
+    return () => { unsub1(); unsub2(); unsub3(); };
+  }, [queryClient]);
 
   const openAuction = auctions.find((a) => a.status === "open" || a.status === "closed");
 

@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shield, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -13,6 +13,12 @@ export default function Punishments() {
     queryKey: ["penalties"],
     queryFn: () => base44.entities.Penalty.list("-offense_date", 200),
   });
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const unsub = base44.entities.Penalty.subscribe(() => queryClient.invalidateQueries({ queryKey: ["penalties"] }));
+    return () => unsub();
+  }, [queryClient]);
 
   const filtered = useMemo(() => {
     if (statusFilter === "active") return penalties.filter((p) => p.status === "probation");

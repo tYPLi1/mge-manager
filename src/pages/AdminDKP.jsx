@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { History, Plus } from "lucide-react";
@@ -27,6 +27,12 @@ export default function AdminDKP() {
     queryKey: ["eventTypes"],
     queryFn: () => base44.entities.EventType.list("sort_order", 20),
   });
+
+  useEffect(() => {
+    const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
+    const unsub2 = base44.entities.EventType.subscribe(() => queryClient.invalidateQueries({ queryKey: ["eventTypes"] }));
+    return () => { unsub1(); unsub2(); };
+  }, [queryClient]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {

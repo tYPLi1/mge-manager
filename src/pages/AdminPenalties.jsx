@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Plus, RotateCcw, Calculator, CheckCircle, AlertCircle } from "lucide-react";
@@ -62,6 +62,12 @@ export default function AdminPenalties() {
     queryKey: ["penalties"],
     queryFn: () => base44.entities.Penalty.list("-offense_date", 200),
   });
+
+  useEffect(() => {
+    const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
+    const unsub2 = base44.entities.Penalty.subscribe(() => queryClient.invalidateQueries({ queryKey: ["penalties"] }));
+    return () => { unsub1(); unsub2(); };
+  }, [queryClient]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {

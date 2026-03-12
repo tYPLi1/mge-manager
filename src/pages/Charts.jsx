@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -28,6 +28,14 @@ export default function Charts() {
     queryFn: () => base44.entities.PowerHistory.filter({ player_id: selectedPlayerId }, "recorded_at", 500),
     enabled: !!selectedPlayerId,
   });
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
+    const unsub2 = base44.entities.DKPTransaction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["transactions-chart"] }));
+    const unsub3 = base44.entities.PowerHistory.subscribe(() => queryClient.invalidateQueries({ queryKey: ["powerHistory-chart"] }));
+    return () => { unsub1(); unsub2(); unsub3(); };
+  }, [queryClient]);
 
   const selectedPlayer = players.find(p => p.id === selectedPlayerId);
   const filteredPlayers = search

@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { History, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,13 @@ export default function Transactions() {
     queryKey: ["players-list"],
     queryFn: () => base44.entities.Player.list("name", 500),
   });
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const unsub1 = base44.entities.DKPTransaction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["transactions"] }));
+    const unsub2 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players-list"] }));
+    return () => { unsub1(); unsub2(); };
+  }, [queryClient]);
 
   const sources = useMemo(() => {
     const s = new Set(transactions.map((t) => t.source).filter(Boolean));

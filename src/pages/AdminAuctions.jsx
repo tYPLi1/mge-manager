@@ -153,6 +153,14 @@ export default function AdminAuctions() {
     queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
   });
 
+  useEffect(() => {
+    const unsub1 = base44.entities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
+    const unsub2 = base44.entities.Bid.subscribe(() => queryClient.invalidateQueries({ queryKey: ["bids"] }));
+    const unsub3 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
+    const unsub4 = base44.entities.DKPTransaction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["transactions-activity"] }));
+    return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
+  }, [queryClient]);
+
   const webhookUrl = settings.find((s) => s.key === "discord_webhook_url")?.value;
   const auctionEnabled = settings.find((s) => s.key === "discord_auction_enabled")?.value === "true";
   const resultsEnabled = settings.find((s) => s.key === "discord_results_enabled")?.value === "true";
