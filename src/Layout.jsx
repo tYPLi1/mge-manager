@@ -25,6 +25,7 @@ const adminNav = [
   { name: "Penalties", page: "AdminPenalties", icon: Shield },
   { name: "Event Config", page: "AdminEventConfig", icon: Settings2 },
   { name: "Settings", page: "AdminSettings", icon: Settings },
+  { name: "Logins", page: "AdminUserManagement", icon: Shield },
 ];
 
 const sharedStyle = `
