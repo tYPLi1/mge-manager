@@ -315,10 +315,69 @@ export default function AdminPlayers() {
       }
     }
 
+    // Process DKP_History sheet
+    if (wb.Sheets["DKP_History"]) {
+      const allRows = XLSX.utils.sheet_to_json(wb.Sheets["DKP_History"], { header: 1 });
+      const headerRow = (allRows[0] || []).map(h => String(h).trim().toLowerCase());
+      const col = (label) => headerRow.indexOf(label.toLowerCase());
+      const playerCol = col("player");
+      const typeCol = col("type");
+      const sourceCol = col("source");
+      const stageCol = col("stage");
+      const amountCol = col("amount");
+      const dateCol = col("date");
+      const noteCol = col("note");
+
+      if (playerCol === -1 || amountCol === -1 || dateCol === -1) {
+        alert("DKP_History sheet needs at least 'Player', 'Amount', and 'Date' columns.");
+      } else {
+        const rows = allRows.slice(1);
+        // Build a set of existing transactions for duplicate detection
+        const existingTxKeys = new Set(
+          transactions.map(tx =>
+            `${(tx.player_name || "").toLowerCase()}|${tx.source || ""}|${tx.event_date || ""}|${tx.amount || 0}`
+          )
+        );
+
+        const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
+
+        for (const row of rows) {
+          const playerName = row[playerCol]?.toString().trim();
+          if (!playerName) continue;
+          const amount = parseFloat(row[amountCol]) || 0;
+          const eventDate = row[dateCol]?.toString().trim() || "";
+          const source = sourceCol !== -1 ? (row[sourceCol]?.toString().trim() || "") : "";
+          const type = typeCol !== -1 ? (row[typeCol]?.toString().trim() || "earn") : "earn";
+          const stage = stageCol !== -1 ? (row[stageCol]?.toString().trim() || "") : "";
+          const note = noteCol !== -1 ? (row[noteCol]?.toString().trim() || "") : "";
+
+          if (!eventDate || amount === 0) continue;
+
+          const txKey = `${playerName.toLowerCase()}|${source}|${eventDate}|${amount}`;
+          if (existingTxKeys.has(txKey)) continue;
+
+          const player = playersMap.get(playerName.toLowerCase());
+
+          preview.push({
+            type: "new",
+            entity: "transaction",
+            player_name: playerName,
+            player_id: player?.id || null,
+            amount,
+            tx_type: type,
+            source,
+            source_stage: stage,
+            event_date: eventDate,
+            note,
+          });
+        }
+      }
+    }
+
     if (preview.length > 0) {
       setPreviewData(preview);
     } else {
-      alert("No new or changed players found.");
+      alert("No new or changed data found.");
     }
     setImporting(false);
     e.target.value = "";
