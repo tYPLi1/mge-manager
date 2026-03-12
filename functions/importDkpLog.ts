@@ -7,7 +7,8 @@ import * as XLSX from 'npm:xlsx@0.18.5';
 // C = War Stage DKP (positive)
 // D = DKP Spend (negative)
 // E = Source/Event (MEE, GEE, DDE, MGE, etc.)
-// F = Date (assumed)
+// F = MGE rank or penalty reason (note)
+// G = Date
 
 Deno.serve(async (req) => {
   try {
