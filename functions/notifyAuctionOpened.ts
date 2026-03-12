@@ -39,19 +39,27 @@ Deno.serve(async (req) => {
     const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
     const auctionUrl = `${appUrl}/?page=Auction`;
 
-    const embed = {
-      title: '🔔 New Auction Opened!',
-      description: auction.title,
-      color: 0xf59e0b,
-      fields: [
-        { name: 'Status', value: auction.status.toUpperCase(), inline: true },
-        { name: 'Closes', value: auction.scheduled_close ? new Date(auction.scheduled_close).toLocaleString() : 'TBD', inline: true },
-      ],
-      footer: { text: 'DKP System' },
-    };
-
-    if (auction.has_password) {
-      embed.fields.push({ name: 'Password', value: `||${auction.bid_password}||`, inline: false });
+    // Use stored embed if available, otherwise build a default one
+    let embed;
+    if (auction.discord_embed) {
+      embed = typeof auction.discord_embed === 'string' ? JSON.parse(auction.discord_embed) : auction.discord_embed;
+      if (auction.discord_extra_text?.trim()) {
+        embed.description = (embed.description || "") + "\n\n" + auction.discord_extra_text.trim();
+      }
+    } else {
+      embed = {
+        title: '🔔 New Auction Opened!',
+        description: auction.title,
+        color: 0xf59e0b,
+        fields: [
+          { name: 'Status', value: auction.status.toUpperCase(), inline: true },
+          { name: 'Closes', value: auction.scheduled_close ? new Date(auction.scheduled_close).toLocaleString() : 'TBD', inline: true },
+        ],
+        footer: { text: 'DKP System' },
+      };
+      if (auction.has_password) {
+        embed.fields.push({ name: 'Password', value: `||${auction.bid_password}||`, inline: false });
+      }
     }
 
     const discordPayload = {
