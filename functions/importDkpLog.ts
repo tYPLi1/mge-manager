@@ -70,8 +70,10 @@ Deno.serve(async (req) => {
       if (row[5]) {
         const rawDate = row[5];
         if (typeof rawDate === 'number') {
-          const d = XLSX.SSF.parse_date_code(rawDate);
-          if (d) eventDate = `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+          // Excel serial date: days since 1900-01-01 (with off-by-one bug)
+          const excelEpoch = new Date(1899, 11, 30);
+          const d = new Date(excelEpoch.getTime() + rawDate * 86400000);
+          eventDate = d.toISOString().split('T')[0];
         } else {
           eventDate = String(rawDate).trim();
         }
