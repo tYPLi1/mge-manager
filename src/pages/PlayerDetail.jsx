@@ -82,6 +82,9 @@ export default function PlayerDetail() {
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
           <p className="text-xs text-gray-400 mb-1">Status</p>
           <StatusBadge cooldownUntil={player.cooldown_until} />
+          {player.cooldown_until && new Date(player.cooldown_until) > new Date() && (
+            <p className="text-xs text-gray-500 mt-1">Cooldown until {player.cooldown_until}</p>
+          )}
         </div>
       </div>
 
