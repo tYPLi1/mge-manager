@@ -429,10 +429,44 @@ export default function AdminPlayers() {
       await base44.entities.Penalty.update(item.id, updateData);
     }
 
+    // Import DKP transactions
+    const newTransactions = items.filter(p => p.type === "new" && p.entity === "transaction");
+    if (newTransactions.length > 0) {
+      // Fetch fresh player list to resolve IDs for new players created above
+      const allPlayers = await base44.entities.Player.list("name", 500);
+      const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
+
+      const txBatch = newTransactions.map(tx => {
+        const player = pMap.get(tx.player_name.toLowerCase());
+        return {
+          player_id: tx.player_id || player?.id || "",
+          player_name: tx.player_name,
+          amount: tx.amount,
+          type: tx.tx_type || "earn",
+          source: tx.source || "",
+          source_stage: tx.source_stage || "",
+          event_date: tx.event_date,
+          note: tx.note || "",
+        };
+      }).filter(tx => tx.player_id);
+
+      // Bulk create in batches of 50
+      for (let i = 0; i < txBatch.length; i += 50) {
+        await base44.entities.DKPTransaction.bulkCreate(txBatch.slice(i, i + 50));
+      }
+    }
+
     queryClient.invalidateQueries({ queryKey: ["players"] });
     queryClient.invalidateQueries({ queryKey: ["penalties"] });
+    queryClient.invalidateQueries({ queryKey: ["transactions-export"] });
     setPreviewData(null);
-    alert(`${newPlayers.length} new players, ${playerUpdates.length} updated, ${newPenalties.length} new penalties, ${penaltyUpdates.length} penalty updates.`);
+    const parts = [];
+    if (newPlayers.length) parts.push(`${newPlayers.length} new players`);
+    if (playerUpdates.length) parts.push(`${playerUpdates.length} player updates`);
+    if (newPenalties.length) parts.push(`${newPenalties.length} new penalties`);
+    if (penaltyUpdates.length) parts.push(`${penaltyUpdates.length} penalty updates`);
+    if (newTransactions.length) parts.push(`${newTransactions.length} DKP transactions`);
+    alert(parts.join(", ") || "Nothing imported.");
   };
 
   const filtered = useMemo(() =>
