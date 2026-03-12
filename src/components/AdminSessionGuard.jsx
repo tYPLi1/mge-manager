@@ -18,9 +18,24 @@ export default function AdminSessionGuard({ children }) {
         if (adminSession) {
           const parsed = JSON.parse(adminSession);
           if (new Date(parsed.expiresAt) > new Date()) {
-            setIsAuthorized(true);
-            setLoading(false);
-            return;
+            // Verify the account is still active in the database
+            try {
+              const res = await base44.functions.invoke('verifyAdminSession', { userId: parsed.userId });
+              if (res.data.valid) {
+                setIsAuthorized(true);
+                setLoading(false);
+                return;
+              } else {
+                // Account was deactivated or deleted — clear session
+                localStorage.removeItem('adminSession');
+                localStorage.removeItem('adminLastActivity');
+              }
+            } catch {
+              // If verification fails (network error etc.), allow session to continue
+              setIsAuthorized(true);
+              setLoading(false);
+              return;
+            }
           } else {
             localStorage.removeItem('adminSession');
             localStorage.removeItem('adminLastActivity');
