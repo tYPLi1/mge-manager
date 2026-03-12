@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Shield, Plus, Trash2, KeyRound, UserCheck, UserX, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -34,6 +34,15 @@ export default function AdminUserManagement() {
 
   const [changingPwFor, setChangingPwFor] = useState(null);
   const [changedPw, setChangedPw] = useState("");
+
+  // Live updates: reload user list when AdminUser entity changes
+  useEffect(() => {
+    if (!authenticated) return;
+    const unsub = base44.entities.AdminUser.subscribe(() => {
+      loadUsers();
+    });
+    return () => unsub();
+  }, [authenticated, loadUsers]);
 
   const invoke = useCallback(async (action, extra = {}) => {
     const res = await base44.functions.invoke("manageAdminUsers", {
