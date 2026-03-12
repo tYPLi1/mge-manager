@@ -5,8 +5,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     const drafts = await base44.asServiceRole.entities.Auction.filter({ status: "draft" });
+    const openAuctions = await base44.asServiceRole.entities.Auction.filter({ status: "open" });
     const now = new Date();
     let opened = 0;
+    let closed = 0;
 
     // Fetch settings for Discord
     const settings = await base44.asServiceRole.entities.AppSettings.list();
@@ -14,6 +16,7 @@ Deno.serve(async (req) => {
     const enabled = settings.find(s => s.key === 'discord_auction_enabled')?.value === 'true';
     const channelId = settings.find(s => s.key === 'discord_auction_channel')?.value;
 
+    // Auto-open drafts with scheduled_open in the past
     for (const auction of drafts) {
       if (!auction.scheduled_open) continue;
       const openAt = new Date(auction.scheduled_open);
@@ -44,7 +47,44 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ opened, checked: drafts.length });
+    // Auto-close open auctions with scheduled_close in the past
+    for (const auction of openAuctions) {
+      if (!auction.scheduled_close) continue;
+      const closeAt = new Date(auction.scheduled_close);
+      if (closeAt <= now) {
+        await base44.asServiceRole.entities.Auction.update(auction.id, { status: "closed" });
+        closed++;
+
+        // Send Discord notification for auto-close
+        if (enabled && webhookUrl) {
+          const embed = {
+            title: "🔒 Auction Closed",
+            description: auction.title,
+            color: 0xef4444,
+            fields: [
+              { name: "Status", value: "CLOSED", inline: true },
+              { name: "Closed at", value: new Date().toLocaleString("de-CH", { timeZone: "Europe/Zurich" }), inline: true },
+            ],
+            footer: { text: "DKP System" },
+          };
+          const discordPayload = {
+            content: channelId ? `<#${channelId}>` : undefined,
+            embeds: [embed],
+          };
+          try {
+            await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(discordPayload),
+            });
+          } catch (err) {
+            console.error('Discord close notification failed for auction', auction.id, err.message);
+          }
+        }
+      }
+    }
+
+    return Response.json({ opened, closed, checkedDrafts: drafts.length, checkedOpen: openAuctions.length });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
