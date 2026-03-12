@@ -348,8 +348,8 @@ export default function AdminAuctions() {
     });
 
     for (const entry of previewRanking) {
-      const cooldownRounds = cooldownTable[entry.rank] || 1;
-      const cooldownDate = addDays(today, cooldownRounds * 7);
+      const cooldownDays = cooldownTable[entry.rank] || 7;
+      const cooldownDate = addDays(today, cooldownDays);
 
       await base44.entities.AuctionResult.create({
         auction_id: viewBids.id,
@@ -739,7 +739,7 @@ export default function AdminAuctions() {
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{entry.target?.toLocaleString()}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden md:table-cell">
-                          +{(cooldownTable[entry.rank] || 1) * 7} days
+                          +{cooldownTable[entry.rank] || 7} Tage
                         </td>
                       </tr>
                     ))}
