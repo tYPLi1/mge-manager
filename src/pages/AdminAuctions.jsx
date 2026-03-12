@@ -225,12 +225,27 @@ export default function AdminAuctions() {
       }
     }
 
-    return top10.map((b, i) => ({
-      ...b,
-      rank: i + 1,
-      target: mgeTargets[i]?.target,
-      medals: mgeTargets[i]?.medals,
-    }));
+    // Detect tiebreaker situations: consecutive entries with same dkp_bid
+    return top10.map((b, i) => {
+      let _tiebreaker = null;
+      if (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) {
+        _tiebreaker = tiebreaker === "activity"
+          ? `Activity Score: ${activityScores[b.player_id] || 0}`
+          : `Früher geboten`;
+      }
+      if (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid && !_tiebreaker) {
+        _tiebreaker = tiebreaker === "activity"
+          ? `Activity Score: ${activityScores[b.player_id] || 0}`
+          : `Früher geboten`;
+      }
+      return {
+        ...b,
+        rank: i + 1,
+        target: mgeTargets[i]?.target,
+        medals: mgeTargets[i]?.medals,
+        _tiebreaker,
+      };
+    });
   }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores]);
 
   const createMutation = useMutation({
