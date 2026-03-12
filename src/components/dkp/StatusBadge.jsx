@@ -21,10 +21,14 @@ export default function StatusBadge({ cooldownUntil }) {
     );
   }
 
+  // Format date shorter: DD.MM
+  const day = String(cooldown.getDate()).padStart(2, "0");
+  const month = String(cooldown.getMonth() + 1).padStart(2, "0");
+
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-500/15 text-red-400 border border-red-500/20">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-500/15 text-red-400 border border-red-500/20 whitespace-nowrap">
       <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-      Cooldown until {cooldownUntil}
+      {day}.{month}
     </span>
   );
 }

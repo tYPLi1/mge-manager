@@ -39,12 +39,12 @@ function EventCell({ data }) {
 export default function LeaderboardTable({ data, isLoading, sortField, sortDir, onSort, eventColumns = [] }) {
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[calc(100vh-220px)]">
         <table className="w-full">
-          <thead className="bg-[#0d1117] border-b border-white/5">
+          <thead className="bg-[#0d1117] border-b border-white/5 sticky top-0 z-20">
             <tr>
               <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} className="w-10">#</SortHeader>
-              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} className="sticky left-0 bg-[#0d1117] z-10">Name</SortHeader>
+              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} className="sticky left-0 bg-[#0d1117] z-30">Name</SortHeader>
               <SortHeader field="current_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort}>DKP</SortHeader>
               <SortHeader field="total_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort}>Earned</SortHeader>
               <SortHeader field="dkp_spent" sortField={sortField} sortDir={sortDir} onSort={onSort}>Spent</SortHeader>
