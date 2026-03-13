@@ -10,6 +10,35 @@ import StatusBadge from "@/components/dkp/StatusBadge";
 import ImportPreview from "@/components/dkp/ImportPreview";
 import * as XLSX from "xlsx";
 
+// Normalize date values from Excel (could be serial number, Date, or string)
+function normalizeDateValue(val) {
+  if (val === null || val === undefined || val === "") return null;
+  // XLSX serial number (days since 1899-12-30)
+  if (typeof val === "number") {
+    const d = new Date((val - 25569) * 86400 * 1000);
+    if (!isNaN(d.getTime())) return d.toISOString().split("T")[0];
+  }
+  const str = String(val).trim();
+  if (!str) return null;
+  // Already YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  // YYYY-MM-DD HH:MM:SS — strip time
+  if (/^\d{4}-\d{2}-\d{2}\s/.test(str)) return str.split(/[\sT]/)[0];
+  // Try parsing as date
+  const parsed = new Date(str);
+  if (!isNaN(parsed.getTime())) return parsed.toISOString().split("T")[0];
+  return str;
+}
+
+// Normalize existing DB cooldown for comparison (strip time portion)
+function normalizeCooldown(val) {
+  if (!val) return null;
+  const str = String(val).trim();
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}\s/.test(str)) return str.split(/[\sT]/)[0];
+  return str;
+}
+
 export default function AdminPlayers() {
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
