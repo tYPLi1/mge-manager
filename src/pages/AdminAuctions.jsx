@@ -613,12 +613,13 @@ export default function AdminAuctions() {
                 <h3 className="font-semibold text-white text-sm">{a.title}</h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                    isExpired(a) ? "bg-orange-500/15 text-orange-400 animate-pulse" :
                     a.status === "open" ? "bg-emerald-500/15 text-emerald-400" :
                     a.status === "closed" ? "bg-red-500/15 text-red-400" :
                     a.status === "confirmed" ? "bg-blue-500/15 text-blue-400" :
                     "bg-gray-500/15 text-gray-400"
                   }`}>
-                    {a.status}
+                    {isExpired(a) ? "closing..." : a.status}
                   </span>
                   {a.scheduled_open && a.status === "draft" && (
                     <span className="text-xs text-amber-400/70 flex items-center gap-1">
