@@ -465,7 +465,7 @@ export default function AdminAuctions() {
         }
 
         const fields = [
-          { name: "Top Winners", value: resultsText || "No results", inline: false },
+          { name: "Winners (Top 10)", value: resultsText || "No results", inline: false },
           { name: "Total Participants", value: String(previewRanking.length), inline: true },
         ];
         if (tiebreakerNote) {
