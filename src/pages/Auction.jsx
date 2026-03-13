@@ -8,11 +8,21 @@ import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 
+function ensureUTC(dateStr) {
+  if (!dateStr) return dateStr;
+  // datetime-local values like "2026-03-13T20:30" have no timezone info.
+  // Append Z so they're treated as UTC consistently across all browsers.
+  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) {
+    return dateStr + 'Z';
+  }
+  return dateStr;
+}
+
 function CountdownTimer({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
     const calc = () => {
-      const diff = new Date(targetDate) - new Date();
+      const diff = new Date(ensureUTC(targetDate)) - new Date();
       if (diff <= 0) { setTimeLeft("Closed"); return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
