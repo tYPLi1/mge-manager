@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
+import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
 
 export default function AdminSettings() {
   const [form, setForm] = useState({});
@@ -231,148 +232,17 @@ export default function AdminSettings() {
 
         {/* Discord Integration */}
          <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-           <h3 className="text-sm font-semibold text-white mb-4">Discord Bot Notifications</h3>
+           <h3 className="text-sm font-semibold text-white mb-4">Discord Bot — Server & Channels</h3>
            <p className="text-xs text-gray-500 mb-4">
-             Konfiguriere pro Nachrichtentyp einen eigenen Discord Channel. Der Bot sendet mit @everyone und einem Link zur App.
+             Konfiguriere mehrere Discord Server. Pro Server kannst du festlegen, welche Nachrichten in welchen Channel gesendet werden. Der Bot sendet mit @everyone und einem Link zur App.
            </p>
            <p className="text-xs text-gray-500 mb-4">
-             Rechtsklick auf den Channel → "ID kopieren" (Developer Mode muss in Discord aktiviert sein)
+             💡 Rechtsklick auf einen Channel → "ID kopieren" (Developer Mode in Discord aktivieren)
            </p>
-
-          <div className="space-y-4">
-            {/* Default Channel */}
-            <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Standard Channel ID (Fallback)</Label>
-              <Input
-                type="text"
-                placeholder="123456789012345678"
-                value={form.discord_channel_id || ""}
-                onChange={(e) => setForm({ ...form, discord_channel_id: e.target.value })}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-              />
-              <p className="text-xs text-gray-500 mt-1">Wird verwendet wenn kein spezifischer Channel gesetzt ist</p>
-            </div>
-
-            <div className="border-t border-white/5 pt-4 space-y-4">
-              {/* Auction Notifications */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-gray-300 font-medium">🔔 Auction Notifications</Label>
-                  <Switch checked={getBool("discord_auction_enabled")} onCheckedChange={(v) => setBool("discord_auction_enabled", v)} />
-                </div>
-                {getBool("discord_auction_enabled") && (
-                  <div>
-                    <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                    <Input
-                      type="text"
-                      placeholder="Standard Channel verwenden"
-                      value={form.discord_auction_channel_id || ""}
-                      onChange={(e) => setForm({ ...form, discord_auction_channel_id: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Results Notifications */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-gray-300 font-medium">🏆 Results Notifications</Label>
-                  <Switch checked={getBool("discord_results_enabled")} onCheckedChange={(v) => setBool("discord_results_enabled", v)} />
-                </div>
-                {getBool("discord_results_enabled") && (
-                  <div>
-                    <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                    <Input
-                      type="text"
-                      placeholder="Standard Channel verwenden"
-                      value={form.discord_results_channel_id || ""}
-                      onChange={(e) => setForm({ ...form, discord_results_channel_id: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Event Upload Notifications */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-gray-300 font-medium">📊 Event Upload Notifications</Label>
-                  <Switch checked={getBool("discord_events_enabled")} onCheckedChange={(v) => setBool("discord_events_enabled", v)} />
-                </div>
-                {getBool("discord_events_enabled") && (
-                  <div>
-                    <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                    <Input
-                      type="text"
-                      placeholder="Standard Channel verwenden"
-                      value={form.discord_events_channel_id || ""}
-                      onChange={(e) => setForm({ ...form, discord_events_channel_id: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Penalty Notifications */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-gray-300 font-medium">⚠️ Penalty Notifications</Label>
-                  <Switch checked={getBool("discord_penalties_enabled")} onCheckedChange={(v) => setBool("discord_penalties_enabled", v)} />
-                </div>
-                {getBool("discord_penalties_enabled") && (
-                  <div>
-                    <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                    <Input
-                      type="text"
-                      placeholder="Standard Channel verwenden"
-                      value={form.discord_penalties_channel_id || ""}
-                      onChange={(e) => setForm({ ...form, discord_penalties_channel_id: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Auction Reminder */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-gray-300 font-medium">⏰ 10-Min Auction Reminder</Label>
-                    <p className="text-xs text-gray-500 mt-0.5">Reminder ~10 Minuten vor Auction-Ende</p>
-                  </div>
-                  <Switch checked={getBool("discord_auction_reminder_enabled")} onCheckedChange={(v) => setBool("discord_auction_reminder_enabled", v)} />
-                </div>
-                {getBool("discord_auction_reminder_enabled") && (
-                  <div>
-                    <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                    <Input
-                      type="text"
-                      placeholder="Standard Channel verwenden"
-                      value={form.discord_reminder_channel_id || ""}
-                      onChange={(e) => setForm({ ...form, discord_reminder_channel_id: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Manual Messages */}
-              <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
-                <Label className="text-gray-300 font-medium">📢 Manuelle Nachrichten</Label>
-                <div>
-                  <Label className="text-gray-500 text-xs mb-1 block">Channel ID (optional)</Label>
-                  <Input
-                    type="text"
-                    placeholder="Standard Channel verwenden"
-                    value={form.discord_manual_channel_id || ""}
-                    onChange={(e) => setForm({ ...form, discord_manual_channel_id: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+           <DiscordServerConfig
+             value={form.discord_servers}
+             onChange={(val) => setForm({ ...form, discord_servers: val })}
+           />
         </div>
 
         {/* Manual Message Component */}
