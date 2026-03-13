@@ -17,7 +17,6 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
       const fullMessage = title ? `**${title}**\n\n${message}` : message;
       const response = await base44.functions.invoke('sendDiscordMessage', {
         message: fullMessage,
-        webhookUrl,
       });
       if (!response.data.success) throw new Error(response.data.error);
       return response.data;
@@ -34,7 +33,6 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
     mutationFn: async () => {
       const response = await base44.functions.invoke('sendDiscordMessage', {
         message: '✅ **Discord Integration Test**\nWebhook is working correctly!',
-        webhookUrl,
       });
       if (!response.data.success) throw new Error(response.data.error);
       return response.data;
