@@ -30,15 +30,20 @@ Deno.serve(async (req) => {
       const channelId = server.defaultChannelId;
       if (!channelId) continue;
 
+      const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
+
       const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: `🧪 **Discord Bot Test** — Server: ${server.name || 'Unnamed'}`,
           embeds: [{
-            title: 'Test Message',
+            title: '✅ Discord Bot Test',
             description: 'Bot integration works! @everyone mentions are supported.',
             color: 16776960,
+            fields: [
+              { name: '🔗 App Link', value: `[Zur App](${appUrl})`, inline: false },
+            ],
             timestamp: new Date().toISOString(),
           }],
         }),
