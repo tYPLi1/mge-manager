@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export default function DiscordPreviewModal({ embed, channelId, onClose, onSent, sendNow = true }) {
+export default function DiscordPreviewModal({ embed, channelId, onClose, onSent, sendNow = true, notifType }) {
   const [extraText, setExtraText] = useState("");
   const [sending, setSending] = useState(false);
 
