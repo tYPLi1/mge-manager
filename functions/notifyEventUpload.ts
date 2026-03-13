@@ -1,17 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
     const { event, data } = body;
 
-    // Handle automation trigger (DKPTransaction) or manual trigger
     let eventName, eventDate, playersUpdated, totalDkpDistributed, rankings;
-    
+
     if (event?.type) {
-      // Automation trigger - single DKPTransaction
-      // Skip if this is a penalty/compensation (those are handled by notifyPenalty)
       if (data?.type === 'penalty' || data?.type === 'compensation') {
         return Response.json({ success: true });
       }
@@ -25,7 +24,6 @@ Deno.serve(async (req) => {
         return Response.json({ success: true });
       }
     } else {
-      // Manual trigger
       const { eventName: name, eventDate: date, playersUpdated: players, totalDkpDistributed: total, rankings: ranks } = body;
       if (!name || !date) {
         return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
@@ -38,16 +36,14 @@ Deno.serve(async (req) => {
     }
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    
-    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
     const enabled = settings.find(s => s.key === 'discord_events_enabled')?.value === 'true';
-    const channelId = settings.find(s => s.key === 'discord_auction_channel')?.value;
 
-    if (!webhookUrl || !enabled) {
+    if (!channelId || !BOT_TOKEN || !enabled) {
       return Response.json({ status: 'disabled' }, { status: 200 });
     }
 
-    const rankingsText = rankings && rankings.length > 0 
+    const rankingsText = rankings && rankings.length > 0
       ? rankings.slice(0, 5).map((r, i) => `${i + 1}. **${r.player_name}** - Rank ${r.rank} (+${r.dkp} DKP)`).join('\n')
       : 'No ranking data';
 
@@ -63,18 +59,16 @@ Deno.serve(async (req) => {
       footer: { text: 'DKP System' },
     };
 
-    const contentParts = ['@everyone'];
-    if (channelId) contentParts.push(`<#${channelId}>`);
-
-    const discordPayload = {
-      content: contentParts.join(' '),
-      embeds: [embed],
-    };
-
-    const res = await fetch(webhookUrl, {
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(discordPayload),
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: '@everyone',
+        embeds: [embed],
+      }),
     });
 
     if (!res.ok) {

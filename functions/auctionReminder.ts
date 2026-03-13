@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-// Sends a Discord reminder when an auction closes in ~10 minutes
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -10,11 +11,11 @@ Deno.serve(async (req) => {
     const now = new Date();
 
     const getSetting = (key) => settings.find(s => s.key === key)?.value;
-    const webhookUrl = getSetting("discord_webhook_url");
+    const channelId = getSetting("discord_channel_id");
     const reminderEnabled = getSetting("discord_auction_reminder_enabled") === "true";
 
-    if (!webhookUrl || !reminderEnabled) {
-      return Response.json({ skipped: true, reason: "Discord not configured or auction reminder disabled" });
+    if (!channelId || !BOT_TOKEN || !reminderEnabled) {
+      return Response.json({ skipped: true, reason: "Discord bot not configured or auction reminder disabled" });
     }
 
     function ensureUTC(dateStr) {
@@ -34,12 +35,10 @@ Deno.serve(async (req) => {
       const diffMs = closeAt - now;
       const diffMin = diffMs / 60000;
 
-      // Send reminder if closing in 5-15 minutes (scheduled task runs every 5 min)
       if (diffMin > 5 && diffMin <= 15) {
         const minutesLeft = Math.round(diffMin);
         const closeTimeStr = closeAt.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 
-        // Count active bids
         const bids = await base44.asServiceRole.entities.Bid.filter({ auction_id: auction.id });
         const activeBids = bids.filter(b => !b.is_deleted);
 
@@ -54,15 +53,17 @@ Deno.serve(async (req) => {
           footer: { text: "DKP System — Last chance to bid!" },
         };
 
-        const body = { content: '@everyone', embeds: [embed] };
         if (auction.has_password) {
           embed.fields.push({ name: "🔒", value: "Password required", inline: true });
         }
 
-        const res = await fetch(webhookUrl, {
+        const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          headers: {
+            'Authorization': `Bot ${BOT_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: '@everyone', embeds: [embed] }),
         });
 
         if (res.ok) {

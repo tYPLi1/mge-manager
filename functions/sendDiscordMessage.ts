@@ -1,9 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-/**
- * Sends a message to Discord via the configured webhook.
- * Requires admin session validation via HMAC token.
- */
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -37,7 +35,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    // Verify user still active (best-effort; if SDK auth context missing, trust HMAC)
+    // Verify user still active
     try {
       const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) {
@@ -51,17 +49,20 @@ Deno.serve(async (req) => {
       console.log('AdminUser lookup skipped, trusting HMAC:', msg);
     }
 
-    // Get webhook URL from settings
+    // Get channel ID from settings
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
 
-    if (!webhookUrl) {
-      return Response.json({ error: 'Discord webhook URL not configured' }, { status: 400 });
+    if (!channelId || !BOT_TOKEN) {
+      return Response.json({ error: 'Discord bot not configured (channel ID or token missing)' }, { status: 400 });
     }
 
-    const res = await fetch(webhookUrl, {
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ content: message }),
     });
 

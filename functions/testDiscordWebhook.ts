@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -8,27 +10,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get Discord webhook URL from settings using service role
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
 
-    if (!webhookUrl) {
-      return Response.json({ error: 'Discord webhook URL not configured' }, { status: 400 });
+    if (!channelId) {
+      return Response.json({ error: 'Discord channel ID not configured' }, { status: 400 });
+    }
+    if (!BOT_TOKEN) {
+      return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
     }
 
-    // Send test message
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        content: '🧪 **Discord Webhook Test**',
+        content: '🧪 **Discord Bot Test**',
         embeds: [{
           title: 'Test Message',
-          description: 'This is a test message from the DKP System.',
+          description: 'This is a test message from the DKP System Bot. @everyone mentions now work!',
           color: 16776960,
           timestamp: new Date().toISOString()
         }]
-      })
+      }),
     });
 
     if (!response.ok) {
@@ -36,7 +42,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Discord API error: ${response.status}`, details: error }, { status: 500 });
     }
 
-    return Response.json({ success: true, message: 'Test message sent to Discord webhook' });
+    return Response.json({ success: true, message: 'Test message sent via Discord Bot' });
   } catch (error) {
     console.error('testDiscordWebhook error:', error);
     return Response.json({ error: error.message }, { status: 500 });

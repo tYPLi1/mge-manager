@@ -1,14 +1,32 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
+async function sendBotMessage(channelId, payload) {
+  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${BOT_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Discord API error ${res.status}: ${err}`);
+  }
+  return res;
+}
+
 /**
- * Sends a Discord embed message via the configured webhook.
+ * Sends a Discord embed message via the Bot API.
  * Requires admin session validation.
  */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { session, embed, channelId, extraText } = body;
+    const { session, embed, channelId: overrideChannelId, extraText } = body;
 
     // Validate admin session
     if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
@@ -33,7 +51,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    // Verify user still active (best-effort; if SDK auth context missing, trust HMAC)
+    // Verify user still active
     try {
       const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) {
@@ -51,12 +69,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing embed' }, { status: 400 });
     }
 
-    // Get webhook URL from settings
+    // Get channel ID from settings
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+    const channelId = overrideChannelId || settings.find(s => s.key === 'discord_channel_id')?.value;
 
-    if (!webhookUrl) {
-      return Response.json({ error: 'Discord webhook URL not configured' }, { status: 400 });
+    if (!channelId) {
+      return Response.json({ error: 'Discord channel ID not configured' }, { status: 400 });
+    }
+
+    if (!BOT_TOKEN) {
+      return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
     }
 
     // Build embed with optional extra text
@@ -65,24 +87,10 @@ Deno.serve(async (req) => {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
 
-    const contentParts = ['@everyone'];
-    if (channelId) contentParts.push(`<#${channelId}>`);
-
-    const discordPayload = {
-      content: contentParts.join(' '),
+    await sendBotMessage(channelId, {
+      content: '@everyone',
       embeds: [finalEmbed],
-    };
-
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(discordPayload),
     });
-
-    if (!res.ok) {
-      const err = await res.text();
-      return Response.json({ error: `Discord error: ${err}` }, { status: 500 });
-    }
 
     return Response.json({ success: true });
   } catch (error) {

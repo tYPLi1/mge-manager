@@ -1,23 +1,22 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
     const { event, data } = body;
 
-    // Handle automation trigger (has event data) or manual trigger (has auctionId)
+    // Handle automation trigger or manual trigger
     let auction;
     if (event?.type) {
-      // Automation trigger - only notify if status changed to 'open'
-      // Also skip if old_data was already 'open' (no real status change)
       const old_data = body.old_data;
       if (data.status !== 'open' || old_data?.status === 'open') {
         return Response.json({ success: true, skipped: true });
       }
       auction = data;
     } else {
-      // Manual trigger
       const { auctionId } = body;
       if (!auctionId) {
         return Response.json({ error: 'Missing auctionId' }, { status: 400 });
@@ -27,19 +26,17 @@ Deno.serve(async (req) => {
 
     // Fetch settings
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    
-    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
     const enabled = settings.find(s => s.key === 'discord_auction_enabled')?.value === 'true';
-    const channelId = settings.find(s => s.key === 'discord_auction_channel')?.value;
 
-    if (!webhookUrl || !enabled) {
+    if (!channelId || !BOT_TOKEN || !enabled) {
       return Response.json({ status: 'disabled' }, { status: 200 });
     }
 
     const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
     const auctionUrl = `${appUrl}/?page=Auction`;
 
-    // Use stored embed if available, otherwise build a default one
+    // Use stored embed if available, otherwise build default
     let embed;
     if (auction.discord_embed) {
       embed = typeof auction.discord_embed === 'string' ? JSON.parse(auction.discord_embed) : auction.discord_embed;
@@ -62,11 +59,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    const contentParts = ['@everyone'];
-    if (channelId) contentParts.push(`<#${channelId}>`);
-
     const discordPayload = {
-      content: contentParts.join(' '),
+      content: '@everyone',
       embeds: [embed],
       components: [{
         type: 1,
@@ -79,9 +73,12 @@ Deno.serve(async (req) => {
       }],
     };
 
-    const res = await fetch(webhookUrl, {
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(discordPayload),
     });
 
