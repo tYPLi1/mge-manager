@@ -1,16 +1,16 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
 
 /**
- * Secure bid submission — validates everything server-side:
- * - Auction exists and is open
- * - Password is correct (if required)
- * - Player exists, is not on cooldown, not auction-banned
- * - DKP is sufficient
- * - No duplicate bid
+ * Secure bid submission — validates everything server-side.
  */
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const { auction_id, player_id, dkp_bid, bid_password, want_friendly_zone } = await req.json();
 
     if (!auction_id || !player_id || dkp_bid === undefined || dkp_bid === null) {
@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid bid amount' }, { status: 400 });
     }
 
-    const svc = base44.asServiceRole.entities;
+    const svc = service.entities;
 
     // Get the auction
     let auction;
