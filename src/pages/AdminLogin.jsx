@@ -29,18 +29,7 @@ export default function AdminLogin() {
         }
       }
 
-      // Check if Base44 user is admin
-      try {
-        const isAuthenticated = await base44.auth.isAuthenticated();
-        if (isAuthenticated) {
-          const user = await base44.auth.me();
-          if (user?.role === 'admin') {
-            navigate(createPageUrl('AdminDashboard'));
-          }
-        }
-      } catch (error) {
-        // Not authenticated, stay on login page
-      }
+
     };
 
     checkAuth();
