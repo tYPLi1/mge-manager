@@ -1,16 +1,55 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
+/**
+ * Admin user management. Requires authenticated admin session (HMAC token).
+ * Additionally requires master password verification for initial unlock.
+ */
+
+async function validateAdminSession(base44, session) {
+  if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+    return { valid: false, status: 401, error: 'Unauthorized: No session' };
+  }
+  if (new Date(session.expiresAt) <= new Date()) {
+    return { valid: false, status: 401, error: 'Session expired' };
+  }
+
+  const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+  const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+  const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+
+  if (session.token !== expectedSignature) {
+    return { valid: false, status: 403, error: 'Invalid token' };
+  }
+
+  try {
+    const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+    if (!user || !user.is_active) {
+      return { valid: false, status: 403, error: 'User deactivated' };
+    }
+  } catch {
+    return { valid: false, status: 403, error: 'User not found' };
+  }
+
+  return { valid: true };
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { action, masterPassword, username, password, userId } = body;
+    const { action, session, username, password, userId } = body;
 
-    // Verify master password
-    const correctPassword = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
-    if (!masterPassword || masterPassword !== correctPassword) {
-      return Response.json({ error: 'Unauthorized: Invalid master password' }, { status: 403 });
+    // Validate admin session via HMAC token
+    const validation = await validateAdminSession(base44, session);
+    if (!validation.valid) {
+      return Response.json({ error: validation.error }, { status: validation.status });
     }
 
     if (action === 'list') {
@@ -28,7 +67,6 @@ Deno.serve(async (req) => {
       if (!username || !password) {
         return Response.json({ error: 'Username and password required' }, { status: 400 });
       }
-      // Check if username already exists
       const existing = await base44.asServiceRole.entities.AdminUser.filter({ username });
       if (existing.length > 0) {
         return Response.json({ error: 'Username already exists' }, { status: 400 });
