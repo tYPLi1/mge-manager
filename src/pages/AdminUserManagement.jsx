@@ -35,15 +35,6 @@ export default function AdminUserManagement() {
   const [changingPwFor, setChangingPwFor] = useState(null);
   const [changedPw, setChangedPw] = useState("");
 
-  // Live updates: reload user list when AdminUser entity changes
-  useEffect(() => {
-    if (!authenticated) return;
-    const unsub = base44.entities.AdminUser.subscribe(() => {
-      loadUsers();
-    });
-    return () => unsub();
-  }, [authenticated, loadUsers]);
-
   const invoke = useCallback(async (action, extra = {}) => {
     const res = await base44.functions.invoke("manageAdminUsers", {
       action,
@@ -60,6 +51,15 @@ export default function AdminUserManagement() {
     setUsers(data.users);
     setLoading(false);
   }, [invoke]);
+
+  // Live updates: reload user list when AdminUser entity changes
+  useEffect(() => {
+    if (!authenticated) return;
+    const unsub = base44.entities.AdminUser.subscribe(() => {
+      loadUsers();
+    });
+    return () => unsub();
+  }, [authenticated, loadUsers]);
 
   const handleUnlock = async (e) => {
     e.preventDefault();
