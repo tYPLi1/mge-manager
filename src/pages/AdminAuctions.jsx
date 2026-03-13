@@ -200,6 +200,7 @@ export default function AdminAuctions() {
   }, [settings]);
 
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
+  const tiebreakerFallback = settings.find((s) => s.key === "auction_tiebreaker_fallback")?.value || "fcfs";
 
   const lastEventDkpSources = useMemo(() => {
     try {
