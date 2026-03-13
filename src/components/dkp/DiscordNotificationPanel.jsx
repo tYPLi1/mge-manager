@@ -12,11 +12,21 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
+  const getSession = () => {
+    try {
+      const raw = localStorage.getItem("adminSession");
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  };
+
   const sendManualMessageMutation = useMutation({
     mutationFn: async () => {
+      const session = getSession();
+      if (!session) throw new Error("No admin session");
       const fullMessage = title ? `**${title}**\n\n${message}` : message;
       const response = await base44.functions.invoke('sendDiscordMessage', {
         message: fullMessage,
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
       });
       if (!response.data.success) throw new Error(response.data.error);
       return response.data;
@@ -31,8 +41,11 @@ export default function DiscordNotificationPanel({ webhookUrl }) {
 
   const testMessageMutation = useMutation({
     mutationFn: async () => {
+      const session = getSession();
+      if (!session) throw new Error("No admin session");
       const response = await base44.functions.invoke('sendDiscordMessage', {
         message: '✅ **Discord Integration Test**\nWebhook is working correctly!',
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
       });
       if (!response.data.success) throw new Error(response.data.error);
       return response.data;
