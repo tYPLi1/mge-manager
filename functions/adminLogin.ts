@@ -31,7 +31,8 @@ Deno.serve(async (req) => {
 
     // Generate a signed session token using HMAC
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    // Token valid for 24h; frontend enforces 10-min inactivity logout separately
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     const payload = `${adminUser.id}:${adminUser.username}:${expiresAt}`;
     
     const encoder = new TextEncoder();
