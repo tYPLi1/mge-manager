@@ -97,9 +97,21 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                     </div>
                   )}
 
-                  {item.type === "new" && (
+                  {item.type === "new" && item.entity === "player" && (
                     <div className="text-xs text-gray-400 ml-2">
                       DKP Earned: {item.total_dkp || 0} | Power: {item.power || 0}
+                    </div>
+                  )}
+
+                  {item.type === "new" && item.entity === "penalty" && (
+                    <div className="text-xs text-gray-400 ml-2">
+                      Level: {item.level} | Offense #{item.offense_count} | Date: {item.offense_date} | DKP: -{item.dkp_deducted || 0}
+                    </div>
+                  )}
+
+                  {item.type === "new" && item.entity === "transaction" && (
+                    <div className="text-xs text-gray-400 ml-2">
+                      {item.source || "—"} | {item.tx_type || "earn"} | Amount: {item.amount} | Date: {item.event_date}
                     </div>
                   )}
                 </div>
