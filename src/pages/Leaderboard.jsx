@@ -78,10 +78,13 @@ export default function Leaderboard() {
   const enrichedPlayers = useMemo(() => {
     const eventMap = {};
     players.forEach(p => {
-      const entry = { total_events: 0, activity_score: 0 };
+      const entry = { total_events: 0, activity_score: 0, activity_30d: 0 };
       eventColumns.forEach(col => { entry[col.key] = { count: 0, dkp: 0 }; });
       eventMap[p.id] = entry;
     });
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     transactions.filter(t => t.type === "earn").forEach(t => {
       const e = eventMap[t.player_id];
@@ -96,6 +99,11 @@ export default function Leaderboard() {
       // Activity score: only count actual event participation keys
       if (activityKeys.has(key)) {
         e.activity_score += t.amount;
+        // 30-day activity
+        const txDate = t.event_date ? new Date(t.event_date) : null;
+        if (txDate && txDate >= thirtyDaysAgo) {
+          e.activity_30d += t.amount;
+        }
       }
     });
 
