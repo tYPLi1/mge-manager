@@ -169,7 +169,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
       {/* Channel Picker */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white">📢 Discord Nachricht senden</h3>
+          <h3 className="text-sm font-semibold text-white">📢 Send Discord Message</h3>
           <Button
             size="sm"
             variant="ghost"
