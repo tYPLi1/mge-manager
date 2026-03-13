@@ -202,7 +202,7 @@ export default function PlayerDKPChart({ transactions }) {
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
             <div style={{ width: chartWidth, minHeight: 220 }}>
               <ResponsiveContainer width="100%" height={220}>
-                <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -221,7 +221,7 @@ export default function PlayerDKPChart({ transactions }) {
                       return (
                         <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 text-xs">
                           <p className="text-gray-400 mb-1.5 font-medium">{label}</p>
-                          {payload.filter(p => p.value > 0).map((p, i) => (
+                          {payload.filter(p => p.value != null && p.value !== 0).map((p, i) => (
                             <div key={i} className="flex items-center gap-2 py-0.5">
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
                               <span className="text-gray-300">{p.name}:</span>
@@ -232,33 +232,23 @@ export default function PlayerDKPChart({ transactions }) {
                       );
                     }}
                   />
-                  {visibleLines["loss_total"] && (
-                    <Bar
-                      dataKey="loss_total"
-                      fill="#ef4444"
-                      fillOpacity={0.25}
-                      stroke="#ef4444"
-                      strokeOpacity={0.4}
-                      name="Deductions"
-                      radius={[3, 3, 0, 0]}
-                    />
-                  )}
-                  {eventLines.filter(e => e.key !== "loss_total").map(e =>
+                  {eventLines.map(e =>
                     visibleLines[e.key] && (
                       <Line
                         key={e.key}
                         type="monotone"
                         dataKey={e.key}
                         stroke={e.color}
-                        strokeWidth={2}
-                        dot={{ r: 2.5, fill: e.color, stroke: e.color }}
+                        strokeWidth={e.key === "balance" ? 2.5 : 2}
+                        dot={{ r: e.key === "balance" ? 3 : 2.5, fill: e.color, stroke: e.color }}
                         activeDot={{ r: 4, fill: e.color }}
                         name={e.label}
-                        connectNulls
+                        connectNulls={e.key !== "balance"}
+                        strokeDasharray={e.key === "balance" ? undefined : undefined}
                       />
                     )
                   )}
-                </ComposedChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
