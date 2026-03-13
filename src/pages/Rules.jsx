@@ -7,8 +7,11 @@ import PageHeader from "@/components/dkp/PageHeader";
 
 export default function Rules() {
   const { data: settings = [] } = useQuery({
-    queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryKey: ["public-settings"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getPublicSettings", {});
+      return res.data?.settings || [];
+    },
   });
 
   const rulesText = settings.find((s) => s.key === "rules_text")?.value || "";

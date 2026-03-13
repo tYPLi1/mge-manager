@@ -34,8 +34,11 @@ export default function Results() {
   });
 
   const { data: settings = [] } = useQuery({
-    queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryKey: ["public-settings"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getPublicSettings", {});
+      return res.data?.settings || [];
+    },
   });
 
   useEffect(() => {
