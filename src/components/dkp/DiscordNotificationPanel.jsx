@@ -180,7 +180,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
             {loadingGuilds ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
           </Button>
         </div>
-        <Label className="text-gray-400 text-xs uppercase tracking-wider mb-2 block">Ziel-Channels auswählen</Label>
+        <Label className="text-gray-400 text-xs uppercase tracking-wider mb-2 block">Select Target Channels</Label>
         <ChannelPicker
           servers={servers}
           guilds={guilds}
