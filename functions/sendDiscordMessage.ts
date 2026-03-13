@@ -1,10 +1,21 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { message, webhookUrl } = body;
+    const { message } = body;
 
-    if (!message || !webhookUrl) {
-      return Response.json({ error: 'Missing message or webhookUrl' }, { status: 400 });
+    if (!message) {
+      return Response.json({ error: 'Missing message' }, { status: 400 });
+    }
+
+    // Get webhook URL from app settings (no longer accepted from request)
+    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const webhookUrl = settings.find(s => s.key === 'discord_webhook_url')?.value;
+
+    if (!webhookUrl) {
+      return Response.json({ error: 'Discord webhook URL not configured' }, { status: 400 });
     }
 
     const payload = {
