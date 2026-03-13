@@ -16,7 +16,7 @@ export default function Transactions() {
 
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ["transactions"],
-    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 2500),
+    queryFn: () => base44.entities.DKPTransaction.list("-created_date", 2500),
   });
 
   const { data: players = [] } = useQuery({
