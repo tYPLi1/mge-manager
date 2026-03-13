@@ -125,7 +125,7 @@ export default function AdminAuctions() {
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
-    queryFn: () => base44.entities.Auction.list("-created_date", 50),
+    queryFn: () => adminEntities.Auction.list("-created_date", 50),
   });
 
   const { data: bids = [] } = useQuery({
@@ -155,7 +155,7 @@ export default function AdminAuctions() {
   });
 
   useEffect(() => {
-    const unsub1 = base44.entities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
+    const unsub1 = adminEntities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
     const unsub2 = base44.entities.Bid.subscribe(() => queryClient.invalidateQueries({ queryKey: ["bids"] }));
     const unsub3 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
     const unsub4 = base44.entities.DKPTransaction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["transactions-activity"] }));

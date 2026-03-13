@@ -24,7 +24,7 @@ export default function AdminDashboard() {
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
-    queryFn: () => base44.entities.Auction.list("-created_date", 5),
+    queryFn: () => adminEntities.Auction.list("-created_date", 5),
   });
 
   const { data: penalties = [] } = useQuery({
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   useEffect(() => {
     const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
-    const unsub2 = base44.entities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
+    const unsub2 = adminEntities.Auction.subscribe(() => queryClient.invalidateQueries({ queryKey: ["auctions"] }));
     const unsub3 = base44.entities.Penalty.subscribe(() => queryClient.invalidateQueries({ queryKey: ["penalties-active"] }));
     return () => { unsub1(); unsub2(); unsub3(); };
   }, [queryClient]);
