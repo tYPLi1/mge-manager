@@ -300,7 +300,7 @@ export default function AdminPlayers() {
           const changes = {};
           if (hasDkpEarned && (existing.total_dkp || 0) !== dkpEarned) changes.total_dkp = { old: existing.total_dkp || 0, new: dkpEarned };
           if (hasDkpSpent && (existing.dkp_spent || 0) !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent || 0, new: dkpSpent };
-          if (hasCooldown && existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
+          if (hasCooldown && normalizeCooldown(existing.cooldown_until) !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
           if (hasPower && (existing.power || 0) !== power) changes.power = { old: existing.power || 0, new: power };
 
           if (Object.keys(changes).length > 0) {
