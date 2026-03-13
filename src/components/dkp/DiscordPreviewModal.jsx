@@ -39,6 +39,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
       embed,
       channelId,
       extraText: extraText.trim() || undefined,
+      notifType: notifType || undefined,
     });
 
     if (res.data?.success) {
