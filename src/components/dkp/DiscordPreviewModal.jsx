@@ -20,7 +20,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
   const handleSend = async () => {
     // If sendNow is false, we just save without sending (for deferred sends like auction creation)
     if (sendNow === false) {
-      toast.success("Discord Nachricht wird beim Start gesendet");
+      toast.success("Discord message will be sent on start");
       onSent?.(extraText);
       onClose();
       return;
