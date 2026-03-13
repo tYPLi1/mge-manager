@@ -325,26 +325,8 @@ export default function AdminAuctions() {
   };
 
   const handleOpenAuction = async (auction) => {
-    // Open the auction first
+    // Open the auction — Discord notification is handled by entity automation (notifyAuctionOpened)
     statusMutation.mutate({ id: auction.id, status: "open" });
-
-    // Then send stored Discord message via backend
-    if (auctionEnabled && auction.discord_embed) {
-      const session = getSession();
-      if (!session) return;
-      const embed = JSON.parse(auction.discord_embed);
-      const res = await base44.functions.invoke("sendDiscordEmbed", {
-        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-        embed,
-        channelId,
-        extraText: auction.discord_extra_text,
-      });
-      if (res.data?.success) {
-        toast.success("Discord Nachricht gesendet!");
-      } else {
-        toast.error("Discord Fehler: " + (res.data?.error || "Unknown"));
-      }
-    }
   };
 
   const deleteBidMutation = useMutation({
