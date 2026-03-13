@@ -23,8 +23,7 @@ Deno.serve(async (req) => {
     const isPenalty = data.type === 'penalty';
     if (!isCompensation && !isPenalty) return Response.json({ success: true });
 
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-    const punishmentsUrl = `${appUrl}/?page=Punishments`;
+    const punishmentsUrl = 'https://mge002.base44.app/Punishments';
 
     const title = isCompensation ? '💰 DKP Kompensation' : '⚠️ DKP Strafzug';
     const color = isCompensation ? 65280 : 16711680;

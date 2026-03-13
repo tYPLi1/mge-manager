@@ -31,8 +31,7 @@ Deno.serve(async (req) => {
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
     const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-    const resultsUrl = `${appUrl}/?page=Results`;
+    const resultsUrl = 'https://mge002.base44.app/Results';
 
     const topResults = results.slice(0, 3);
     const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join('\n');

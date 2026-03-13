@@ -22,8 +22,7 @@ Deno.serve(async (req) => {
     }
 
     const now = new Date();
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-    const auctionUrl = `${appUrl}/?page=Auction`;
+    const auctionUrl = 'https://mge002.base44.app/Auction';
 
     function ensureUTC(dateStr) {
       if (!dateStr) return dateStr;

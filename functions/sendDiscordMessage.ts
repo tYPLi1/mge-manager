@@ -57,8 +57,7 @@ Deno.serve(async (req) => {
     }
     if (channels.length === 0) return Response.json({ error: 'No channels specified' }, { status: 400 });
 
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-    const fullMessage = `${message}\n\n🔗 ${appUrl}`;
+    const fullMessage = message;
 
     let sent = 0;
     for (const ch of channels) {

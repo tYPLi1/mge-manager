@@ -30,8 +30,7 @@ Deno.serve(async (req) => {
     const channels = getTargetChannels(settings, 'auction');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-    const auctionUrl = `${appUrl}/?page=Auction`;
+    const auctionUrl = 'https://mge002.base44.app/Auction';
 
     let embed;
     if (auction.discord_embed) {
