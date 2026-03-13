@@ -82,24 +82,25 @@ export default function Auction() {
   });
 
   useEffect(() => {
-    try {
-      const unsub1 = base44.entities.Auction.subscribe(() => {
-        queryClient.invalidateQueries({ queryKey: ["auctions"] });
-      });
-      const unsub2 = base44.entities.Bid.subscribe(() => {
-        queryClient.invalidateQueries({ queryKey: ["bids-public"] });
-      });
-      const unsub3 = base44.entities.Player.subscribe(() => {
-        queryClient.invalidateQueries({ queryKey: ["players"] });
-      });
-      return () => {
-        unsub1();
-        unsub2();
-        unsub3();
-      };
-    } catch (e) {
-      console.error("Subscribe error:", e);
-    }
+    // Use polling for auctions since Auction entity is now admin-only
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ["auctions"] });
+      queryClient.invalidateQueries({ queryKey: ["bids-public"] });
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    }, 15000);
+    
+    // Player and Bid subscriptions still work (read is public)
+    const unsub1 = base44.entities.Bid.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["bids-public"] });
+    });
+    const unsub2 = base44.entities.Player.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+    });
+    return () => {
+      clearInterval(interval);
+      unsub1();
+      unsub2();
+    };
   }, [queryClient]);
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
