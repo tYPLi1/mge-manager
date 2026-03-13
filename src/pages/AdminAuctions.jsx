@@ -162,7 +162,7 @@ export default function AdminAuctions() {
     return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
   }, [queryClient]);
 
-  const webhookUrl = settings.find((s) => s.key === "discord_webhook_url")?.value;
+  const discordConfigured = !!settings.find((s) => s.key === "discord_webhook_url")?.value;
   const auctionEnabled = settings.find((s) => s.key === "discord_auction_enabled")?.value === "true";
   const resultsEnabled = settings.find((s) => s.key === "discord_results_enabled")?.value === "true";
   const channelId = settings.find((s) => s.key === "discord_auction_channel")?.value;
@@ -398,7 +398,7 @@ export default function AdminAuctions() {
     mutationFn: async () => {
       if (!viewBids) return;
 
-      if (resultsEnabled && webhookUrl && previewRanking.length > 0) {
+      if (resultsEnabled && discordConfigured && previewRanking.length > 0) {
         const topResults = previewRanking.slice(0, 3);
         const resultsText = topResults.map((r, i) => {
           let line = `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`;
@@ -503,7 +503,7 @@ export default function AdminAuctions() {
   const handleCreate = () => {
     if (!title) return;
 
-    if (auctionEnabled && webhookUrl) {
+    if (auctionEnabled && discordConfigured) {
       // Show preview modal — save embed + extra text on auction when confirmed
       setDiscordPreview({
         embed: buildAuctionEmbed(),
@@ -780,7 +780,6 @@ export default function AdminAuctions() {
       {discordPreview && (
         <DiscordPreviewModal
           embed={discordPreview.embed}
-          webhookUrl={webhookUrl}
           channelId={channelId}
           sendNow={discordPreview.sendNow !== undefined ? discordPreview.sendNow : true}
           onClose={() => setDiscordPreview(null)}
