@@ -136,7 +136,7 @@ function ServerCard({ server, onChange, onRemove, guild }) {
                       channels={channels}
                       value={ch.channelId}
                       onChange={(v) => setChannelId(nt.key, v)}
-                      placeholder="Standard Channel verwenden"
+                      placeholder="Use default channel"
                     />
                   )}
                 </div>
