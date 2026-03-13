@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
     // Also verify user still exists and is active
     try {
-      const user = await base44.asServiceRole.entities.AdminUser.get(userId);
+      const user = await service.entities.AdminUser.get(userId);
       if (!user || !user.is_active) {
         return Response.json({ valid: false, reason: 'User deactivated or deleted' });
       }

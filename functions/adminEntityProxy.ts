@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     // Verify user still active (best-effort; if SDK auth context missing, trust HMAC)
     try {
-      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+      const user = await service.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) {
         return Response.json({ error: 'User deactivated' }, { status: 403 });
       }
@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
     }
 
     // Execute the requested operation using service role
-    const entity = base44.asServiceRole.entities[entityName];
+    const entity = service.entities[entityName];
     if (!entity) {
       return Response.json({ error: `Entity "${entityName}" not found` }, { status: 400 });
     }
