@@ -156,8 +156,35 @@ export default function AdminSettings() {
               : "The player who earned the most DKP in the last event (from selected sources) gets the higher rank."}
           </p>
 
+          {/* Fallback Tiebreaker */}
+          {form.auction_tiebreaker && form.auction_tiebreaker !== "fcfs" && (
+            <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Fallback Tiebreaker</p>
+              <p className="text-xs text-gray-500 mb-3">If the primary tiebreaker is also equal (e.g. all 0), this rule decides.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[
+                  { key: "fcfs", label: "⏱ First Come First Served" },
+                  { key: "activity", label: "📊 Activity Score" },
+                  { key: "last_event_dkp", label: "🏅 Last Event DKP" },
+                ].filter(opt => opt.key !== form.auction_tiebreaker).map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setForm({ ...form, auction_tiebreaker_fallback: opt.key })}
+                    className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                      (form.auction_tiebreaker_fallback || "fcfs") === opt.key
+                        ? "bg-purple-500/20 border-purple-500/40 text-purple-400"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Last Event DKP source checkboxes */}
-          {form.auction_tiebreaker === "last_event_dkp" && (
+          {(form.auction_tiebreaker === "last_event_dkp" || form.auction_tiebreaker_fallback === "last_event_dkp") && (
             <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Which event sources count?</p>
               {eventTypes.length === 0 && (
