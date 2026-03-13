@@ -167,7 +167,9 @@ export default function DiscordServerConfig({ value, onChange }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke('getDiscordBotGuilds', {});
+      const sessionRaw = localStorage.getItem("adminSession");
+      const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+      const res = await base44.functions.invoke('getDiscordBotGuilds', { session });
       setGuilds(res.data.guilds || []);
     } catch (err) {
       setError(err?.response?.data?.error || err.message || 'Fehler beim Laden');
