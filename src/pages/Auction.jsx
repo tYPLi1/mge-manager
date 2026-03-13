@@ -40,7 +40,10 @@ export default function Auction() {
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
-    queryFn: () => base44.entities.Auction.list("-created_date", 10),
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getPublicAuctions", {});
+      return res.data?.auctions || [];
+    },
   });
 
   const { data: players = [] } = useQuery({
