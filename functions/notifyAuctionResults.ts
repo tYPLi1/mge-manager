@@ -60,7 +60,14 @@ Deno.serve(async (req) => {
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
     const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
+    const tiebreakerFallback = settings.find(s => s.key === 'auction_tiebreaker_fallback')?.value || 'fcfs';
     const resultsUrl = 'https://mge002.base44.app/Results';
+
+    const ruleLabel = (rule) => {
+      if (rule === 'activity') return 'Higher Activity Score';
+      if (rule === 'last_event_dkp') return 'Most DKP in last event';
+      return 'First to bid';
+    };
 
     const topResults = results.slice(0, 3);
     const resultsText = topResults.map((r, i) => {
@@ -74,11 +81,13 @@ Deno.serve(async (req) => {
       (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
       (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
     );
-    const tiebreakerNote = hasTies
-      ? (tiebreaker === 'activity' ? '⚖ Higher Activity Score'
-        : tiebreaker === 'last_event_dkp' ? '⚖ Most DKP in last event'
-        : '⚖ First to bid')
-      : null;
+    let tiebreakerNote = null;
+    if (hasTies) {
+      tiebreakerNote = `⚖ ${ruleLabel(tiebreaker)}`;
+      if (tiebreaker !== 'fcfs') {
+        tiebreakerNote += `\n↳ Fallback: ${ruleLabel(tiebreakerFallback)}`;
+      }
+    }
 
     const fields = [
       { name: 'Top Winners', value: resultsText || 'No results', inline: false },
