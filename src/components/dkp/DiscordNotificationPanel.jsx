@@ -144,7 +144,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
       setTitle('');
       setMessage('');
     },
-    onError: (error) => toast.error(`Fehler: ${error.message}`),
+    onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
   const testMessageMutation = useMutation({
@@ -161,7 +161,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
       return response.data;
     },
     onSuccess: (data) => toast.success(`Test an ${data.channels || 0} Channel(s) gesendet!`),
-    onError: (error) => toast.error(`Fehler: ${error.message}`),
+    onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
   return (
