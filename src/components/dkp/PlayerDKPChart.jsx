@@ -113,7 +113,7 @@ export default function PlayerDKPChart({ transactions }) {
           // Insert a zero point one day after the last known date
           const zeroDate = new Date(prev + 86400000).toISOString().split("T")[0];
           const zeroPoint = { date: zeroDate };
-          eventLines.forEach(e => { zeroPoint[e.key] = 0; });
+          eventLines.forEach(e => { zeroPoint[e.key] = e.key === "balance" ? result[result.length - 1]?.balance ?? 0 : 0; });
           result.push(zeroPoint);
         }
       }
