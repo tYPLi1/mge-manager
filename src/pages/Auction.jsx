@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Gavel, Clock, Send, Lock, AlertTriangle, Ban, Users } from "lucide-react";
+import { Gavel, Clock, Send, Lock, AlertTriangle, Ban, Users, CalendarClock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,20 +10,26 @@ import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 
 function ensureUTC(dateStr) {
   if (!dateStr) return dateStr;
-  // datetime-local values like "2026-03-13T20:30" have no timezone info.
-  // Append Z so they're treated as UTC consistently across all browsers.
   if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) {
     return dateStr + 'Z';
   }
   return dateStr;
 }
 
-function CountdownTimer({ targetDate }) {
+function formatUTCDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(ensureUTC(dateStr)).toLocaleString("de-CH", { timeZone: "UTC" }) + " UTC";
+}
+
+function useCountdown(targetDate) {
   const [timeLeft, setTimeLeft] = useState("");
+  const [expired, setExpired] = useState(false);
   useEffect(() => {
+    if (!targetDate) { setTimeLeft(""); setExpired(false); return; }
     const calc = () => {
       const diff = new Date(ensureUTC(targetDate)) - new Date();
-      if (diff <= 0) { setTimeLeft("Closed"); return; }
+      if (diff <= 0) { setTimeLeft("—"); setExpired(true); return; }
+      setExpired(false);
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -34,19 +40,48 @@ function CountdownTimer({ targetDate }) {
     const i = setInterval(calc, 1000);
     return () => clearInterval(i);
   }, [targetDate]);
-  return <span className="font-mono text-amber-400 text-lg font-bold">{timeLeft}</span>;
+  return { timeLeft, expired };
+}
+
+// Compute effective status client-side based on scheduled times
+function getEffectiveStatus(auction) {
+  if (!auction) return null;
+  const now = new Date();
+  const { status, scheduled_open, scheduled_close } = auction;
+
+  if (status === "draft" && scheduled_open) {
+    const openAt = new Date(ensureUTC(scheduled_open));
+    if (openAt <= now) {
+      // Should be open — check close too
+      if (scheduled_close && new Date(ensureUTC(scheduled_close)) <= now) return "closed";
+      return "open";
+    }
+    return "draft";
+  }
+
+  if (status === "open" && scheduled_close) {
+    if (new Date(ensureUTC(scheduled_close)) <= now) return "closed";
+  }
+
+  return status;
 }
 
 export default function Auction() {
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [bidAmount, setBidAmount] = useState("");
-
   const [bidPassword, setBidPassword] = useState("");
   const [wantFriendlyZone, setWantFriendlyZone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bidError, setBidError] = useState("");
+  const [tick, setTick] = useState(0);
   const queryClient = useQueryClient();
+
+  // Tick every second to recompute effective status
+  useEffect(() => {
+    const i = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(i);
+  }, []);
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["auctions"],
@@ -66,23 +101,6 @@ export default function Auction() {
     queryFn: () => base44.entities.Bid.list("-created_date", 2000),
   });
 
-  const currentAuction = useMemo(() => {
-    return auctions.find((a) => a.status === "open") || auctions.find((a) => a.status === "closed") || auctions.find((a) => a.status === "draft");
-  }, [auctions]);
-
-  const selectedPlayerData = useMemo(() => {
-    return players.find((p) => p.id === selectedPlayer);
-  }, [players, selectedPlayer]);
-
-  const isOnCooldown = useMemo(() => {
-    if (!selectedPlayerData?.cooldown_until) return false;
-    return new Date(selectedPlayerData.cooldown_until) > new Date();
-  }, [selectedPlayerData]);
-
-  const isAuctionBanned = selectedPlayerData?.auction_ban_count > 0;
-  const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
-  const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
-
   const { data: settings = [] } = useQuery({
     queryKey: ["public-settings"],
     queryFn: async () => {
@@ -91,15 +109,24 @@ export default function Auction() {
     },
   });
 
+  // Pick the most relevant auction
+  const rawAuction = useMemo(() => {
+    return auctions.find((a) => a.status === "open") ||
+           auctions.find((a) => a.status === "closed") ||
+           auctions.find((a) => a.status === "draft");
+  }, [auctions]);
+
+  // Compute effective status client-side (recomputed every tick)
+  const effectiveStatus = useMemo(() => getEffectiveStatus(rawAuction), [rawAuction, tick]);
+  const currentAuction = rawAuction ? { ...rawAuction, _effectiveStatus: effectiveStatus } : null;
+
   useEffect(() => {
-    // Use polling for auctions since Auction entity is now admin-only
     const interval = setInterval(() => {
       queryClient.invalidateQueries({ queryKey: ["auctions"] });
       queryClient.invalidateQueries({ queryKey: ["bids-public"] });
       queryClient.invalidateQueries({ queryKey: ["players"] });
-    }, 15000);
-    
-    // Player and Bid subscriptions still work (read is public)
+    }, 10000);
+
     const unsub1 = base44.entities.Bid.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ["bids-public"] });
     });
@@ -112,8 +139,19 @@ export default function Auction() {
       unsub2();
     };
   }, [queryClient]);
+
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
+
+  const selectedPlayerData = useMemo(() => players.find((p) => p.id === selectedPlayer), [players, selectedPlayer]);
+  const isOnCooldown = useMemo(() => {
+    if (!selectedPlayerData?.cooldown_until) return false;
+    return new Date(selectedPlayerData.cooldown_until) > new Date();
+  }, [selectedPlayerData]);
+  const isAuctionBanned = selectedPlayerData?.auction_ban_count > 0;
+  const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
+  const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
+  const eligibleForFriendlyZone = friendlyZoneEnabled && currentDkp <= friendlyZoneThreshold;
 
   const alreadyBid = useMemo(() => {
     if (!selectedPlayer || !currentAuction) return false;
@@ -122,21 +160,11 @@ export default function Auction() {
     );
   }, [allBids, selectedPlayer, currentAuction]);
 
-  const eligibleForFriendlyZone = friendlyZoneEnabled && currentDkp <= friendlyZoneThreshold;
-
   const handleSubmit = async () => {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
     setBidError("");
-
-    // Basic client-side checks (server validates everything again)
-    if (alreadyBid) {
-      setBidError("You have already placed a bid for this auction.");
-      return;
-    }
-    if (parseInt(bidAmount) > currentDkp) {
-      setBidError(`Not enough DKP. Available: ${currentDkp}`);
-      return;
-    }
+    if (alreadyBid) { setBidError("You have already placed a bid for this auction."); return; }
+    if (parseInt(bidAmount) > currentDkp) { setBidError(`Not enough DKP. Available: ${currentDkp}`); return; }
 
     setSubmitting(true);
     const res = await base44.functions.invoke("submitBid", {
@@ -146,20 +174,14 @@ export default function Auction() {
       bid_password: bidPassword || undefined,
       want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
     });
-    
-    if (res.data?.error) {
-      setBidError(res.data.error);
-      setSubmitting(false);
-      return;
-    }
-    
+    if (res.data?.error) { setBidError(res.data.error); setSubmitting(false); return; }
     setSubmitted(true);
     setSubmitting(false);
   };
 
   if (!currentAuction) {
     return (
-      <div className="bg-[#0a0e1a] min-h-screen">
+      <div>
         <PageHeader title="MGE Auction" icon={Gavel} />
         <div className="bg-[#111827] rounded-xl border border-white/5 p-12 text-center">
           <Gavel className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -170,164 +192,213 @@ export default function Auction() {
     );
   }
 
+  const es = currentAuction._effectiveStatus;
+
+  // ── DRAFT: Upcoming auction info card ──
+  if (es === "draft") {
+    return <DraftView auction={currentAuction} />;
+  }
+
+  // ── CLOSED: Results pending ──
+  if (es === "closed") {
+    return <ClosedView auction={currentAuction} />;
+  }
+
+  // ── OPEN: Show bid form ──
   return (
-    <div className="bg-[#0a0e1a] min-h-screen">
+    <div>
       <PageHeader title="MGE Auction" subtitle={currentAuction.title} icon={Gavel} />
-
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Auction Info */}
-        <div className="lg:col-span-1 space-y-4">
+        <OpenInfoPanel auction={currentAuction} />
+        <div className="lg:col-span-2">
           <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`w-2.5 h-2.5 rounded-full ${
-                currentAuction.status === "open" ? "bg-emerald-400 animate-pulse" :
-                currentAuction.status === "closed" ? "bg-red-400" : "bg-gray-500"
-              }`} />
-              <span className="text-sm font-semibold uppercase tracking-wider text-gray-300">
-                {currentAuction.status}
-              </span>
-            </div>
-
-            {currentAuction.status === "open" && currentAuction.scheduled_close && (
-              <div className="mb-4">
-                <p className="text-xs text-gray-500 mb-1">Closes in <span className="text-gray-600">(UTC)</span></p>
-                <CountdownTimer targetDate={currentAuction.scheduled_close} />
-                <p className="text-xs text-gray-600 mt-1 font-mono">
-                  {new Date(ensureUTC(currentAuction.scheduled_close)).toLocaleString("de-CH", { timeZone: "UTC" })} UTC
-                </p>
+            {submitted ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
+                  <Send className="w-7 h-7 text-emerald-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Bid Submitted!</h3>
+                <p className="text-sm text-gray-400">Your bid has been placed. Good luck!</p>
+                <Button onClick={() => { setSubmitted(false); setBidAmount(""); setSelectedPlayer(""); }} variant="outline" className="mt-4 border-white/10 text-gray-300 hover:bg-white/5">
+                  Place Another Bid
+                </Button>
               </div>
-            )}
+            ) : (
+              <div className="space-y-5">
+                <h3 className="text-base font-semibold text-white">Place Your Bid</h3>
+                <div>
+                  <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Select Your Name</Label>
+                  <PlayerSearchSelect players={players} value={selectedPlayer} onValueChange={setSelectedPlayer} placeholder="Namen eingeben..." />
+                </div>
 
-            {currentAuction.has_password && (
-              <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-                <Lock className="w-3.5 h-3.5" />
-                Password required to bid
+                {isOnCooldown && (
+                  <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    You are on cooldown until {selectedPlayerData.cooldown_until} (UTC). Bidding is disabled.
+                  </div>
+                )}
+                {isAuctionBanned && (
+                  <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                    <Ban className="w-3.5 h-3.5" />
+                    You are banned and cannot place any bids.
+                  </div>
+                )}
+                {alreadyBid && (
+                  <div className="flex items-center gap-2 text-xs text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    You have already placed a bid for this auction.
+                  </div>
+                )}
+                {selectedPlayerData && (
+                  <div className="text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+                    Available DKP: <span className="text-amber-400 font-mono font-bold">{currentDkp}</span>
+                  </div>
+                )}
+
+                <div>
+                  <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
+                  <Input type="number" min="1" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="Enter DKP amount" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+                </div>
+
+                {eligibleForFriendlyZone && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input type="checkbox" checked={wantFriendlyZone} onChange={(e) => setWantFriendlyZone(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-emerald-500" />
+                      <div>
+                        <p className="text-sm font-medium text-emerald-400 flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Friendly Zone</p>
+                        <p className="text-xs text-gray-400 mt-0.5">You have ≤ {friendlyZoneThreshold} DKP available. Enable this option to be eligible for the Friendly Zone slot.</p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {currentAuction.has_password && (
+                  <div>
+                    <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Auction Password</Label>
+                    <Input type="password" value={bidPassword} onChange={(e) => setBidPassword(e.target.value)} placeholder="Enter password" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+                  </div>
+                )}
+
+                {bidError && (
+                  <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                    <AlertTriangle className="w-3.5 h-3.5" /> {bidError}
+                  </div>
+                )}
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting || alreadyBid}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                >
+                  {submitting ? "Submitting..." : "Submit Bid"}
+                </Button>
               </div>
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          {currentAuction.status === "closed" && (
-            <div className="bg-[#111827] rounded-xl border border-white/5 p-5 text-center">
-              <Clock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-400">Bidding has closed. Results pending.</p>
+// ── Sub-components ──
+
+function DraftView({ auction }) {
+  const { timeLeft } = useCountdown(auction.scheduled_open);
+
+  return (
+    <div>
+      <PageHeader title="MGE Auction" icon={Gavel} />
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-6 max-w-lg mx-auto">
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
+            <CalendarClock className="w-7 h-7 text-amber-400" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-1">Upcoming Auction</h2>
+          <p className="text-amber-400 font-semibold">{auction.title}</p>
+        </div>
+
+        <div className="space-y-3">
+          {auction.scheduled_open && (
+            <div className="bg-white/5 rounded-lg px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Opens in</p>
+                <span className="font-mono text-amber-400 text-lg font-bold">{timeLeft}</span>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Start</p>
+                <p className="text-sm text-gray-300 font-mono">{formatUTCDate(auction.scheduled_open)}</p>
+              </div>
+            </div>
+          )}
+
+          {auction.scheduled_close && (
+            <div className="bg-white/5 rounded-lg px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Closes at</p>
+                <p className="text-sm text-gray-300 font-mono">{formatUTCDate(auction.scheduled_close)}</p>
+              </div>
+              <Clock className="w-4 h-4 text-gray-600" />
+            </div>
+          )}
+
+          {auction.has_password && (
+            <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+              <Lock className="w-3.5 h-3.5" />
+              Password required to bid
             </div>
           )}
         </div>
 
-        {/* Bid Form — hide when closed or countdown expired */}
-        {currentAuction.status === "open" && (!currentAuction.scheduled_close || new Date(ensureUTC(currentAuction.scheduled_close)) > new Date()) && (
-          <div className="lg:col-span-2">
-            <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-              {submitted ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
-                    <Send className="w-7 h-7 text-emerald-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Bid Submitted!</h3>
-                  <p className="text-sm text-gray-400">Your bid has been placed. Good luck!</p>
-                  <Button onClick={() => { setSubmitted(false); setBidAmount(""); setSelectedPlayer(""); }} variant="outline" className="mt-4 border-white/10 text-gray-300 hover:bg-white/5">
-                    Place Another Bid
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  <h3 className="text-base font-semibold text-white">Place Your Bid</h3>
+        <p className="text-xs text-gray-600 text-center mt-5">Bidding will be available once the auction opens.</p>
+      </div>
+    </div>
+  );
+}
 
-                  <div>
-                    <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Select Your Name</Label>
-                    <PlayerSearchSelect players={players} value={selectedPlayer} onValueChange={setSelectedPlayer} placeholder="Namen eingeben..." />
-                  </div>
+function ClosedView({ auction }) {
+  return (
+    <div>
+      <PageHeader title="MGE Auction" subtitle={auction.title} icon={Gavel} />
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-8 text-center max-w-lg mx-auto">
+        <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+          <Clock className="w-7 h-7 text-red-400" />
+        </div>
+        <h2 className="text-lg font-bold text-white mb-2">Bidding Closed</h2>
+        <p className="text-sm text-gray-400 mb-4">
+          The auction <span className="text-white font-medium">"{auction.title}"</span> has ended.
+        </p>
+        <p className="text-xs text-gray-500">Results will be published soon.</p>
+      </div>
+    </div>
+  );
+}
 
-                  {isOnCooldown && (
-                    <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      You are on cooldown until {selectedPlayerData.cooldown_until} (UTC). Bidding is disabled.
-                    </div>
-                  )}
+function OpenInfoPanel({ auction }) {
+  const { timeLeft } = useCountdown(auction.scheduled_close);
 
-                  {isAuctionBanned && (
-                    <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                      <Ban className="w-3.5 h-3.5" />
-                      You are banned and cannot place any bids.
-                    </div>
-                  )}
+  return (
+    <div className="lg:col-span-1 space-y-4">
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-sm font-semibold uppercase tracking-wider text-emerald-400">Open</span>
+        </div>
 
-                  {alreadyBid && (
-                    <div className="flex items-center gap-2 text-xs text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      You have already placed a bid for this auction.
-                    </div>
-                  )}
+        {auction.scheduled_close && (
+          <div className="mb-4">
+            <p className="text-xs text-gray-500 mb-1">Closes in</p>
+            <span className="font-mono text-amber-400 text-lg font-bold">{timeLeft}</span>
+            <p className="text-xs text-gray-600 mt-1 font-mono">
+              {formatUTCDate(auction.scheduled_close)}
+            </p>
+          </div>
+        )}
 
-                  {selectedPlayerData && (
-                    <div className="text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
-                      Available DKP: <span className="text-amber-400 font-mono font-bold">{currentDkp}</span>
-                    </div>
-                  )}
-
-                  <div>
-                    <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={bidAmount}
-                      onChange={(e) => setBidAmount(e.target.value)}
-                      placeholder="Enter DKP amount"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
-                    />
-                  </div>
-
-                  {eligibleForFriendlyZone && (
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
-                      <label className="flex items-start gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={wantFriendlyZone}
-                          onChange={(e) => setWantFriendlyZone(e.target.checked)}
-                          className="mt-0.5 w-4 h-4 rounded accent-emerald-500"
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-emerald-400 flex items-center gap-1.5">
-                            <Users className="w-3.5 h-3.5" />
-                            Friendly Zone
-                          </p>
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            You have ≤ {friendlyZoneThreshold} DKP available. Enable this option to be eligible for the Friendly Zone slot.
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-                  )}
-
-                  {currentAuction.has_password && (
-                    <div>
-                      <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Auction Password</Label>
-                      <Input
-                        type="password"
-                        value={bidPassword}
-                        onChange={(e) => setBidPassword(e.target.value)}
-                        placeholder="Enter password"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
-                      />
-                    </div>
-                  )}
-
-                  {bidError && (
-                    <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" /> {bidError}
-                    </div>
-                  )}
-
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting || alreadyBid}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
-                  >
-                    {submitting ? "Submitting..." : "Submit Bid"}
-                  </Button>
-                </div>
-              )}
-            </div>
+        {auction.has_password && (
+          <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+            <Lock className="w-3.5 h-3.5" />
+            Password required to bid
           </div>
         )}
       </div>
