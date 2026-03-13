@@ -565,12 +565,12 @@ export default function AdminAuctions() {
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Start (auto-open)
+              <Clock className="w-3 h-3" /> Start UTC (auto-open)
             </Label>
             <Input type="datetime-local" value={scheduledOpen} onChange={(e) => setScheduledOpen(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">End Date / Time</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">End Date / Time (UTC)</Label>
             <Input type="datetime-local" value={scheduledClose} onChange={(e) => setScheduledClose(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
