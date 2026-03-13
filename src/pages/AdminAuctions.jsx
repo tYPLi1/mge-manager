@@ -250,19 +250,24 @@ export default function AdminAuctions() {
     return scores;
   }, [transactions, tiebreaker, lastEventDkpSources]);
 
+  // Shared tiebreaker comparator
+  const compareBids = (a, b, rule) => {
+    if (rule === "activity") return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
+    if (rule === "last_event_dkp") return (lastEventDkpScores[b.player_id] || 0) - (lastEventDkpScores[a.player_id] || 0);
+    return new Date(a.created_date) - new Date(b.created_date); // fcfs
+  };
+
+  const sortBids = (list) => [...list].sort((a, b) => {
+    if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
+    const primary = compareBids(a, b, tiebreaker);
+    if (primary !== 0) return primary;
+    return compareBids(a, b, tiebreakerFallback);
+  });
+
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
     const activeBids = bids.filter((b) => !b.is_deleted);
-    const sorted = [...activeBids].sort((a, b) => {
-      if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
-      if (tiebreaker === "activity") {
-        return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
-      }
-      if (tiebreaker === "last_event_dkp") {
-        return (lastEventDkpScores[b.player_id] || 0) - (lastEventDkpScores[a.player_id] || 0);
-      }
-      return new Date(a.created_date) - new Date(b.created_date);
-    });
+    const sorted = sortBids(activeBids);
     const top10 = sorted.slice(0, 10);
 
     if (friendlyZoneEnabled && top10.length >= 10) {
