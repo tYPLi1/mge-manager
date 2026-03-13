@@ -106,7 +106,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
             <div className="flex">
               <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
               <div className="p-3 flex-1">
-                <p className="text-gray-400 text-xs font-semibold mb-1">+ Zusatztext</p>
+                <p className="text-gray-400 text-xs font-semibold mb-1">+ Extra Text</p>
                 <p className="text-gray-200 text-xs whitespace-pre-wrap">{extraText}</p>
               </div>
             </div>
