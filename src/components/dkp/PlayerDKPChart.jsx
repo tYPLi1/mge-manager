@@ -43,7 +43,6 @@ export default function PlayerDKPChart({ transactions }) {
         colorIdx++;
       }
     });
-    lines.push({ key: "earn_total", label: "Total Earned", color: "#22d3ee" });
     lines.push({ key: "balance", label: "Kontostand", color: "#a78bfa" });
     return lines;
   }, [eventTypes]);
