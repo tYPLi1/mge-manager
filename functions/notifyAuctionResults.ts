@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     }
 
     const fields = [
-      { name: 'Top Winners', value: resultsText || 'No results', inline: false },
+      { name: 'Winners (Top 10)', value: resultsText || 'No results', inline: false },
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
     if (tiebreakerNote) fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
