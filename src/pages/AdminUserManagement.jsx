@@ -74,19 +74,21 @@ export default function AdminUserManagement() {
     e.preventDefault();
     try {
       setLoading(true);
-      // Verify master password via adminLogin endpoint (validates against server secret)
-      const verifyRes = await base44.functions.invoke("adminLogin", {
-        username: "__verify_master__",
-        password: masterPassword,
+      const session = getSession();
+      if (!session) throw new Error("No admin session");
+      // Verify master password against server secret
+      const verifyRes = await base44.functions.invoke("manageAdminUsers", {
+        action: "verify",
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+        credential: masterPassword,
       });
-      // adminLogin will fail for this fake username, but we use a dedicated verify approach:
-      // Instead, we simply attempt to call the session-secured endpoint.
-      // If the admin has a valid session, the call succeeds.
+      if (!verifyRes.data.success) throw new Error(verifyRes.data.error || "Failed");
+      // Now load users
       const data = await invoke("list");
       setUsers(data.users);
       setAuthenticated(true);
     } catch {
-      toast.error("Unauthorized");
+      toast.error("Wrong password");
     } finally {
       setLoading(false);
     }
