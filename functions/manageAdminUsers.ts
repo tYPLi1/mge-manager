@@ -103,6 +103,10 @@ Deno.serve(async (req) => {
       if (!userId) {
         return Response.json({ error: 'userId required' }, { status: 400 });
       }
+      // Prevent self-deactivation
+      if (userId === session.userId) {
+        return Response.json({ error: 'Cannot deactivate your own account' }, { status: 400 });
+      }
       const user = await base44.asServiceRole.entities.AdminUser.get(userId);
       const newActive = !user.is_active;
       await base44.asServiceRole.entities.AdminUser.update(userId, { is_active: newActive });
@@ -112,6 +116,10 @@ Deno.serve(async (req) => {
     if (action === 'delete') {
       if (!userId) {
         return Response.json({ error: 'userId required' }, { status: 400 });
+      }
+      // Prevent self-deletion
+      if (userId === session.userId) {
+        return Response.json({ error: 'Cannot delete your own account' }, { status: 400 });
       }
       await base44.asServiceRole.entities.AdminUser.delete(userId);
       return Response.json({ success: true, message: 'User deleted', deletedUserId: userId });

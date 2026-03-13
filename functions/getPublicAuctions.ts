@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     
     // Strip sensitive fields
     const publicAuctions = auctions.map(a => {
-      const { bid_password, ...safe } = a;
+      const { bid_password, discord_embed, discord_extra_text, ...safe } = a;
       return safe;
     });
 

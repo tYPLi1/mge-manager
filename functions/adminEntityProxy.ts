@@ -52,6 +52,16 @@ Deno.serve(async (req) => {
       console.log('AdminUser lookup skipped (no auth context), trusting HMAC:', msg);
     }
 
+    // Entity whitelist — only allow known entities through the proxy
+    const ALLOWED_ENTITIES = [
+      'Player', 'Auction', 'Bid', 'AuctionResult', 'DKPTransaction',
+      'Penalty', 'PowerHistory', 'EventType', 'AppSettings', 'AdminUser',
+      'OffenseResetLog'
+    ];
+    if (!ALLOWED_ENTITIES.includes(entityName)) {
+      return Response.json({ error: `Entity "${entityName}" not allowed` }, { status: 403 });
+    }
+
     // Execute the requested operation using service role
     const entity = base44.asServiceRole.entities[entityName];
     if (!entity) {

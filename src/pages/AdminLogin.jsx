@@ -13,6 +13,8 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(null);
 
   // Check if already logged in
   useEffect(() => {
@@ -35,8 +37,11 @@ export default function AdminLogin() {
     checkAuth();
   }, [navigate]);
 
+  const isLocked = lockedUntil && Date.now() < lockedUntil;
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isLocked) return;
     setError('');
     setLoading(true);
 
@@ -44,10 +49,28 @@ export default function AdminLogin() {
       const response = await base44.functions.invoke('adminLogin', { username, password });
 
       if (!response.data.success) {
-        setError(response.data.error || 'Login failed');
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        // Progressive lockout: 5s after 3 fails, 30s after 5, 60s after 8
+        if (newAttempts >= 8) {
+          setLockedUntil(Date.now() + 60000);
+          setError('Too many failed attempts. Locked for 60 seconds.');
+        } else if (newAttempts >= 5) {
+          setLockedUntil(Date.now() + 30000);
+          setError('Too many failed attempts. Locked for 30 seconds.');
+        } else if (newAttempts >= 3) {
+          setLockedUntil(Date.now() + 5000);
+          setError('Too many failed attempts. Please wait 5 seconds.');
+        } else {
+          setError(response.data.error || 'Login failed');
+        }
         setLoading(false);
         return;
       }
+
+      // Reset on success
+      setFailedAttempts(0);
+      setLockedUntil(null);
 
       // Store session
       const session = response.data.session;
@@ -116,7 +139,7 @@ export default function AdminLogin() {
 
           <Button
             type="submit"
-            disabled={loading || !username || !password}
+            disabled={loading || !username || !password || isLocked}
             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold py-2 rounded-lg transition-all"
           >
             {loading ? (

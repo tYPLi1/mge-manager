@@ -59,11 +59,13 @@ export default function AdminSessionGuard({ children }) {
             return;
           }
         } catch (err) {
-          // If the function call itself fails (e.g. no Base44 user logged in
-          // on a public app, or network error), trust the locally-stored
-          // HMAC-signed session. A forged session will fail on the first
-          // actual backend operation anyway.
-          if (parsed.token) {
+          // The verify call failed (network error, 401 from public app, etc.)
+          // We do a local HMAC-structure check: the session must have all fields
+          // and not be expired. The actual crypto is verified on every backend call.
+          const hasAllFields = parsed.token && parsed.userId && parsed.username && parsed.expiresAt;
+          const notExpired = new Date(parsed.expiresAt) > new Date();
+          if (hasAllFields && notExpired) {
+            console.warn('Session verify call failed, allowing with local check. Backend ops still HMAC-protected.');
             userIdRef.current = parsed.userId;
             setIsAuthorized(true);
             setLoading(false);
