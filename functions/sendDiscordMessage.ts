@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { message, session } = body;
+    const { message, session, channelIds } = body;
 
     if (!message) return Response.json({ error: 'Missing message' }, { status: 400 });
     if (!BOT_TOKEN) return Response.json({ error: 'Bot token not configured' }, { status: 400 });
