@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { session, embed, extraText } = body;
+    const { session, embed, extraText, notifType } = body;
 
     if (!BOT_TOKEN) return Response.json({ error: 'Bot token not configured' }, { status: 400 });
 
