@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
 
     if (!BOT_TOKEN) return Response.json({ success: true });
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'penalties');
     if (channels.length === 0) return Response.json({ success: true });
 

@@ -20,13 +20,13 @@ Deno.serve(async (req) => {
       const { auctionId: id } = body;
       if (!id) return Response.json({ error: 'Missing auctionId' }, { status: 400 });
       auctionId = id;
-      auction = await base44.asServiceRole.entities.Auction.get(auctionId);
+      auction = await service.entities.Auction.get(auctionId);
     }
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
-    const results = await base44.asServiceRole.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const results = await service.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'results');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 

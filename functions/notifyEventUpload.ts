@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'events');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
