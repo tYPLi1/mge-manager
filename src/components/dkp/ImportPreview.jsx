@@ -78,7 +78,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                     }`}>
                       {item.type === "new" ? "NEW" : "UPDATED"}
                     </span>
-                    <span className="text-white font-medium">{item.name}</span>
+                    <span className="text-white font-medium">{item.name || item.player_name}</span>
                   </div>
 
                   {item.type === "update" && item.changes && (
