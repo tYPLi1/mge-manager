@@ -134,7 +134,7 @@ export default function AdminPenalties() {
     };
     const playerName = players.find(p => p.id === playerId)?.name || "Spieler";
 
-    if (penaltiesEnabled && webhookUrl) {
+    if (hasPenaltyChannels) {
       const embed = {
         title: "⚠️ DKP Strafzug",
         description: `**${playerName}**`,
