@@ -10,11 +10,20 @@ Deno.serve(async (req) => {
     let opened = 0;
     let closed = 0;
 
+    // Ensure datetime-local strings (no timezone) are treated as UTC
+    function ensureUTC(dateStr) {
+      if (!dateStr) return dateStr;
+      if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.*[-+]/.test(dateStr)) {
+        return dateStr + 'Z';
+      }
+      return dateStr;
+    }
+
     // Auto-open drafts with scheduled_open in the past
     // Discord notification is handled by the entity automation (notifyAuctionOpened)
     for (const auction of drafts) {
       if (!auction.scheduled_open) continue;
-      const openAt = new Date(auction.scheduled_open);
+      const openAt = new Date(ensureUTC(auction.scheduled_open));
       if (openAt <= now) {
         await base44.asServiceRole.entities.Auction.update(auction.id, { status: "open" });
         opened++;
@@ -24,7 +33,7 @@ Deno.serve(async (req) => {
     // Auto-close open auctions with scheduled_close in the past
     for (const auction of openAuctions) {
       if (!auction.scheduled_close) continue;
-      const closeAt = new Date(auction.scheduled_close);
+      const closeAt = new Date(ensureUTC(auction.scheduled_close));
       if (closeAt <= now) {
         await base44.asServiceRole.entities.Auction.update(auction.id, { status: "closed" });
         closed++;

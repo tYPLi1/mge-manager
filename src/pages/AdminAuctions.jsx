@@ -31,6 +31,20 @@ function addDays(dateStr, days) {
   return d.toISOString().split("T")[0];
 }
 
+// Ensure datetime-local strings (no timezone) are treated as UTC
+function ensureUTC(dateStr) {
+  if (!dateStr) return dateStr;
+  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) {
+    return dateStr + 'Z';
+  }
+  return dateStr;
+}
+
+function formatUTCDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(ensureUTC(dateStr)).toLocaleString("de-CH", { timeZone: "UTC" }) + " (UTC)";
+}
+
 function DeleteModal({ auction, players, onClose, onDelete }) {
   const [refundDkp, setRefundDkp] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -567,7 +581,7 @@ export default function AdminAuctions() {
         {scheduledOpen && (
           <p className="text-xs text-amber-400/70 mt-2 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            Auction auto-opens on {new Date(scheduledOpen).toLocaleString("de-CH")}
+            Auction auto-opens on {formatUTCDate(scheduledOpen)}
           </p>
         )}
         <Button onClick={handleCreate} disabled={!title || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
@@ -593,10 +607,10 @@ export default function AdminAuctions() {
                   </span>
                   {a.scheduled_open && a.status === "draft" && (
                     <span className="text-xs text-amber-400/70 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> Opens: {new Date(a.scheduled_open).toLocaleString("de-CH")}
+                      <Clock className="w-3 h-3" /> Opens: {formatUTCDate(a.scheduled_open)}
                     </span>
                   )}
-                  {a.scheduled_close && <span className="text-xs text-gray-500">Closes: {new Date(a.scheduled_close).toLocaleString("de-CH")}</span>}
+                  {a.scheduled_close && <span className="text-xs text-gray-500">Closes: {formatUTCDate(a.scheduled_close)}</span>}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
