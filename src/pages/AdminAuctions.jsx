@@ -881,11 +881,11 @@ export default function AdminAuctions() {
                 </table>
                 <Button
                   onClick={() => confirmMutation.mutate()}
-                  disabled={confirmMutation.isPending}
+                  disabled={confirmMutation.isPending || confirming}
                   className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  {confirmMutation.isPending ? "Confirming..." : "Confirm & Publish Results"}
+                  {confirmMutation.isPending || confirming ? "Confirming..." : "Confirm & Publish Results"}
                 </Button>
                 <p className="text-xs text-gray-500 mt-2">DKP will be deducted, cooldowns set and results published publicly.</p>
               </div>
