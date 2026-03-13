@@ -393,7 +393,7 @@ export default function AdminPlayers() {
           const playerName = row[playerCol]?.toString().trim();
           if (!playerName) continue;
           const amount = parseFloat(row[amountCol]) || 0;
-          const eventDate = row[dateCol]?.toString().trim() || "";
+          const eventDate = normalizeDateValue(row[dateCol]) || "";
           const source = sourceCol !== -1 ? (row[sourceCol]?.toString().trim() || "") : "";
           const type = typeCol !== -1 ? (row[typeCol]?.toString().trim() || "earn") : "earn";
           const stage = stageCol !== -1 ? (row[stageCol]?.toString().trim() || "") : "";
