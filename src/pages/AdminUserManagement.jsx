@@ -35,15 +35,24 @@ export default function AdminUserManagement() {
   const [changingPwFor, setChangingPwFor] = useState(null);
   const [changedPw, setChangedPw] = useState("");
 
+  const getSession = () => {
+    try {
+      const raw = localStorage.getItem("adminSession");
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  };
+
   const invoke = useCallback(async (action, extra = {}) => {
+    const session = getSession();
+    if (!session) throw new Error("No admin session");
     const res = await base44.functions.invoke("manageAdminUsers", {
       action,
-      masterPassword,
+      session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
       ...extra,
     });
     if (!res.data.success) throw new Error(res.data.error || "Failed");
     return res.data;
-  }, [masterPassword]);
+  }, []);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
