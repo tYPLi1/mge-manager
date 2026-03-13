@@ -325,7 +325,7 @@ export default function AdminAuctions() {
         _tiebreaker,
       };
     });
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores, lastEventDkpScores]);
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores]);
 
   const createMutation = useMutation({
     mutationFn: (data) => adminEntities.Auction.create(data),
