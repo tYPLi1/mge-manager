@@ -5,7 +5,7 @@ import {
   Trophy, Gavel, ScrollText, History, Shield, Zap, BookOpen,
   Settings, Menu, X, ChevronLeft, Settings2, BarChart3,
 } from "lucide-react";
-import AdminGuard from "@/components/AdminGuard";
+import AdminSessionGuard from "@/components/AdminSessionGuard";
 
 const publicNav = [
   { name: "Leaderboard", page: "Leaderboard", icon: Trophy },
@@ -200,9 +200,9 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen p-4 md:p-6 mt-14 md:mt-0 md:ml-56">
-          <AdminGuard>
+          <AdminSessionGuard>
             {children}
-          </AdminGuard>
+          </AdminSessionGuard>
         </main>
       </div>
     );
