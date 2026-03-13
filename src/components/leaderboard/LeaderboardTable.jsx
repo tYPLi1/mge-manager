@@ -107,13 +107,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
                   {eventColumns.map(col => (
                     <EventCell key={col.key} data={p[col.key]} />
                   ))}
-                  <td className="px-2.5 py-2 text-center text-xs font-mono font-medium">
-                    {p.activity_30d ? (
-                      <span className={p.activity_30d > 0 ? "text-emerald-400" : "text-red-400"}>
-                        {p.activity_30d > 0 ? "+" : ""}{p.activity_30d.toLocaleString()}
-                      </span>
-                    ) : <span className="text-gray-700">—</span>}
-                  </td>
+                  <td className="px-2.5 py-2 text-center text-xs font-mono text-amber-400 font-medium">{(p.activity_30d || 0).toLocaleString()}</td>
                   <td className="px-2.5 py-2 text-center text-xs font-mono text-amber-400 font-medium">{(p.activity_score || 0).toLocaleString()}</td>
                 </tr>
               ))
