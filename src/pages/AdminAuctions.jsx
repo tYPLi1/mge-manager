@@ -559,30 +559,32 @@ export default function AdminAuctions() {
   // Ranked active bids with reason for each rank position
   const rankedBids = useMemo(() => {
     if (activeBids.length === 0) return [];
-    const sorted = [...activeBids].sort((a, b) => {
-      if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
-      if (tiebreaker === "activity") {
-        return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
-      }
-      if (tiebreaker === "last_event_dkp") {
-        return (lastEventDkpScores[b.player_id] || 0) - (lastEventDkpScores[a.player_id] || 0);
-      }
-      return new Date(a.created_date) - new Date(b.created_date);
-    });
+    const sorted = sortBids(activeBids);
+    const getRuleLabel = (rule, playerId) => {
+      if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
+      if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
+      return "Earlier bid";
+    };
     return sorted.map((b, i) => {
       let rankReason = "Highest DKP bid";
       if (i > 0 && b.dkp_bid === sorted[i - 1].dkp_bid) {
-        if (tiebreaker === "activity") {
-          rankReason = `Tiebreak: Activity ${activityScores[b.player_id] || 0}`;
-        } else if (tiebreaker === "last_event_dkp") {
-          rankReason = `Tiebreak: Last Event DKP ${lastEventDkpScores[b.player_id] || 0}`;
+        const tiedGroup = sorted.filter(t => t.dkp_bid === b.dkp_bid);
+        const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
+          const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
+                        tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
+          const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
+                             tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
+          return score === firstScore;
+        });
+        if (allPrimarySame) {
+          rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
         } else {
-          rankReason = `Tiebreak: Earlier bid`;
+          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id)}`;
         }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
     });
-  }, [activeBids, tiebreaker, activityScores, lastEventDkpScores]);
+  }, [activeBids, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores]);
 
   // Compute effective status client-side
   const getEffectiveStatus = (auction) => {
