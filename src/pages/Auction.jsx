@@ -214,8 +214,8 @@ export default function Auction() {
           )}
         </div>
 
-        {/* Bid Form */}
-        {currentAuction.status === "open" && (
+        {/* Bid Form — hide when closed or countdown expired */}
+        {currentAuction.status === "open" && (!currentAuction.scheduled_close || new Date(ensureUTC(currentAuction.scheduled_close)) > new Date()) && (
           <div className="lg:col-span-2">
             <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
               {submitted ? (
