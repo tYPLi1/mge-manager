@@ -24,7 +24,11 @@ export default function Results() {
 
   const { data: auctions = [], isLoading } = useQuery({
     queryKey: ["auctions-confirmed"],
-    queryFn: () => base44.entities.Auction.filter({ status: "confirmed" }, "-confirmed_at", 50),
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getPublicAuctions", {});
+      const all = res.data?.auctions || [];
+      return all.filter(a => a.status === "confirmed");
+    },
   });
 
   const { data: results = [] } = useQuery({
