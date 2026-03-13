@@ -7,12 +7,12 @@ import { Plus, Trash2, Server, ChevronDown, ChevronRight, RefreshCw, Loader2, Ha
 import { base44 } from "@/api/base44Client";
 
 const NOTIFICATION_TYPES = [
-  { key: "auction", label: "🔔 Auction Notifications", desc: "Wenn eine Auktion geöffnet wird" },
-  { key: "results", label: "🏆 Results Notifications", desc: "Wenn Auktions-Ergebnisse veröffentlicht werden" },
-  { key: "events", label: "📊 Event Upload Notifications", desc: "Wenn Event-Daten hochgeladen werden" },
-  { key: "penalties", label: "⚠️ Penalty Notifications", desc: "Bei Strafen und Kompensationen" },
-  { key: "reminder", label: "⏰ Auction Reminder", desc: "~10 Min vor Auktions-Ende" },
-  { key: "manual", label: "📢 Manuelle Nachrichten", desc: "Manuell gesendete Nachrichten" },
+  { key: "auction", label: "🔔 Auction Notifications", desc: "When an auction is opened" },
+  { key: "results", label: "🏆 Results Notifications", desc: "When auction results are published" },
+  { key: "events", label: "📊 Event Upload Notifications", desc: "When event data is uploaded" },
+  { key: "penalties", label: "⚠️ Penalty Notifications", desc: "For penalties and compensations" },
+  { key: "reminder", label: "⏰ Auction Reminder", desc: "~10 min before auction ends" },
+  { key: "manual", label: "📢 Manual Messages", desc: "Manually sent messages" },
 ];
 
 function ChannelSelect({ channels, value, onChange, placeholder }) {
