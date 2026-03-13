@@ -200,9 +200,13 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen p-4 md:p-6 mt-14 md:mt-0 md:ml-56">
-          <AdminSessionGuard>
-            {children}
-          </AdminSessionGuard>
+          {currentPageName === "AdminUserManagement" ? (
+            children
+          ) : (
+            <AdminSessionGuard>
+              {children}
+            </AdminSessionGuard>
+          )}
         </main>
       </div>
     );
