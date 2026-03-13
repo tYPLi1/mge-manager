@@ -430,11 +430,15 @@ export default function AdminPlayers() {
       }
 
       if (newPenalties.length > 0) {
-        const penaltiesToCreate = await Promise.all(newPenalties.map(async (p) => {
-          const player = await base44.entities.Player.list().then(list => list.find(pl => pl.name === p.player_name));
+        const allPlayers = await base44.entities.Player.list("name", 500);
+        const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
+        const penaltiesToCreate = newPenalties.map(p => {
+          const player = pMap.get((p.player_name || "").toLowerCase());
           return { ...p, player_id: player?.id };
-        }));
-        await base44.entities.Penalty.bulkCreate(penaltiesToCreate.filter(p => p.player_id));
+        }).filter(p => p.player_id);
+        if (penaltiesToCreate.length > 0) {
+          await base44.entities.Penalty.bulkCreate(penaltiesToCreate);
+        }
       }
 
       for (const item of penaltyUpdates) {
