@@ -127,7 +127,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
 
   const sendManualMessageMutation = useMutation({
     mutationFn: async () => {
-      if (selectedChannels.length === 0) throw new Error("Bitte mindestens einen Channel wählen");
+      if (selectedChannels.length === 0) throw new Error("Please select at least one channel");
       const session = getSession();
       if (!session) throw new Error("No admin session");
       const fullMessage = title ? `**${title}**\n\n${message}` : message;
@@ -149,7 +149,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
 
   const testMessageMutation = useMutation({
     mutationFn: async () => {
-      if (selectedChannels.length === 0) throw new Error("Bitte mindestens einen Channel wählen");
+      if (selectedChannels.length === 0) throw new Error("Please select at least one channel");
       const session = getSession();
       if (!session) throw new Error("No admin session");
       const response = await base44.functions.invoke('sendDiscordMessage', {
