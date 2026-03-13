@@ -29,8 +29,13 @@ export default function AdminPenalties() {
     queryFn: () => adminEntities.AppSettings.list(),
   });
 
-  const webhookUrl = settings.find(s => s.key === "discord_webhook_url")?.value;
-  const penaltiesEnabled = settings.find(s => s.key === "discord_penalties_enabled")?.value === "true";
+  const hasPenaltyChannels = (() => {
+    try {
+      const serversJson = settings.find(s => s.key === "discord_servers")?.value;
+      const servers = JSON.parse(serversJson || "[]");
+      return servers.some(s => s.channels?.penalties?.enabled);
+    } catch { return false; }
+  })();
 
   const penaltyConfig = useMemo(() => {
     try {
