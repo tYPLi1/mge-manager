@@ -246,7 +246,7 @@ export default function AdminSettings() {
         </div>
 
         {/* Manual Message Component */}
-        <DiscordNotificationPanel />
+        <DiscordNotificationPanel serversJson={form.discord_servers} />
       </div>
     </div>
   );
