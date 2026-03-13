@@ -29,7 +29,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
     setSending(true);
     const session = getSession();
     if (!session) {
-      toast.error("Keine Admin-Session gefunden");
+      toast.error("No admin session found");
       setSending(false);
       return;
     }
