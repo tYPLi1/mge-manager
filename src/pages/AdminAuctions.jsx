@@ -53,9 +53,13 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
 
   const handleDelete = async () => {
     setDeleting(true);
-    await onDelete(auction, refundDkp && isConfirmed);
-    setDeleting(false);
-    onClose();
+    try {
+      await onDelete(auction, refundDkp && isConfirmed);
+      onClose();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setDeleting(false);
+    }
   };
 
   return (
