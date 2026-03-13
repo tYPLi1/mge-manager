@@ -36,10 +36,22 @@ export default function AdminSessionGuard({ children }) {
               setLoading(false);
               return;
             } else {
+              // Explicit invalid (user deactivated/deleted)
               forceLogout();
               return;
             }
-          } catch {
+          } catch (err) {
+            // If the error is a 401 from the SDK (no Base44 login in public app),
+            // trust the local session — the backend function couldn't be reached,
+            // not because the admin session is invalid.
+            const status = err?.response?.status || err?.status;
+            if (status === 401) {
+              userIdRef.current = parsed.userId;
+              setIsAuthorized(true);
+              setLoading(false);
+              return;
+            }
+            // Any other error → logout for safety
             forceLogout();
             return;
           }
