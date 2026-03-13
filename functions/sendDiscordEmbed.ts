@@ -68,14 +68,16 @@ Deno.serve(async (req) => {
     }
     if (channels.length === 0) return Response.json({ error: 'No channels configured' }, { status: 400 });
 
-    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
+    const pageMap = { auction: 'Auction', results: 'Results', events: 'Leaderboard', penalties: 'Punishments', reminder: 'Auction' };
+    const page = pageMap[type] || '';
+    const linkUrl = `https://mge002.base44.app/${page}`;
 
     const finalEmbed = { ...embed };
     if (extraText?.trim()) {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
     finalEmbed.fields = finalEmbed.fields || [];
-    finalEmbed.fields.push({ name: '🔗 Link', value: `[Zur App](${appUrl})`, inline: false });
+    finalEmbed.fields.push({ name: '🔗 Link', value: `[Zur App](${linkUrl})`, inline: false });
 
     let sent = 0;
     for (const ch of channels) {
