@@ -213,11 +213,11 @@ export default function PlayerDKPChart({ transactions }) {
                   />
                   <YAxis
                     yAxisId="balance"
-                    orientation="right"
+                    orientation="left"
                     tick={{ fill: "#a78bfa", fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
-                    width={45}
+                    width={50}
                   />
                   <Tooltip
                     content={({ active, payload, label }) => {
