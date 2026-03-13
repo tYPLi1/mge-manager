@@ -81,9 +81,6 @@ export default function PlayerDKPChart({ transactions }) {
       if (byDate[d][evtKey] !== undefined && t.amount > 0) {
         byDate[d][evtKey] = (byDate[d][evtKey] || 0) + t.amount;
       }
-      if (t.amount >= 0) {
-        byDate[d].earn_total += t.amount;
-      }
       byDate[d]._net += t.amount;
     });
 
