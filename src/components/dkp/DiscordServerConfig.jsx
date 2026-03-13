@@ -204,7 +204,7 @@ export default function DiscordServerConfig({ value, onChange }) {
         <div className="flex items-center gap-2">
           <Server className="w-4 h-4 text-indigo-400" />
           <span className="text-indigo-300 text-sm font-medium">
-            {loading ? "Lade Server..." : `Bot ist auf ${guilds.length} Server${guilds.length !== 1 ? 'n' : ''}`}
+            {loading ? "Loading servers..." : `Bot is on ${guilds.length} server${guilds.length !== 1 ? 's' : ''}`}
           </span>
         </div>
         <Button
