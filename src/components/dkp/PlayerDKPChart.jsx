@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const RANGE_OPTIONS = [
@@ -89,24 +89,12 @@ export default function PlayerDKPChart({ transactions }) {
       }
     });
 
-    // Convert to cumulative
     const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
-    const cumulative = [];
-    const running = {};
-    eventLines.forEach(e => { running[e.key] = 0; });
-
+    // Show per-date values (not cumulative) to reflect actual activity
     dates.forEach(d => {
-      const point = { date: d.date };
-      eventLines.forEach(e => {
-        running[e.key] += d[e.key] || 0;
-        point[e.key] = running[e.key];
-      });
-      // loss_total is negative, make it positive for display
-      point.loss_total = Math.abs(point.loss_total);
-      cumulative.push(point);
+      d.loss_total = Math.abs(d.loss_total);
     });
-
-    return cumulative;
+    return dates;
   }, [transactions, rangeIdx, eventLines]);
 
   const toggleLine = (key) => {
@@ -189,7 +177,7 @@ export default function PlayerDKPChart({ transactions }) {
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
             <div style={{ width: chartWidth, minHeight: 220 }}>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -208,7 +196,7 @@ export default function PlayerDKPChart({ transactions }) {
                       return (
                         <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 text-xs">
                           <p className="text-gray-400 mb-1.5 font-medium">{label}</p>
-                          {payload.map((p, i) => (
+                          {payload.filter(p => p.value > 0).map((p, i) => (
                             <div key={i} className="flex items-center gap-2 py-0.5">
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
                               <span className="text-gray-300">{p.name}:</span>
@@ -221,20 +209,17 @@ export default function PlayerDKPChart({ transactions }) {
                   />
                   {eventLines.map(e =>
                     visibleLines[e.key] && (
-                      <Line
+                      <Bar
                         key={e.key}
-                        type="monotone"
                         dataKey={e.key}
-                        stroke={e.color}
-                        strokeWidth={2}
-                        dot={{ r: 2.5, fill: e.color, stroke: e.color }}
-                        activeDot={{ r: 4, fill: e.color }}
+                        fill={e.color}
+                        stackId="stack"
                         name={e.label}
-                        connectNulls
+                        radius={[0, 0, 0, 0]}
                       />
                     )
                   )}
-                </LineChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
