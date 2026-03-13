@@ -42,11 +42,21 @@ Deno.serve(async (req) => {
 
     let auction;
     if (event?.type) {
-      const old_data = body.old_data;
-      if (data.status !== 'open' || old_data?.status === 'open') {
-        return Response.json({ success: true, skipped: true });
+      // Only notify when status changes TO 'open'
+      if (data.status !== 'open') {
+        return Response.json({ success: true, skipped: true, reason: 'not open' });
       }
-      auction = data;
+      // Skip if it was already open before (old_data may be null for large payloads)
+      const old_data = body.old_data;
+      if (old_data && old_data.status === 'open') {
+        return Response.json({ success: true, skipped: true, reason: 'already open' });
+      }
+      // If old_data is null (payload_too_large), fetch the auction to be safe
+      if (!old_data && body.payload_too_large) {
+        auction = await service.entities.Auction.get(event.entity_id || data.id);
+      } else {
+        auction = data;
+      }
     } else {
       const { auctionId } = body;
       if (!auctionId) return Response.json({ error: 'Missing auctionId' }, { status: 400 });
