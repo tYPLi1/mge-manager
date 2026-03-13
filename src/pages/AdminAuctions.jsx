@@ -96,11 +96,11 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
                 ✗ No, just delete
               </button>
             </div>
-            {refundDkp && (
-              <p className="text-xs text-gray-500">
-                DKP will be refunded as "Compensation" and deducted from dkp_spent.
-              </p>
-            )}
+            <p className="text-xs text-gray-500">
+              {refundDkp
+                ? 'DKP will be refunded as "Compensation" and deducted from dkp_spent. Cooldowns will be cleared.'
+                : 'Cooldowns will be cleared. DKP will not be refunded.'}
+            </p>
           </div>
         )}
 
