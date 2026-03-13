@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, CheckCircle, AlertTriangle, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ export default function EventUpload({ players, eventTypes }) {
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryFn: () => adminEntities.AppSettings.list(),
   });
   const webhookUrl = settings.find(s => s.key === "discord_webhook_url")?.value;
   const eventsEnabled = settings.find(s => s.key === "discord_events_enabled")?.value === "true";
@@ -107,7 +108,7 @@ export default function EventUpload({ players, eventTypes }) {
 
   const createMissingPlayers = async () => {
     setCreatingPlayers(true);
-    await base44.entities.Player.bulkCreate(unknownNames.map(name => ({ name, total_dkp: 0, dkp_spent: 0 })));
+    await adminEntities.Player.bulkCreate(unknownNames.map(name => ({ name, total_dkp: 0, dkp_spent: 0 })));
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setCreatingPlayers(false);
     setUnknownNames([]);
@@ -119,7 +120,7 @@ export default function EventUpload({ players, eventTypes }) {
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
 
-    await base44.entities.DKPTransaction.bulkCreate(
+    await adminEntities.DKPTransaction.bulkCreate(
       toApply.map(entry => ({
         player_id: entry.playerId,
         player_name: entry.playerName,
@@ -137,7 +138,7 @@ export default function EventUpload({ players, eventTypes }) {
       const parsedEntry = preview.find(p => p.playerId === entry.playerId);
       if (parsedEntry?.power && parsedEntry.power > 0) {
         updateData.power = parsedEntry.power;
-        await base44.entities.PowerHistory.create({
+        await adminEntities.PowerHistory.create({
           player_id: entry.playerId,
           player_name: entry.playerName,
           power: parsedEntry.power,
@@ -145,7 +146,7 @@ export default function EventUpload({ players, eventTypes }) {
           source: selectedEventType.key,
         });
       }
-      await base44.entities.Player.update(entry.playerId, updateData);
+      await adminEntities.Player.update(entry.playerId, updateData);
     }
 
     queryClient.invalidateQueries({ queryKey: ["players"] });
