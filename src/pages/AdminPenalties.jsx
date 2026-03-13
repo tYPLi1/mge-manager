@@ -163,27 +163,26 @@ export default function AdminPenalties() {
     : 0;
 
   const applyCompMutation = useMutation({
-    mutationFn: async () => {
-      const player = players.find((p) => p.id === compPlayer);
-      if (!player || compRefund <= 0) return;
+    mutationFn: async ({ playerIdArg, refundArg, bidDkpArg, expectedArg, actualArg }) => {
+      const player = players.find((p) => p.id === playerIdArg);
+      if (!player || refundArg <= 0) return;
       await adminEntities.DKPTransaction.create({
-        player_id: compPlayer,
+        player_id: playerIdArg,
         player_name: player.name,
-        amount: compRefund,
+        amount: refundArg,
         type: "compensation",
         source: "MGE",
         event_date: new Date().toISOString().split("T")[0],
-        note: `Compensation: bid ${compBidDkp} DKP, expected ${compExpectedMedals} medals, got ${compActualMedals}`,
+        note: `Compensation: bid ${bidDkpArg} DKP, expected ${expectedArg} medals, got ${actualArg}`,
       });
-      await adminEntities.Player.update(compPlayer, {
-        total_dkp: (player.total_dkp || 0) + compRefund,
+      await adminEntities.Player.update(playerIdArg, {
+        total_dkp: (player.total_dkp || 0) + refundArg,
       });
-      setCompResult(compRefund);
+      setCompResult(refundArg);
       setCompPlayer(""); setCompBidDkp(""); setCompExpectedMedals(""); setCompActualMedals("");
     },
     onSuccess: () => {
-      const playerName = players.find(p => p.id === compPlayer)?.name || "Spieler";
-      toast.success(`✓ Kompensation von +${compRefund} DKP für ${playerName} angewendet`);
+      toast.success(`✓ Kompensation angewendet`);
       queryClient.invalidateQueries({ queryKey: ["players"] });
     },
     onError: () => {
