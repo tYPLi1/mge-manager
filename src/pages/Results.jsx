@@ -68,6 +68,7 @@ export default function Results() {
   }, [settings]);
 
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
+  const tiebreakerFallback = settings.find((s) => s.key === "auction_tiebreaker_fallback")?.value || "fcfs";
 
   // Detect if there are ties in this result set
   const hasTies = results.some((r, i) =>
@@ -75,11 +76,11 @@ export default function Results() {
     (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
   );
 
-  const tiebreakerLabel = tiebreaker === "activity"
-    ? "Activity Score"
-    : tiebreaker === "last_event_dkp"
-    ? "Last Event DKP"
-    : "First Come First Served";
+  const ruleLabel = (rule) => {
+    if (rule === "activity") return "Activity Score";
+    if (rule === "last_event_dkp") return "Last Event DKP";
+    return "First Come First Served";
+  };
 
   return (
     <div>
@@ -133,9 +134,12 @@ export default function Results() {
               <div className="p-4 border-b border-white/5">
                 <h3 className="font-semibold text-white">{selectedAuction.title}</h3>
                 {hasTies && (
-                  <p className="text-xs text-purple-400 mt-1">
-                    ⚖ Tiebreaker: {tiebreakerLabel}
-                  </p>
+                  <div className="text-xs text-purple-400 mt-1 space-y-0.5">
+                    <p>⚖ Tiebreaker: {ruleLabel(tiebreaker)}</p>
+                    {tiebreaker !== "fcfs" && (
+                      <p className="text-gray-500">↳ Fallback: {ruleLabel(tiebreakerFallback)}</p>
+                    )}
+                  </div>
                 )}
               </div>
               <table className="w-full">

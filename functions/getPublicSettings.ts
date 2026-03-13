@@ -11,6 +11,9 @@ const PUBLIC_KEYS = [
   'cooldown_days',
   'discord_servers',
   'app_base_url',
+  'auction_tiebreaker',
+  'auction_tiebreaker_fallback',
+  'mge_targets',
 ];
 
 Deno.serve(async (req) => {

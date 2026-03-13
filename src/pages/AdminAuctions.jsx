@@ -418,9 +418,10 @@ export default function AdminAuctions() {
       if (!viewBids) return;
 
       if (resultsEnabled && discordConfigured && previewRanking.length > 0) {
-        const topResults = previewRanking.slice(0, 3);
-        const resultsText = topResults.map((r, i) => {
-          let line = `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`;
+        const resultsText = previewRanking.map((r, i) => {
+          let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
+          if (r.target) line += ` | Target: ${r.target.toLocaleString()}`;
+          if (r.medals) line += ` | Medals: ${r.medals}`;
           if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
           return line;
         }).join("\n");
@@ -852,7 +853,7 @@ export default function AdminAuctions() {
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{entry.target?.toLocaleString()}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden md:table-cell">
-                          +{cooldownTable[entry.rank] || 7} Tage
+                          +{cooldownTable[entry.rank] || 7} days
                         </td>
                       </tr>
                     ))}

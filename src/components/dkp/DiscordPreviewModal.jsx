@@ -54,7 +54,6 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
   };
 
   const handleSkip = () => {
-    onSent?.(extraText);
     onClose();
   };
 
@@ -68,7 +67,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Preview
           </h2>
-          <button onClick={handleSkip} className="text-gray-500 hover:text-white">
+          <button onClick={onClose} className="text-gray-500 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
