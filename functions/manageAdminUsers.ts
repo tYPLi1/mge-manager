@@ -3,7 +3,7 @@ import bcrypt from 'npm:bcryptjs@2.4.3';
 
 /**
  * Admin user management. Requires authenticated admin session (HMAC token).
- * Additionally requires master password verification for initial unlock.
+ * For the 'verify' action, also validates the master credential.
  */
 
 async function validateAdminSession(base44, session) {
@@ -44,12 +44,21 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { action, session, username, password, userId } = body;
+    const { action, session, username, password, userId, credential } = body;
 
     // Validate admin session via HMAC token
     const validation = await validateAdminSession(base44, session);
     if (!validation.valid) {
       return Response.json({ error: validation.error }, { status: validation.status });
+    }
+
+    // 'verify' action: check if the provided credential matches the management secret
+    if (action === 'verify') {
+      const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+      if (!credential || credential !== secret) {
+        return Response.json({ error: 'Invalid credential' }, { status: 403 });
+      }
+      return Response.json({ success: true });
     }
 
     if (action === 'list') {
