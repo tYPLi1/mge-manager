@@ -49,6 +49,7 @@ Deno.serve(async (req) => {
 
     for (const auction of openAuctions) {
       if (!auction.scheduled_close) continue;
+      if (auction.reminder_sent) continue;
       const closeAt = new Date(ensureUTC(auction.scheduled_close));
       const diffMin = (closeAt - now) / 60000;
 
@@ -86,6 +87,9 @@ Deno.serve(async (req) => {
           if (res.ok) remindersSent++;
           else console.error(`Reminder failed for channel ${ch}: ${res.status}`);
         }
+
+        // Mark reminder as sent so it doesn't fire again
+        await base44.asServiceRole.entities.Auction.update(auction.id, { reminder_sent: true });
       }
     }
 
