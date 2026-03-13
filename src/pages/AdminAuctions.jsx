@@ -365,8 +365,27 @@ export default function AdminAuctions() {
     },
   });
 
+  const [confirming, setConfirming] = useState(false);
+
   const doConfirm = async () => {
     if (!viewBids) return;
+
+    // Prevent double-confirm: check status and use a lock
+    if (confirming) return;
+    setConfirming(true);
+
+    // Re-fetch auction to verify it hasn't already been confirmed
+    const freshAuctions = await adminEntities.Auction.filter({ id: viewBids.id });
+    const freshAuction = freshAuctions[0];
+    if (!freshAuction || freshAuction.status === "confirmed") {
+      toast.error("This auction has already been confirmed!");
+      setConfirming(false);
+      setShowPreview(false);
+      setViewBids(null);
+      queryClient.invalidateQueries();
+      return;
+    }
+
     const today = new Date().toISOString().split("T")[0];
 
     await adminEntities.Auction.update(viewBids.id, {
