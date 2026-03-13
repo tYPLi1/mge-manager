@@ -533,6 +533,34 @@ export default function AdminAuctions() {
   const activeBids = bids.filter((b) => !b.is_deleted);
   const deletedBids = bids.filter((b) => b.is_deleted);
 
+  // Ranked active bids with reason for each rank position
+  const rankedBids = useMemo(() => {
+    if (activeBids.length === 0) return [];
+    const sorted = [...activeBids].sort((a, b) => {
+      if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
+      if (tiebreaker === "activity") {
+        return (activityScores[b.player_id] || 0) - (activityScores[a.player_id] || 0);
+      }
+      if (tiebreaker === "last_event_dkp") {
+        return (lastEventDkpScores[b.player_id] || 0) - (lastEventDkpScores[a.player_id] || 0);
+      }
+      return new Date(a.created_date) - new Date(b.created_date);
+    });
+    return sorted.map((b, i) => {
+      let rankReason = "Highest DKP bid";
+      if (i > 0 && b.dkp_bid === sorted[i - 1].dkp_bid) {
+        if (tiebreaker === "activity") {
+          rankReason = `Tiebreak: Activity ${activityScores[b.player_id] || 0}`;
+        } else if (tiebreaker === "last_event_dkp") {
+          rankReason = `Tiebreak: Last Event DKP ${lastEventDkpScores[b.player_id] || 0}`;
+        } else {
+          rankReason = `Tiebreak: Earlier bid`;
+        }
+      }
+      return { ...b, _rank: i + 1, _rankReason: rankReason };
+    });
+  }, [activeBids, tiebreaker, activityScores, lastEventDkpScores]);
+
   // Compute effective status client-side
   const getEffectiveStatus = (auction) => {
     const now = new Date();
