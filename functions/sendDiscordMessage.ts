@@ -55,9 +55,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const channels = getTargetChannels(settings, 'manual');
-    if (channels.length === 0) return Response.json({ error: 'No manual message channels configured' }, { status: 400 });
+    // Use explicitly provided channelIds, or fall back to config
+    let channels = [];
+    if (channelIds && Array.isArray(channelIds) && channelIds.length > 0) {
+      channels = channelIds;
+    } else {
+      const settings = await base44.asServiceRole.entities.AppSettings.list();
+      channels = getTargetChannels(settings, 'manual');
+    }
+    if (channels.length === 0) return Response.json({ error: 'No channels specified' }, { status: 400 });
 
     const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
     const fullMessage = `${message}\n\n🔗 ${appUrl}`;
