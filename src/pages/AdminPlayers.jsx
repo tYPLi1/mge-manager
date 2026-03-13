@@ -431,8 +431,6 @@ export default function AdminPlayers() {
     } else {
       alert("No new or changed data found.");
     }
-    setImporting(false);
-    e.target.value = "";
   };
 
   const confirmImport = async (items) => {
