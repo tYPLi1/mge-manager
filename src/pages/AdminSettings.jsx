@@ -265,6 +265,13 @@ export default function AdminSettings() {
               <Label className="text-gray-300">Penalty Notifications</Label>
               <Switch checked={getBool("discord_penalties_enabled")} onCheckedChange={(v) => setBool("discord_penalties_enabled", v)} />
             </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-gray-300">10-Min Auction Reminder</Label>
+                <p className="text-xs text-gray-500 mt-0.5">Sends a reminder ~10 minutes before auction closes</p>
+              </div>
+              <Switch checked={getBool("discord_auction_reminder_enabled")} onCheckedChange={(v) => setBool("discord_auction_reminder_enabled", v)} />
+            </div>
           </div>
         </div>
 
