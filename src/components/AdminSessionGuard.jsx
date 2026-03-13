@@ -51,18 +51,6 @@ export default function AdminSessionGuard({ children }) {
         }
       }
 
-      try {
-        const isAuthenticated = await base44.auth.isAuthenticated();
-        if (isAuthenticated) {
-          const user = await base44.auth.me();
-          if (user?.role === 'admin') {
-            setIsAuthorized(true);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch {}
-
       navigate(createPageUrl('AdminLogin'));
       setLoading(false);
     };
