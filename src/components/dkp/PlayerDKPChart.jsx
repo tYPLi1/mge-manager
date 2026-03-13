@@ -205,10 +205,19 @@ export default function PlayerDKPChart({ transactions }) {
                     axisLine={{ stroke: "#1f2937" }}
                   />
                   <YAxis
+                    yAxisId="events"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
                     width={40}
+                  />
+                  <YAxis
+                    yAxisId="balance"
+                    orientation="right"
+                    tick={{ fill: "#a78bfa", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={45}
                   />
                   <Tooltip
                     content={({ active, payload, label }) => {
@@ -231,6 +240,7 @@ export default function PlayerDKPChart({ transactions }) {
                     visibleLines[e.key] && (
                       <Line
                         key={e.key}
+                        yAxisId={e.key === "balance" ? "balance" : "events"}
                         type="monotone"
                         dataKey={e.key}
                         stroke={e.color}
