@@ -319,7 +319,7 @@ export default function AdminPlayers() {
         const playerName = row[0]?.toString().trim();
         const level = parseInt(row[1]);
         const offenseCount = parseInt(row[2]);
-        const offenseDate = row[3]?.toString().trim();
+        const offenseDate = normalizeDateValue(row[3]);
         const dkpDeducted = parseInt(row[4]) || 0;
         const status = row[5]?.toString().trim() || "probation";
         const note = row[6]?.toString().trim() || "";
