@@ -426,13 +426,18 @@ export default function AdminAuctions() {
         }).join("\n");
 
         const hasTiebreakers = previewRanking.some(r => r._tiebreaker);
-        const tiebreakerNote = hasTiebreakers
-          ? (tiebreaker === "activity"
-            ? "⚖ Tiebreaker: Higher Activity Score = higher rank"
-            : tiebreaker === "last_event_dkp"
-            ? "⚖ Tiebreaker: Most DKP in last event = higher rank"
-            : "⚖ Tiebreaker: First to bid = higher rank")
-          : null;
+        const ruleLabel = (rule) => {
+          if (rule === "activity") return "Higher Activity Score";
+          if (rule === "last_event_dkp") return "Most DKP in last event";
+          return "First to bid";
+        };
+        let tiebreakerNote = null;
+        if (hasTiebreakers) {
+          tiebreakerNote = `⚖ ${ruleLabel(tiebreaker)}`;
+          if (tiebreaker !== "fcfs") {
+            tiebreakerNote += `\n↳ Fallback: ${ruleLabel(tiebreakerFallback)}`;
+          }
+        }
 
         const fields = [
           { name: "Top Winners", value: resultsText || "No results", inline: false },
