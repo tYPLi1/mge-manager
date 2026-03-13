@@ -35,6 +35,17 @@ export default function AdminDashboard() {
 
   const openAuction = auctions.find((a) => a.status === "open" || a.status === "closed");
 
+  function ensureUTC(dateStr) {
+    if (!dateStr) return dateStr;
+    if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) {
+      return dateStr + 'Z';
+    }
+    return dateStr;
+  }
+
+  const isAuctionExpired = openAuction?.status === "open" && openAuction?.scheduled_close &&
+    new Date(ensureUTC(openAuction.scheduled_close)) <= new Date();
+
 
   const stats = [
     { label: "Total Players", value: players.length, color: "from-blue-500/20 to-cyan-500/20", border: "border-blue-500/20" },
