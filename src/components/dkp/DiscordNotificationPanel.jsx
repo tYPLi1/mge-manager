@@ -207,7 +207,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
 
       {/* Manual Message */}
       <div>
-        <h3 className="text-sm font-semibold text-white mb-4">✍️ Manuelle Nachricht</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">✍️ Manual Message</h3>
         <div className="space-y-3">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Titel (Optional)</Label>
