@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     if (session.token !== expectedSignature) return Response.json({ error: 'Invalid token' }, { status: 403 });
 
     try {
-      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+      const user = await service.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
     } catch (e) {
       const msg = e?.message || '';
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
 
     if (!embed) return Response.json({ error: 'Missing embed' }, { status: 400 });
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const settings = await service.entities.AppSettings.list();
 
     // Get target channels based on notification type (default: auction)
     const type = notifType || 'auction';

@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     if (session.token !== expectedSignature) return Response.json({ error: 'Invalid token' }, { status: 403 });
 
     try {
-      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+      const user = await service.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
     } catch (e) {
       const msg = e?.message || '';
@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     if (channelIds && Array.isArray(channelIds) && channelIds.length > 0) {
       channels = channelIds;
     } else {
-      const settings = await base44.asServiceRole.entities.AppSettings.list();
+      const settings = await service.entities.AppSettings.list();
       channels = getTargetChannels(settings, 'manual');
     }
     if (channels.length === 0) return Response.json({ error: 'No channels specified' }, { status: 400 });
