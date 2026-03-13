@@ -11,9 +11,7 @@ Deno.serve(async (req) => {
     let eventName, eventDate, playersUpdated, totalDkpDistributed, rankings;
 
     if (event?.type) {
-      if (data?.type === 'penalty' || data?.type === 'compensation') {
-        return Response.json({ success: true });
-      }
+      if (data?.type === 'penalty' || data?.type === 'compensation') return Response.json({ success: true });
       if (data?.source && data?.source_stage && data?.amount) {
         eventName = `${data.source}${data.source_stage ? ' - ' + data.source_stage : ''}`;
         eventDate = data.event_date;
@@ -25,9 +23,7 @@ Deno.serve(async (req) => {
       }
     } else {
       const { eventName: name, eventDate: date, playersUpdated: players, totalDkpDistributed: total, rankings: ranks } = body;
-      if (!name || !date) {
-        return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
-      }
+      if (!name || !date) return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
       eventName = name;
       eventDate = date;
       playersUpdated = players;
@@ -36,12 +32,15 @@ Deno.serve(async (req) => {
     }
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
-    const enabled = settings.find(s => s.key === 'discord_events_enabled')?.value === 'true';
+    const getSetting = (key) => settings.find(s => s.key === key)?.value;
 
-    if (!channelId || !BOT_TOKEN || !enabled) {
-      return Response.json({ status: 'disabled' }, { status: 200 });
-    }
+    const channelId = getSetting('discord_events_channel_id') || getSetting('discord_channel_id');
+    const enabled = getSetting('discord_events_enabled') === 'true';
+
+    if (!channelId || !BOT_TOKEN || !enabled) return Response.json({ status: 'disabled' });
+
+    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
+    const leaderboardUrl = `${appUrl}/?page=Leaderboard`;
 
     const rankingsText = rankings && rankings.length > 0
       ? rankings.slice(0, 5).map((r, i) => `${i + 1}. **${r.player_name}** - Rank ${r.rank} (+${r.dkp} DKP)`).join('\n')
@@ -55,20 +54,15 @@ Deno.serve(async (req) => {
         { name: 'Players Updated', value: String(playersUpdated || 0), inline: true },
         { name: 'Total DKP Distributed', value: String(totalDkpDistributed || 0), inline: true },
         { name: 'Top Rankings', value: rankingsText, inline: false },
+        { name: '🔗 Link', value: `[Zum Leaderboard](${leaderboardUrl})`, inline: false },
       ],
       footer: { text: 'DKP System' },
     };
 
     const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        content: '@everyone',
-        embeds: [embed],
-      }),
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: '@everyone', embeds: [embed] }),
     });
 
     if (!res.ok) {

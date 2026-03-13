@@ -11,12 +11,15 @@ Deno.serve(async (req) => {
     const now = new Date();
 
     const getSetting = (key) => settings.find(s => s.key === key)?.value;
-    const channelId = getSetting("discord_channel_id");
+    const channelId = getSetting("discord_reminder_channel_id") || getSetting("discord_channel_id");
     const reminderEnabled = getSetting("discord_auction_reminder_enabled") === "true";
 
     if (!channelId || !BOT_TOKEN || !reminderEnabled) {
       return Response.json({ skipped: true, reason: "Discord bot not configured or auction reminder disabled" });
     }
+
+    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
+    const auctionUrl = `${appUrl}/?page=Auction`;
 
     function ensureUTC(dateStr) {
       if (!dateStr) return dateStr;
@@ -49,28 +52,27 @@ Deno.serve(async (req) => {
           fields: [
             { name: "Closes At", value: closeTimeStr, inline: true },
             { name: "Active Bids", value: String(activeBids.length), inline: true },
+            { name: '🔗 Link', value: `[Zur Auktion](${auctionUrl})`, inline: false },
           ],
           footer: { text: "DKP System — Last chance to bid!" },
         };
 
         if (auction.has_password) {
-          embed.fields.push({ name: "🔒", value: "Password required", inline: true });
+          embed.fields.splice(2, 0, { name: "🔒", value: "Password required", inline: true });
         }
 
         const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
           method: "POST",
-          headers: {
-            'Authorization': `Bot ${BOT_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ content: '@everyone', embeds: [embed] }),
+          headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: '@everyone',
+            embeds: [embed],
+            components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
+          }),
         });
 
-        if (res.ok) {
-          remindersSent++;
-        } else {
-          console.error(`Failed to send reminder for ${auction.title}: ${res.status}`);
-        }
+        if (res.ok) remindersSent++;
+        else console.error(`Failed to send reminder for ${auction.title}: ${res.status}`);
       }
     }
 

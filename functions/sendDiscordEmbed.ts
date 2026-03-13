@@ -2,26 +2,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
-async function sendBotMessage(channelId, payload) {
-  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bot ${BOT_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Discord API error ${res.status}: ${err}`);
-  }
-  return res;
-}
-
-/**
- * Sends a Discord embed message via the Bot API.
- * Requires admin session validation.
- */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -32,7 +12,6 @@ Deno.serve(async (req) => {
     if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     if (new Date(session.expiresAt) <= new Date()) {
       return Response.json({ error: 'Session expired' }, { status: 401 });
     }
@@ -40,57 +19,54 @@ Deno.serve(async (req) => {
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
     const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
     const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-    );
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
-    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
-      .map(b => b.toString(16).padStart(2, '0')).join('');
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
     if (session.token !== expectedSignature) {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    // Verify user still active
     try {
       const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
-      if (!user || !user.is_active) {
-        return Response.json({ error: 'User deactivated' }, { status: 403 });
-      }
+      if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
     } catch (e) {
       const msg = e?.message || '';
       if (msg.includes('not found') || msg.includes('does not exist')) {
         return Response.json({ error: 'User not found' }, { status: 403 });
       }
-      console.log('AdminUser lookup skipped, trusting HMAC:', msg);
     }
 
-    if (!embed) {
-      return Response.json({ error: 'Missing embed' }, { status: 400 });
-    }
+    if (!embed) return Response.json({ error: 'Missing embed' }, { status: 400 });
 
-    // Get channel ID from settings
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const channelId = overrideChannelId || settings.find(s => s.key === 'discord_channel_id')?.value;
+    const getSetting = (key) => settings.find(s => s.key === key)?.value;
+    const channelId = overrideChannelId || getSetting('discord_channel_id');
 
-    if (!channelId) {
-      return Response.json({ error: 'Discord channel ID not configured' }, { status: 400 });
+    if (!channelId || !BOT_TOKEN) {
+      return Response.json({ error: 'Discord bot not configured' }, { status: 400 });
     }
 
-    if (!BOT_TOKEN) {
-      return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
-    }
+    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
 
-    // Build embed with optional extra text
     const finalEmbed = { ...embed };
     if (extraText?.trim()) {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
+    // Always add a link
+    finalEmbed.fields = finalEmbed.fields || [];
+    finalEmbed.fields.push({ name: '🔗 Link', value: `[Zur App](${appUrl})`, inline: false });
 
-    await sendBotMessage(channelId, {
-      content: '@everyone',
-      embeds: [finalEmbed],
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: '@everyone', embeds: [finalEmbed] }),
     });
+
+    if (!res.ok) {
+      const err = await res.text();
+      return Response.json({ error: `Discord error: ${err}` }, { status: 500 });
+    }
 
     return Response.json({ success: true });
   } catch (error) {
