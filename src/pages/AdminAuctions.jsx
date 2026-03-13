@@ -551,17 +551,29 @@ export default function AdminAuctions() {
   const activeBids = bids.filter((b) => !b.is_deleted);
   const deletedBids = bids.filter((b) => b.is_deleted);
 
-  // Check if an "open" auction has actually expired (close time passed)
-  const isExpired = (auction) => {
-    if (auction.status !== "open" || !auction.scheduled_close) return false;
-    return new Date(ensureUTC(auction.scheduled_close)) <= new Date();
+  // Compute effective status client-side
+  const getEffectiveStatus = (auction) => {
+    const now = new Date();
+    if (auction.status === "draft" && auction.scheduled_open && new Date(ensureUTC(auction.scheduled_open)) <= now) {
+      if (auction.scheduled_close && new Date(ensureUTC(auction.scheduled_close)) <= now) return "closed";
+      return "open";
+    }
+    if (auction.status === "open" && auction.scheduled_close && new Date(ensureUTC(auction.scheduled_close)) <= now) {
+      return "closed";
+    }
+    return auction.status;
   };
 
-  // Auto-close expired auctions client-side when detected
+  // Auto-sync expired/overdue auctions to their correct status on the server
   useEffect(() => {
     auctions.forEach((a) => {
-      if (isExpired(a)) {
-        statusMutation.mutate({ id: a.id, status: "closed" });
+      const effective = getEffectiveStatus(a);
+      if (effective !== a.status) {
+        if (effective === "open" && a.status === "draft") {
+          handleOpenAuction(a);
+        } else if (effective === "closed" && a.status === "open") {
+          statusMutation.mutate({ id: a.id, status: "closed" });
+        }
       }
     });
   }, [auctions]);
