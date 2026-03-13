@@ -94,7 +94,6 @@ export default function PlayerDKPChart({ transactions }) {
     dates.forEach(d => {
       runningBalance += d._net;
       d.balance = runningBalance;
-      if (d.earn_total === 0) d.earn_total = null;
       delete d._net;
     });
 
