@@ -45,7 +45,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
     if (res.data?.success) {
       toast.success("Discord message sent!");
     } else {
-      toast.error(`Discord Fehler: ${res.data?.error || "Unknown"}`);
+      toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
     }
 
     setSending(false);
