@@ -385,8 +385,8 @@ export default function AdminPenalties() {
       {discordPreview && (
         <DiscordPreviewModal
           embed={discordPreview.embed}
-          webhookUrl={webhookUrl}
           channelId={null}
+          notifType="penalties"
           onClose={() => setDiscordPreview(null)}
           onSent={discordPreview.onSent}
         />
