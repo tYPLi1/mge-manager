@@ -1,5 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import bcrypt from 'npm:bcryptjs@2.4.3';
+
+function getServiceClient(req) {
+  try {
+    const client = createClientFromRequest(req);
+    return client.asServiceRole;
+  } catch {
+    return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
+  }
+}
 
 Deno.serve(async (req) => {
   try {
@@ -7,7 +16,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Method not allowed' }, { status: 405 });
     }
 
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const { username, password } = await req.json();
 
     if (!username || !password) {
@@ -15,7 +24,7 @@ Deno.serve(async (req) => {
     }
 
     // Look up admin user from database
-    const adminUsers = await base44.asServiceRole.entities.AdminUser.filter({ username, is_active: true });
+    const adminUsers = await service.entities.AdminUser.filter({ username, is_active: true });
     const adminUser = adminUsers[0];
 
     if (!adminUser) {
