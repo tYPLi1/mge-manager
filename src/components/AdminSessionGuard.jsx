@@ -102,23 +102,30 @@ export default function AdminSessionGuard({ children }) {
     return () => unsubscribe();
   }, [isAuthorized]);
 
-  // --- Activity tracking to extend session ---
+  // --- Activity tracking + inactivity logout ---
   useEffect(() => {
     if (!isAuthorized) return;
 
     const handleActivity = () => {
-      const session = localStorage.getItem('adminSession');
-      if (session) {
-        const parsed = JSON.parse(session);
-        parsed.expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-        localStorage.setItem('adminSession', JSON.stringify(parsed));
-        localStorage.setItem('adminLastActivity', Date.now().toString());
-      }
+      localStorage.setItem('adminLastActivity', Date.now().toString());
     };
+
+    // Check for inactivity every 30 seconds
+    const inactivityCheck = setInterval(() => {
+      const last = parseInt(localStorage.getItem('adminLastActivity') || '0');
+      if (Date.now() - last > 10 * 60 * 1000) {
+        forceLogout();
+      }
+    }, 30000);
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
     events.forEach(e => window.addEventListener(e, handleActivity));
-    return () => events.forEach(e => window.removeEventListener(e, handleActivity));
+    // Set initial activity timestamp
+    handleActivity();
+    return () => {
+      clearInterval(inactivityCheck);
+      events.forEach(e => window.removeEventListener(e, handleActivity));
+    };
   }, [isAuthorized]);
 
   if (loading) {
