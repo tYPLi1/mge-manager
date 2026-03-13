@@ -74,8 +74,8 @@ export default function PlayerDKPChart({ transactions }) {
     filtered.forEach(t => {
       const d = t.event_date;
       if (!byDate[d]) {
-        const point = { date: d, earn_total: 0, loss_total: 0 };
-        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "loss_total") point[e.key] = null; });
+        const point = { date: d, earn_total: 0, _net: 0 };
+        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "balance") point[e.key] = null; });
         byDate[d] = point;
       }
       const evtKey = getEventKey(t);
@@ -84,16 +84,22 @@ export default function PlayerDKPChart({ transactions }) {
       }
       if (t.amount >= 0) {
         byDate[d].earn_total += t.amount;
-      } else {
-        byDate[d].loss_total += t.amount;
       }
+      byDate[d]._net += t.amount;
     });
 
     const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
-    // Show per-date values (not cumulative) to reflect actual activity
+    // Calculate cumulative balance and clean up earn_total nulls
+    let runningBalance = 0;
+    // Include transactions before cutoff for correct starting balance
+    if (cutoff) {
+      sorted.filter(t => new Date(t.event_date) < cutoff).forEach(t => { runningBalance += t.amount; });
+    }
     dates.forEach(d => {
-      d.loss_total = Math.abs(d.loss_total);
+      runningBalance += d._net;
+      d.balance = runningBalance;
       if (d.earn_total === 0) d.earn_total = null;
+      delete d._net;
     });
 
     // Insert zero-points when gap between consecutive dates > 14 days
