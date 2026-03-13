@@ -65,8 +65,11 @@ Deno.serve(async (req) => {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
 
+    const contentParts = ['@everyone'];
+    if (channelId) contentParts.push(`<#${channelId}>`);
+
     const discordPayload = {
-      content: channelId ? `<#${channelId}>` : undefined,
+      content: contentParts.join(' '),
       embeds: [finalEmbed],
     };
 

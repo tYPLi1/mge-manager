@@ -42,8 +42,11 @@ Deno.serve(async (req) => {
             const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
             const auctionUrl = `${appUrl}/?page=Auction`;
 
+            const contentParts = ['@everyone'];
+            if (channelId) contentParts.push(`<#${channelId}>`);
+
             const discordPayload = {
-              content: channelId ? `<#${channelId}>` : undefined,
+              content: contentParts.join(' '),
               embeds: [embed],
               components: [{
                 type: 1,

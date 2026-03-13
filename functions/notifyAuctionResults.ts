@@ -74,8 +74,11 @@ Deno.serve(async (req) => {
       footer: { text: 'DKP System' },
     };
 
+    const contentParts = ['@everyone'];
+    if (channelId) contentParts.push(`<#${channelId}>`);
+
     const discordPayload = {
-      content: channelId ? `<#${channelId}>` : undefined,
+      content: contentParts.join(' '),
       embeds: [embed],
       components: [{
         type: 1,

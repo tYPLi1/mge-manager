@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
           footer: { text: "DKP System — Last chance to bid!" },
         };
 
-        const body = { embeds: [embed] };
+        const body = { content: '@everyone', embeds: [embed] };
         if (auction.has_password) {
           embed.fields.push({ name: "🔒", value: "Password required", inline: true });
         }
