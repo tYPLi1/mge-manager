@@ -1,4 +1,13 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+function getServiceClient(req) {
+  try {
+    const client = createClientFromRequest(req);
+    return client.asServiceRole;
+  } catch {
+    return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
+  }
+}
 
 /**
  * Admin Entity Proxy — allows authenticated admin sessions to perform
@@ -7,7 +16,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  */
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const body = await req.json();
     const { session, operation, entityName, entityId, data, sort, limit, filter } = body;
 

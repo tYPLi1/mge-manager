@@ -1,8 +1,17 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+function getServiceClient(req) {
+  try {
+    const client = createClientFromRequest(req);
+    return client.asServiceRole;
+  } catch {
+    return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
+  }
+}
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const { userId, username, expiresAt, token } = await req.json();
 
     if (!userId || !username || !expiresAt || !token) {
