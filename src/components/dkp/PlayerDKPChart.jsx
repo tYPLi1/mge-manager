@@ -95,7 +95,25 @@ export default function PlayerDKPChart({ transactions }) {
       d.loss_total = d.loss_total !== 0 ? Math.abs(d.loss_total) : null;
       if (d.earn_total === 0) d.earn_total = null;
     });
-    return dates;
+
+    // Insert zero-points when gap between consecutive dates > 14 days
+    const TWO_WEEKS = 14 * 86400000;
+    const result = [];
+    for (let i = 0; i < dates.length; i++) {
+      if (i > 0) {
+        const prev = new Date(dates[i - 1].date).getTime();
+        const curr = new Date(dates[i].date).getTime();
+        if (curr - prev > TWO_WEEKS) {
+          // Insert a zero point one day after the last known date
+          const zeroDate = new Date(prev + 86400000).toISOString().split("T")[0];
+          const zeroPoint = { date: zeroDate };
+          eventLines.forEach(e => { zeroPoint[e.key] = 0; });
+          result.push(zeroPoint);
+        }
+      }
+      result.push(dates[i]);
+    }
+    return result;
   }, [transactions, rangeIdx, eventLines]);
 
   const toggleLine = (key) => {
