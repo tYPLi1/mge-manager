@@ -54,6 +54,8 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
   };
 
   const handleSkip = () => {
+    // Still execute the onSent callback (e.g. doConfirm) — just skip Discord
+    onSent?.(extraText);
     onClose();
   };
 
