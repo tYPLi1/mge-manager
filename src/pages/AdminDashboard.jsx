@@ -74,7 +74,9 @@ export default function AdminDashboard() {
                 <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-1">Active Auction</p>
                 <h3 className="text-lg font-bold text-white">{openAuction.title}</h3>
                 <p className="text-sm text-gray-400 mt-1">
-                  Status: <span className={openAuction.status === "open" ? "text-emerald-400" : "text-red-400"}>{openAuction.status}</span>
+                  Status: <span className={isAuctionExpired ? "text-orange-400 animate-pulse" : openAuction.status === "open" ? "text-emerald-400" : "text-red-400"}>
+                    {isAuctionExpired ? "closing..." : openAuction.status}
+                  </span>
                 </p>
               </div>
               <ChevronRight className="w-5 h-5 text-amber-400" />
