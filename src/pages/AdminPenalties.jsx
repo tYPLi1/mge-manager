@@ -281,7 +281,48 @@ export default function AdminPenalties() {
               <span className="text-emerald-400 font-mono font-bold text-lg">+{compRefund} DKP</span>
             </div>
             <Button
-              onClick={() => applyCompMutation.mutate()}
+              onClick={() => {
+                if (!compPlayer || compRefund <= 0) return;
+                const playerName = players.find(p => p.id === compPlayer)?.name || "Spieler";
+                const serversJson = settings.find(s => s.key === "discord_servers")?.value;
+                let hasCompChannel = false;
+                try {
+                  const servers = JSON.parse(serversJson || "[]");
+                  hasCompChannel = servers.some(s => s.channels?.penalties?.enabled);
+                } catch {}
+
+                if (hasCompChannel) {
+                  const embed = {
+                    title: "💰 DKP Kompensation",
+                    description: `**${playerName}**`,
+                    fields: [
+                      { name: "Betrag", value: `+${compRefund} DKP`, inline: true },
+                      { name: "Grund", value: "MGE Compensation", inline: true },
+                      { name: "Details", value: `Bid: ${compBidDkp} DKP, Expected: ${compExpectedMedals}, Actual: ${compActualMedals}`, inline: false },
+                    ],
+                    color: 0x10b981,
+                    timestamp: new Date().toISOString(),
+                  };
+                  // Save values before they reset
+                  const savedPlayer = compPlayer;
+                  const savedRefund = compRefund;
+                  const savedBid = compBidDkp;
+                  const savedExpected = compExpectedMedals;
+                  const savedActual = compActualMedals;
+                  setDiscordPreview({
+                    embed,
+                    onSent: () => applyCompMutation.mutate({
+                      playerIdArg: savedPlayer, refundArg: savedRefund,
+                      bidDkpArg: savedBid, expectedArg: savedExpected, actualArg: savedActual,
+                    }),
+                  });
+                } else {
+                  applyCompMutation.mutate({
+                    playerIdArg: compPlayer, refundArg: compRefund,
+                    bidDkpArg: compBidDkp, expectedArg: compExpectedMedals, actualArg: compActualMedals,
+                  });
+                }
+              }}
               disabled={!compPlayer || compRefund <= 0 || applyCompMutation.isPending}
               className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm"
             >
