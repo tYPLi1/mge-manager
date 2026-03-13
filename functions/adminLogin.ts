@@ -29,17 +29,26 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Generate session token
-    const sessionToken = crypto.getRandomValues(new Uint8Array(16))
-      .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+    // Generate a signed session token using HMAC
+    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const payload = `${adminUser.id}:${adminUser.username}:${expiresAt}`;
+    
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+    const signature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
 
     return Response.json({
       success: true,
       session: {
-        token: sessionToken,
+        token: signature,
         username: adminUser.username,
         userId: adminUser.id,
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+        expiresAt
       }
     });
   } catch (error) {
