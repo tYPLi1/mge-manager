@@ -188,7 +188,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
           onChange={setSelectedChannels}
         />
         {selectedChannels.length > 0 && (
-          <p className="text-xs text-amber-400 mt-2">{selectedChannels.length} Channel(s) ausgewählt</p>
+          <p className="text-xs text-amber-400 mt-2">{selectedChannels.length} channel(s) selected</p>
         )}
       </div>
 
