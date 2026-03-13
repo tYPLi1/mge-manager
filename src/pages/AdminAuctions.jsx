@@ -516,14 +516,16 @@ export default function AdminAuctions() {
       }
     }
 
-    // Delete all bids
+    // Delete all bids (in parallel batches of 10 for speed)
     const auctionBids = await adminEntities.Bid.filter({ auction_id: auction.id });
-    for (const bid of auctionBids) {
-      await adminEntities.Bid.delete(bid.id);
+    for (let i = 0; i < auctionBids.length; i += 10) {
+      const batch = auctionBids.slice(i, i + 10);
+      await Promise.all(batch.map(bid => adminEntities.Bid.delete(bid.id)));
     }
 
     // Delete auction
     await adminEntities.Auction.delete(auction.id);
+    toast.success(`Auction "${auction.title}" deleted (${auctionBids.length} bids removed)`);
 
     if (viewBids?.id === auction.id) {
       setViewBids(null);
