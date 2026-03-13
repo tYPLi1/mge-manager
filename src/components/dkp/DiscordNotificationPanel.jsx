@@ -210,9 +210,9 @@ export default function DiscordNotificationPanel({ serversJson }) {
         <h3 className="text-sm font-semibold text-white mb-4">✍️ Manual Message</h3>
         <div className="space-y-3">
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Titel (Optional)</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Title (Optional)</Label>
             <Input
-              placeholder="Nachricht Titel..."
+              placeholder="Message title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
