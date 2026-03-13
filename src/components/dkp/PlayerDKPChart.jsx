@@ -75,12 +75,12 @@ export default function PlayerDKPChart({ transactions }) {
       const d = t.event_date;
       if (!byDate[d]) {
         const point = { date: d, earn_total: 0, loss_total: 0 };
-        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "loss_total") point[e.key] = 0; });
+        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "loss_total") point[e.key] = null; });
         byDate[d] = point;
       }
       const evtKey = getEventKey(t);
       if (byDate[d][evtKey] !== undefined && t.amount > 0) {
-        byDate[d][evtKey] += t.amount;
+        byDate[d][evtKey] = (byDate[d][evtKey] || 0) + t.amount;
       }
       if (t.amount >= 0) {
         byDate[d].earn_total += t.amount;
@@ -92,7 +92,8 @@ export default function PlayerDKPChart({ transactions }) {
     const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
     // Show per-date values (not cumulative) to reflect actual activity
     dates.forEach(d => {
-      d.loss_total = Math.abs(d.loss_total);
+      d.loss_total = d.loss_total !== 0 ? Math.abs(d.loss_total) : null;
+      if (d.earn_total === 0) d.earn_total = null;
     });
     return dates;
   }, [transactions, rangeIdx, eventLines]);
