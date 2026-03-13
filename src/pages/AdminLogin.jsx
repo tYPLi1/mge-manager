@@ -140,24 +140,6 @@ export default function AdminLogin() {
           </Button>
         </form>
 
-        {/* Divider */}
-        <div className="mt-8 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="px-2 bg-[#0a0e1a] text-gray-500">Or</span>
-          </div>
-        </div>
-
-        {/* Base44 Login Button */}
-        <Button
-          onClick={() => base44.auth.redirectToLogin(createPageUrl('AdminDashboard'))}
-          className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-        >
-          Sign in with Base44
-        </Button>
-
         {/* Back to Public Site Button */}
         <Link
           to={createPageUrl("Leaderboard")}
