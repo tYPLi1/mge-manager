@@ -430,6 +430,7 @@ export default function AdminAuctions() {
     queryClient.invalidateQueries();
     setShowPreview(false);
     setViewBids(null);
+    setConfirming(false);
   };
 
   const confirmMutation = useMutation({
