@@ -5,6 +5,14 @@ function getServiceClient(req) {
   catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
 }
 
+const PUBLIC_KEYS = [
+  'friendly_zone_enabled',
+  'friendly_zone_threshold',
+  'cooldown_days',
+  'discord_servers',
+  'app_base_url',
+];
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
