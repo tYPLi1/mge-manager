@@ -287,17 +287,34 @@ export default function AdminAuctions() {
     }
 
     // Detect tiebreaker situations: consecutive entries with same dkp_bid
+    const getRuleLabel = (rule, playerId) => {
+      if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
+      if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
+      return "Earlier bid";
+    };
     return top10.map((b, i) => {
       let _tiebreaker = null;
       const hasTie = (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) ||
                      (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid);
       if (hasTie) {
-        if (tiebreaker === "activity") {
-          _tiebreaker = `Activity Score: ${activityScores[b.player_id] || 0}`;
-        } else if (tiebreaker === "last_event_dkp") {
-          _tiebreaker = `Last Event DKP: ${lastEventDkpScores[b.player_id] || 0}`;
+        const primaryVal = compareBids(
+          { player_id: b.player_id, created_date: b.created_date },
+          { player_id: "___dummy___", created_date: new Date(0).toISOString() },
+          tiebreaker
+        );
+        // Check if primary tiebreaker is 0 for all tied players
+        const tiedGroup = top10.filter(t => t.dkp_bid === b.dkp_bid);
+        const allPrimarySame = tiedGroup.every(t => {
+          const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
+                        tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
+          const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
+                             tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
+          return score === firstScore;
+        });
+        if (allPrimarySame && tiebreaker !== "fcfs") {
+          _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
         } else {
-          _tiebreaker = `Bid placed earlier`;
+          _tiebreaker = getRuleLabel(tiebreaker, b.player_id);
         }
       }
       return {
