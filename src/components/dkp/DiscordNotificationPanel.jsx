@@ -201,7 +201,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
           className="bg-slate-700 hover:bg-slate-600 text-white"
         >
           <Send className="w-3.5 h-3.5 mr-1.5" />
-          {testMessageMutation.isPending ? "Sende..." : "Test Nachricht senden"}
+          {testMessageMutation.isPending ? "Sending..." : "Send Test Message"}
         </Button>
       </div>
 
