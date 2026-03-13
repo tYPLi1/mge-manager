@@ -3,46 +3,47 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 /**
  * Admin Entity Proxy — allows authenticated admin sessions to perform
  * CRUD operations on entities via the service role.
- * 
- * Validates the admin session token before executing any operation.
+ * Validates the admin session token (HMAC) before executing any operation.
  */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
     const body = await req.json();
-    const { sessionToken, operation, entityName, entityId, data, sort, limit, filter } = body;
+    const { session, operation, entityName, entityId, data, sort, limit, filter } = body;
 
     // Validate admin session
-    if (!sessionToken) {
-      return Response.json({ error: 'No session token provided' }, { status: 401 });
+    if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+      return Response.json({ error: 'Invalid session' }, { status: 401 });
     }
 
-    // Verify session token against AdminUser records
-    const adminUsers = await base44.asServiceRole.entities.AdminUser.filter({});
-    let validSession = false;
+    // Check expiry
+    if (new Date(session.expiresAt) <= new Date()) {
+      return Response.json({ error: 'Session expired' }, { status: 401 });
+    }
 
-    for (const admin of adminUsers) {
-      if (!admin.is_active) continue;
-      // Session token format: base64(username:timestamp:hash)
-      try {
-        const decoded = atob(sessionToken);
-        const parts = decoded.split(':');
-        if (parts.length >= 2 && parts[0] === admin.username) {
-          // Check if token has not expired (tokens are valid for 24h)
-          const timestamp = parseInt(parts[1]);
-          if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-            validSession = true;
-            break;
-          }
-        }
-      } catch {
-        // Invalid base64, skip
+    // Verify HMAC signature
+    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+    const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (session.token !== expectedSignature) {
+      return Response.json({ error: 'Invalid token' }, { status: 403 });
+    }
+
+    // Verify user still active
+    try {
+      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+      if (!user || !user.is_active) {
+        return Response.json({ error: 'User deactivated' }, { status: 403 });
       }
-    }
-
-    if (!validSession) {
-      return Response.json({ error: 'Invalid or expired admin session' }, { status: 403 });
+    } catch {
+      return Response.json({ error: 'User not found' }, { status: 403 });
     }
 
     // Execute the requested operation using service role
@@ -59,6 +60,10 @@ Deno.serve(async (req) => {
         break;
       case 'filter':
         result = await entity.filter(filter || {}, sort || '-created_date', limit || 500);
+        break;
+      case 'get':
+        if (!entityId) return Response.json({ error: 'entityId required' }, { status: 400 });
+        result = await entity.get(entityId);
         break;
       case 'create':
         result = await entity.create(data);
