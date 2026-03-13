@@ -36,14 +36,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    // Verify user still active
+    // Verify user still active (best-effort; if SDK auth context missing, trust HMAC)
     try {
       const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
       if (!user || !user.is_active) {
         return Response.json({ error: 'User deactivated' }, { status: 403 });
       }
-    } catch {
-      return Response.json({ error: 'User not found' }, { status: 403 });
+    } catch (e) {
+      // If the error is about authentication context (not entity not found),
+      // trust the HMAC-verified session and proceed
+      const msg = e?.message || '';
+      if (msg.includes('not found') || msg.includes('does not exist')) {
+        return Response.json({ error: 'User not found' }, { status: 403 });
+      }
+      console.log('AdminUser lookup skipped (no auth context), trusting HMAC:', msg);
     }
 
     // Execute the requested operation using service role

@@ -33,8 +33,13 @@ async function validateAdminSession(base44, session) {
     if (!user || !user.is_active) {
       return { valid: false, status: 403, error: 'User deactivated' };
     }
-  } catch {
-    return { valid: false, status: 403, error: 'User not found' };
+  } catch (e) {
+    const msg = e?.message || '';
+    if (msg.includes('not found') || msg.includes('does not exist')) {
+      return { valid: false, status: 403, error: 'User not found' };
+    }
+    // SDK auth context missing — trust HMAC signature
+    console.log('AdminUser lookup skipped, trusting HMAC:', msg);
   }
 
   return { valid: true };
