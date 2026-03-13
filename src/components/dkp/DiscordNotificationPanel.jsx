@@ -110,7 +110,8 @@ export default function DiscordNotificationPanel({ serversJson }) {
   const fetchGuilds = async () => {
     setLoadingGuilds(true);
     try {
-      const res = await base44.functions.invoke('getDiscordBotGuilds', {});
+      const session = getSession();
+      const res = await base44.functions.invoke('getDiscordBotGuilds', { session });
       setGuilds(res.data.guilds || []);
     } catch {}
     setLoadingGuilds(false);
