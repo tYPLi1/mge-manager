@@ -142,7 +142,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
             className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             <Send className="w-4 h-4 mr-1.5" />
-            {sending ? "Sende..." : sendNow === false ? "Speichern & Erstellen" : "Senden & Fortfahren"}
+            {sending ? "Sending..." : sendNow === false ? "Save & Create" : "Send & Continue"}
           </Button>
         </div>
       </div>
