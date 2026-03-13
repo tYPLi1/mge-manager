@@ -233,10 +233,10 @@ export default function AdminPlayers() {
         const hasPower = powerCol !== -1;
         const hasUpdated = updatedCol !== -1;
 
-        const dkpEarned = hasDkpEarned ? (parseInt(row[dkpEarnedCol]) || 0) : null;
-        const dkpSpent = hasDkpSpent ? (parseInt(row[dkpSpentCol]) || 0) : null;
+        const dkpEarned = hasDkpEarned ? (Math.round(Number(row[dkpEarnedCol])) || 0) : null;
+        const dkpSpent = hasDkpSpent ? (Math.round(Number(row[dkpSpentCol])) || 0) : null;
         const cooldown = hasCooldown ? (row[cooldownCol]?.toString().trim() || null) : null;
-        const power = hasPower ? (parseInt(row[powerCol]) || 0) : null;
+        const power = hasPower ? (Math.round(Number(row[powerCol])) || 0) : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
         const existing = playersMap.get(name.toLowerCase());
