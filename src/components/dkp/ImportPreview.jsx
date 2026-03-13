@@ -4,6 +4,7 @@ import { Check, X, CheckSquare, XSquare } from "lucide-react";
 
 export default function ImportPreview({ preview, onConfirm, onCancel }) {
   const [selected, setSelected] = useState(new Set(preview.map((_, i) => i)));
+  const [confirming, setConfirming] = useState(false);
 
   const toggleAll = () => {
     if (selected.size === preview.length) {
@@ -21,6 +22,8 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
   };
 
   const handleConfirm = () => {
+    if (confirming) return;
+    setConfirming(true);
     const items = preview.filter((_, i) => selected.has(i));
     onConfirm(items);
   };
@@ -126,10 +129,10 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={selected.size === 0}
+            disabled={selected.size === 0 || confirming}
             className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
-            <Check className="w-4 h-4 mr-1" /> Accept {selected.size}
+            <Check className="w-4 h-4 mr-1" /> {confirming ? "Importing..." : `Accept ${selected.size}`}
           </Button>
         </div>
       </div>

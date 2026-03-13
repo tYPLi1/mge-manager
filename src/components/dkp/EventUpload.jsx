@@ -157,7 +157,8 @@ export default function EventUpload({ players, eventTypes }) {
   };
 
   const applyResults = async () => {
-    if (!preview || !selectedEventType) return;
+    if (!preview || !selectedEventType || applying) return;
+    setApplying(true);
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
     const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
@@ -181,6 +182,11 @@ export default function EventUpload({ players, eventTypes }) {
     } else {
       await doApply();
     }
+  };
+
+  const createMissingPlayersGuarded = async () => {
+    if (creatingPlayers) return;
+    await createMissingPlayers();
   };
 
   return (
@@ -248,7 +254,7 @@ export default function EventUpload({ players, eventTypes }) {
             </div>
             <Button
             size="sm"
-            onClick={createMissingPlayers}
+            onClick={createMissingPlayersGuarded}
             disabled={creatingPlayers}
             className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/30 text-xs mt-1"
             >
