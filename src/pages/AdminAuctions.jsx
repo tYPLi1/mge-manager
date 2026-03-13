@@ -551,6 +551,21 @@ export default function AdminAuctions() {
   const activeBids = bids.filter((b) => !b.is_deleted);
   const deletedBids = bids.filter((b) => b.is_deleted);
 
+  // Check if an "open" auction has actually expired (close time passed)
+  const isExpired = (auction) => {
+    if (auction.status !== "open" || !auction.scheduled_close) return false;
+    return new Date(ensureUTC(auction.scheduled_close)) <= new Date();
+  };
+
+  // Auto-close expired auctions client-side when detected
+  useEffect(() => {
+    auctions.forEach((a) => {
+      if (isExpired(a)) {
+        statusMutation.mutate({ id: a.id, status: "closed" });
+      }
+    });
+  }, [auctions]);
+
   return (
     <div>
       <PageHeader title="Auction Management" icon={Gavel} />
