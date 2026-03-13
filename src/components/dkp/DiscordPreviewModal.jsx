@@ -134,7 +134,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
             onClick={handleSkip}
             className="flex-1 border-white/10 text-gray-400 hover:text-white"
           >
-            Ohne Discord fortfahren
+            Continue without Discord
           </Button>
           <Button
             onClick={handleSend}
