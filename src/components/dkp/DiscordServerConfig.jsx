@@ -116,7 +116,7 @@ function ServerCard({ server, onChange, onRemove, guild }) {
 
           {/* Notification Channels */}
           <div className="space-y-2">
-            <Label className="text-gray-400 text-xs uppercase tracking-wider block">Nachrichten-Kanäle</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider block">Notification Channels</Label>
             {NOTIFICATION_TYPES.map((nt) => {
               const ch = server.channels?.[nt.key] || {};
               return (
