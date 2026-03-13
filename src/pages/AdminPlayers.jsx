@@ -243,7 +243,9 @@ export default function AdminPlayers() {
 
         const dkpEarned = hasDkpEarned ? (Math.round(Number(row[dkpEarnedCol])) || 0) : null;
         const dkpSpent = hasDkpSpent ? (Math.round(Number(row[dkpSpentCol])) || 0) : null;
-        const cooldown = hasCooldown ? (row[cooldownCol]?.toString().trim() || null) : null;
+        const rawCooldown = hasCooldown ? row[cooldownCol] : null;
+        // Normalize cooldown: could be Date object, serial number, or string
+        const cooldown = hasCooldown ? normalizeDateValue(rawCooldown) : null;
         const power = hasPower ? (Math.round(Number(row[powerCol])) || 0) : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
