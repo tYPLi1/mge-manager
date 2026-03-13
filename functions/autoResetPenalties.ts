@@ -1,11 +1,16 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
 
     // Load penalty config
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const settings = await service.entities.AppSettings.list();
     const raw = settings.find((s) => s.key === "penalty_config")?.value;
     const config = raw ? JSON.parse(raw) : {};
 
@@ -23,7 +28,7 @@ Deno.serve(async (req) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const penalties = await base44.asServiceRole.entities.Penalty.filter({ status: "probation" });
+    const penalties = await service.entities.Penalty.filter({ status: "probation" });
     let resetCount = 0;
 
     for (const penalty of penalties) {
@@ -35,7 +40,7 @@ Deno.serve(async (req) => {
       const diffDays = Math.floor((today - offenseDate) / (1000 * 60 * 60 * 24));
 
       if (diffDays >= days) {
-        await base44.asServiceRole.entities.Penalty.update(penalty.id, { status: "reset" });
+        await service.entities.Penalty.update(penalty.id, { status: "reset" });
         resetCount++;
       }
     }

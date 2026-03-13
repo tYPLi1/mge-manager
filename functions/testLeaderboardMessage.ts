@@ -1,18 +1,19 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
+
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
+    const service = getServiceClient(req);
 
     if (!BOT_TOKEN) return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const settings = await service.entities.AppSettings.list();
     const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
 
     if (!serversJson) return Response.json({ error: 'No Discord servers configured' }, { status: 400 });
@@ -24,7 +25,7 @@ Deno.serve(async (req) => {
     const channelIds = servers.map(s => s.defaultChannelId).filter(Boolean);
     if (channelIds.length === 0) return Response.json({ error: 'No default channels configured' }, { status: 400 });
 
-    const players = await base44.asServiceRole.entities.Player.list('-total_dkp', 30);
+    const players = await service.entities.Player.list('-total_dkp', 30);
 
     const leaderboardText = players
       .map((p, i) => {

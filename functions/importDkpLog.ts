@@ -1,22 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import * as XLSX from 'npm:xlsx@0.18.5';
 
-// DKP_Log sheet structure:
-// A = Player Name
-// B = Prep Stage DKP (positive)
-// C = War Stage DKP (positive)
-// D = DKP Spend (negative)
-// E = Source/Event (MEE, GEE, DDE, MGE, etc.)
-// F = MGE rank or penalty reason (note)
-// G = Date
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const service = getServiceClient(req);
 
     const { file_url, dry_run } = await req.json();
 
@@ -133,7 +125,7 @@ Deno.serve(async (req) => {
     }
 
     // Match player_id from existing players
-    const players = await base44.asServiceRole.entities.Player.filter({});
+    const players = await service.entities.Player.filter({});
     const playerMap = {};
     for (const p of players) {
       playerMap[p.name] = p.id;
@@ -159,7 +151,7 @@ Deno.serve(async (req) => {
     let created = 0;
     for (let i = 0; i < transactions.length; i += 100) {
       const batch = transactions.slice(i, i + 100);
-      await base44.asServiceRole.entities.DKPTransaction.bulkCreate(batch);
+      await service.entities.DKPTransaction.bulkCreate(batch);
       created += batch.length;
     }
 

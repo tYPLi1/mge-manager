@@ -1,13 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-/**
- * Returns auction data for public consumption.
- * Strips sensitive fields like bid_password.
- */
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
+
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const auctions = await base44.asServiceRole.entities.Auction.list('-created_date', 10);
+    const service = getServiceClient(req);
+    const auctions = await service.entities.Auction.list('-created_date', 10);
     
     // Strip sensitive fields
     const publicAuctions = auctions.map(a => {
