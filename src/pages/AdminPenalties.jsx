@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Plus, RotateCcw, Calculator, CheckCircle, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,7 @@ export default function AdminPenalties() {
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryFn: () => adminEntities.AppSettings.list(),
   });
 
   const webhookUrl = settings.find(s => s.key === "discord_webhook_url")?.value;
@@ -72,26 +73,26 @@ export default function AdminPenalties() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const player = players.find((p) => p.id === data.player_id);
-      await base44.entities.Penalty.create({ ...data, player_name: player?.name });
+      await adminEntities.Penalty.create({ ...data, player_name: player?.name });
 
       if (data.level === 3) {
         // Level 3: set total_dkp to 0
         const currentTotal = player?.total_dkp || 0;
         if (currentTotal > 0) {
-          await base44.entities.DKPTransaction.create({
+          await adminEntities.DKPTransaction.create({
             player_id: data.player_id, player_name: player?.name,
             amount: -currentTotal, type: "penalty",
             source: "Level 3 Penalty", event_date: data.offense_date, note: data.note,
           });
-          await base44.entities.Player.update(data.player_id, { total_dkp: 0, auction_ban_count: (player?.auction_ban_count || 0) + 1 });
+          await adminEntities.Player.update(data.player_id, { total_dkp: 0, auction_ban_count: (player?.auction_ban_count || 0) + 1 });
         }
       } else if (data.dkp_deducted > 0) {
-        await base44.entities.DKPTransaction.create({
+        await adminEntities.DKPTransaction.create({
           player_id: data.player_id, player_name: player?.name,
           amount: -data.dkp_deducted, type: "penalty",
           source: `Level ${data.level} Penalty`, event_date: data.offense_date, note: data.note,
         });
-        await base44.entities.Player.update(data.player_id, {
+        await adminEntities.Player.update(data.player_id, {
           total_dkp: (player?.total_dkp || 0) - data.dkp_deducted,
         });
       }
@@ -111,7 +112,7 @@ export default function AdminPenalties() {
   });
 
   const resetMutation = useMutation({
-    mutationFn: (id) => base44.entities.Penalty.update(id, { status: "reset" }),
+    mutationFn: (id) => adminEntities.Penalty.update(id, { status: "reset" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["penalties"] }),
   });
 
@@ -165,7 +166,7 @@ export default function AdminPenalties() {
     mutationFn: async () => {
       const player = players.find((p) => p.id === compPlayer);
       if (!player || compRefund <= 0) return;
-      await base44.entities.DKPTransaction.create({
+      await adminEntities.DKPTransaction.create({
         player_id: compPlayer,
         player_name: player.name,
         amount: compRefund,
@@ -174,7 +175,7 @@ export default function AdminPenalties() {
         event_date: new Date().toISOString().split("T")[0],
         note: `Compensation: bid ${compBidDkp} DKP, expected ${compExpectedMedals} medals, got ${compActualMedals}`,
       });
-      await base44.entities.Player.update(compPlayer, {
+      await adminEntities.Player.update(compPlayer, {
         total_dkp: (player.total_dkp || 0) + compRefund,
       });
       setCompResult(compRefund);

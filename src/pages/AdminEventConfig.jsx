@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings2, ChevronDown, ChevronUp, Save, Plus, Minus, Trash2, PlusCircle, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -316,12 +317,12 @@ export default function AdminEventConfig() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.EventType.update(id, data),
+    mutationFn: ({ id, data }) => adminEntities.EventType.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["event-types"] }),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.EventType.create(data),
+    mutationFn: (data) => adminEntities.EventType.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-types"] });
       setShowCreate(false);
@@ -329,7 +330,7 @@ export default function AdminEventConfig() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.EventType.delete(id),
+    mutationFn: (id) => adminEntities.EventType.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-types"] });
       setDeleteConfirm(null);

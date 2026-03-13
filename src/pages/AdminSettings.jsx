@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Save, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -19,12 +20,12 @@ export default function AdminSettings() {
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryFn: () => adminEntities.AppSettings.list(),
   });
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ["event-types-settings"],
-    queryFn: () => base44.entities.EventType.filter({ active: true }, "sort_order", 100),
+    queryFn: () => adminEntities.EventType.filter({ active: true }, "sort_order", 100),
   });
 
   useEffect(() => {
@@ -38,9 +39,9 @@ export default function AdminSettings() {
       for (const [key, value] of Object.entries(updates)) {
         const existing = settings.find((s) => s.key === key);
         if (existing) {
-          await base44.entities.AppSettings.update(existing.id, { value: String(value) });
+          await adminEntities.AppSettings.update(existing.id, { value: String(value) });
         } else {
-          await base44.entities.AppSettings.create({ key, value: String(value) });
+          await adminEntities.AppSettings.create({ key, value: String(value) });
         }
       }
     },

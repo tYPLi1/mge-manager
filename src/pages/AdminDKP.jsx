@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { History, Plus } from "lucide-react";
 import EventUpload from "@/components/dkp/EventUpload";
@@ -37,18 +38,18 @@ export default function AdminDKP() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const player = players.find((p) => p.id === data.player_id);
-      await base44.entities.DKPTransaction.create({
+      await adminEntities.DKPTransaction.create({
         ...data,
         player_name: player?.name,
       });
       // Update player DKP
       const amt = parseInt(data.amount);
       if (data.type === "bid") {
-        await base44.entities.Player.update(data.player_id, {
+        await adminEntities.Player.update(data.player_id, {
           dkp_spent: (player?.dkp_spent || 0) + Math.abs(amt),
         });
       } else {
-        await base44.entities.Player.update(data.player_id, {
+        await adminEntities.Player.update(data.player_id, {
           total_dkp: (player?.total_dkp || 0) + amt,
         });
       }
