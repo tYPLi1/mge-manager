@@ -6,25 +6,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onClose, onSent, sendNow = true, components: btnComponents }) {
+export default function DiscordPreviewModal({ embed, channelId, onClose, onSent, sendNow = true }) {
   const [extraText, setExtraText] = useState("");
   const [sending, setSending] = useState(false);
-  const [skipDiscord, setSkipDiscord] = useState(false);
+
+  const getSession = () => {
+    try {
+      const raw = localStorage.getItem("adminSession");
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  };
 
   const handleSend = async () => {
-    if (skipDiscord) {
-      onSent?.(extraText);
-      onClose();
-      return;
-    }
-
-    if (!webhookUrl) {
-      toast.error("Discord Webhook URL nicht konfiguriert");
-      onSent?.(extraText);
-      onClose();
-      return;
-    }
-
     // If sendNow is false, we just save without sending (for deferred sends like auction creation)
     if (sendNow === false) {
       toast.success("Discord Nachricht wird beim Start gesendet");
@@ -34,33 +27,24 @@ export default function DiscordPreviewModal({ embed, webhookUrl, channelId, onCl
     }
 
     setSending(true);
-    const finalEmbed = { ...embed };
-    if (extraText.trim()) {
-      finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
+    const session = getSession();
+    if (!session) {
+      toast.error("Keine Admin-Session gefunden");
+      setSending(false);
+      return;
     }
 
-    const discordPayload = {
-      content: channelId ? `<#${channelId}>` : undefined,
-      embeds: [finalEmbed],
-    };
-    if (btnComponents) {
-      discordPayload.components = btnComponents;
-    }
+    const res = await base44.functions.invoke("sendDiscordEmbed", {
+      session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+      embed,
+      channelId,
+      extraText: extraText.trim() || undefined,
+    });
 
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(discordPayload),
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        toast.error(`Discord Fehler: ${err}`);
-      } else {
-        toast.success("Discord Nachricht gesendet!");
-      }
-    } catch (err) {
-      toast.error(`Fehler: ${err.message}`);
+    if (res.data?.success) {
+      toast.success("Discord Nachricht gesendet!");
+    } else {
+      toast.error(`Discord Fehler: ${res.data?.error || "Unknown"}`);
     }
 
     setSending(false);
