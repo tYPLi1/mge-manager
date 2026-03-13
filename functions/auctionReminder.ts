@@ -2,22 +2,38 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
+function getTargetChannels(settings, notifType) {
+  const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
+  if (!serversJson) return [];
+  try {
+    const servers = JSON.parse(serversJson);
+    const channels = [];
+    for (const server of servers) {
+      const ch = server.channels?.[notifType];
+      if (ch?.enabled) {
+        const channelId = ch.channelId || server.defaultChannelId;
+        if (channelId) channels.push(channelId);
+      }
+    }
+    return channels;
+  } catch { return []; }
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    if (!BOT_TOKEN) return Response.json({ skipped: true, reason: "No bot token" });
+
     const openAuctions = await base44.asServiceRole.entities.Auction.filter({ status: "open" });
     const settings = await base44.asServiceRole.entities.AppSettings.filter({});
-    const now = new Date();
+    const channels = getTargetChannels(settings, 'reminder');
 
-    const getSetting = (key) => settings.find(s => s.key === key)?.value;
-    const channelId = getSetting("discord_reminder_channel_id") || getSetting("discord_channel_id");
-    const reminderEnabled = getSetting("discord_auction_reminder_enabled") === "true";
-
-    if (!channelId || !BOT_TOKEN || !reminderEnabled) {
-      return Response.json({ skipped: true, reason: "Discord bot not configured or auction reminder disabled" });
+    if (channels.length === 0) {
+      return Response.json({ skipped: true, reason: "No reminder channels configured" });
     }
 
+    const now = new Date();
     const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
     const auctionUrl = `${appUrl}/?page=Auction`;
 
@@ -33,46 +49,43 @@ Deno.serve(async (req) => {
 
     for (const auction of openAuctions) {
       if (!auction.scheduled_close) continue;
-
       const closeAt = new Date(ensureUTC(auction.scheduled_close));
-      const diffMs = closeAt - now;
-      const diffMin = diffMs / 60000;
+      const diffMin = (closeAt - now) / 60000;
 
       if (diffMin > 5 && diffMin <= 15) {
         const minutesLeft = Math.round(diffMin);
         const closeTimeStr = closeAt.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
-
         const bids = await base44.asServiceRole.entities.Bid.filter({ auction_id: auction.id });
         const activeBids = bids.filter(b => !b.is_deleted);
 
-        const embed = {
-          title: "⏰ Auction Ending Soon!",
-          description: `**${auction.title}** closes in ~${minutesLeft} minutes!`,
-          color: 0xff6b35,
-          fields: [
-            { name: "Closes At", value: closeTimeStr, inline: true },
-            { name: "Active Bids", value: String(activeBids.length), inline: true },
-            { name: '🔗 Link', value: `[Zur Auktion](${auctionUrl})`, inline: false },
-          ],
-          footer: { text: "DKP System — Last chance to bid!" },
+        const fields = [
+          { name: "Closes At", value: closeTimeStr, inline: true },
+          { name: "Active Bids", value: String(activeBids.length), inline: true },
+        ];
+        if (auction.has_password) fields.push({ name: "🔒", value: "Password required", inline: true });
+        fields.push({ name: '🔗 Link', value: `[Zur Auktion](${auctionUrl})`, inline: false });
+
+        const payload = {
+          content: '@everyone',
+          embeds: [{
+            title: "⏰ Auction Ending Soon!",
+            description: `**${auction.title}** closes in ~${minutesLeft} minutes!`,
+            color: 0xff6b35,
+            fields,
+            footer: { text: "DKP System — Last chance to bid!" },
+          }],
+          components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
         };
 
-        if (auction.has_password) {
-          embed.fields.splice(2, 0, { name: "🔒", value: "Password required", inline: true });
+        for (const ch of channels) {
+          const res = await fetch(`https://discord.com/api/v10/channels/${ch}/messages`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) remindersSent++;
+          else console.error(`Reminder failed for channel ${ch}: ${res.status}`);
         }
-
-        const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-          method: "POST",
-          headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content: '@everyone',
-            embeds: [embed],
-            components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
-          }),
-        });
-
-        if (res.ok) remindersSent++;
-        else console.error(`Failed to send reminder for ${auction.title}: ${res.status}`);
       }
     }
 

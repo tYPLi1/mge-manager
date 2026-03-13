@@ -2,6 +2,33 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
+function getTargetChannels(settings, notifType) {
+  const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
+  if (!serversJson) return [];
+  try {
+    const servers = JSON.parse(serversJson);
+    const channels = [];
+    for (const server of servers) {
+      const ch = server.channels?.[notifType];
+      if (ch?.enabled) {
+        const channelId = ch.channelId || server.defaultChannelId;
+        if (channelId) channels.push(channelId);
+      }
+    }
+    return channels;
+  } catch { return []; }
+}
+
+async function sendToChannel(channelId, payload) {
+  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) console.error(`Discord send failed for channel ${channelId}: ${res.status}`);
+  return res.ok;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -20,18 +47,14 @@ Deno.serve(async (req) => {
       auction = await base44.asServiceRole.entities.Auction.get(auctionId);
     }
 
+    if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
+
     const results = await base44.asServiceRole.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const getSetting = (key) => settings.find(s => s.key === key)?.value;
+    const channels = getTargetChannels(settings, 'results');
+    if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
-    const channelId = getSetting('discord_results_channel_id') || getSetting('discord_channel_id');
-    const enabled = getSetting('discord_results_enabled') === 'true';
-    const tiebreaker = getSetting('auction_tiebreaker') || 'fcfs';
-
-    if (!channelId || !BOT_TOKEN || !enabled) {
-      return Response.json({ status: 'disabled' });
-    }
-
+    const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
     const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
     const resultsUrl = `${appUrl}/?page=Results`;
 
@@ -42,11 +65,10 @@ Deno.serve(async (req) => {
       (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
       (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
     );
-
     const tiebreakerNote = hasTies
-      ? (tiebreaker === 'activity' ? '⚖ Tiebreaker: Higher Activity Score = higher rank'
-        : tiebreaker === 'last_event_dkp' ? '⚖ Tiebreaker: Most DKP in last event = higher rank'
-        : '⚖ Tiebreaker: First to bid = higher rank')
+      ? (tiebreaker === 'activity' ? '⚖ Higher Activity Score'
+        : tiebreaker === 'last_event_dkp' ? '⚖ Most DKP in last event'
+        : '⚖ First to bid')
       : null;
 
     const fields = [
@@ -56,30 +78,24 @@ Deno.serve(async (req) => {
     if (tiebreakerNote) fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
     fields.push({ name: '🔗 Link', value: `[Zu den Ergebnissen](${resultsUrl})`, inline: false });
 
-    const embed = {
-      title: '🏆 Auction Results Ready',
-      description: auction.title,
-      color: 0x10b981,
-      fields,
-      footer: { text: 'DKP System' },
+    const payload = {
+      content: '@everyone',
+      embeds: [{
+        title: '🏆 Auction Results Ready',
+        description: auction.title,
+        color: 0x10b981,
+        fields,
+        footer: { text: 'DKP System' },
+      }],
+      components: [{ type: 1, components: [{ type: 2, label: 'View Results', style: 5, url: resultsUrl }] }],
     };
 
-    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: '@everyone',
-        embeds: [embed],
-        components: [{ type: 1, components: [{ type: 2, label: 'View Results', style: 5, url: resultsUrl }] }],
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      return Response.json({ error: `Discord error: ${err}` }, { status: 500 });
+    let sent = 0;
+    for (const ch of channels) {
+      if (await sendToChannel(ch, payload)) sent++;
     }
 
-    return Response.json({ status: 'sent' });
+    return Response.json({ status: 'sent', channels: sent });
   } catch (error) {
     console.error('notifyAuctionResults error:', error);
     return Response.json({ error: error.message }, { status: 500 });

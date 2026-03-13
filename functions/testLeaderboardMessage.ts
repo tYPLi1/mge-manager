@@ -10,47 +10,52 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
+    if (!BOT_TOKEN) return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
 
-    if (!channelId || !BOT_TOKEN) {
-      return Response.json({ error: 'Discord bot not configured (channel ID or token missing)' }, { status: 400 });
-    }
+    const settings = await base44.asServiceRole.entities.AppSettings.list();
+    const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
+
+    if (!serversJson) return Response.json({ error: 'No Discord servers configured' }, { status: 400 });
+
+    let servers;
+    try { servers = JSON.parse(serversJson); } catch { return Response.json({ error: 'Invalid server config' }, { status: 400 }); }
+
+    // Collect all default channels
+    const channelIds = servers.map(s => s.defaultChannelId).filter(Boolean);
+    if (channelIds.length === 0) return Response.json({ error: 'No default channels configured' }, { status: 400 });
 
     const players = await base44.asServiceRole.entities.Player.list('-total_dkp', 30);
 
     const leaderboardText = players
       .map((p, i) => {
         const rank = i + 1;
-        const dkpEarned = p.total_dkp || 0;
-        const dkpSpent = p.dkp_spent || 0;
-        const balance = dkpEarned - dkpSpent;
-        return `**${rank}.** ${p.name} • Earned: ${dkpEarned} • Balance: ${balance}`;
+        const balance = (p.total_dkp || 0) - (p.dkp_spent || 0);
+        return `**${rank}.** ${p.name} • Earned: ${p.total_dkp || 0} • Balance: ${balance}`;
       })
       .join('\n');
 
-    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        content: '📊 **DKP Leaderboard - Top 30**',
-        embeds: [{
-          description: leaderboardText,
-          color: 16776960,
-          timestamp: new Date().toISOString()
-        }]
-      }),
-    });
+    const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
 
-    if (!response.ok) {
-      const error = await response.text();
-      return Response.json({ error: `Discord API error: ${response.status}`, details: error }, { status: 500 });
+    let sent = 0;
+    for (const ch of channelIds) {
+      const res = await fetch(`https://discord.com/api/v10/channels/${ch}/messages`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: '📊 **DKP Leaderboard - Top 30**',
+          embeds: [{
+            description: leaderboardText,
+            color: 16776960,
+            timestamp: new Date().toISOString(),
+            fields: [{ name: '🔗 Link', value: `[Zum Leaderboard](${appUrl}/?page=Leaderboard)`, inline: false }],
+          }],
+        }),
+      });
+      if (res.ok) sent++;
+      else console.error(`Leaderboard send failed for ${ch}: ${res.status}`);
     }
 
-    return Response.json({ success: true, message: 'Leaderboard message sent via Discord Bot' });
+    return Response.json({ success: true, message: `Leaderboard sent to ${sent} server(s)` });
   } catch (error) {
     console.error('testLeaderboardMessage error:', error);
     return Response.json({ error: error.message }, { status: 500 });

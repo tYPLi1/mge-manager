@@ -10,39 +10,53 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
+    if (!BOT_TOKEN) return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
+
     const settings = await base44.asServiceRole.entities.AppSettings.list();
-    const channelId = settings.find(s => s.key === 'discord_channel_id')?.value;
+    const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
 
-    if (!channelId) {
-      return Response.json({ error: 'Discord channel ID not configured' }, { status: 400 });
+    if (!serversJson) return Response.json({ error: 'No Discord servers configured' }, { status: 400 });
+
+    let servers;
+    try { servers = JSON.parse(serversJson); } catch { return Response.json({ error: 'Invalid server config' }, { status: 400 }); }
+
+    if (servers.length === 0) return Response.json({ error: 'No servers configured' }, { status: 400 });
+
+    // Send test to all default channels
+    let sent = 0;
+    const errors = [];
+
+    for (const server of servers) {
+      const channelId = server.defaultChannelId;
+      if (!channelId) continue;
+
+      const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🧪 **Discord Bot Test** — Server: ${server.name || 'Unnamed'}`,
+          embeds: [{
+            title: 'Test Message',
+            description: 'Bot integration works! @everyone mentions are supported.',
+            color: 16776960,
+            timestamp: new Date().toISOString(),
+          }],
+        }),
+      });
+
+      if (res.ok) {
+        sent++;
+      } else {
+        const err = await res.text();
+        errors.push(`${server.name || channelId}: ${res.status} - ${err}`);
+      }
     }
-    if (!BOT_TOKEN) {
-      return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
+
+    if (sent === 0) {
+      return Response.json({ error: `All sends failed: ${errors.join('; ')}` }, { status: 500 });
     }
 
-    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        content: '🧪 **Discord Bot Test**',
-        embeds: [{
-          title: 'Test Message',
-          description: 'This is a test message from the DKP System Bot. @everyone mentions now work!',
-          color: 16776960,
-          timestamp: new Date().toISOString()
-        }]
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      return Response.json({ error: `Discord API error: ${response.status}`, details: error }, { status: 500 });
-    }
-
-    return Response.json({ success: true, message: 'Test message sent via Discord Bot' });
+    return Response.json({ success: true, message: `Test sent to ${sent} server(s)`, errors: errors.length > 0 ? errors : undefined });
   } catch (error) {
     console.error('testDiscordWebhook error:', error);
     return Response.json({ error: error.message }, { status: 500 });
