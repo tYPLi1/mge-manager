@@ -59,13 +59,11 @@ export default function AdminSessionGuard({ children }) {
             return;
           }
         } catch (err) {
-          // 401 = no Base44 user logged in (public app).
-          // In this case we trust the signed token: it can only have been
-          // created by the backend with the correct ADMIN_MANAGEMENT_PASSWORD.
-          // A forged session without a valid HMAC token will fail as soon as
-          // the user performs any backend action.
-          const status = err?.response?.status || err?.status;
-          if (status === 401 && parsed.token) {
+          // If the function call itself fails (e.g. no Base44 user logged in
+          // on a public app, or network error), trust the locally-stored
+          // HMAC-signed session. A forged session will fail on the first
+          // actual backend operation anyway.
+          if (parsed.token) {
             userIdRef.current = parsed.userId;
             setIsAuthorized(true);
             setLoading(false);
