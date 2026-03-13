@@ -92,7 +92,7 @@ export default function PlayerDKPChart({ transactions }) {
     const dates = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
     // Show per-date values (not cumulative) to reflect actual activity
     dates.forEach(d => {
-      d.loss_total = d.loss_total !== 0 ? Math.abs(d.loss_total) : null;
+      d.loss_total = Math.abs(d.loss_total);
       if (d.earn_total === 0) d.earn_total = null;
     });
 
