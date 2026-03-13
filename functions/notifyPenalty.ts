@@ -1,27 +1,13 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
-
-function getTargetChannels(settings, notifType) {
-  const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
-  if (!serversJson) return [];
-  try {
-    const servers = JSON.parse(serversJson);
-    const channels = [];
-    for (const server of servers) {
-      const ch = server.channels?.[notifType];
-      if (ch?.enabled) {
-        const channelId = ch.channelId || server.defaultChannelId;
-        if (channelId) channels.push(channelId);
-      }
-    }
-    return channels;
-  } catch { return []; }
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
 }
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const body = await req.json();
 
     if (!BOT_TOKEN) return Response.json({ success: true });

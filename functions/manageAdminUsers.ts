@@ -1,12 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
-/**
- * Admin user management. Requires authenticated admin session (HMAC token).
- * For the 'verify' action, also validates the master credential.
- */
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
 
-async function validateAdminSession(base44, session) {
+async function validateAdminSession(service, session) {
   if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
     return { valid: false, status: 401, error: 'Unauthorized: No session' };
   }
