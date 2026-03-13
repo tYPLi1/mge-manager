@@ -196,7 +196,7 @@ export default function PlayerDKPChart({ transactions }) {
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
             <div style={{ width: chartWidth, minHeight: 220 }}>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -226,7 +226,18 @@ export default function PlayerDKPChart({ transactions }) {
                       );
                     }}
                   />
-                  {eventLines.map(e =>
+                  {visibleLines["loss_total"] && (
+                    <Bar
+                      dataKey="loss_total"
+                      fill="#ef4444"
+                      fillOpacity={0.25}
+                      stroke="#ef4444"
+                      strokeOpacity={0.4}
+                      name="Deductions"
+                      radius={[3, 3, 0, 0]}
+                    />
+                  )}
+                  {eventLines.filter(e => e.key !== "loss_total").map(e =>
                     visibleLines[e.key] && (
                       <Line
                         key={e.key}
@@ -241,7 +252,7 @@ export default function PlayerDKPChart({ transactions }) {
                       />
                     )
                   )}
-                </LineChart>
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           </div>
