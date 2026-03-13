@@ -160,7 +160,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
       if (!response.data.success) throw new Error(response.data.error);
       return response.data;
     },
-    onSuccess: (data) => toast.success(`Test an ${data.channels || 0} Channel(s) gesendet!`),
+    onSuccess: (data) => toast.success(`Test sent to ${data.channels || 0} channel(s)!`),
     onError: (error) => toast.error(`Failed: ${error.message}`),
   });
 
