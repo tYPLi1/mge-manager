@@ -1,14 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
-const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
-
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
     const body = await req.json();
     const { session } = body;
 
-    // Validate admin session via HMAC (same as other admin functions)
+    // Validate admin session via HMAC
     if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -27,18 +22,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    try {
-      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
-      if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
-    } catch (e) {
-      const msg = e?.message || '';
-      if (msg.includes('not found') || msg.includes('does not exist')) {
-        return Response.json({ error: 'User not found' }, { status: 403 });
-      }
-    }
-
+    const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
     if (!BOT_TOKEN) return Response.json({ error: 'Bot token not configured' }, { status: 400 });
 
+    // Fetch guilds
     const res = await fetch('https://discord.com/api/v10/users/@me/guilds', {
       headers: { 'Authorization': `Bot ${BOT_TOKEN}` },
     });
@@ -50,8 +37,8 @@ Deno.serve(async (req) => {
 
     const guilds = await res.json();
 
-    const result = [];
-    for (const guild of guilds) {
+    // Fetch all guild channels in parallel
+    const result = await Promise.all(guilds.map(async (guild) => {
       let channels = [];
       try {
         const chRes = await fetch(`https://discord.com/api/v10/guilds/${guild.id}/channels`, {
@@ -66,13 +53,13 @@ Deno.serve(async (req) => {
         }
       } catch {}
 
-      result.push({
+      return {
         id: guild.id,
         name: guild.name,
         icon: guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : null,
         channels,
-      });
-    }
+      };
+    }));
 
     return Response.json({ guilds: result });
   } catch (error) {
