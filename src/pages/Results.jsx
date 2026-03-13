@@ -114,7 +114,7 @@ export default function Results() {
                   <div>
                     <h3 className="font-medium text-white text-sm">{auction.title}</h3>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      {auction.confirmed_at ? new Date(auction.confirmed_at).toLocaleDateString() : ""}
+                      {auction.confirmed_at ? new Date(auction.confirmed_at).toLocaleDateString("de-CH", { timeZone: "UTC" }) + " (UTC)" : ""}
                     </p>
                   </div>
                   <ChevronRight className={`w-4 h-4 transition-colors ${
