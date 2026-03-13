@@ -52,7 +52,7 @@ export default function PlayerDKPChart({ transactions }) {
   const scrollRef = useRef(null);
 
   // Keep visibleLines in sync when eventLines change
-  useMemo(() => {
+  React.useEffect(() => {
     setVisibleLines(prev => {
       const next = {};
       eventLines.forEach(e => { next[e.key] = prev[e.key] !== undefined ? prev[e.key] : true; });
