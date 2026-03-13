@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       const closeAt = new Date(ensureUTC(auction.scheduled_close));
       const diffMin = (closeAt - now) / 60000;
 
-      if (diffMin > 5 && diffMin <= 15) {
+      if (diffMin > 0 && diffMin <= 35) {
         const minutesLeft = Math.round(diffMin);
         const closeTimeStr = closeAt.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
         const bids = await base44.asServiceRole.entities.Bid.filter({ auction_id: auction.id });
