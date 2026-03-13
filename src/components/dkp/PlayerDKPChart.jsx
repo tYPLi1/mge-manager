@@ -73,8 +73,8 @@ export default function PlayerDKPChart({ transactions }) {
     filtered.forEach(t => {
       const d = t.event_date;
       if (!byDate[d]) {
-        const point = { date: d, earn_total: 0, _net: 0 };
-        eventLines.forEach(e => { if (e.key !== "earn_total" && e.key !== "balance") point[e.key] = null; });
+        const point = { date: d, _net: 0 };
+        eventLines.forEach(e => { if (e.key !== "balance") point[e.key] = null; });
         byDate[d] = point;
       }
       const evtKey = getEventKey(t);
