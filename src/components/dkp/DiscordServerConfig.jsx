@@ -100,7 +100,7 @@ function ServerCard({ server, onChange, onRemove, guild }) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">
-                  <span className="text-gray-400">— Kein Standard Channel —</span>
+                  <span className="text-gray-400">— No Default Channel —</span>
                 </SelectItem>
                 {channels.map((ch) => (
                   <SelectItem key={ch.id} value={ch.id}>
