@@ -7,9 +7,38 @@ function getServiceClient(req) {
   catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
 }
 
+async function validateSession(service, session) {
+  if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+    return { valid: false, status: 401, error: 'Unauthorized' };
+  }
+  if (new Date(session.expiresAt) <= new Date()) {
+    return { valid: false, status: 401, error: 'Session expired' };
+  }
+  const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+  const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+  const expected = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+  if (session.token !== expected) return { valid: false, status: 403, error: 'Invalid token' };
+  try {
+    const user = await service.entities.AdminUser.get(session.userId);
+    if (!user || !user.is_active) return { valid: false, status: 403, error: 'User deactivated' };
+  } catch (e) {
+    const msg = e?.message || '';
+    if (msg.includes('not found') || msg.includes('does not exist')) return { valid: false, status: 403, error: 'User not found' };
+  }
+  return { valid: true };
+}
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
+    const body = await req.json();
+    const { session } = body;
+
+    const auth = await validateSession(service, session);
+    if (!auth.valid) return Response.json({ error: auth.error }, { status: auth.status });
 
     if (!BOT_TOKEN) return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
 
@@ -31,8 +60,6 @@ Deno.serve(async (req) => {
       const channelId = server.defaultChannelId;
       if (!channelId) continue;
 
-      const appUrl = Deno.env.get('APP_URL') || 'https://app.example.com';
-
       const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
@@ -43,7 +70,7 @@ Deno.serve(async (req) => {
             description: 'Bot integration works! @everyone mentions are supported.',
             color: 16776960,
             fields: [
-              { name: '🔗 App Link', value: `[Zur App](${appUrl})`, inline: false },
+              { name: '🔗 App Link', value: '[Zur App](https://mge002.base44.app)', inline: false },
             ],
             timestamp: new Date().toISOString(),
           }],
