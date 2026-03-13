@@ -78,7 +78,7 @@ export default function PlayerDKPChart({ transactions }) {
         byDate[d] = point;
       }
       const evtKey = getEventKey(t);
-      if (byDate[d][evtKey] !== undefined && t.amount > 0) {
+      if (byDate[d][evtKey] !== undefined) {
         byDate[d][evtKey] = (byDate[d][evtKey] || 0) + t.amount;
       }
       byDate[d]._net += t.amount;
