@@ -66,7 +66,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
       <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Vorschau
+            <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Preview
           </h2>
           <button onClick={handleSkip} className="text-gray-500 hover:text-white">
             <X className="w-5 h-5" />
