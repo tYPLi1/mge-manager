@@ -43,7 +43,7 @@ export default function PlayerDKPChart({ transactions }) {
         colorIdx++;
       }
     });
-    lines.push({ key: "balance", label: "Kontostand", color: "#a78bfa" });
+    lines.push({ key: "balance", label: "Balance", color: "#a78bfa" });
     return lines;
   }, [eventTypes]);
 
@@ -78,7 +78,7 @@ export default function PlayerDKPChart({ transactions }) {
         byDate[d] = point;
       }
       const evtKey = getEventKey(t);
-      if (byDate[d][evtKey] !== undefined) {
+      if (byDate[d][evtKey] !== undefined && t.amount > 0) {
         byDate[d][evtKey] = (byDate[d][evtKey] || 0) + t.amount;
       }
       byDate[d]._net += t.amount;
