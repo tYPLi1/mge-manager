@@ -63,7 +63,12 @@ Deno.serve(async (req) => {
     const resultsUrl = 'https://mge002.base44.app/Results';
 
     const topResults = results.slice(0, 3);
-    const resultsText = topResults.map((r, i) => `${i + 1}. **${r.player_name}** - ${r.dkp_bid} DKP`).join('\n');
+    const resultsText = topResults.map((r, i) => {
+      let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
+      if (r.target_score) line += ` | Target: ${r.target_score.toLocaleString()}`;
+      if (r.hero_medals) line += ` | Medals: ${r.hero_medals}`;
+      return line;
+    }).join('\n');
 
     const hasTies = results.some((r, i) =>
       (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
