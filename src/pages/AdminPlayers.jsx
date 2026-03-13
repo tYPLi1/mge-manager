@@ -232,16 +232,20 @@ export default function AdminPlayers() {
     const file = e.target.files[0];
     if (!file) return;
     setImporting(true);
-    let buf, wb;
     try {
-      buf = await file.arrayBuffer();
-      wb = XLSX.read(buf, { type: "array" });
+      await processImportFile(file);
     } catch (err) {
-      alert("Fehler beim Lesen der Datei: " + err.message);
+      console.error("Import error:", err);
+      alert("Fehler beim Import: " + err.message);
+    } finally {
       setImporting(false);
       e.target.value = "";
-      return;
     }
+  };
+
+  const processImportFile = async (file) => {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
     const preview = [];
 
     // Process Players sheet — header-based column detection
