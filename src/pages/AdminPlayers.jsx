@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap, XCircle, Upload, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -88,17 +89,17 @@ export default function AdminPlayers() {
   }, [queryClient]);
 
   const createMutation = useMutation({
-    mutationFn: (name) => base44.entities.Player.create({ name, total_dkp: 0, dkp_spent: 0 }),
+    mutationFn: (name) => adminEntities.Player.create({ name, total_dkp: 0, dkp_spent: 0 }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["players"] }); setNewName(""); },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Player.update(id, data),
+    mutationFn: ({ id, data }) => adminEntities.Player.update(id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["players"] }); setEditingId(null); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Player.delete(id),
+    mutationFn: (id) => adminEntities.Player.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["players"] }),
   });
 
@@ -442,7 +443,7 @@ export default function AdminPlayers() {
       const penaltyUpdates = items.filter(p => p.type === "update" && p.entity === "penalty");
 
       if (newPlayers.length > 0) {
-        await base44.entities.Player.bulkCreate(newPlayers);
+        await adminEntities.Player.bulkCreate(newPlayers);
       }
 
       for (const item of playerUpdates) {
@@ -451,7 +452,7 @@ export default function AdminPlayers() {
           updateData[key] = val;
         });
         if (item.changes.power) {
-          await base44.entities.PowerHistory.create({
+          await adminEntities.PowerHistory.create({
             player_id: item.id,
             player_name: item.name,
             power: item.changes.power.new,
@@ -459,18 +460,18 @@ export default function AdminPlayers() {
             source: "import",
           });
         }
-        await base44.entities.Player.update(item.id, updateData);
+        await adminEntities.Player.update(item.id, updateData);
       }
 
       if (newPenalties.length > 0) {
-        const allPlayers = await base44.entities.Player.list("name", 500);
+        const allPlayers = await adminEntities.Player.list("name", 500);
         const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
         const penaltiesToCreate = newPenalties.map(p => {
           const player = pMap.get((p.player_name || "").toLowerCase());
           return { ...p, player_id: player?.id };
         }).filter(p => p.player_id);
         if (penaltiesToCreate.length > 0) {
-          await base44.entities.Penalty.bulkCreate(penaltiesToCreate);
+          await adminEntities.Penalty.bulkCreate(penaltiesToCreate);
         }
       }
 
@@ -479,12 +480,12 @@ export default function AdminPlayers() {
         Object.entries(item.changes).forEach(([key, { new: val }]) => {
           updateData[key] = val;
         });
-        await base44.entities.Penalty.update(item.id, updateData);
+        await adminEntities.Penalty.update(item.id, updateData);
       }
 
       const newTransactions = items.filter(p => p.type === "new" && p.entity === "transaction");
       if (newTransactions.length > 0) {
-        const allPlayers = await base44.entities.Player.list("name", 500);
+        const allPlayers = await adminEntities.Player.list("name", 500);
         const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
 
         const txBatch = newTransactions.map(tx => {
@@ -502,7 +503,7 @@ export default function AdminPlayers() {
         }).filter(tx => tx.player_id);
 
         for (let i = 0; i < txBatch.length; i += 50) {
-          await base44.entities.DKPTransaction.bulkCreate(txBatch.slice(i, i + 50));
+          await adminEntities.DKPTransaction.bulkCreate(txBatch.slice(i, i + 50));
         }
       }
 
