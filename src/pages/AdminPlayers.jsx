@@ -402,88 +402,13 @@ export default function AdminPlayers() {
 
   const confirmImport = async (items) => {
     setImporting(true);
+    try {
     const newPlayers = items.filter(p => p.type === "new" && p.entity === "player").map(({ type, entity, ...rest }) => rest);
-    const playerUpdates = items.filter(p => p.type === "update" && p.entity === "player");
-    const newPenalties = items.filter(p => p.type === "new" && p.entity === "penalty").map(({ type, entity, ...rest }) => rest);
-    const penaltyUpdates = items.filter(p => p.type === "update" && p.entity === "penalty");
-
-    if (newPlayers.length > 0) {
-      await base44.entities.Player.bulkCreate(newPlayers);
-    }
-
-    for (const item of playerUpdates) {
-      const updateData = {};
-      Object.entries(item.changes).forEach(([key, { new: val }]) => {
-        updateData[key] = val;
-      });
-      // Log power history if power changed
-      if (item.changes.power) {
-        await base44.entities.PowerHistory.create({
-          player_id: item.id,
-          player_name: item.name,
-          power: item.changes.power.new,
-          recorded_at: new Date().toISOString().split("T")[0],
-          source: "import",
-        });
-      }
-      await base44.entities.Player.update(item.id, updateData);
-    }
-
-    if (newPenalties.length > 0) {
-      // Add player_id to new penalties
-      const penaltiesToCreate = await Promise.all(newPenalties.map(async (p) => {
-        const player = await base44.entities.Player.list().then(list => list.find(pl => pl.name === p.player_name));
-        return { ...p, player_id: player?.id };
-      }));
-      await base44.entities.Penalty.bulkCreate(penaltiesToCreate.filter(p => p.player_id));
-    }
-
-    for (const item of penaltyUpdates) {
-      const updateData = {};
-      Object.entries(item.changes).forEach(([key, { new: val }]) => {
-        updateData[key] = val;
-      });
-      await base44.entities.Penalty.update(item.id, updateData);
-    }
-
-    // Import DKP transactions
-    const newTransactions = items.filter(p => p.type === "new" && p.entity === "transaction");
-    if (newTransactions.length > 0) {
-      // Fetch fresh player list to resolve IDs for new players created above
-      const allPlayers = await base44.entities.Player.list("name", 500);
-      const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
-
-      const txBatch = newTransactions.map(tx => {
-        const player = pMap.get(tx.player_name.toLowerCase());
-        return {
-          player_id: tx.player_id || player?.id || "",
-          player_name: tx.player_name,
-          amount: tx.amount,
-          type: tx.tx_type || "earn",
-          source: tx.source || "",
-          source_stage: tx.source_stage || "",
-          event_date: tx.event_date,
-          note: tx.note || "",
-        };
-      }).filter(tx => tx.player_id);
-
-      // Bulk create in batches of 50
-      for (let i = 0; i < txBatch.length; i += 50) {
-        await base44.entities.DKPTransaction.bulkCreate(txBatch.slice(i, i + 50));
-      }
-    }
-
-    queryClient.invalidateQueries({ queryKey: ["players"] });
-    queryClient.invalidateQueries({ queryKey: ["penalties"] });
-    queryClient.invalidateQueries({ queryKey: ["transactions-export"] });
-    setPreviewData(null);
-    const parts = [];
-    if (newPlayers.length) parts.push(`${newPlayers.length} new players`);
-    if (playerUpdates.length) parts.push(`${playerUpdates.length} player updates`);
-    if (newPenalties.length) parts.push(`${newPenalties.length} new penalties`);
-    if (penaltyUpdates.length) parts.push(`${penaltyUpdates.length} penalty updates`);
-    if (newTransactions.length) parts.push(`${newTransactions.length} DKP transactions`);
+...
     alert(parts.join(", ") || "Nothing imported.");
+    } finally {
+      setImporting(false);
+    }
   };
 
   const filtered = useMemo(() =>
