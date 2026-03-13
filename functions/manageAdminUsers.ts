@@ -29,7 +29,7 @@ async function validateAdminSession(service, session) {
   }
 
   try {
-    const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+    const user = await service.entities.AdminUser.get(session.userId);
     if (!user || !user.is_active) {
       return { valid: false, status: 403, error: 'User deactivated' };
     }
@@ -47,12 +47,12 @@ async function validateAdminSession(service, session) {
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const body = await req.json();
     const { action, session, username, password, userId, credential } = body;
 
     // Validate admin session via HMAC token
-    const validation = await validateAdminSession(base44, session);
+    const validation = await validateAdminSession(service, session);
     if (!validation.valid) {
       return Response.json({ error: validation.error }, { status: validation.status });
     }
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'list') {
-      const users = await base44.asServiceRole.entities.AdminUser.list('username', 100);
+      const users = await service.entities.AdminUser.list('username', 100);
       const safeUsers = users.map(u => ({
         id: u.id,
         username: u.username,
@@ -81,12 +81,12 @@ Deno.serve(async (req) => {
       if (!username || !password) {
         return Response.json({ error: 'Username and password required' }, { status: 400 });
       }
-      const existing = await base44.asServiceRole.entities.AdminUser.filter({ username });
+      const existing = await service.entities.AdminUser.filter({ username });
       if (existing.length > 0) {
         return Response.json({ error: 'Username already exists' }, { status: 400 });
       }
       const password_hash = await bcrypt.hash(password, 10);
-      await base44.asServiceRole.entities.AdminUser.create({ username, password_hash, is_active: true });
+      await service.entities.AdminUser.create({ username, password_hash, is_active: true });
       return Response.json({ success: true, message: `Admin '${username}' created` });
     }
 
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'userId and password required' }, { status: 400 });
       }
       const password_hash = await bcrypt.hash(password, 10);
-      await base44.asServiceRole.entities.AdminUser.update(userId, { password_hash });
+      await service.entities.AdminUser.update(userId, { password_hash });
       return Response.json({ success: true, message: 'Password updated' });
     }
 
@@ -107,9 +107,9 @@ Deno.serve(async (req) => {
       if (userId === session.userId) {
         return Response.json({ error: 'Cannot deactivate your own account' }, { status: 400 });
       }
-      const user = await base44.asServiceRole.entities.AdminUser.get(userId);
+      const user = await service.entities.AdminUser.get(userId);
       const newActive = !user.is_active;
-      await base44.asServiceRole.entities.AdminUser.update(userId, { is_active: newActive });
+      await service.entities.AdminUser.update(userId, { is_active: newActive });
       return Response.json({ success: true, message: `User ${newActive ? 'activated' : 'deactivated'}`, userId: user.id, is_active: newActive });
     }
 
@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
       if (userId === session.userId) {
         return Response.json({ error: 'Cannot delete your own account' }, { status: 400 });
       }
-      await base44.asServiceRole.entities.AdminUser.delete(userId);
+      await service.entities.AdminUser.delete(userId);
       return Response.json({ success: true, message: 'User deleted', deletedUserId: userId });
     }
 
