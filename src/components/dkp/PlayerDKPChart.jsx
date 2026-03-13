@@ -244,7 +244,6 @@ export default function PlayerDKPChart({ transactions }) {
                         activeDot={{ r: 4, fill: e.color }}
                         name={e.label}
                         connectNulls={e.key !== "balance"}
-                        strokeDasharray={e.key === "balance" ? undefined : undefined}
                       />
                     )
                   )}
