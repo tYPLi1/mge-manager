@@ -239,7 +239,9 @@ export default function AdminPlayers() {
         const power = hasPower ? (Math.round(Number(row[powerCol])) || 0) : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
-        const existing = playersMap.get(name.toLowerCase());
+        // Try exact match first, then normalized match
+        const existing = playersMap.get(name.toLowerCase()) || 
+          players.find(p => p.name?.trim().toLowerCase() === name.toLowerCase());
         if (!existing) {
           preview.push({
             type: "new",
@@ -257,10 +259,10 @@ export default function AdminPlayers() {
           }
 
           const changes = {};
-          if (hasDkpEarned && existing.total_dkp !== dkpEarned) changes.total_dkp = { old: existing.total_dkp, new: dkpEarned };
-          if (hasDkpSpent && existing.dkp_spent !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent, new: dkpSpent };
+          if (hasDkpEarned && (existing.total_dkp || 0) !== dkpEarned) changes.total_dkp = { old: existing.total_dkp || 0, new: dkpEarned };
+          if (hasDkpSpent && (existing.dkp_spent || 0) !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent || 0, new: dkpSpent };
           if (hasCooldown && existing.cooldown_until !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
-          if (hasPower && existing.power !== power) changes.power = { old: existing.power, new: power };
+          if (hasPower && (existing.power || 0) !== power) changes.power = { old: existing.power || 0, new: power };
 
           if (Object.keys(changes).length > 0) {
             preview.push({ type: "update", entity: "player", id: existing.id, name, changes });
