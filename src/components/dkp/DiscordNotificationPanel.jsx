@@ -140,7 +140,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(`Nachricht an ${data.channels || 0} Channel(s) gesendet!`);
+      toast.success(`Message sent to ${data.channels || 0} channel(s)!`);
       setTitle('');
       setMessage('');
     },
