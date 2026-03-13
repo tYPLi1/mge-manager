@@ -234,7 +234,7 @@ export default function DiscordNotificationPanel({ serversJson }) {
             className="w-full bg-amber-500 hover:bg-amber-600 text-white"
           >
             <Send className="w-3.5 h-3.5 mr-2" />
-            {sendManualMessageMutation.isPending ? "Sende..." : `An ${selectedChannels.length} Channel(s) senden`}
+            {sendManualMessageMutation.isPending ? "Sending..." : `Send to ${selectedChannels.length} channel(s)`}
           </Button>
         </div>
       </div>
