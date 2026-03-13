@@ -69,8 +69,7 @@ Deno.serve(async (req) => {
       return 'First to bid';
     };
 
-    const topResults = results.slice(0, 3);
-    const resultsText = topResults.map((r, i) => {
+    const resultsText = results.map((r, i) => {
       let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
       if (r.target_score) line += ` | Target: ${r.target_score.toLocaleString()}`;
       if (r.hero_medals) line += ` | Medals: ${r.hero_medals}`;
