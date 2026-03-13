@@ -41,14 +41,15 @@ Deno.serve(async (req) => {
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();
 
-    // Get all auction channels (this is used for auction-related embeds)
+    // Get target channels based on notification type (default: auction)
+    const type = notifType || 'auction';
     const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
     let channels = [];
     if (serversJson) {
       try {
         const servers = JSON.parse(serversJson);
         for (const server of servers) {
-          const ch = server.channels?.auction;
+          const ch = server.channels?.[type];
           if (ch?.enabled) {
             const channelId = ch.channelId || server.defaultChannelId;
             if (channelId) channels.push(channelId);
