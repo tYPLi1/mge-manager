@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     }
 
     embed.fields = embed.fields || [];
-    embed.fields.push({ name: '🔗 Link', value: `[Zur Auktion](${auctionUrl})`, inline: false });
+    embed.fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
 
     const payload = {
       content: '@everyone',

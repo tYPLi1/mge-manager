@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
 
     const punishmentsUrl = 'https://mge002.base44.app/Punishments';
 
-    const title = isCompensation ? '💰 DKP Kompensation' : '⚠️ DKP Strafzug';
+    const title = isCompensation ? '💰 DKP Compensation' : '⚠️ DKP Penalty';
     const color = isCompensation ? 65280 : 16711680;
     const sourceText = data.source || (isCompensation ? 'MGE' : 'Offense');
 
@@ -54,10 +54,10 @@ Deno.serve(async (req) => {
         title,
         description: `**${data.player_name}**`,
         fields: [
-          { name: 'Betrag', value: `${data.amount > 0 ? '+' : ''}${data.amount} DKP`, inline: true },
-          { name: 'Grund', value: sourceText, inline: true },
-          { name: 'Details', value: data.note || 'Keine Notiz', inline: false },
-          { name: '🔗 Link', value: `[Zu den Strafen](${punishmentsUrl})`, inline: false },
+          { name: 'Amount', value: `${data.amount > 0 ? '+' : ''}${data.amount} DKP`, inline: true },
+          { name: 'Reason', value: sourceText, inline: true },
+          { name: 'Details', value: data.note || 'No note', inline: false },
+          { name: '🔗 Link', value: `[View Penalties](${punishmentsUrl})`, inline: false },
         ],
         color,
         timestamp: new Date().toISOString(),

@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
           { name: "Active Bids", value: String(activeBids.length), inline: true },
         ];
         if (auction.has_password) fields.push({ name: "🔒", value: "Password required", inline: true });
-        fields.push({ name: '🔗 Link', value: `[Zur Auktion](${auctionUrl})`, inline: false });
+        fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
 
         const payload = {
           content: '@everyone',

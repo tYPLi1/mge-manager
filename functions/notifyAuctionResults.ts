@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
     if (tiebreakerNote) fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
-    fields.push({ name: '🔗 Link', value: `[Zu den Ergebnissen](${resultsUrl})`, inline: false });
+    fields.push({ name: '🔗 Link', value: `[View Results](${resultsUrl})`, inline: false });
 
     const payload = {
       content: '@everyone',

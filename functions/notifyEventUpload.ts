@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
           { name: 'Players Updated', value: String(playersUpdated || 0), inline: true },
           { name: 'Total DKP Distributed', value: String(totalDkpDistributed || 0), inline: true },
           { name: 'Top Rankings', value: rankingsText, inline: false },
-          { name: '🔗 Link', value: `[Zum Leaderboard](${leaderboardUrl})`, inline: false },
+          { name: '🔗 Link', value: `[View Leaderboard](${leaderboardUrl})`, inline: false },
         ],
         footer: { text: 'DKP System' },
       }],

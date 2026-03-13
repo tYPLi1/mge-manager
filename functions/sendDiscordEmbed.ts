@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
     finalEmbed.fields = finalEmbed.fields || [];
-    finalEmbed.fields.push({ name: '🔗 Link', value: `[Zur App](${linkUrl})`, inline: false });
+    finalEmbed.fields.push({ name: '🔗 Link', value: `[Open App](${linkUrl})`, inline: false });
 
     let sent = 0;
     for (const ch of channels) {
