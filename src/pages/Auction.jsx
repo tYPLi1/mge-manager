@@ -114,30 +114,31 @@ export default function Auction() {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
     setBidError("");
 
-    // Prüfe ob bereits geboten
+    // Basic client-side checks (server validates everything again)
     if (alreadyBid) {
       setBidError("You have already placed a bid for this auction.");
       return;
     }
-    // Validate password
-    if (currentAuction.has_password && bidPassword !== currentAuction.bid_password) {
-      setBidError("Incorrect auction password.");
-      return;
-    }
-    // Validate DKP
     if (parseInt(bidAmount) > currentDkp) {
       setBidError(`Not enough DKP. Available: ${currentDkp}`);
       return;
     }
 
     setSubmitting(true);
-    await base44.entities.Bid.create({
+    const res = await base44.functions.invoke("submitBid", {
       auction_id: currentAuction.id,
       player_id: selectedPlayer,
-      player_name: selectedPlayerData?.name,
       dkp_bid: parseInt(bidAmount),
+      bid_password: bidPassword || undefined,
       want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
     });
+    
+    if (res.data?.error) {
+      setBidError(res.data.error);
+      setSubmitting(false);
+      return;
+    }
+    
     setSubmitted(true);
     setSubmitting(false);
   };
