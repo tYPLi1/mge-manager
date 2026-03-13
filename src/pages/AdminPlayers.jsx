@@ -114,7 +114,7 @@ export default function AdminPlayers() {
     const newPower = parseInt(editPower) || 0;
     // Log power history if power changed
     if (newPower !== (p.power || 0)) {
-      await base44.entities.PowerHistory.create({
+      await adminEntities.PowerHistory.create({
         player_id: p.id,
         player_name: editName.trim() || p.name,
         power: newPower,
