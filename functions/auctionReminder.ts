@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
       if (diffMin > 0 && diffMin <= 35) {
         const minutesLeft = Math.round(diffMin);
         const closeTimeStr = closeAt.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
-        const bids = await base44.asServiceRole.entities.Bid.filter({ auction_id: auction.id });
+        const bids = await service.entities.Bid.filter({ auction_id: auction.id });
         const activeBids = bids.filter(b => !b.is_deleted);
 
         const fields = [
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
         }
 
         // Mark reminder as sent so it doesn't fire again
-        await base44.asServiceRole.entities.Auction.update(auction.id, { reminder_sent: true });
+        await service.entities.Auction.update(auction.id, { reminder_sent: true });
       }
     }
 

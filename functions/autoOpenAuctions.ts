@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       if (!auction.scheduled_open) continue;
       const openAt = new Date(ensureUTC(auction.scheduled_open));
       if (openAt <= now) {
-        await base44.asServiceRole.entities.Auction.update(auction.id, { status: "open" });
+        await service.entities.Auction.update(auction.id, { status: "open" });
         opened++;
         // Discord notification is handled by the entity automation (notifyAuctionOpened)
       }
@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
       if (!auction.scheduled_close) continue;
       const closeAt = new Date(ensureUTC(auction.scheduled_close));
       if (closeAt <= now) {
-        await base44.asServiceRole.entities.Auction.update(auction.id, { status: "closed" });
+        await service.entities.Auction.update(auction.id, { status: "closed" });
         closed++;
       }
     }
