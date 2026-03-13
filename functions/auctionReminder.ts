@@ -11,10 +11,10 @@ Deno.serve(async (req) => {
 
     const getSetting = (key) => settings.find(s => s.key === key)?.value;
     const webhookUrl = getSetting("discord_webhook_url");
-    const auctionEnabled = getSetting("discord_auction_enabled") === "true";
+    const reminderEnabled = getSetting("discord_auction_reminder_enabled") === "true";
 
-    if (!webhookUrl || !auctionEnabled) {
-      return Response.json({ skipped: true, reason: "Discord not configured or auction notifications disabled" });
+    if (!webhookUrl || !reminderEnabled) {
+      return Response.json({ skipped: true, reason: "Discord not configured or auction reminder disabled" });
     }
 
     function ensureUTC(dateStr) {
