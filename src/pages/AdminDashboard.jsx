@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -11,7 +12,7 @@ export default function AdminDashboard() {
   const [webhookUrl, setWebhookUrl] = useState("");
 
   useEffect(() => {
-    base44.entities.AppSettings.filter({ key: "discord_webhook_url" }).then((results) => {
+    adminEntities.AppSettings.filter({ key: "discord_webhook_url" }).then((results) => {
       if (results.length > 0) setWebhookUrl(results[0].value);
     });
   }, []);

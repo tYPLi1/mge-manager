@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -140,7 +141,7 @@ export default function AdminAuctions() {
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => base44.entities.AppSettings.list(),
+    queryFn: () => adminEntities.AppSettings.list(),
   });
 
   const { data: transactions = [] } = useQuery({
@@ -290,7 +291,7 @@ export default function AdminAuctions() {
   }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, activityScores, lastEventDkpScores]);
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Auction.create(data),
+    mutationFn: (data) => adminEntities.Auction.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auctions"] });
       setTitle(""); setScheduledOpen(""); setScheduledClose(""); setPassword("");
@@ -298,7 +299,7 @@ export default function AdminAuctions() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Auction.update(id, { status }),
+    mutationFn: ({ id, status }) => adminEntities.Auction.update(id, { status }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auctions"] }),
   });
 
@@ -334,12 +335,12 @@ export default function AdminAuctions() {
   };
 
   const deleteBidMutation = useMutation({
-    mutationFn: ({ id, reason }) => base44.entities.Bid.update(id, { is_deleted: true, deleted_reason: reason }),
+    mutationFn: ({ id, reason }) => adminEntities.Bid.update(id, { is_deleted: true, deleted_reason: reason }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] }),
   });
 
   const updateBidMutation = useMutation({
-    mutationFn: ({ id, dkp_bid }) => base44.entities.Bid.update(id, { dkp_bid }),
+    mutationFn: ({ id, dkp_bid }) => adminEntities.Bid.update(id, { dkp_bid }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] });
       setEditBid(null);
@@ -350,7 +351,7 @@ export default function AdminAuctions() {
     if (!viewBids) return;
     const today = new Date().toISOString().split("T")[0];
 
-    await base44.entities.Auction.update(viewBids.id, {
+    await adminEntities.Auction.update(viewBids.id, {
       status: "confirmed",
       confirmed_at: new Date().toISOString(),
     });
@@ -359,7 +360,7 @@ export default function AdminAuctions() {
       const cooldownDays = cooldownTable[entry.rank] || 7;
       const cooldownDate = addDays(today, cooldownDays);
 
-      await base44.entities.AuctionResult.create({
+      await adminEntities.AuctionResult.create({
         auction_id: viewBids.id,
         player_id: entry.player_id,
         player_name: entry.player_name,
@@ -370,7 +371,7 @@ export default function AdminAuctions() {
         hero_medals: entry.medals,
       });
 
-      await base44.entities.DKPTransaction.create({
+      await adminEntities.DKPTransaction.create({
         player_id: entry.player_id,
         player_name: entry.player_name,
         amount: -entry.dkp_bid,
@@ -382,7 +383,7 @@ export default function AdminAuctions() {
 
       const player = players.find((p) => p.id === entry.player_id);
       if (player) {
-        await base44.entities.Player.update(entry.player_id, {
+        await adminEntities.Player.update(entry.player_id, {
           dkp_spent: (player.dkp_spent || 0) + entry.dkp_bid,
           cooldown_until: cooldownDate,
         });
@@ -442,11 +443,11 @@ export default function AdminAuctions() {
 
     // If confirmed: clear cooldowns (always) and optionally refund DKP
     if (auction.status === "confirmed") {
-      const results = await base44.entities.AuctionResult.filter({ auction_id: auction.id });
+      const results = await adminEntities.AuctionResult.filter({ auction_id: auction.id });
       for (const result of results) {
         const player = players.find((p) => p.id === result.player_id);
         if (refundDkp) {
-          await base44.entities.DKPTransaction.create({
+          await adminEntities.DKPTransaction.create({
             player_id: result.player_id,
             player_name: result.player_name,
             amount: result.dkp_bid,
@@ -459,22 +460,22 @@ export default function AdminAuctions() {
         if (player) {
           const updates = { cooldown_until: null }; // always clear cooldown when deleting auction
           if (refundDkp) updates.dkp_spent = Math.max(0, (player.dkp_spent || 0) - result.dkp_bid);
-          await base44.entities.Player.update(result.player_id, updates);
+          await adminEntities.Player.update(result.player_id, updates);
         }
       }
       for (const result of results) {
-        await base44.entities.AuctionResult.delete(result.id);
+        await adminEntities.AuctionResult.delete(result.id);
       }
     }
 
     // Delete all bids
-    const auctionBids = await base44.entities.Bid.filter({ auction_id: auction.id });
+    const auctionBids = await adminEntities.Bid.filter({ auction_id: auction.id });
     for (const bid of auctionBids) {
-      await base44.entities.Bid.delete(bid.id);
+      await adminEntities.Bid.delete(bid.id);
     }
 
     // Delete auction
-    await base44.entities.Auction.delete(auction.id);
+    await adminEntities.Auction.delete(auction.id);
 
     if (viewBids?.id === auction.id) {
       setViewBids(null);
