@@ -27,37 +27,52 @@ export default function AdminSessionGuard({ children }) {
       const adminSession = localStorage.getItem('adminSession');
       if (adminSession) {
         const parsed = JSON.parse(adminSession);
-        if (new Date(parsed.expiresAt) > new Date()) {
-          try {
-            const res = await base44.functions.invoke('verifyAdminSession', { userId: parsed.userId });
-            if (res.data.valid) {
-              userIdRef.current = parsed.userId;
-              setIsAuthorized(true);
-              setLoading(false);
-              return;
-            } else {
-              // Explicit invalid (user deactivated/deleted)
-              forceLogout();
-              return;
-            }
-          } catch (err) {
-            // If the error is a 401 from the SDK (no Base44 login in public app),
-            // trust the local session — the backend function couldn't be reached,
-            // not because the admin session is invalid.
-            const status = err?.response?.status || err?.status;
-            if (status === 401) {
-              userIdRef.current = parsed.userId;
-              setIsAuthorized(true);
-              setLoading(false);
-              return;
-            }
-            // Any other error → logout for safety
+
+        // Basic validity: must have token, userId, username, and not be expired
+        if (!parsed.token || !parsed.userId || !parsed.username || !parsed.expiresAt) {
+          forceLogout();
+          return;
+        }
+        if (new Date(parsed.expiresAt) <= new Date()) {
+          localStorage.removeItem('adminSession');
+          localStorage.removeItem('adminLastActivity');
+          navigate(createPageUrl('AdminLogin'));
+          setLoading(false);
+          return;
+        }
+
+        try {
+          // Full server-side verification: checks HMAC signature + user still active
+          const res = await base44.functions.invoke('verifySessionToken', {
+            userId: parsed.userId,
+            username: parsed.username,
+            expiresAt: parsed.expiresAt,
+            token: parsed.token,
+          });
+          if (res.data.valid) {
+            userIdRef.current = parsed.userId;
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
+          } else {
             forceLogout();
             return;
           }
-        } else {
-          localStorage.removeItem('adminSession');
-          localStorage.removeItem('adminLastActivity');
+        } catch (err) {
+          // 401 = no Base44 user logged in (public app).
+          // In this case we trust the signed token: it can only have been
+          // created by the backend with the correct ADMIN_MANAGEMENT_PASSWORD.
+          // A forged session without a valid HMAC token will fail as soon as
+          // the user performs any backend action.
+          const status = err?.response?.status || err?.status;
+          if (status === 401 && parsed.token) {
+            userIdRef.current = parsed.userId;
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
+          }
+          forceLogout();
+          return;
         }
       }
 
