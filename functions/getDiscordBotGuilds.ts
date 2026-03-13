@@ -5,9 +5,36 @@ const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    const body = await req.json();
+    const { session } = body;
+
+    // Validate admin session via HMAC (same as other admin functions)
+    if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (new Date(session.expiresAt) <= new Date()) {
+      return Response.json({ error: 'Session expired' }, { status: 401 });
+    }
+
+    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+    const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (session.token !== expectedSignature) {
+      return Response.json({ error: 'Invalid token' }, { status: 403 });
+    }
+
+    try {
+      const user = await base44.asServiceRole.entities.AdminUser.get(session.userId);
+      if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
+    } catch (e) {
+      const msg = e?.message || '';
+      if (msg.includes('not found') || msg.includes('does not exist')) {
+        return Response.json({ error: 'User not found' }, { status: 403 });
+      }
     }
 
     if (!BOT_TOKEN) return Response.json({ error: 'Bot token not configured' }, { status: 400 });
@@ -23,7 +50,6 @@ Deno.serve(async (req) => {
 
     const guilds = await res.json();
 
-    // Also fetch channels for each guild
     const result = [];
     for (const guild of guilds) {
       let channels = [];
@@ -33,7 +59,6 @@ Deno.serve(async (req) => {
         });
         if (chRes.ok) {
           const allChannels = await chRes.json();
-          // Only text channels (type 0) and announcement channels (type 5)
           channels = allChannels
             .filter(c => c.type === 0 || c.type === 5)
             .sort((a, b) => a.position - b.position)
