@@ -90,7 +90,7 @@ function ServerCard({ server, onChange, onRemove, guild }) {
         <div className="px-4 pb-4 space-y-4 border-t border-white/5 pt-4">
           {/* Default Channel */}
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Standard Channel (Fallback)</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Default Channel (Fallback)</Label>
             <Select
               value={server.defaultChannelId || "__none__"}
               onValueChange={(v) => updateField("defaultChannelId", v === "__none__" ? "" : v)}
