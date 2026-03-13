@@ -40,9 +40,7 @@ export default function AdminSessionGuard({ children }) {
               return;
             }
           } catch {
-            userIdRef.current = parsed.userId;
-            setIsAuthorized(true);
-            setLoading(false);
+            forceLogout();
             return;
           }
         } else {
