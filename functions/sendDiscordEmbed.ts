@@ -1,10 +1,19 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
+function getServiceClient(req) {
+  try {
+    const client = createClientFromRequest(req);
+    return client.asServiceRole;
+  } catch {
+    return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
+  }
+}
+
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const service = getServiceClient(req);
     const body = await req.json();
     const { session, embed, extraText, notifType } = body;
 
