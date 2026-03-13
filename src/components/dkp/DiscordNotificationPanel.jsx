@@ -34,7 +34,7 @@ function ChannelPicker({ servers, guilds, selected, onChange }) {
   };
 
   if (servers.length === 0) {
-    return <p className="text-gray-500 text-xs">Keine Server konfiguriert.</p>;
+    return <p className="text-gray-500 text-xs">No servers configured.</p>;
   }
 
   return (
