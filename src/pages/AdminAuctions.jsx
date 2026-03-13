@@ -303,33 +303,32 @@ export default function AdminAuctions() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auctions"] }),
   });
 
+  const getSession = () => {
+    try {
+      const raw = localStorage.getItem("adminSession");
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  };
+
   const handleOpenAuction = async (auction) => {
     // Open the auction first
     statusMutation.mutate({ id: auction.id, status: "open" });
 
-    // Then send stored Discord message if available
-    if (auctionEnabled && webhookUrl && auction.discord_embed) {
+    // Then send stored Discord message via backend
+    if (auctionEnabled && auction.discord_embed) {
+      const session = getSession();
+      if (!session) return;
       const embed = JSON.parse(auction.discord_embed);
-      if (auction.discord_extra_text?.trim()) {
-        embed.description = (embed.description || "") + "\n\n" + auction.discord_extra_text.trim();
-      }
-      const discordPayload = {
-        content: channelId ? `<#${channelId}>` : undefined,
-        embeds: [embed],
-      };
-      try {
-        const res = await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(discordPayload),
-        });
-        if (res.ok) {
-          toast.success("Discord Nachricht gesendet!");
-        } else {
-          toast.error("Discord Fehler: " + await res.text());
-        }
-      } catch (err) {
-        toast.error("Discord Fehler: " + err.message);
+      const res = await base44.functions.invoke("sendDiscordEmbed", {
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+        embed,
+        channelId,
+        extraText: auction.discord_extra_text,
+      });
+      if (res.data?.success) {
+        toast.success("Discord Nachricht gesendet!");
+      } else {
+        toast.error("Discord Fehler: " + (res.data?.error || "Unknown"));
       }
     }
   };
