@@ -231,22 +231,22 @@ export default function AdminSettings() {
 
         {/* Discord Integration */}
          <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-           <h3 className="text-sm font-semibold text-white mb-4">Discord Notifications</h3>
+           <h3 className="text-sm font-semibold text-white mb-4">Discord Bot Notifications</h3>
            <p className="text-xs text-gray-500 mb-4">
-             Get notified on Discord when auctions open, results are ready, and event data is uploaded.
+             Get notified on Discord when auctions open, results are ready, and event data is uploaded. Uses a Discord Bot — @everyone mentions work!
            </p>
           <div className="space-y-4">
             <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Discord Webhook URL</Label>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Discord Channel ID</Label>
               <Input
                 type="text"
-                placeholder="https://discord.com/api/webhooks/..."
-                value={form.discord_webhook_url || ""}
-                onChange={(e) => setForm({ ...form, discord_webhook_url: e.target.value })}
+                placeholder="123456789012345678"
+                value={form.discord_channel_id || ""}
+                onChange={(e) => setForm({ ...form, discord_channel_id: e.target.value })}
                 className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-xs"
               />
               <p className="text-xs text-gray-500 mt-2">
-                Create a webhook: Server → Channel → Edit → Integrations → Webhooks
+                Rechtsklick auf den Channel → "ID kopieren" (Developer Mode muss in Discord aktiviert sein)
               </p>
             </div>
             <div className="flex items-center justify-between">

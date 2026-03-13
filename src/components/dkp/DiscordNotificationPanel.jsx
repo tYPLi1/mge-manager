@@ -44,7 +44,7 @@ export default function DiscordNotificationPanel() {
       const session = getSession();
       if (!session) throw new Error("No admin session");
       const response = await base44.functions.invoke('sendDiscordMessage', {
-        message: '✅ **Discord Integration Test**\nWebhook is working correctly!',
+        message: '✅ **Discord Bot Test**\nBot integration is working correctly! @everyone mentions are now supported!',
         session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
       });
       if (!response.data.success) throw new Error(response.data.error);
