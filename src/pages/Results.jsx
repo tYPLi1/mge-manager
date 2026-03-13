@@ -46,15 +46,17 @@ export default function Results() {
   });
 
   useEffect(() => {
-    const unsub1 = base44.entities.Auction.subscribe(() => {
+    // Auction is admin-only, use polling for public pages
+    const interval = setInterval(() => {
       queryClient.invalidateQueries({ queryKey: ["auctions-confirmed"] });
-    });
-    const unsub2 = base44.entities.AuctionResult.subscribe(() => {
+    }, 30000);
+    
+    const unsub = base44.entities.AuctionResult.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ["results"] });
     });
     return () => {
-      unsub1();
-      unsub2();
+      clearInterval(interval);
+      unsub();
     };
   }, [queryClient]);
 
