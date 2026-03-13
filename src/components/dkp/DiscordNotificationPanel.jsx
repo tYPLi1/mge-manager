@@ -219,9 +219,9 @@ export default function DiscordNotificationPanel({ serversJson }) {
             />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Nachricht</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Message</Label>
             <Textarea
-              placeholder="Nachricht eingeben (Markdown wird unterstützt)..."
+              placeholder="Write your message here (supports markdown)..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={8}
