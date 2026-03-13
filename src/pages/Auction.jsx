@@ -110,6 +110,29 @@ export default function Auction() {
            auctions.find((a) => a.status === "draft");
   }, [auctions]);
 
+  // Adaptive tick: 1s in last 5 min before open/close, otherwise 30s
+  useEffect(() => {
+    let timer;
+    const schedule = () => {
+      const now = Date.now();
+      const fiveMin = 5 * 60 * 1000;
+      let nearEvent = false;
+      if (rawAuction) {
+        const open = rawAuction.scheduled_open ? new Date(ensureUTC(rawAuction.scheduled_open)).getTime() : null;
+        const close = rawAuction.scheduled_close ? new Date(ensureUTC(rawAuction.scheduled_close)).getTime() : null;
+        if (open && open > now && (open - now) <= fiveMin) nearEvent = true;
+        if (close && close > now && (close - now) <= fiveMin) nearEvent = true;
+      }
+      const interval = nearEvent ? 1000 : 30000;
+      timer = setTimeout(() => {
+        setTick(t => t + 1);
+        schedule();
+      }, interval);
+    };
+    schedule();
+    return () => clearTimeout(timer);
+  }, [rawAuction]);
+
   // Compute effective status client-side (recomputed every tick)
   const effectiveStatus = useMemo(() => getEffectiveStatus(rawAuction), [rawAuction, tick]);
   const currentAuction = rawAuction ? { ...rawAuction, _effectiveStatus: effectiveStatus } : null;
