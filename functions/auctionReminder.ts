@@ -7,6 +7,23 @@ function getServiceClient(req) {
   catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
 }
 
+function getTargetChannels(settings, type) {
+  const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
+  if (!serversJson) return [];
+  try {
+    const servers = JSON.parse(serversJson);
+    const channels = [];
+    for (const server of servers) {
+      const ch = server.channels?.[type];
+      if (ch?.enabled) {
+        const channelId = ch.channelId || server.defaultChannelId;
+        if (channelId) channels.push(channelId);
+      }
+    }
+    return channels;
+  } catch { return []; }
+}
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
