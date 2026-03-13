@@ -116,10 +116,10 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
         {/* Extra Text Input */}
         <div>
           <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
-            Zusätzlicher Text (optional)
+            Additional Text (optional)
           </Label>
           <Textarea
-            placeholder="z.B. Hinweise, Kommentare..."
+            placeholder="e.g. notes, comments..."
             value={extraText}
             onChange={(e) => setExtraText(e.target.value)}
             rows={3}
