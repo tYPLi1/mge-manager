@@ -690,21 +690,31 @@ export default function AdminAuctions() {
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs text-gray-500">{activeBids.length} active bids{deletedBids.length > 0 ? ` · ${deletedBids.length} deleted` : ""}</p>
                 </div>
+                <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">#</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Rank</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">MGE Score</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Friendly Zone</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Bid Time (UTC)</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Rank Reason</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">FZ</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {activeBids.map((b, i) => (
-                      <tr key={b.id}>
-                        <td className="px-2 py-1.5 text-xs text-gray-500">{i + 1}</td>
+                    {rankedBids.map((b) => (
+                      <tr key={b.id} className={b._rank <= 10 ? "" : "opacity-50"}>
+                        <td className="px-2 py-1.5">
+                          <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                            b._rank <= 3 ? "bg-amber-500/20 text-amber-400" :
+                            b._rank <= 10 ? "bg-gray-700/50 text-gray-300" :
+                            "bg-transparent text-gray-600"
+                          }`}>
+                            {b._rank}
+                          </span>
+                        </td>
                         <td className="px-2 py-1.5 text-sm text-white">{b.player_name}</td>
                         <td className="px-2 py-1.5">
                           {editBid === b.id ? (
@@ -722,10 +732,21 @@ export default function AdminAuctions() {
                             <DKPValue value={b.dkp_bid} size="sm" />
                           )}
                         </td>
-                        <td className="px-2 py-1.5 text-sm text-gray-400 hidden sm:table-cell">{b.mge_score || "—"}</td>
+                        <td className="px-2 py-1.5 text-xs text-gray-400 font-mono whitespace-nowrap">
+                          {b.created_date ? new Date(b.created_date).toLocaleString("de-CH", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
+                        </td>
+                        <td className="px-2 py-1.5 hidden sm:table-cell">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                            b._rankReason.startsWith("Tiebreak")
+                              ? "text-purple-400 bg-purple-500/10 border border-purple-500/20"
+                              : "text-gray-500"
+                          }`}>
+                            {b._rankReason}
+                          </span>
+                        </td>
                         <td className="px-2 py-1.5">
                           {b.want_friendly_zone
-                            ? <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5">✓ FZ</span>
+                            ? <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5">✓</span>
                             : <span className="text-xs text-gray-600">—</span>}
                         </td>
                         <td className="px-2 py-1.5">
@@ -751,7 +772,8 @@ export default function AdminAuctions() {
                     ))}
                   </tbody>
                 </table>
-                {activeBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">No bids yet</p>}
+                </div>
+                {rankedBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">No bids yet</p>}
               </div>
             )}
 
