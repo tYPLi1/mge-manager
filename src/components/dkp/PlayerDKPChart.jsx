@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const RANGE_OPTIONS = [
@@ -177,7 +177,7 @@ export default function PlayerDKPChart({ transactions }) {
           <div ref={scrollRef} className="overflow-x-auto scrollbar-thin px-6">
             <div style={{ width: chartWidth, minHeight: 220 }}>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -209,17 +209,20 @@ export default function PlayerDKPChart({ transactions }) {
                   />
                   {eventLines.map(e =>
                     visibleLines[e.key] && (
-                      <Bar
+                      <Line
                         key={e.key}
+                        type="monotone"
                         dataKey={e.key}
-                        fill={e.color}
-                        stackId="stack"
+                        stroke={e.color}
+                        strokeWidth={2}
+                        dot={{ r: 2.5, fill: e.color, stroke: e.color }}
+                        activeDot={{ r: 4, fill: e.color }}
                         name={e.label}
-                        radius={[0, 0, 0, 0]}
+                        connectNulls
                       />
                     )
                   )}
-                </BarChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
