@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,13 +9,6 @@ import PageHeader from "@/components/dkp/PageHeader";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 
 export default function AdminDashboard() {
-  const [webhookUrl, setWebhookUrl] = useState("");
-
-  useEffect(() => {
-    adminEntities.AppSettings.filter({ key: "discord_webhook_url" }).then((results) => {
-      if (results.length > 0) setWebhookUrl(results[0].value);
-    });
-  }, []);
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
@@ -91,7 +84,7 @@ export default function AdminDashboard() {
 
       {/* Discord Notifications */}
       <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Discord Notifications</h2>
-      <DiscordNotificationPanel webhookUrl={webhookUrl} />
+      <DiscordNotificationPanel />
 
       {/* Quick Links */}
       <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6">Quick Actions</h2>

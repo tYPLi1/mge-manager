@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-export default function DiscordNotificationPanel({ webhookUrl }) {
+export default function DiscordNotificationPanel() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
