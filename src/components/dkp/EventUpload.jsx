@@ -134,7 +134,24 @@ export default function EventUpload({ players, eventTypes }) {
         }
 
         // 2) Top-20-Spieler: gesperrte Ränge überspringen
-...
+        let effectiveRank = 1;
+        for (const entry of top20Entries) {
+          const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
+          const tableType = stage === "prep" ? "prep" : "war_top20";
+          if (stage === "prep") {
+            const groupRank = top20Entries.indexOf(entry) + 1;
+            const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power });
+          } else {
+            while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
+              effectiveRank++;
+            }
+            const dkp = rankToDkp(selectedEventType, tableType, effectiveRank, withinCutoff);
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power });
+            effectiveRank++;
+          }
+        }
+
         // 3) Restliche Outside-Spieler: eigenes Ranking in der Outside-Tabelle
         for (let i = 0; i < outsideRegular.length; i++) {
           const entry = outsideRegular[i];
