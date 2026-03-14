@@ -111,30 +111,52 @@ export default function EventUpload({ players, eventTypes }) {
         outsideEntries.sort((a, b) => a.serverRank - b.serverRank);
         
         const results = [];
-        
-        // Top 20 players: ranked among themselves by server rank
-        for (let i = 0; i < top20Entries.length; i++) {
-          const entry = top20Entries[i];
-          const groupRank = i + 1;
+        const claimedRanks = new Set(); // Server-Ränge 1-10 die von Outside-Spielern beansprucht werden
+
+        // 1) Outside-Spieler mit Server-Rang 1-10 erhalten Top-20-DKP und sperren den Rang
+        const outsideOverride = [];
+        const outsideRegular = [];
+        for (const entry of outsideEntries) {
+          if (stage !== "prep" && entry.serverRank >= 1 && entry.serverRank <= 10) {
+            outsideOverride.push(entry);
+            claimedRanks.add(entry.serverRank);
+          } else {
+            outsideRegular.push(entry);
+          }
+        }
+
+        for (const entry of outsideOverride) {
+          const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
+          const dkp = rankToDkp(selectedEventType, "war_top20", entry.serverRank, withinCutoff);
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: entry.serverRank, dkp, group: "Outside (Top 20)", power: entry.power });
+        }
+
+        // 2) Top-20-Spieler: gesperrte Ränge überspringen
+        let effectiveRank = 1;
+        for (const entry of top20Entries) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const tableType = stage === "prep" ? "prep" : "war_top20";
-          const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
-          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power });
+          if (stage === "prep") {
+            const groupRank = top20Entries.indexOf(entry) + 1;
+            const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power });
+          } else {
+            while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
+              effectiveRank++;
+            }
+            const dkp = rankToDkp(selectedEventType, tableType, effectiveRank, withinCutoff);
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power });
+            effectiveRank++;
+          }
         }
-        
-        // Outside players: ranked among themselves by server rank (separate ranking)
-        // Override: If an outside player has server rank <= 10, they get Top 20 DKP using their server rank
-        for (let i = 0; i < outsideEntries.length; i++) {
-          const entry = outsideEntries[i];
+
+        // 3) Restliche Outside-Spieler: eigenes Ranking in der Outside-Tabelle
+        for (let i = 0; i < outsideRegular.length; i++) {
+          const entry = outsideRegular[i];
           const groupRank = i + 1;
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-          let tableType = stage === "prep" ? "prep" : "war_outside";
-          let dkpRank = groupRank;
-          if (stage !== "prep" && entry.serverRank <= 10) {
-            tableType = "war_top20";
-            dkpRank = entry.serverRank;
-          }
-          const dkp = rankToDkp(selectedEventType, tableType, dkpRank, withinCutoff);
+          const tableType = stage === "prep" ? "prep" : "war_outside";
+          const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
           results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power });
         }
         setPreview(results);
