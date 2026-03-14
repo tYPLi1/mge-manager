@@ -123,16 +123,18 @@ export default function EventUpload({ players, eventTypes }) {
         }
         
         // Outside players: ranked among themselves by server rank (separate ranking)
-        // Override: Top 10 outside players get DKP from the Top 20 table
+        // Override: If an outside player has server rank <= 10, they get Top 20 DKP using their server rank
         for (let i = 0; i < outsideEntries.length; i++) {
           const entry = outsideEntries[i];
           const groupRank = i + 1;
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           let tableType = stage === "prep" ? "prep" : "war_outside";
-          if (stage !== "prep" && groupRank <= 10) {
+          let dkpRank = groupRank;
+          if (stage !== "prep" && entry.serverRank <= 10) {
             tableType = "war_top20";
+            dkpRank = entry.serverRank;
           }
-          const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+          const dkp = rankToDkp(selectedEventType, tableType, dkpRank, withinCutoff);
           results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power });
         }
         setPreview(results);
