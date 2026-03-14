@@ -228,31 +228,62 @@ export default function EventUpload({ players, eventTypes }) {
     const stageName = isYN ? "" : ` - ${stage}`;
 
     if (eventsEnabled && webhookUrl) {
-      const dkpLines = [...toApply].sort((a, b) => b.dkp - a.dkp).map(r => {
-        let line = `**${r.playerName}** (${r.dkp > 0 ? "+" : ""}${r.dkp} DKP)`;
-        if (r.overrideApplied) line += " ⚡ _Override: Top 10 Serverrang_";
-        return line;
-      });
-      // Discord embed field value max 1024 chars — split into chunks if needed
-      const chunks = [];
-      let current = "";
-      for (const line of dkpLines) {
-        if ((current + "\n" + line).length > 1020) {
-          chunks.push(current);
-          current = line;
-        } else {
-          current = current ? current + "\n" + line : line;
+      // Build table for each group
+      const buildGroupTable = (groupName, entries) => {
+        if (entries.length === 0) return "";
+        const pad = (s, len) => String(s).padEnd(len).slice(0, len);
+        const padL = (s, len) => String(s).padStart(len).slice(0, len);
+        const maxName = Math.min(Math.max(...entries.map(e => e.playerName.length), 4), 16);
+        let table = `**${groupName}**\n\`\`\`\n`;
+        table += `${pad("#", 3)} ${pad("Player", maxName)} ${padL("DKP", 5)} ${pad("Note", 10)}\n`;
+        table += `${"─".repeat(3)} ${"─".repeat(maxName)} ${"─".repeat(5)} ${"─".repeat(10)}\n`;
+        for (const r of entries) {
+          const rank = r.groupRank ? `#${r.groupRank}` : r.group === "Present" ? " ✓" : " ✗";
+          const dkpStr = (r.dkp > 0 ? "+" : "") + r.dkp;
+          let noteStr = r.note || "";
+          if (r.overrideApplied) noteStr = noteStr ? `⚡Override | ${noteStr}` : "⚡Override";
+          table += `${pad(rank, 3)} ${pad(r.playerName, maxName)} ${padL(dkpStr, 5)} ${noteStr}\n`;
         }
-      }
-      if (current) chunks.push(current);
+        table += "```";
+        return table;
+      };
 
+      const sorted = [...toApply].sort((a, b) => (a.groupRank || 999) - (b.groupRank || 999));
+      const top20 = sorted.filter(r => r.group === "Top 20");
+      const outside = sorted.filter(r => r.group === "Outside");
+      const present = sorted.filter(r => r.group === "Present");
+      const absent = sorted.filter(r => r.group === "Absent");
+
+      const sections = [];
+      if (top20.length) sections.push(buildGroupTable("🏆 Top 20", top20));
+      if (outside.length) sections.push(buildGroupTable("🌐 Outside", outside));
+      if (present.length) sections.push(buildGroupTable("✅ Present", present));
+      if (absent.length) sections.push(buildGroupTable("❌ Absent", absent));
+
+      // Split sections into embed fields respecting 1024 char limit
       const fields = [
         { name: "Players Updated", value: String(toApply.length), inline: true },
         { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
       ];
-      chunks.forEach((chunk, i) => {
-        fields.push({ name: i === 0 ? "DKP Ergebnisse" : "​", value: chunk, inline: false });
-      });
+      for (const section of sections) {
+        if (section.length <= 1024) {
+          fields.push({ name: "​", value: section, inline: false });
+        } else {
+          // Split long sections at line breaks
+          const lines = section.split("\n");
+          let chunk = "";
+          for (const line of lines) {
+            if ((chunk + "\n" + line).length > 1000) {
+              if (chunk && !chunk.endsWith("```")) chunk += "\n```";
+              fields.push({ name: "​", value: chunk, inline: false });
+              chunk = "```\n" + line;
+            } else {
+              chunk = chunk ? chunk + "\n" + line : line;
+            }
+          }
+          if (chunk) fields.push({ name: "​", value: chunk, inline: false });
+        }
+      }
 
       const embed = {
         title: "📊 Event Data Uploaded",
