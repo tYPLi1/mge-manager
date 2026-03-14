@@ -223,20 +223,40 @@ export default function EventUpload({ players, eventTypes }) {
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
     const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
-    const top5 = [...toApply].sort((a, b) => b.dkp - a.dkp).slice(0, 5);
-    const rankingsText = top5.map((r, i) => `${i + 1}. **${r.playerName}** (+${r.dkp} DKP)`).join("\n");
     const stageName = isYN ? "" : ` - ${stage}`;
 
     if (eventsEnabled && webhookUrl) {
+      const dkpLines = [...toApply].sort((a, b) => b.dkp - a.dkp).map(r => {
+        let line = `**${r.playerName}** (${r.dkp > 0 ? "+" : ""}${r.dkp} DKP)`;
+        if (r.overrideApplied) line += " ⚡ _Override: Top 10 Serverrang_";
+        return line;
+      });
+      // Discord embed field value max 1024 chars — split into chunks if needed
+      const chunks = [];
+      let current = "";
+      for (const line of dkpLines) {
+        if ((current + "\n" + line).length > 1020) {
+          chunks.push(current);
+          current = line;
+        } else {
+          current = current ? current + "\n" + line : line;
+        }
+      }
+      if (current) chunks.push(current);
+
+      const fields = [
+        { name: "Players Updated", value: String(toApply.length), inline: true },
+        { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
+      ];
+      chunks.forEach((chunk, i) => {
+        fields.push({ name: i === 0 ? "DKP Ergebnisse" : "​", value: chunk, inline: false });
+      });
+
       const embed = {
         title: "📊 Event Data Uploaded",
         description: `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("de-CH")}`,
         color: 0x8b5cf6,
-        fields: [
-          { name: "Players Updated", value: String(toApply.length), inline: true },
-          { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
-          { name: "Top Rankings", value: rankingsText || "No ranking data", inline: false },
-        ],
+        fields,
         footer: { text: "DKP System" },
       };
       setDiscordPreview({ embed, onSent: doApply });
