@@ -228,24 +228,18 @@ export default function EventUpload({ players, eventTypes }) {
     const stageName = isYN ? "" : ` - ${stage}`;
 
     if (eventsEnabled && webhookUrl) {
-      // Build table for each group
-      const buildGroupTable = (groupName, entries) => {
-        if (entries.length === 0) return "";
-        const pad = (s, len) => String(s).padEnd(len).slice(0, len);
-        const padL = (s, len) => String(s).padStart(len).slice(0, len);
-        const maxName = Math.min(Math.max(...entries.map(e => e.playerName.length), 4), 16);
-        let table = `**${groupName}**\n\`\`\`\n`;
-        table += `${pad("#", 3)} ${pad("Player", maxName)} ${padL("DKP", 5)} ${pad("Note", 10)}\n`;
-        table += `${"─".repeat(3)} ${"─".repeat(maxName)} ${"─".repeat(5)} ${"─".repeat(10)}\n`;
+      const buildGroupLines = (groupName, entries) => {
+        if (entries.length === 0) return [];
+        const lines = [`**${groupName}**`];
         for (const r of entries) {
-          const rank = r.groupRank ? `#${r.groupRank}` : r.group === "Present" ? " ✓" : " ✗";
-          const dkpStr = (r.dkp > 0 ? "+" : "") + r.dkp;
-          let noteStr = r.note || "";
-          if (r.overrideApplied) noteStr = noteStr ? `⚡Override | ${noteStr}` : "⚡Override";
-          table += `${pad(rank, 3)} ${pad(r.playerName, maxName)} ${padL(dkpStr, 5)} ${noteStr}\n`;
+          const rank = r.groupRank ? `\`#${r.groupRank}\`` : r.group === "Present" ? "✅" : "❌";
+          const dkpStr = r.dkp > 0 ? `+${r.dkp}` : `${r.dkp}`;
+          let line = `${rank} **${r.playerName}** — \`${dkpStr} DKP\``;
+          if (r.overrideApplied) line += " ⚡ *Override*";
+          if (r.note) line += ` — _${r.note}_`;
+          lines.push(line);
         }
-        table += "```";
-        return table;
+        return lines;
       };
 
       const sorted = [...toApply].sort((a, b) => (a.groupRank || 999) - (b.groupRank || 999));
@@ -254,36 +248,29 @@ export default function EventUpload({ players, eventTypes }) {
       const present = sorted.filter(r => r.group === "Present");
       const absent = sorted.filter(r => r.group === "Absent");
 
-      const sections = [];
-      if (top20.length) sections.push(buildGroupTable("🏆 Top 20", top20));
-      if (outside.length) sections.push(buildGroupTable("🌐 Outside", outside));
-      if (present.length) sections.push(buildGroupTable("✅ Present", present));
-      if (absent.length) sections.push(buildGroupTable("❌ Absent", absent));
+      const allLines = [];
+      if (top20.length) allLines.push(...buildGroupLines("🏆 Top 20", top20), "");
+      if (outside.length) allLines.push(...buildGroupLines("🌐 Outside", outside), "");
+      if (present.length) allLines.push(...buildGroupLines("✅ Anwesend", present), "");
+      if (absent.length) allLines.push(...buildGroupLines("❌ Abwesend", absent), "");
 
-      // Split sections into embed fields respecting 1024 char limit
+      // Split into embed fields respecting 1024 char limit
       const fields = [
         { name: "Players Updated", value: String(toApply.length), inline: true },
         { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
       ];
-      for (const section of sections) {
-        if (section.length <= 1024) {
-          fields.push({ name: "​", value: section, inline: false });
+      let chunk = "";
+      let fieldIdx = 0;
+      for (const line of allLines) {
+        if ((chunk + "\n" + line).length > 1020) {
+          fields.push({ name: fieldIdx === 0 ? "Ergebnisse" : "​", value: chunk, inline: false });
+          chunk = line;
+          fieldIdx++;
         } else {
-          // Split long sections at line breaks
-          const lines = section.split("\n");
-          let chunk = "";
-          for (const line of lines) {
-            if ((chunk + "\n" + line).length > 1000) {
-              if (chunk && !chunk.endsWith("```")) chunk += "\n```";
-              fields.push({ name: "​", value: chunk, inline: false });
-              chunk = "```\n" + line;
-            } else {
-              chunk = chunk ? chunk + "\n" + line : line;
-            }
-          }
-          if (chunk) fields.push({ name: "​", value: chunk, inline: false });
+          chunk = chunk ? chunk + "\n" + line : line;
         }
       }
+      if (chunk) fields.push({ name: fieldIdx === 0 ? "Ergebnisse" : "​", value: chunk, inline: false });
 
       const embed = {
         title: "📊 Event Data Uploaded",
