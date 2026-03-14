@@ -128,7 +128,7 @@ export default function EventUpload({ players, eventTypes }) {
         for (const entry of outsideOverride) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const dkp = rankToDkp(selectedEventType, "war_top20", entry.serverRank, withinCutoff);
-          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: entry.serverRank, dkp, group: "Outside (Top 20)", power: entry.power });
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: entry.serverRank, dkp, group: "Outside", power: entry.power });
         }
 
         // 2) Top-20-Spieler: gesperrte Ränge überspringen
@@ -327,9 +327,19 @@ export default function EventUpload({ players, eventTypes }) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-gray-400">{preview.length} players — Preview (dry run)</p>
-            <Button onClick={applyResults} disabled={applying} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
-              <CheckCircle className="w-3.5 h-3.5 mr-1" /> {applying ? "Applying..." : "Confirm & Apply"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => { setPreview(null); setUnknownNames([]); setApplied(false); if (fileRef.current) fileRef.current.value = ""; }}
+                disabled={applying}
+                variant="outline"
+                className="border-white/10 text-gray-400 hover:bg-white/5 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button onClick={applyResults} disabled={applying} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                <CheckCircle className="w-3.5 h-3.5 mr-1" /> {applying ? "Applying..." : "Confirm & Apply"}
+              </Button>
+            </div>
           </div>
           <div className="max-h-64 overflow-y-auto rounded-lg border border-white/10">
             <table className="w-full">
