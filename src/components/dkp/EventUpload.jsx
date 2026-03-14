@@ -92,14 +92,44 @@ export default function EventUpload({ players, eventTypes }) {
         }
         setUnknownNames(missing);
         const sortedByPower = [...parsed].sort((a, b) => b.power - a.power);
-        const results = parsed.map(entry => {
+        
+        // Split into Top 20 (by power) and Outside groups
+        const top20Entries = [];
+        const outsideEntries = [];
+        for (const entry of parsed) {
           const powerRank = sortedByPower.findIndex(s => s.player.id === entry.player.id) + 1;
-          const isTop20 = powerRank <= 20;
+          if (powerRank <= 20) {
+            top20Entries.push(entry);
+          } else {
+            outsideEntries.push(entry);
+          }
+        }
+        
+        // Sort each group by server rank independently
+        top20Entries.sort((a, b) => a.serverRank - b.serverRank);
+        outsideEntries.sort((a, b) => a.serverRank - b.serverRank);
+        
+        const results = [];
+        
+        // Top 20 players: ranked among themselves by server rank
+        for (let i = 0; i < top20Entries.length; i++) {
+          const entry = top20Entries[i];
+          const groupRank = i + 1;
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-          const tableType = stage === "prep" ? "prep" : (isTop20 || entry.serverRank <= 10 ? "war_top20" : "war_outside");
-          const dkp = rankToDkp(selectedEventType, tableType, entry.serverRank, withinCutoff);
-          return { playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, dkp, group: isTop20 ? "Top 20" : "Outside", power: entry.power };
-        });
+          const tableType = stage === "prep" ? "prep" : "war_top20";
+          const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power });
+        }
+        
+        // Outside players: ranked among themselves by server rank (separate ranking)
+        for (let i = 0; i < outsideEntries.length; i++) {
+          const entry = outsideEntries[i];
+          const groupRank = i + 1;
+          const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
+          const tableType = stage === "prep" ? "prep" : "war_outside";
+          const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power });
+        }
         setPreview(results);
       }
     };
