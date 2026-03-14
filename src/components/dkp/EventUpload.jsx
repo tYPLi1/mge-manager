@@ -307,7 +307,8 @@ export default function EventUpload({ players, eventTypes }) {
               <thead className="bg-[#0d1117] sticky top-0">
                 <tr>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
-                  {!isYN && <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Rank</th>}
+                  {!isYN && <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Server Rank</th>}
+                  {!isYN && <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Group Rank</th>}
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Group</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
                 </tr>
