@@ -129,7 +129,7 @@ export default function EventUpload({ players, eventTypes }) {
         for (const entry of outsideOverride) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const dkp = rankToDkp(selectedEventType, "war_top20", entry.serverRank, withinCutoff);
-          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: outsideGroupRank, dkp, group: "Outside", power: entry.power });
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: outsideGroupRank, dkp, group: "Outside", power: entry.power, overrideApplied: true });
           outsideGroupRank++;
         }
 
