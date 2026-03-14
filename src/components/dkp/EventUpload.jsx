@@ -67,8 +67,9 @@ export default function EventUpload({ players, eventTypes }) {
           if (!name || !participated) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
           if (!player) { missing.push(name); continue; }
+          const note = row[2]?.toString().trim() || "";
           const dkp = participated === "Y" ? (selectedEventType.dkp_yn_present ?? 5) : (selectedEventType.dkp_yn_absent ?? -5);
-          results.push({ playerId: player.id, playerName: player.name, dkp, group: participated === "Y" ? "Present" : "Absent" });
+          results.push({ playerId: player.id, playerName: player.name, dkp, group: participated === "Y" ? "Present" : "Absent", note });
         }
         setUnknownNames(missing);
         setPreview(results);
@@ -85,10 +86,11 @@ export default function EventUpload({ players, eventTypes }) {
           const name = row[0]?.toString().trim();
           const serverRank = parseInt(row[1]);
           const power = parseFloat(row[2]) || null;
+          const note = row[3]?.toString().trim() || "";
           if (!name || !serverRank || isNaN(serverRank)) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
           if (!player) { missing.push(name); continue; }
-          parsed.push({ player, serverRank, power: power ?? (player.power || 0) });
+          parsed.push({ player, serverRank, power: power ?? (player.power || 0), note });
         }
         setUnknownNames(missing);
         // Top 20 is determined by ALL players in the system (by power), not just event participants
@@ -129,7 +131,7 @@ export default function EventUpload({ players, eventTypes }) {
         for (const entry of outsideOverride) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const dkp = rankToDkp(selectedEventType, "war_top20", entry.serverRank, withinCutoff);
-          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: outsideGroupRank, dkp, group: "Outside", power: entry.power, overrideApplied: true });
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: outsideGroupRank, dkp, group: "Outside", power: entry.power, overrideApplied: true, note: entry.note });
           outsideGroupRank++;
         }
 
@@ -141,13 +143,13 @@ export default function EventUpload({ players, eventTypes }) {
           if (stage === "prep") {
             const groupRank = top20Entries.indexOf(entry) + 1;
             const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
-            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power });
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power, note: entry.note });
           } else {
             while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
               effectiveRank++;
             }
             const dkp = rankToDkp(selectedEventType, tableType, effectiveRank, withinCutoff);
-            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power });
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power, note: entry.note });
             effectiveRank++;
           }
         }
@@ -159,7 +161,7 @@ export default function EventUpload({ players, eventTypes }) {
           const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
           const tableType = stage === "prep" ? "prep" : "war_outside";
           const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
-          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power });
+          results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power, note: entry.note });
         }
         setPreview(results);
       }
