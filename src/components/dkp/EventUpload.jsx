@@ -91,14 +91,15 @@ export default function EventUpload({ players, eventTypes }) {
           parsed.push({ player, serverRank, power: power ?? (player.power || 0) });
         }
         setUnknownNames(missing);
-        const sortedByPower = [...parsed].sort((a, b) => b.power - a.power);
+        // Top 20 is determined by ALL players in the system (by power), not just event participants
+        const allPlayersByPower = [...players].sort((a, b) => (b.power || 0) - (a.power || 0));
+        const top20PlayerIds = new Set(allPlayersByPower.slice(0, 20).map(p => p.id));
         
-        // Split into Top 20 (by power) and Outside groups
+        // Split into Top 20 (by global power ranking) and Outside groups
         const top20Entries = [];
         const outsideEntries = [];
         for (const entry of parsed) {
-          const powerRank = sortedByPower.findIndex(s => s.player.id === entry.player.id) + 1;
-          if (powerRank <= 20) {
+          if (top20PlayerIds.has(entry.player.id)) {
             top20Entries.push(entry);
           } else {
             outsideEntries.push(entry);
