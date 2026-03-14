@@ -318,6 +318,7 @@ export default function EventUpload({ players, eventTypes }) {
                   <tr key={i} className="hover:bg-white/[0.02]">
                     <td className="px-3 py-1.5 text-sm text-white">{row.playerName}</td>
                     {!isYN && <td className="px-3 py-1.5 text-xs text-gray-400 font-mono">#{row.serverRank}</td>}
+                    {!isYN && <td className="px-3 py-1.5 text-xs text-amber-400 font-mono">#{row.groupRank}</td>}
                     <td className="px-3 py-1.5">
                       <span className={`text-xs px-2 py-0.5 rounded ${row.group === "Top 20" || row.group === "Present" ? "bg-amber-500/15 text-amber-400" : row.group === "Absent" ? "bg-red-500/15 text-red-400" : "bg-gray-500/15 text-gray-400"}`}>{row.group}</span>
                     </td>
