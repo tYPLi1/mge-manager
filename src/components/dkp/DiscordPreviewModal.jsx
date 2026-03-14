@@ -64,7 +64,7 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4">
+      <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Preview
