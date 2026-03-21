@@ -155,10 +155,24 @@ export default function AdminSettings() {
 
   return (
     <div>
+      <UnsavedChangesGuard
+        hasChanges={hasChanges}
+        onSave={() => { setShowUnsavedDialog(false); handleSave(); }}
+        onDiscard={handleDiscard}
+        showDialog={showUnsavedDialog}
+        setShowDialog={setShowUnsavedDialog}
+      />
       <PageHeader title="Settings" icon={Settings}>
-        <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-          <Save className="w-4 h-4 mr-1" /> Save All
-        </Button>
+        <div className="flex items-center gap-3">
+          {hasChanges && (
+            <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+              {getChangedKeys().length} unsaved change{getChangedKeys().length > 1 ? "s" : ""}
+            </span>
+          )}
+          <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+            <Save className="w-4 h-4 mr-1" /> Save All
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="space-y-6">
