@@ -108,6 +108,13 @@ function EventEditor({ et, onSave, isSaving }) {
               <Label className="text-gray-500 text-xs block mb-1">Has War Stage</Label>
               <Switch checked={draft.has_war_stage} onCheckedChange={(v) => set("has_war_stage", v)} />
             </div>
+            {draft.has_prep_stage && (
+              <div>
+                <Label className="text-gray-500 text-xs block mb-1">Unified Prep DKP</Label>
+                <Switch checked={draft.use_unified_prep_dkp ?? true} onCheckedChange={(v) => set("use_unified_prep_dkp", v)} />
+                <p className="text-[10px] text-gray-600 mt-1">Alle Spieler in einer Liste</p>
+              </div>
+            )}
             <div>
               <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
               <Input type="number" value={draft.dkp_top20_fallback ?? ""} onChange={(e) => set("dkp_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
@@ -179,6 +186,7 @@ function CreateEventModal({ onClose, onCreate }) {
     has_prep_stage: false,
     has_war_stage: true,
     top20_enabled: true,
+    use_unified_prep_dkp: true,
     dkp_yn_present: 5,
     dkp_yn_absent: -5,
     dkp_top20_fallback: 20,
@@ -252,6 +260,13 @@ function CreateEventModal({ onClose, onCreate }) {
                   <Label className="text-gray-500 text-xs block mb-1">War Stage</Label>
                   <Switch checked={form.has_war_stage} onCheckedChange={(v) => set("has_war_stage", v)} />
                 </div>
+                {form.has_prep_stage && (
+                  <div>
+                    <Label className="text-gray-500 text-xs block mb-1">Unified Prep DKP</Label>
+                    <Switch checked={form.use_unified_prep_dkp ?? true} onCheckedChange={(v) => set("use_unified_prep_dkp", v)} />
+                    <p className="text-[10px] text-gray-600 mt-1">Alle Spieler in einer Liste</p>
+                  </div>
+                )}
                 <div>
                   <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
                   <Input type="number" value={form.dkp_top20_fallback} onChange={(e) => set("dkp_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
