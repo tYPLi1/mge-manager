@@ -34,7 +34,11 @@ const SETTING_LABELS = {
 
 export default function AdminSettings() {
   const [form, setForm] = useState({});
+  const [savedSnapshot, setSavedSnapshot] = useState({});
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const pendingNavigationRef = useRef(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
@@ -50,11 +54,42 @@ export default function AdminSettings() {
     const map = {};
     settings.forEach((s) => { map[s.key] = s.value; });
     setForm(map);
+    setSavedSnapshot(map);
   }, [settings]);
+
+  // Detect changed keys
+  const getChangedKeys = useCallback(() => {
+    return Object.keys(form).filter(key => {
+      const saved = savedSnapshot[key] ?? "";
+      const current = form[key] ?? "";
+      return String(saved) !== String(current);
+    });
+  }, [form, savedSnapshot]);
+
+  const hasChanges = getChangedKeys().length > 0;
+
+  // Intercept in-app navigation via link clicks
+  useEffect(() => {
+    if (!hasChanges) return;
+    const handler = (e) => {
+      const anchor = e.target.closest("a[href]");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("http") || href.startsWith("#")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pendingNavigationRef.current = href;
+      setShowUnsavedDialog(true);
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [hasChanges]);
 
   const saveMutation = useMutation({
     mutationFn: async (updates) => {
-      for (const [key, value] of Object.entries(updates)) {
+      const changedKeys = getChangedKeys();
+      for (const key of changedKeys) {
+        const value = updates[key];
         const existing = settings.find((s) => s.key === key);
         if (existing) {
           await adminEntities.AppSettings.update(existing.id, { value: String(value) });
@@ -62,11 +97,39 @@ export default function AdminSettings() {
           await adminEntities.AppSettings.create({ key, value: String(value) });
         }
       }
+      return changedKeys;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }),
+    onSuccess: (changedKeys) => {
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      if (changedKeys.length === 0) {
+        toast.info("No changes to save.");
+      } else {
+        const labels = changedKeys.map(k => SETTING_LABELS[k] || k);
+        toast.success(`Saved ${changedKeys.length} setting${changedKeys.length > 1 ? "s" : ""}`, {
+          description: labels.join(", "),
+          duration: 5000,
+        });
+      }
+      // Navigate if pending
+      if (pendingNavigationRef.current) {
+        const target = pendingNavigationRef.current;
+        pendingNavigationRef.current = null;
+        navigate(target);
+      }
+    },
   });
 
   const handleSave = () => saveMutation.mutate(form);
+
+  const handleDiscard = () => {
+    setForm({ ...savedSnapshot });
+    setShowUnsavedDialog(false);
+    if (pendingNavigationRef.current) {
+      const target = pendingNavigationRef.current;
+      pendingNavigationRef.current = null;
+      navigate(target);
+    }
+  };
 
   const getBool = (key) => form[key] === "true";
   const setBool = (key, val) => setForm({ ...form, [key]: val ? "true" : "false" });
