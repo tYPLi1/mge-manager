@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings, Save, Send } from "lucide-react";
+import { Settings, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
