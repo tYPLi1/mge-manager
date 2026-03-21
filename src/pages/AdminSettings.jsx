@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,23 @@ import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
+import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
+import { useNavigate } from "react-router-dom";
+
+const SETTING_LABELS = {
+  friendly_zone_enabled: "Friendly Zone Enabled",
+  friendly_zone_threshold: "Friendly Zone Threshold",
+  wonder_dkp_enabled: "Wonder Contest DKP",
+  dawn_dkp_enabled: "Battle of Dawn DKP",
+  auction_tiebreaker: "Auction Tiebreaker",
+  auction_tiebreaker_fallback: "Fallback Tiebreaker",
+  last_event_dkp_sources: "Last Event DKP Sources",
+  mge_targets: "MGE Targets",
+  rules_text: "Rules Text",
+  cooldown_table: "Cooldown Table",
+  penalty_config: "Penalty Configuration",
+  discord_servers: "Discord Server Config",
+};
 
 export default function AdminSettings() {
   const [form, setForm] = useState({});
