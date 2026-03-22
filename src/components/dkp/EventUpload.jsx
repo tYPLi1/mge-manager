@@ -90,11 +90,21 @@ export default function EventUpload({ players, eventTypes }) {
         const parsed = [];
         const missing = [];
         for (const row of rows) {
-          const name = row[0]?.toString().trim();
-          const serverRank = parseInt(row[1]);
-          const power = parseFloat(row[2]) || null;
-          const note = row[3]?.toString().trim() || "";
-          if (!name || !serverRank || isNaN(serverRank)) continue;
+           const name = row[0]?.toString().trim();
+           const serverRank = parseInt(row[1]);
+           let power = null;
+           let note = "";
+
+           // Prep stage: [Name, Server Rank, Note] -> indices 0,1,2
+           // War stage: [Name, Server Rank, Power, Note] -> indices 0,1,2,3
+           if (effectiveStage === "prep") {
+             note = row[2]?.toString().trim() || "";
+           } else {
+             power = parseFloat(row[2]) || null;
+             note = row[3]?.toString().trim() || "";
+           }
+
+           if (!name || !serverRank || isNaN(serverRank)) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
           if (!player) { missing.push(name); continue; }
           parsed.push({ player, serverRank, power: power ?? (player.power || 0), note });
