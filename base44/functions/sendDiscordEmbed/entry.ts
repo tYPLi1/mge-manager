@@ -96,8 +96,12 @@ Deno.serve(async (req) => {
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ embeds: embedsToProcess }),
       });
-      if (res.ok) sent++;
-      else console.error(`Discord send failed for channel ${ch}: ${res.status}`);
+      if (res.ok) {
+        sent++;
+      } else {
+        const errBody = await res.text();
+        console.error(`Discord send failed for channel ${ch}: ${res.status} - ${errBody}`);
+      }
     }
 
     return Response.json({ success: true, channels: sent });
