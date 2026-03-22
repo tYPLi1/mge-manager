@@ -184,15 +184,20 @@ export default function Auction() {
     if (parseInt(bidAmount) > currentDkp) { setBidError(`Not enough DKP. Available: ${currentDkp}`); return; }
 
     setSubmitting(true);
-    const res = await base44.functions.invoke("submitBid", {
-      auction_id: currentAuction.id,
-      player_id: selectedPlayer,
-      dkp_bid: parseInt(bidAmount),
-      bid_password: bidPassword || undefined,
-      want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
-    });
-    if (res.data?.error) { setBidError(res.data.error); setSubmitting(false); return; }
-    setSubmitted(true);
+    try {
+      const res = await base44.functions.invoke("submitBid", {
+        auction_id: currentAuction.id,
+        player_id: selectedPlayer,
+        dkp_bid: parseInt(bidAmount),
+        bid_password: bidPassword || undefined,
+        want_friendly_zone: eligibleForFriendlyZone ? wantFriendlyZone : false,
+      });
+      if (res.data?.error) { setBidError(res.data.error); setSubmitting(false); return; }
+      setSubmitted(true);
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || "Bid submission failed";
+      setBidError(msg);
+    }
     setSubmitting(false);
   };
 
