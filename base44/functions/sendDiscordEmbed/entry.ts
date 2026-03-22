@@ -97,18 +97,46 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Validate embeds - Discord requires description or fields
+    // Validate and sanitize embeds for Discord API limits
     for (const e of embedsToProcess) {
       if (!e.description && (!e.fields || e.fields.length === 0)) {
         e.description = ' ';
       }
-      // Ensure field values are not empty (Discord rejects empty strings)
       if (e.fields) {
+        // Filter out empty fields
         e.fields = e.fields.filter(f => f.name && f.value);
+        // Split fields that exceed Discord's 1024 char limit
+        const newFields = [];
         for (const f of e.fields) {
           if (!f.value) f.value = '-';
           if (!f.name) f.name = '-';
+          if (f.value.length > 1024) {
+            // Split into chunks of max 1024 chars at line breaks
+            let remaining = f.value;
+            let partNum = 0;
+            while (remaining.length > 0) {
+              let chunk;
+              if (remaining.length <= 1024) {
+                chunk = remaining;
+                remaining = '';
+              } else {
+                const cutAt = remaining.lastIndexOf('\n', 1024);
+                const splitPos = cutAt > 200 ? cutAt : 1024;
+                chunk = remaining.substring(0, splitPos);
+                remaining = remaining.substring(splitPos).replace(/^\n/, '');
+              }
+              newFields.push({
+                name: partNum === 0 ? f.name : `${f.name} (cont.)`,
+                value: chunk,
+                inline: f.inline || false,
+              });
+              partNum++;
+            }
+          } else {
+            newFields.push(f);
+          }
         }
+        e.fields = newFields;
       }
     }
 
