@@ -480,11 +480,11 @@ export default function EventUpload({ players, eventTypes }) {
 
       {discordPreview && (
         <DiscordPreviewModal
-          embed={discordPreview.embed}
-          webhookUrl={webhookUrl}
-          channelId={channelId}
+          embeds={discordPreview.embeds}
+          channelId={discordPreview.channelId}
           onClose={() => setDiscordPreview(null)}
           onSent={discordPreview.onSent}
+          notifType={discordPreview.notifType}
         />
       )}
     </div>
