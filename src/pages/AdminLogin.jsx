@@ -79,7 +79,20 @@ export default function AdminLogin() {
 
        navigate(createPageUrl('AdminDashboard'));
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+      if (newAttempts >= 8) {
+        setLockedUntil(Date.now() + 60000);
+        setError('Too many failed attempts. Locked for 60 seconds.');
+      } else if (newAttempts >= 5) {
+        setLockedUntil(Date.now() + 30000);
+        setError('Too many failed attempts. Locked for 30 seconds.');
+      } else if (newAttempts >= 3) {
+        setLockedUntil(Date.now() + 5000);
+        setError('Too many failed attempts. Please wait 5 seconds.');
+      } else {
+        setError(err.response?.data?.error || err.message || 'Login failed. Please try again.');
+      }
       setLoading(false);
     }
   };
