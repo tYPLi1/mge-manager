@@ -45,13 +45,18 @@ export default function AdminUserManagement() {
   const invoke = useCallback(async (action, extra = {}) => {
     const session = getSession();
     if (!session) throw new Error("No admin session");
-    const res = await base44.functions.invoke("manageAdminUsers", {
-      action,
-      session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-      ...extra,
-    });
-    if (!res.data.success) throw new Error(res.data.error || "Failed");
-    return res.data;
+    try {
+      const res = await base44.functions.invoke("manageAdminUsers", {
+        action,
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+        ...extra,
+      });
+      if (!res.data.success) throw new Error(res.data.error || "Failed");
+      return res.data;
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || "Request failed";
+      throw new Error(msg);
+    }
   }, []);
 
   const loadUsers = useCallback(async () => {
@@ -72,26 +77,16 @@ export default function AdminUserManagement() {
 
   const handleUnlock = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
-      const session = getSession();
-      if (!session) throw new Error("No admin session");
-      // Verify master password against server secret
-      const verifyRes = await base44.functions.invoke("manageAdminUsers", {
-        action: "verify",
-        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-        credential: masterPassword,
-      });
-      if (!verifyRes.data.success) throw new Error(verifyRes.data.error || "Failed");
-      // Now load users
+      await invoke("verify", { credential: masterPassword });
       const data = await invoke("list");
       setUsers(data.users);
       setAuthenticated(true);
     } catch {
       toast.error("Wrong password");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const handleCreate = async (e) => {
@@ -103,12 +98,10 @@ export default function AdminUserManagement() {
       toast.success(`Admin '${newUsername}' created`);
       setNewUsername("");
       setNewPassword("");
-      await loadUsers();
     } catch (err) {
       toast.error(err.message);
-    } finally {
-      setCreating(false);
     }
+    setCreating(false);
   };
 
   const handleChangePassword = async (userId) => {
@@ -127,8 +120,6 @@ export default function AdminUserManagement() {
     try {
       const data = await invoke("toggleActive", { userId });
       toast.success(data.is_active ? "User activated" : "User deactivated");
-      // Reload from DB to ensure UI matches actual state
-      await loadUsers();
     } catch (err) {
       toast.error(err.message);
     }
