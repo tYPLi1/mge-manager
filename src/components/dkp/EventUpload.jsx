@@ -276,11 +276,11 @@ export default function EventUpload({ players, eventTypes }) {
       const absent = sorted.filter(r => r.group === "Absent");
 
       const allLines = [];
-      if (allGroup.length) allLines.push(...buildGroupLines("📋 Ergebnisse", allGroup), "");
+      if (allGroup.length) allLines.push(...buildGroupLines("📋 Results", allGroup), "");
       if (top20.length) allLines.push(...buildGroupLines("🏆 Top 20", top20), "");
       if (outside.length) allLines.push(...buildGroupLines("🌐 Outside", outside), "");
-      if (present.length) allLines.push(...buildGroupLines("✅ Anwesend", present), "");
-      if (absent.length) allLines.push(...buildGroupLines("❌ Abwesend", absent), "");
+      if (present.length) allLines.push(...buildGroupLines("✅ Present", present), "");
+      if (absent.length) allLines.push(...buildGroupLines("❌ Absent", absent), "");
 
       // Split into embed fields respecting 1024 char limit
       const fields = [
@@ -291,20 +291,24 @@ export default function EventUpload({ players, eventTypes }) {
       let fieldIdx = 0;
       for (const line of allLines) {
         if ((chunk + "\n" + line).length > 1020) {
-          fields.push({ name: fieldIdx === 0 ? "Ergebnisse" : "​", value: chunk, inline: false });
+          fields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
           chunk = line;
           fieldIdx++;
         } else {
           chunk = chunk ? chunk + "\n" + line : line;
         }
       }
-      if (chunk) fields.push({ name: fieldIdx === 0 ? "Ergebnisse" : "​", value: chunk, inline: false });
+      if (chunk) fields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+
+      const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
+      fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
 
       const embed = {
         title: "📊 Event Data Uploaded",
         description: `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("de-CH")}`,
         color: 0x8b5cf6,
         fields,
+        url: leaderboardUrl,
         footer: { text: "DKP System" },
       };
       setDiscordPreview({ embed, onSent: doApply });

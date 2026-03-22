@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
 
     const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
     const tiebreakerFallback = settings.find(s => s.key === 'auction_tiebreaker_fallback')?.value || 'fcfs';
-    const resultsUrl = 'https://mge002.base44.app/Results';
+    const resultsUrl = 'https://mge002.base44.app/Auction';
 
     const ruleLabel = (rule) => {
       if (rule === 'activity') return 'Higher Activity Score';
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
     if (tiebreakerNote) fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
-    fields.push({ name: '🔗 Link', value: `[View Results](${resultsUrl})`, inline: false });
+    fields.push({ name: '🔗 Link', value: `[View Auction](${resultsUrl})`, inline: false });
 
     const payload = {
       content: '@everyone',
@@ -101,10 +101,11 @@ Deno.serve(async (req) => {
         title: '🏆 Auction Results Ready',
         description: auction.title,
         color: 0x10b981,
+        url: resultsUrl,
         fields,
         footer: { text: 'DKP System' },
       }],
-      components: [{ type: 1, components: [{ type: 2, label: 'View Results', style: 5, url: resultsUrl }] }],
+      components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: resultsUrl }] }],
     };
 
     let sent = 0;

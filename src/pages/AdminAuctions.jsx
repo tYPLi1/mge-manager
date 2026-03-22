@@ -472,10 +472,14 @@ export default function AdminAuctions() {
           fields.push({ name: "Tiebreaker", value: tiebreakerNote, inline: false });
         }
 
+        const auctionPageUrl = "https://mge002.base44.app/Auction";
+        fields.push({ name: "🔗 Link", value: `[View Auction](${auctionPageUrl})`, inline: false });
+
         const embed = {
           title: "🏆 Auction Results Ready",
           description: viewBids.title,
           color: 0x10b981,
+          url: auctionPageUrl,
           fields,
           footer: { text: "DKP System" },
         };
@@ -535,19 +539,22 @@ export default function AdminAuctions() {
   };
 
   const buildAuctionEmbed = () => {
+    const auctionUrl = "https://mge002.base44.app/Auction";
     const embed = {
       title: "🔔 New Auction Opened!",
       description: title,
       color: 0xf59e0b,
+      url: auctionUrl,
       fields: [
         { name: "Status", value: "OPEN", inline: true },
-        { name: "Closes", value: scheduledClose ? new Date(scheduledClose).toLocaleString("de-CH") : "TBD", inline: true },
+        { name: "Closes", value: scheduledClose ? new Date(ensureUTC(scheduledClose)).toLocaleString("en-GB", { timeZone: "UTC" }) + " (UTC)" : "TBD", inline: true },
       ],
       footer: { text: "DKP System" },
     };
     if (password) {
       embed.fields.push({ name: "Password", value: `||${password}||`, inline: false });
     }
+    embed.fields.push({ name: "🔗 Link", value: `[View Auction](${auctionUrl})`, inline: false });
     return embed;
   };
 

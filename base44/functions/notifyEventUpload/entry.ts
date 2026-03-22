@@ -75,8 +75,9 @@ Deno.serve(async (req) => {
       content: '@everyone',
       embeds: [{
         title: '📊 Event Data Uploaded',
-        description: `**${eventName}** - ${new Date(eventDate).toLocaleDateString()}`,
+        description: `**${eventName}** - ${new Date(eventDate).toLocaleDateString("de-CH")}`,
         color: 0x8b5cf6,
+        url: leaderboardUrl,
         fields: [
           { name: 'Players Updated', value: String(playersUpdated || 0), inline: true },
           { name: 'Total DKP Distributed', value: String(totalDkpDistributed || 0), inline: true },
@@ -85,6 +86,7 @@ Deno.serve(async (req) => {
         ],
         footer: { text: 'DKP System' },
       }],
+      components: [{ type: 1, components: [{ type: 2, label: 'View Leaderboard', style: 5, url: leaderboardUrl }] }],
     };
 
     let sent = 0;
