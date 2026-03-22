@@ -523,7 +523,7 @@ export default function AdminAuctions() {
         }
         if (player) {
           const updates = { cooldown_until: null }; // always clear cooldown when deleting auction
-          if (refundDkp) updates.dkp_spent = Math.max(0, (player.dkp_spent || 0) - result.dkp_bid);
+          if (refundDkp) updates.dkp_spent = (player.dkp_spent || 0) + result.dkp_bid;
           await adminEntities.Player.update(result.player_id, updates);
         }
       }
