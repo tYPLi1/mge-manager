@@ -36,6 +36,13 @@ export default function EventUpload({ players, eventTypes }) {
   const isYN = selectedEventType?.participation_type === "yn";
   const hasMultipleStages = selectedEventType?.has_prep_stage && selectedEventType?.has_war_stage;
 
+  // Auto-set stage when event type changes and only one stage exists
+  const effectiveStage = hasMultipleStages
+    ? stage
+    : selectedEventType?.has_prep_stage
+      ? "prep"
+      : "war";
+
   const downloadTemplate = () => {
     if (!selectedEventType) return;
     const wb = XLSX.utils.book_new();
