@@ -94,21 +94,29 @@ export default function EventUpload({ players, eventTypes }) {
         }
         setUnknownNames(missing);
 
-        const useUnifiedPrep = stage === "prep" && (selectedEventType.use_unified_prep_dkp ?? true);
+        // Determine if this stage uses Top 20 split
+        const isTop20Split = stage === "prep"
+          ? (selectedEventType.prep_top20_enabled ?? false)
+          : (selectedEventType.war_top20_enabled ?? true);
+
         const results = [];
 
-        if (useUnifiedPrep) {
-          // Unified Prep: all players in one combined list, sorted by server rank
+        if (!isTop20Split) {
+          // Unified: all players in one combined list, sorted by server rank
+          const tableType = stage === "prep" ? "prep" : "war_top20"; // war unified reuses war_top20 table
           const allEntries = [...parsed].sort((a, b) => a.serverRank - b.serverRank);
           for (let i = 0; i < allEntries.length; i++) {
             const entry = allEntries[i];
             const groupRank = i + 1;
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            const dkp = rankToDkp(selectedEventType, "prep", groupRank, withinCutoff);
+            const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
             results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "All", power: entry.power, note: entry.note });
           }
         } else {
-          // Split mode: Top 20 vs Outside (used for War stage, or Prep if unified is disabled)
+          // Split mode: Top 20 vs Outside
+          const top20TableType = stage === "prep" ? "prep_top20" : "war_top20";
+          const outsideTableType = stage === "prep" ? "prep_outside" : "war_outside";
+
           const allPlayersByPower = [...players].sort((a, b) => (b.power || 0) - (a.power || 0));
           const top20PlayerIds = new Set(allPlayersByPower.slice(0, 20).map(p => p.id));
 
@@ -131,7 +139,7 @@ export default function EventUpload({ players, eventTypes }) {
           const outsideOverride = [];
           const outsideRegular = [];
           for (const entry of outsideEntries) {
-            if (stage !== "prep" && entry.serverRank >= 1 && entry.serverRank <= 10) {
+            if (entry.serverRank >= 1 && entry.serverRank <= 10) {
               outsideOverride.push(entry);
               claimedRanks.add(entry.serverRank);
             } else {
@@ -142,7 +150,7 @@ export default function EventUpload({ players, eventTypes }) {
           let outsideGroupRank = 1;
           for (const entry of outsideOverride) {
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            const dkp = rankToDkp(selectedEventType, "war_top20", entry.serverRank, withinCutoff);
+            const dkp = rankToDkp(selectedEventType, top20TableType, entry.serverRank, withinCutoff);
             results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: outsideGroupRank, dkp, group: "Outside", power: entry.power, overrideApplied: true, note: entry.note });
             outsideGroupRank++;
           }
@@ -151,19 +159,12 @@ export default function EventUpload({ players, eventTypes }) {
           let effectiveRank = 1;
           for (const entry of top20Entries) {
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            const tableType = stage === "prep" ? "prep" : "war_top20";
-            if (stage === "prep") {
-              const groupRank = top20Entries.indexOf(entry) + 1;
-              const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
-              results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Top 20", power: entry.power, note: entry.note });
-            } else {
-              while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
-                effectiveRank++;
-              }
-              const dkp = rankToDkp(selectedEventType, tableType, effectiveRank, withinCutoff);
-              results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power, note: entry.note });
+            while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
               effectiveRank++;
             }
+            const dkp = rankToDkp(selectedEventType, top20TableType, effectiveRank, withinCutoff);
+            results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank: effectiveRank, dkp, group: "Top 20", power: entry.power, note: entry.note });
+            effectiveRank++;
           }
 
           // 3) Remaining outside players
@@ -171,8 +172,7 @@ export default function EventUpload({ players, eventTypes }) {
             const entry = outsideRegular[i];
             const groupRank = outsideGroupRank + i;
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            const tableType = stage === "prep" ? "prep" : "war_outside";
-            const dkp = rankToDkp(selectedEventType, tableType, groupRank, withinCutoff);
+            const dkp = rankToDkp(selectedEventType, outsideTableType, groupRank, withinCutoff);
             results.push({ playerId: entry.player.id, playerName: entry.player.name, serverRank: entry.serverRank, groupRank, dkp, group: "Outside", power: entry.power, note: entry.note });
           }
         }
