@@ -81,34 +81,39 @@ export default function EventUpload({ players, eventTypes }) {
         setUnknownNames(missing);
         setPreview(results);
       } else {
-        let sheetName = wb.SheetNames[0];
-        if (hasMultipleStages && effectiveStage === "prep") sheetName = "Preparation";
-        if (hasMultipleStages && effectiveStage === "war") sheetName = "War Stage";
-        const ws = wb.Sheets[sheetName];
-        if (!ws) { alert(`Sheet "${sheetName}" not found in file`); return; }
-        const rows = XLSX.utils.sheet_to_json(ws, { header: 1 }).slice(1);
-        const parsed = [];
-        const missing = [];
-        for (const row of rows) {
-           const name = row[0]?.toString().trim();
-           const serverRank = parseInt(row[1]);
-           let power = null;
-           let note = "";
+         let sheetName = wb.SheetNames[0];
+         if (hasMultipleStages && effectiveStage === "prep") sheetName = "Preparation";
+         if (hasMultipleStages && effectiveStage === "war") sheetName = "War Stage";
+         const ws = wb.Sheets[sheetName];
+         if (!ws) { alert(`Sheet "${sheetName}" not found in file`); return; }
+         const allRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-           // Prep stage: [Name, Server Rank, Note] -> indices 0,1,2
-           // War stage: [Name, Server Rank, Power, Note] -> indices 0,1,2,3
-           if (effectiveStage === "prep") {
-             note = row[2]?.toString().trim() || "";
-           } else {
-             power = parseFloat(row[2]) || null;
-             note = row[3]?.toString().trim() || "";
-           }
+         // Detect column indices from header row
+         const headers = (allRows[0] || []).map(h => h?.toString().toLowerCase().trim());
+         const nameIdx = headers.findIndex(h => h === "name");
+         const serverRankIdx = headers.findIndex(h => h === "server rank");
+         const powerIdx = headers.findIndex(h => h === "power");
+         const noteIdx = headers.findIndex(h => h === "note");
 
-           if (!name || !serverRank || isNaN(serverRank)) continue;
-          const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
-          if (!player) { missing.push(name); continue; }
-          parsed.push({ player, serverRank, power: power ?? (player.power || 0), note });
-        }
+         if (nameIdx < 0 || serverRankIdx < 0) { alert("Missing required columns: Name, Server Rank"); return; }
+
+         const rows = allRows.slice(1);
+         const parsed = [];
+         const missing = [];
+         for (const row of rows) {
+            const name = row[nameIdx]?.toString().trim();
+            const serverRank = parseInt(row[serverRankIdx]);
+            let power = null;
+            let note = "";
+
+            if (powerIdx >= 0) power = parseFloat(row[powerIdx]) || null;
+            if (noteIdx >= 0) note = row[noteIdx]?.toString().trim() || "";
+
+            if (!name || !serverRank || isNaN(serverRank)) continue;
+           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
+           if (!player) { missing.push(name); continue; }
+           parsed.push({ player, serverRank, power: power ?? (player.power || 0), note });
+         }
         setUnknownNames(missing);
 
         // Determine if this stage uses Top 20 split
