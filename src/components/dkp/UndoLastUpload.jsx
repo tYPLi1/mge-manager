@@ -80,8 +80,11 @@ export default function UndoLastUpload() {
       toast.success(`${response.data.undone_count} transactions undone`, {
         description: `${response.data.players_affected} players affected`,
       });
-      queryClient.invalidateQueries({ queryKey: ["last-upload-batch"] });
-      queryClient.invalidateQueries({ queryKey: ["players"] });
+      // Force refetch all related queries immediately
+      await queryClient.invalidateQueries({ queryKey: ["last-upload-batch"], refetchType: "all" });
+      await queryClient.invalidateQueries({ queryKey: ["players"], refetchType: "all" });
+      await queryClient.invalidateQueries({ queryKey: ["transactions"], refetchType: "all" });
+      await queryClient.invalidateQueries({ queryKey: ["leaderboard"], refetchType: "all" });
     }
     setConfirmId(null);
     setUndoing(false);
