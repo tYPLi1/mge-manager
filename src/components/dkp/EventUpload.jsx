@@ -266,10 +266,12 @@ export default function EventUpload({ players, eventTypes }) {
       const sorted = [...toApply].sort((a, b) => (a.groupRank || 999) - (b.groupRank || 999));
       const top20 = sorted.filter(r => r.group === "Top 20");
       const outside = sorted.filter(r => r.group === "Outside");
+      const allGroup = sorted.filter(r => r.group === "All");
       const present = sorted.filter(r => r.group === "Present");
       const absent = sorted.filter(r => r.group === "Absent");
 
       const allLines = [];
+      if (allGroup.length) allLines.push(...buildGroupLines("📋 Ergebnisse", allGroup), "");
       if (top20.length) allLines.push(...buildGroupLines("🏆 Top 20", top20), "");
       if (outside.length) allLines.push(...buildGroupLines("🌐 Outside", outside), "");
       if (present.length) allLines.push(...buildGroupLines("✅ Anwesend", present), "");
