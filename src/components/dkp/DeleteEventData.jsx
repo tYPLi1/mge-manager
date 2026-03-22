@@ -68,22 +68,26 @@ export default function DeleteEventData() {
     setDeleting(true);
 
     try {
-      // Get affected players (once)
+      // STEP 1: Fetch all affected players FIRST (before any deletes)
       const affectedPlayerIds = [...new Set(previewTransactions.map(tx => tx.player_id))];
-      const players = await Promise.all(affectedPlayerIds.map(id => base44.entities.Player.get(id)));
-      const playerMap = Object.fromEntries(players.map(p => [p.id, p]));
+      const playersList = await Promise.all(affectedPlayerIds.map(id => base44.entities.Player.get(id)));
+      const playerMap = Object.fromEntries(playersList.map(p => [p.id, p]));
 
-      // Delete all transactions in parallel
-      await Promise.all(previewTransactions.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
-
-      // Update players in parallel
-      await Promise.all(affectedPlayerIds.map(playerId => {
+      // STEP 2: Calculate DKP reductions per player BEFORE deleting
+      const playerUpdates = {};
+      for (const playerId of affectedPlayerIds) {
         const player = playerMap[playerId];
         const totalRemove = previewTransactions.filter(tx => tx.player_id === playerId).reduce((sum, tx) => sum + tx.amount, 0);
-        return adminEntities.Player.update(playerId, {
-          total_dkp: Math.max(0, (player.total_dkp || 0) - totalRemove)
-        });
-      }));
+        playerUpdates[playerId] = Math.max(0, (player.total_dkp || 0) - totalRemove);
+      }
+
+      // STEP 3: Delete all transactions
+      await Promise.all(previewTransactions.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
+
+      // STEP 4: Update player DKP balances
+      await Promise.all(Object.entries(playerUpdates).map(([playerId, newDkp]) =>
+        adminEntities.Player.update(playerId, { total_dkp: newDkp })
+      ));
 
       toast.success(`Deleted ${previewTransactions.length} transactions`, {
         description: `Event: ${selectedEvent.source}${selectedEvent.source_stage ? ` - ${selectedEvent.source_stage}` : ""}`
@@ -102,6 +106,7 @@ export default function DeleteEventData() {
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     } catch (error) {
       toast.error("Delete failed: " + error.message);
+      console.error("Delete error:", error);
     }
 
     setDeleting(false);
