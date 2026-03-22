@@ -1,13 +1,16 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import bcrypt from 'npm:bcryptjs@2.4.3';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
-function getServiceClient(req) {
-  try { return createClientFromRequest(req).asServiceRole; }
-  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+async function hmacHash(password, salt) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(salt), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(password));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function validateAdminSession(service, session) {
-  if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+async function validateAdminSession(session) {
+  if (!session?.userId || !session?.username || !session?.expiresAt || !session?.token) {
     return { valid: false, status: 401, error: 'Unauthorized: No session' };
   }
   if (new Date(session.expiresAt) <= new Date()) {
@@ -28,36 +31,21 @@ async function validateAdminSession(service, session) {
     return { valid: false, status: 403, error: 'Invalid token' };
   }
 
-  try {
-    const user = await service.entities.AdminUser.get(session.userId);
-    if (!user || !user.is_active) {
-      return { valid: false, status: 403, error: 'User deactivated' };
-    }
-  } catch (e) {
-    const msg = e?.message || '';
-    if (msg.includes('not found') || msg.includes('does not exist')) {
-      return { valid: false, status: 403, error: 'User not found' };
-    }
-    // SDK auth context missing — trust HMAC signature
-    console.log('AdminUser lookup skipped, trusting HMAC:', msg);
-  }
-
   return { valid: true };
 }
 
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient(req);
+    const base44 = createClientFromRequest(req);
+    const service = base44.asServiceRole;
     const body = await req.json();
     const { action, session, username, password, userId, credential } = body;
 
-    // Validate admin session via HMAC token
-    const validation = await validateAdminSession(service, session);
+    const validation = await validateAdminSession(session);
     if (!validation.valid) {
       return Response.json({ error: validation.error }, { status: validation.status });
     }
 
-    // 'verify' action: check if the provided credential matches the management secret
     if (action === 'verify') {
       const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
       if (!credential || credential !== secret) {
@@ -85,8 +73,9 @@ Deno.serve(async (req) => {
       if (existing.length > 0) {
         return Response.json({ error: 'Username already exists' }, { status: 400 });
       }
-      const password_hash = await bcrypt.hash(password, 10);
-      await service.entities.AdminUser.create({ username, password_hash, is_active: true });
+      const salt = crypto.randomUUID();
+      const hash = await hmacHash(password, salt);
+      await service.entities.AdminUser.create({ username, password_hash: `hmac:${salt}:${hash}`, is_active: true });
       return Response.json({ success: true, message: `Admin '${username}' created` });
     }
 
@@ -94,8 +83,9 @@ Deno.serve(async (req) => {
       if (!userId || !password) {
         return Response.json({ error: 'userId and password required' }, { status: 400 });
       }
-      const password_hash = await bcrypt.hash(password, 10);
-      await service.entities.AdminUser.update(userId, { password_hash });
+      const salt = crypto.randomUUID();
+      const hash = await hmacHash(password, salt);
+      await service.entities.AdminUser.update(userId, { password_hash: `hmac:${salt}:${hash}` });
       return Response.json({ success: true, message: 'Password updated' });
     }
 
@@ -103,7 +93,6 @@ Deno.serve(async (req) => {
       if (!userId) {
         return Response.json({ error: 'userId required' }, { status: 400 });
       }
-      // Prevent self-deactivation
       if (userId === session.userId) {
         return Response.json({ error: 'Cannot deactivate your own account' }, { status: 400 });
       }
@@ -117,7 +106,6 @@ Deno.serve(async (req) => {
       if (!userId) {
         return Response.json({ error: 'userId required' }, { status: 400 });
       }
-      // Prevent self-deletion
       if (userId === session.userId) {
         return Response.json({ error: 'Cannot delete your own account' }, { status: 400 });
       }
