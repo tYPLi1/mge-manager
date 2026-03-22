@@ -113,7 +113,7 @@ export default function AdminSessionGuard({ children }) {
 
    let inactivityTimer = null;
    let debounceTimer = null;
-   const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+   const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
    const DEBOUNCE_DELAY = 1000; // Debounce activity events to 1s
    let logoutInProgress = false;
 
