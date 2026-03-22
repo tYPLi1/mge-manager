@@ -14,6 +14,7 @@ export default function DeleteEventData() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [previewTransactions, setPreviewTransactions] = useState([]);
+  const [frozenTransactionIds, setFrozenTransactionIds] = useState(new Set());
   const [showPreview, setShowPreview] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const queryClient = useQueryClient();
