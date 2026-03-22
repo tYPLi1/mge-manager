@@ -110,10 +110,10 @@ export default function AdminSessionGuard({ children }) {
       localStorage.setItem('adminLastActivity', Date.now().toString());
     };
 
-    // Check for inactivity every 30 seconds
+    // Check for inactivity every 30 seconds (logout after 30 min of inactivity)
     const inactivityCheck = setInterval(() => {
       const last = parseInt(localStorage.getItem('adminLastActivity') || '0');
-      if (Date.now() - last > 10 * 60 * 1000) {
+      if (Date.now() - last > 30 * 60 * 1000) {
         forceLogout();
       }
     }, 30000);
