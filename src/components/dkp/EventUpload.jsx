@@ -82,8 +82,8 @@ export default function EventUpload({ players, eventTypes }) {
         setPreview(results);
       } else {
         let sheetName = wb.SheetNames[0];
-        if (hasMultipleStages && stage === "prep") sheetName = "Preparation";
-        if (hasMultipleStages && stage === "war") sheetName = "War Stage";
+        if (hasMultipleStages && effectiveStage === "prep") sheetName = "Preparation";
+        if (hasMultipleStages && effectiveStage === "war") sheetName = "War Stage";
         const ws = wb.Sheets[sheetName];
         if (!ws) { alert(`Sheet "${sheetName}" not found in file`); return; }
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1 }).slice(1);
@@ -102,7 +102,7 @@ export default function EventUpload({ players, eventTypes }) {
         setUnknownNames(missing);
 
         // Determine if this stage uses Top 20 split
-        const isTop20Split = stage === "prep"
+        const isTop20Split = effectiveStage === "prep"
           ? (selectedEventType.prep_top20_enabled ?? false)
           : (selectedEventType.war_top20_enabled ?? true);
 
@@ -110,7 +110,7 @@ export default function EventUpload({ players, eventTypes }) {
 
         if (!isTop20Split) {
           // Unified: all players in one combined list, sorted by server rank
-          const tableType = stage === "prep" ? "prep" : "war_top20"; // war unified reuses war_top20 table
+          const tableType = effectiveStage === "prep" ? "prep" : "war_top20"; // war unified reuses war_top20 table
           const allEntries = [...parsed].sort((a, b) => a.serverRank - b.serverRank);
           for (let i = 0; i < allEntries.length; i++) {
             const entry = allEntries[i];
@@ -121,8 +121,8 @@ export default function EventUpload({ players, eventTypes }) {
           }
         } else {
           // Split mode: Top 20 vs Outside
-          const top20TableType = stage === "prep" ? "prep_top20" : "war_top20";
-          const outsideTableType = stage === "prep" ? "prep_outside" : "war_outside";
+          const top20TableType = effectiveStage === "prep" ? "prep_top20" : "war_top20";
+          const outsideTableType = effectiveStage === "prep" ? "prep_outside" : "war_outside";
 
           const allPlayersByPower = [...players].sort((a, b) => (b.power || 0) - (a.power || 0));
           const top20PlayerIds = new Set(allPlayersByPower.slice(0, 20).map(p => p.id));
@@ -210,7 +210,7 @@ export default function EventUpload({ players, eventTypes }) {
         amount: entry.dkp,
         type: "earn",
         source: selectedEventType.key,
-        source_stage: isYN ? null : stage,
+        source_stage: isYN ? null : effectiveStage,
         event_date: eventDate,
       }))
     );
@@ -245,7 +245,8 @@ export default function EventUpload({ players, eventTypes }) {
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
     const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
-    const stageName = isYN ? "" : ` - ${stage}`;
+    const stageLabel = effectiveStage === "prep" ? "Preparation" : "War Stage";
+    const stageName = isYN ? "" : ` - ${stageLabel}`;
 
     if (eventsEnabled && webhookUrl) {
       const buildGroupLines = (groupName, entries) => {
