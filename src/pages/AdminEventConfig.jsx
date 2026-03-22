@@ -99,6 +99,7 @@ function EventEditor({ et, onSave, isSaving }) {
 
       {draft.participation_type === "ranked" ? (
         <>
+          {/* Stage toggles */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <Label className="text-gray-500 text-xs block mb-1">Has Prep Stage</Label>
@@ -108,46 +109,100 @@ function EventEditor({ et, onSave, isSaving }) {
               <Label className="text-gray-500 text-xs block mb-1">Has War Stage</Label>
               <Switch checked={draft.has_war_stage} onCheckedChange={(v) => set("has_war_stage", v)} />
             </div>
-            {draft.has_prep_stage && (
-              <div>
-                <Label className="text-gray-500 text-xs block mb-1">Unified Prep DKP</Label>
-                <Switch checked={draft.use_unified_prep_dkp ?? true} onCheckedChange={(v) => set("use_unified_prep_dkp", v)} />
-                <p className="text-[10px] text-gray-600 mt-1">Alle Spieler in einer Liste</p>
-              </div>
-            )}
-            <div>
-              <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-              <Input type="number" value={draft.dkp_top20_fallback ?? ""} onChange={(e) => set("dkp_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
-            </div>
-            <div>
-              <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-              <Input type="number" value={draft.dkp_outside_fallback ?? ""} onChange={(e) => set("dkp_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
-            </div>
           </div>
 
+          {/* ── Prep Stage Config ── */}
           {draft.has_prep_stage && (
-            <DkpRankEditor
-              label="Prep Stage DKP (Rank 1–N)"
-              tableJson={draft.dkp_table_prep || "[]"}
-              color="text-amber-400"
-              onChange={(v) => set("dkp_table_prep", v)}
-            />
+            <div className="space-y-4 p-4 rounded-lg border border-purple-500/20 bg-purple-500/5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-purple-400">Prep Stage</h4>
+                <div className="flex items-center gap-2">
+                  <Label className="text-gray-500 text-xs">Top 20 Split</Label>
+                  <Switch checked={draft.prep_top20_enabled ?? false} onCheckedChange={(v) => set("prep_top20_enabled", v)} />
+                </div>
+              </div>
+
+              {draft.prep_top20_enabled ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
+                      <Input type="number" value={draft.prep_top20_fallback ?? ""} onChange={(e) => set("prep_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
+                      <Input type="number" value={draft.prep_outside_fallback ?? ""} onChange={(e) => set("prep_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                    </div>
+                  </div>
+                  <DkpRankEditor
+                    label="Prep — Top 20 Power Players"
+                    tableJson={draft.dkp_table_prep_top20 || "[]"}
+                    color="text-amber-400"
+                    onChange={(v) => set("dkp_table_prep_top20", v)}
+                  />
+                  <DkpRankEditor
+                    label="Prep — Outside Top 20"
+                    tableJson={draft.dkp_table_prep_outside || "[]"}
+                    color="text-blue-400"
+                    onChange={(v) => set("dkp_table_prep_outside", v)}
+                  />
+                </div>
+              ) : (
+                <DkpRankEditor
+                  label="Prep Stage DKP (Rank 1–N, alle Spieler)"
+                  tableJson={draft.dkp_table_prep || "[]"}
+                  color="text-amber-400"
+                  onChange={(v) => set("dkp_table_prep", v)}
+                />
+              )}
+            </div>
           )}
+
+          {/* ── War Stage Config ── */}
           {draft.has_war_stage && (
-            <DkpRankEditor
-              label="War — Top 20 Power Players"
-              tableJson={draft.dkp_table_war_top20 || "[]"}
-              color="text-amber-400"
-              onChange={(v) => set("dkp_table_war_top20", v)}
-            />
-          )}
-          {draft.has_war_stage && (
-            <DkpRankEditor
-              label="War — Outside Top 20"
-              tableJson={draft.dkp_table_war_outside || "[]"}
-              color="text-blue-400"
-              onChange={(v) => set("dkp_table_war_outside", v)}
-            />
+            <div className="space-y-4 p-4 rounded-lg border border-orange-500/20 bg-orange-500/5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-orange-400">War Stage</h4>
+                <div className="flex items-center gap-2">
+                  <Label className="text-gray-500 text-xs">Top 20 Split</Label>
+                  <Switch checked={draft.war_top20_enabled ?? true} onCheckedChange={(v) => set("war_top20_enabled", v)} />
+                </div>
+              </div>
+
+              {draft.war_top20_enabled !== false ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
+                      <Input type="number" value={draft.war_top20_fallback ?? draft.dkp_top20_fallback ?? ""} onChange={(e) => set("war_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
+                      <Input type="number" value={draft.war_outside_fallback ?? draft.dkp_outside_fallback ?? ""} onChange={(e) => set("war_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                    </div>
+                  </div>
+                  <DkpRankEditor
+                    label="War — Top 20 Power Players"
+                    tableJson={draft.dkp_table_war_top20 || "[]"}
+                    color="text-amber-400"
+                    onChange={(v) => set("dkp_table_war_top20", v)}
+                  />
+                  <DkpRankEditor
+                    label="War — Outside Top 20"
+                    tableJson={draft.dkp_table_war_outside || "[]"}
+                    color="text-blue-400"
+                    onChange={(v) => set("dkp_table_war_outside", v)}
+                  />
+                </div>
+              ) : (
+                <DkpRankEditor
+                  label="War Stage DKP (Rank 1–N, alle Spieler)"
+                  tableJson={draft.dkp_table_war_top20 || "[]"}
+                  color="text-orange-400"
+                  onChange={(v) => set("dkp_table_war_top20", v)}
+                />
+              )}
+            </div>
           )}
         </>
       ) : (
@@ -186,13 +241,18 @@ function CreateEventModal({ onClose, onCreate }) {
     has_prep_stage: false,
     has_war_stage: true,
     top20_enabled: true,
-    use_unified_prep_dkp: true,
+    prep_top20_enabled: false,
+    war_top20_enabled: true,
     dkp_yn_present: 5,
     dkp_yn_absent: -5,
-    dkp_top20_fallback: 20,
-    dkp_outside_fallback: 0,
+    prep_top20_fallback: 20,
+    prep_outside_fallback: 0,
+    war_top20_fallback: 20,
+    war_outside_fallback: 0,
     war_ranking_cutoff: 100,
     dkp_table_prep: "[]",
+    dkp_table_prep_top20: "[]",
+    dkp_table_prep_outside: "[]",
     dkp_table_war_top20: "[]",
     dkp_table_war_outside: "[]",
   });
@@ -260,46 +320,68 @@ function CreateEventModal({ onClose, onCreate }) {
                   <Label className="text-gray-500 text-xs block mb-1">War Stage</Label>
                   <Switch checked={form.has_war_stage} onCheckedChange={(v) => set("has_war_stage", v)} />
                 </div>
-                {form.has_prep_stage && (
-                  <div>
-                    <Label className="text-gray-500 text-xs block mb-1">Unified Prep DKP</Label>
-                    <Switch checked={form.use_unified_prep_dkp ?? true} onCheckedChange={(v) => set("use_unified_prep_dkp", v)} />
-                    <p className="text-[10px] text-gray-600 mt-1">Alle Spieler in einer Liste</p>
-                  </div>
-                )}
-                <div>
-                  <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-                  <Input type="number" value={form.dkp_top20_fallback} onChange={(e) => set("dkp_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
-                </div>
-                <div>
-                  <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-                  <Input type="number" value={form.dkp_outside_fallback} onChange={(e) => set("dkp_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
-                </div>
               </div>
 
+              {/* Prep Stage Config */}
               {form.has_prep_stage && (
-                <DkpRankEditor
-                  label="Prep Stage DKP (Rank 1–N)"
-                  tableJson={form.dkp_table_prep}
-                  color="text-amber-400"
-                  onChange={(v) => set("dkp_table_prep", v)}
-                />
+                <div className="space-y-4 p-4 rounded-lg border border-purple-500/20 bg-purple-500/5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-purple-400">Prep Stage</h4>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-gray-500 text-xs">Top 20 Split</Label>
+                      <Switch checked={form.prep_top20_enabled ?? false} onCheckedChange={(v) => set("prep_top20_enabled", v)} />
+                    </div>
+                  </div>
+                  {form.prep_top20_enabled ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
+                          <Input type="number" value={form.prep_top20_fallback ?? 20} onChange={(e) => set("prep_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                        </div>
+                        <div>
+                          <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
+                          <Input type="number" value={form.prep_outside_fallback ?? 0} onChange={(e) => set("prep_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                        </div>
+                      </div>
+                      <DkpRankEditor label="Prep — Top 20 Power Players" tableJson={form.dkp_table_prep_top20 || "[]"} color="text-amber-400" onChange={(v) => set("dkp_table_prep_top20", v)} />
+                      <DkpRankEditor label="Prep — Outside Top 20" tableJson={form.dkp_table_prep_outside || "[]"} color="text-blue-400" onChange={(v) => set("dkp_table_prep_outside", v)} />
+                    </div>
+                  ) : (
+                    <DkpRankEditor label="Prep Stage DKP (Rank 1–N, alle Spieler)" tableJson={form.dkp_table_prep || "[]"} color="text-amber-400" onChange={(v) => set("dkp_table_prep", v)} />
+                  )}
+                </div>
               )}
+
+              {/* War Stage Config */}
               {form.has_war_stage && (
-                <DkpRankEditor
-                  label="War — Top 20 Power Players"
-                  tableJson={form.dkp_table_war_top20}
-                  color="text-amber-400"
-                  onChange={(v) => set("dkp_table_war_top20", v)}
-                />
-              )}
-              {form.has_war_stage && (
-                <DkpRankEditor
-                  label="War — Outside Top 20"
-                  tableJson={form.dkp_table_war_outside}
-                  color="text-blue-400"
-                  onChange={(v) => set("dkp_table_war_outside", v)}
-                />
+                <div className="space-y-4 p-4 rounded-lg border border-orange-500/20 bg-orange-500/5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-orange-400">War Stage</h4>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-gray-500 text-xs">Top 20 Split</Label>
+                      <Switch checked={form.war_top20_enabled ?? true} onCheckedChange={(v) => set("war_top20_enabled", v)} />
+                    </div>
+                  </div>
+                  {(form.war_top20_enabled ?? true) ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
+                          <Input type="number" value={form.war_top20_fallback ?? 20} onChange={(e) => set("war_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                        </div>
+                        <div>
+                          <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
+                          <Input type="number" value={form.war_outside_fallback ?? 0} onChange={(e) => set("war_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                        </div>
+                      </div>
+                      <DkpRankEditor label="War — Top 20 Power Players" tableJson={form.dkp_table_war_top20 || "[]"} color="text-amber-400" onChange={(v) => set("dkp_table_war_top20", v)} />
+                      <DkpRankEditor label="War — Outside Top 20" tableJson={form.dkp_table_war_outside || "[]"} color="text-blue-400" onChange={(v) => set("dkp_table_war_outside", v)} />
+                    </div>
+                  ) : (
+                    <DkpRankEditor label="War Stage DKP (Rank 1–N, alle Spieler)" tableJson={form.dkp_table_war_top20 || "[]"} color="text-orange-400" onChange={(v) => set("dkp_table_war_top20", v)} />
+                  )}
+                </div>
               )}
             </div>
           )}
