@@ -203,6 +203,9 @@ export default function EventUpload({ players, eventTypes }) {
 
     const toApply = preview.filter(entry => entry.dkp !== 0);
 
+    // Generate a unique batch ID to link all transactions from this upload
+    const uploadBatchId = `${selectedEventType.key}_${effectiveStage}_${eventDate}_${Date.now()}`;
+
     await adminEntities.DKPTransaction.bulkCreate(
       toApply.map(entry => ({
         player_id: entry.playerId,
@@ -212,6 +215,7 @@ export default function EventUpload({ players, eventTypes }) {
         source: selectedEventType.key,
         source_stage: isYN ? null : effectiveStage,
         event_date: eventDate,
+        upload_batch_id: uploadBatchId,
       }))
     );
 
