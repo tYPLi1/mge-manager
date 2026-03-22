@@ -37,8 +37,9 @@ Deno.serve(async (req) => {
 
     const guilds = await res.json();
 
-    // Fetch all guild channels in parallel
-    const result = await Promise.all(guilds.map(async (guild) => {
+    // Fetch guild channels sequentially to avoid rate limiting
+    const result = [];
+    for (const guild of guilds) {
       let channels = [];
       try {
         const chRes = await fetch(`https://discord.com/api/v10/guilds/${guild.id}/channels`, {
@@ -53,13 +54,16 @@ Deno.serve(async (req) => {
         }
       } catch {}
 
-      return {
+      result.push({
         id: guild.id,
         name: guild.name,
         icon: guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : null,
         channels,
-      };
-    }));
+      });
+      
+      // Small delay between requests to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
     return Response.json({ guilds: result });
   } catch (error) {
