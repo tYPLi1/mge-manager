@@ -55,6 +55,8 @@ export default function DeleteEventData() {
   const handlePreview = (event) => {
     setSelectedEvent(event);
     setPreviewTransactions(event.transactions);
+    // Freeze transaction IDs to prevent data manipulation
+    setFrozenTransactionIds(new Set(event.transactions.map(tx => tx.id)));
     setShowPreview(true);
   };
 
