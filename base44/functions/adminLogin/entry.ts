@@ -1,8 +1,9 @@
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
-// Mock admin users database (since asServiceRole doesn't work in public apps)
-const ADMIN_USERS = {
-  'admin': '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36ZyWyFm' // password: 'admin'
+// Simple hardcoded admin check
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin'
 };
 
 Deno.serve(async (req) => {
@@ -17,16 +18,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Check credentials against mock database
-    const passwordHash = ADMIN_USERS[username];
-    if (!passwordHash) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    // Verify password
-    const passwordMatch = await bcrypt.compare(password, passwordHash);
-
-    if (!passwordMatch) {
+    // Check credentials
+    if (username !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
