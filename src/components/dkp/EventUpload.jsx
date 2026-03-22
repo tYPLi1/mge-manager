@@ -463,6 +463,7 @@ export default function EventUpload({ players, eventTypes }) {
                     <td className={`px-3 py-1.5 font-mono text-sm font-bold ${row.dkp > 0 ? "text-emerald-400" : row.dkp < 0 ? "text-red-400" : "text-gray-500"}`}>
                       {row.dkp > 0 ? "+" : ""}{row.dkp}
                     </td>
+                    <td className="px-3 py-1.5 text-xs text-gray-400 italic max-w-xs truncate">{row.note || "—"}</td>
                   </tr>
                 ))}
               </tbody>
