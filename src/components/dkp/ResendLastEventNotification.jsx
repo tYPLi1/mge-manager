@@ -95,53 +95,57 @@ export default function ResendLastEventNotification() {
         return lines;
       };
 
-      const allLines = [];
-      if (sortedByDkp.length) allLines.push(...buildGroupLines("📋 Results", sortedByDkp), "");
-
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
 
-      // Split into embeds if needed
+      // Split results into chunks that fit Discord's 1024 char field limit
+      const MAX_FIELD_LENGTH = 1000;
+      const resultChunks = [];
+      let currentChunk = "";
+
+      for (const entry of sortedByDkp) {
+        const rank = sortedByDkp.indexOf(entry) + 1;
+        const dkpStr = entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`;
+        let line = `**${rank}. ${entry.player_name}** — \`${dkpStr} DKP\``;
+        if (entry.note && entry.note.trim()) {
+          line += ` — _${entry.note}_`;
+        }
+
+        const newLine = currentChunk ? "\n" + line : line;
+        if ((currentChunk + newLine).length > MAX_FIELD_LENGTH) {
+          if (currentChunk) resultChunks.push(currentChunk);
+          currentChunk = line;
+        } else {
+          currentChunk += newLine;
+        }
+      }
+      if (currentChunk) resultChunks.push(currentChunk);
+
+      // Build embeds, splitting across multiple if needed (max 6000 chars total per embed)
       const embeds = [];
-      const MAX_EMBED_LENGTH = 5000;
+      const MAX_EMBED_LENGTH = 5500;
 
       let currentFields = [
         { name: "Players Updated", value: String(toApply.length), inline: true },
         { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
       ];
       let currentLength = 200;
-      let chunk = "";
 
-      for (const line of allLines) {
-        const lineWithNewline = (chunk ? "\n" : "") + line;
-        const newLength = currentLength + lineWithNewline.length;
+      for (let i = 0; i < resultChunks.length; i++) {
+        const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
+        const fieldLength = fieldName.length + resultChunks[i].length;
 
-        if (newLength > MAX_EMBED_LENGTH || currentFields.length >= 25) {
-          if (chunk) {
-            currentFields.push({ name: "Results", value: chunk, inline: false });
-          }
-
-          embeds.push({
-            color: 0x8b5cf6,
-            fields: currentFields,
-          });
-
+        if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
+          embeds.push({ color: 0x8b5cf6, fields: currentFields });
           currentFields = [];
-          chunk = line;
-          currentLength = 100 + line.length;
-        } else {
-          chunk = chunk ? chunk + "\n" + line : line;
-          currentLength = newLength;
+          currentLength = 100;
         }
+
+        currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
+        currentLength += fieldLength;
       }
 
-      if (chunk) {
-        currentFields.push({ name: "Results", value: chunk, inline: false });
-      }
       if (currentFields.length > 0) {
-        embeds.push({
-          color: 0x8b5cf6,
-          fields: currentFields,
-        });
+        embeds.push({ color: 0x8b5cf6, fields: currentFields });
       }
 
       if (embeds.length > 0) {
