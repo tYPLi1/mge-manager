@@ -97,6 +97,23 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Validate embeds - Discord requires description or fields
+    for (const e of embedsToProcess) {
+      if (!e.description && (!e.fields || e.fields.length === 0)) {
+        e.description = ' ';
+      }
+      // Ensure field values are not empty (Discord rejects empty strings)
+      if (e.fields) {
+        e.fields = e.fields.filter(f => f.name && f.value);
+        for (const f of e.fields) {
+          if (!f.value) f.value = '-';
+          if (!f.name) f.name = '-';
+        }
+      }
+    }
+
+    console.log('Sending embeds:', JSON.stringify(embedsToProcess).substring(0, 500));
+
     let sent = 0;
     for (const ch of channels) {
       const res = await fetch(`https://discord.com/api/v10/channels/${ch}/messages`, {
