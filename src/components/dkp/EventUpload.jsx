@@ -317,32 +317,36 @@ export default function EventUpload({ players, eventTypes }) {
       ];
       let currentLength = 200; // base length for title + description
       let chunk = "";
-      let fieldIdx = 0;
 
       for (const line of allLines) {
         const lineWithNewline = (chunk ? "\n" : "") + line;
-        if (currentLength + lineWithNewline.length > MAX_EMBED_LENGTH || currentFields.length >= 25) {
-          // Finalize current embed
-          if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+        const newLength = currentLength + lineWithNewline.length;
+        
+        if (newLength > MAX_EMBED_LENGTH || currentFields.length >= 25) {
+          // Finalize current embed before starting new one
+          if (chunk) {
+            currentFields.push({ name: "Results", value: chunk, inline: false });
+          }
           
           embeds.push({
             color: 0x8b5cf6,
             fields: currentFields,
           });
 
-          // Start new embed
+          // Start new embed with this line
           currentFields = [];
-          currentLength = 100;
           chunk = line;
-          fieldIdx = 0;
+          currentLength = 100 + line.length;
         } else {
           chunk = chunk ? chunk + "\n" + line : line;
-          currentLength += lineWithNewline.length;
+          currentLength = newLength;
         }
       }
 
       // Add remaining chunk
-      if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+      if (chunk) {
+        currentFields.push({ name: "Results", value: chunk, inline: false });
+      }
       if (currentFields.length > 0) {
         embeds.push({
           color: 0x8b5cf6,
