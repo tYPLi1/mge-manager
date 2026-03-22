@@ -1,12 +1,5 @@
-import { createClient } from 'npm:@base44/sdk@0.8.20';
-
-function getServiceClient() {
-  return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
-}
-
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient();
     const { userId, username, expiresAt, token } = await req.json();
 
     if (!userId || !username || !expiresAt || !token) {
@@ -34,18 +27,7 @@ Deno.serve(async (req) => {
       return Response.json({ valid: false, reason: 'Invalid token signature' });
     }
 
-    // Also verify user still exists and is active
-    try {
-      const user = await service.entities.AdminUser.get(userId);
-      if (!user || !user.is_active) {
-        return Response.json({ valid: false, reason: 'User deactivated or deleted' });
-      }
-    } catch (e) {
-      // If asServiceRole fails (e.g. no Base44 user context), 
-      // the HMAC signature is already verified — trust the token
-      console.log('AdminUser lookup failed (likely no Base44 auth context), trusting HMAC:', e.message);
-    }
-
+    // HMAC signature verified – token is valid
     return Response.json({ valid: true });
   } catch (error) {
     console.error('verifySessionToken error:', error.message);
