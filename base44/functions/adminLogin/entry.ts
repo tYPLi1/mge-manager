@@ -1,10 +1,10 @@
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
-// Simple hardcoded admin check
-const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'admin'
-};
+function getServiceClient(req) {
+  try { return createClientFromRequest(req).asServiceRole; }
+  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+}
 
 Deno.serve(async (req) => {
   try {
@@ -18,15 +18,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Check credentials
-    if (username !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
+    const service = getServiceClient(req);
+    
+    // Lookup user in AdminUser entity
+    const users = await service.entities.AdminUser.filter({ username });
+    if (users.length === 0) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const adminUser = { id: 'admin-1', username };
+    const adminUser = users[0];
+    if (!adminUser.is_active) {
+      return Response.json({ error: 'Account deactivated' }, { status: 403 });
+    }
 
-    // Generate a signed session token using HMAC
-    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD') || 'default-secret-key';
+    // Verify password against hash
+    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+    if (!passwordMatch) {
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    // Generate signed session token using HMAC
+    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
     if (!secret) {
       return Response.json({ error: 'Server configuration error' }, { status: 500 });
     }
