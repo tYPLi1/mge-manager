@@ -1,18 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
-/**
- * Undoes the last DKP upload batch by:
- * 1. Finding all transactions with the given upload_batch_id
- * 2. Reversing the DKP on each player
- * 3. Deleting the transactions
- */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
     const { session, upload_batch_id } = body;
 
-    // Validate admin session via HMAC
+    // Validate admin session
     if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
       return Response.json({ error: 'Invalid session' }, { status: 401 });
     }
@@ -20,6 +14,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Session expired' }, { status: 401 });
     }
 
+    // Verify HMAC signature
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
     const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
     const encoder = new TextEncoder();
@@ -34,11 +29,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    const service = base44.asServiceRole;
-
     if (!upload_batch_id) {
       return Response.json({ error: 'upload_batch_id required' }, { status: 400 });
     }
+
+    const service = base44.asServiceRole;
 
     // Find all transactions in this batch
     const transactions = await service.entities.DKPTransaction.filter(
