@@ -70,13 +70,8 @@ function DkpRankEditor({ label, tableJson, color = "text-amber-400", onChange })
   );
 }
 
-function EventEditor({ et, onSave, isSaving }) {
-  const [draft, setDraft] = useState({ ...et });
-
-  useEffect(() => { setDraft({ ...et }); }, [et.id]);
-
-  const set = (key, val) => setDraft((d) => ({ ...d, [key]: val }));
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(et);
+function EventEditor({ draft, onChange }) {
+  const set = (key, val) => onChange({ ...draft, [key]: val });
 
   return (
     <div className="border-t border-white/5 p-4 space-y-5">
@@ -220,16 +215,6 @@ function EventEditor({ et, onSave, isSaving }) {
           </div>
         </div>
       )}
-
-      <div className="flex justify-end pt-2">
-        <Button
-          onClick={() => onSave(et.id, draft)}
-          disabled={!isDirty || isSaving}
-          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5"
-        >
-          <Save className="w-3.5 h-3.5" /> Save
-        </Button>
-      </div>
     </div>
   );
 }
