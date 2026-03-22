@@ -136,7 +136,7 @@ export default function AdminDKP() {
       </div>
 
       <EventUpload players={players} eventTypes={eventTypes} />
-      <UndoLastUpload />
+      <DeleteEventData />
     </div>
   );
 }
