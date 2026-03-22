@@ -8,13 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-function getSession() {
-  try {
-    const raw = localStorage.getItem("adminSession");
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch { return null; }
-}
+
 
 export default function DeleteEventData() {
   const [selectedDate, setSelectedDate] = useState("");
