@@ -128,7 +128,7 @@ export default function Transactions() {
                         {t.source}
                       </span>
                     </td>
-                    <td className="px-3 py-2 hidden sm:table-cell text-xs text-gray-500">{t.source_stage || "—"}</td>
+                    <td className="px-3 py-2 text-xs text-gray-500">{t.source_stage || "—"}</td>
                     <td className="px-3 py-2"><DKPValue value={t.amount} size="sm" showSign /></td>
                     <td className="px-3 py-2 hidden md:table-cell text-xs text-gray-500">{t.type}</td>
                   </tr>
