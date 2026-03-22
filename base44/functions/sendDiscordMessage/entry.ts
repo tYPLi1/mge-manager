@@ -29,6 +29,15 @@ function getTargetChannels(settings, type) {
   }
 }
 
+async function refreshServerConfig(service) {
+  try {
+    const settings = await service.entities.AppSettings.list();
+    return settings;
+  } catch {
+    return [];
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
@@ -72,7 +81,7 @@ Deno.serve(async (req) => {
     if (channelIds && Array.isArray(channelIds) && channelIds.length > 0) {
       channels = channelIds;
     } else {
-      const settings = await service.entities.AppSettings.list();
+      const settings = await refreshServerConfig(service);
       channels = getTargetChannels(settings, 'manual');
     }
     if (channels.length === 0) return Response.json({ error: 'No channels specified' }, { status: 400 });

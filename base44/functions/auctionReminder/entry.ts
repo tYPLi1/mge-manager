@@ -24,6 +24,15 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
+async function refreshServerConfig(service) {
+  try {
+    const settings = await service.entities.AppSettings.list();
+    return settings;
+  } catch {
+    return [];
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
@@ -31,7 +40,7 @@ Deno.serve(async (req) => {
     if (!BOT_TOKEN) return Response.json({ skipped: true, reason: "No bot token" });
 
     const openAuctions = await service.entities.Auction.filter({ status: "open" });
-    const settings = await service.entities.AppSettings.filter({});
+    const settings = await refreshServerConfig(service);
     const channels = getTargetChannels(settings, 'reminder');
 
     if (channels.length === 0) {
