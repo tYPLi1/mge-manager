@@ -2,8 +2,14 @@ import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
 function getServiceClient(req) {
-  try { return createClientFromRequest(req).asServiceRole; }
-  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
+  try { 
+    return createClientFromRequest(req).asServiceRole; 
+  } catch { 
+    const appId = Deno.env.get('BASE44_APP_ID');
+    const serviceToken = Deno.env.get('BASE44_SERVICE_ROLE_KEY');
+    if (!serviceToken) throw new Error('Service role credentials not configured');
+    return createClient({ appId, serviceRoleKey: serviceToken }).asServiceRole; 
+  }
 }
 
 Deno.serve(async (req) => {
