@@ -212,6 +212,7 @@ export default function EventUpload({ players, eventTypes }) {
         source: selectedEventType.key,
         source_stage: isYN ? null : effectiveStage,
         event_date: eventDate,
+        note: entry.note || null,
       }))
     );
 
