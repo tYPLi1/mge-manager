@@ -111,26 +111,31 @@ Deno.serve(async (req) => {
           if (!f.value) f.value = '-';
           if (!f.name) f.name = '-';
           if (f.value.length > 1024) {
-            // Split into chunks of max 1024 chars at line breaks
-            let remaining = f.value;
+            const lines = f.value.split('\n');
+            let chunk = '';
             let partNum = 0;
-            while (remaining.length > 0) {
-              let chunk;
-              if (remaining.length <= 1024) {
-                chunk = remaining;
-                remaining = '';
+            for (let li = 0; li < lines.length; li++) {
+              const tentative = chunk ? chunk + '\n' + lines[li] : lines[li];
+              if (tentative.length > 1000 && chunk) {
+                // Remove trailing empty lines / lone headers at end of chunk
+                let trimmed = chunk;
+                const chunkLines = trimmed.split('\n');
+                while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === '' || (chunkLines[chunkLines.length - 1].startsWith('**') && chunkLines[chunkLines.length - 1].endsWith('**')))) {
+                  // Push orphan header back for next chunk
+                  lines.splice(li, 0, chunkLines.pop());
+                }
+                trimmed = chunkLines.join('\n');
+                if (trimmed) {
+                  newFields.push({ name: partNum === 0 ? f.name : `${f.name} (cont.)`, value: trimmed, inline: f.inline || false });
+                  partNum++;
+                }
+                chunk = lines[li];
               } else {
-                const cutAt = remaining.lastIndexOf('\n', 1024);
-                const splitPos = cutAt > 200 ? cutAt : 1024;
-                chunk = remaining.substring(0, splitPos);
-                remaining = remaining.substring(splitPos).replace(/^\n/, '');
+                chunk = tentative;
               }
-              newFields.push({
-                name: partNum === 0 ? f.name : `${f.name} (cont.)`,
-                value: chunk,
-                inline: f.inline || false,
-              });
-              partNum++;
+            }
+            if (chunk) {
+              newFields.push({ name: partNum === 0 ? f.name : `${f.name} (cont.)`, value: chunk, inline: f.inline || false });
             }
           } else {
             newFields.push(f);
