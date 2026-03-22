@@ -20,12 +20,12 @@ export default function AdminLogin() {
   useEffect(() => {
     const checkAuth = async () => {
       // Check AdminUser session
-      const session = localStorage.getItem('adminSession');
-      if (session) {
-        const parsed = JSON.parse(session);
-        if (new Date(parsed.expiresAt) > new Date()) {
-          navigate(createPageUrl('AdminDashboard'));
-          return;
+       const session = localStorage.getItem('adminSession');
+       if (session) {
+         const parsed = JSON.parse(session);
+         if (new Date(parsed.expiresAt) > new Date()) {
+           navigate(createPageUrl('AdminDKP'));
+           return;
         } else {
           localStorage.removeItem('adminSession');
         }
@@ -73,11 +73,11 @@ export default function AdminLogin() {
       setLockedUntil(null);
 
       // Store session
-      const session = response.data.session;
-      localStorage.setItem('adminSession', JSON.stringify(session));
-      localStorage.setItem('adminLastActivity', Date.now().toString());
+       const session = response.data.session;
+       localStorage.setItem('adminSession', JSON.stringify(session));
+       localStorage.setItem('adminLastActivity', Date.now().toString());
 
-      navigate(createPageUrl('AdminDashboard'));
+       navigate(createPageUrl('AdminDKP'));
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
       setLoading(false);
