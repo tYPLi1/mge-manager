@@ -258,7 +258,10 @@ export default function EventUpload({ players, eventTypes }) {
           const dkpStr = r.dkp > 0 ? `+${r.dkp}` : `${r.dkp}`;
           let line = `${rank} **${r.playerName}** — \`${dkpStr} DKP\``;
           if (r.overrideApplied) line += " ⚡ *Override*";
-          if (r.note) line += ` — _${r.note}_`;
+          if (r.note && r.note.trim()) {
+            const truncatedNote = r.note.length > 50 ? r.note.substring(0, 47) + "..." : r.note;
+            line += ` — _${truncatedNote}_`;
+          }
           lines.push(line);
         }
         return lines;
