@@ -133,16 +133,16 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
          ))}
 
         {extraText.trim() && (
-          <div className="bg-[#2f3136] rounded-lg overflow-hidden">
-            <div className="flex">
-              <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
-              <div className="p-3 flex-1">
-                <p className="text-gray-400 text-xs font-semibold mb-1">+ Extra Text</p>
-                <p className="text-gray-200 text-xs whitespace-pre-wrap">{extraText}</p>
-              </div>
-            </div>
-          </div>
-        )}
+           <div className="bg-[#2f3136] rounded-lg overflow-hidden">
+             <div className="flex">
+               <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
+               <div className="p-3 flex-1">
+                 <p className="text-gray-400 text-xs font-semibold mb-1">📝 Event Notes</p>
+                 <p className="text-gray-200 text-xs whitespace-pre-wrap">{extraText}</p>
+               </div>
+             </div>
+           </div>
+         )}
 
         {/* Extra Text Input */}
         <div>
