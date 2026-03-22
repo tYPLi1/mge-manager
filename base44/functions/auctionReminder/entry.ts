@@ -1,4 +1,4 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
@@ -24,15 +24,6 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
-async function refreshServerConfig(service) {
-  try {
-    const settings = await service.entities.AppSettings.list();
-    return settings;
-  } catch {
-    return [];
-  }
-}
-
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
@@ -40,7 +31,7 @@ Deno.serve(async (req) => {
     if (!BOT_TOKEN) return Response.json({ skipped: true, reason: "No bot token" });
 
     const openAuctions = await service.entities.Auction.filter({ status: "open" });
-    const settings = await refreshServerConfig(service);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'reminder');
 
     if (channels.length === 0) {
@@ -80,7 +71,6 @@ Deno.serve(async (req) => {
         fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
 
         const payload = {
-          content: '@everyone',
           embeds: [{
             title: "⏰ Auction Ending Soon!",
             description: `**${auction.title}** closes in ~${minutesLeft} minutes!`,
@@ -88,7 +78,6 @@ Deno.serve(async (req) => {
             fields,
             footer: { text: "DKP System — Last chance to bid!" },
           }],
-          components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
         };
 
         for (const ch of channels) {
@@ -97,11 +86,14 @@ Deno.serve(async (req) => {
             headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
-          if (res.ok) remindersSent++;
-          else console.error(`Reminder failed for channel ${ch}: ${res.status}`);
+          if (res.ok) {
+            remindersSent++;
+          } else {
+            const errBody = await res.text();
+            console.error(`Reminder failed for channel ${ch}: ${res.status} - ${errBody}`);
+          }
         }
 
-        // Mark reminder as sent so it doesn't fire again
         await service.entities.Auction.update(auction.id, { reminder_sent: true });
       }
     }

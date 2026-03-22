@@ -24,15 +24,6 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
-async function refreshServerConfig(service) {
-  try {
-    const settings = await service.entities.AppSettings.list();
-    return settings;
-  } catch {
-    return [];
-  }
-}
-
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
@@ -40,7 +31,7 @@ Deno.serve(async (req) => {
 
     if (!BOT_TOKEN) return Response.json({ success: true });
 
-    const settings = await refreshServerConfig(service);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'penalties');
     if (channels.length === 0) return Response.json({ success: true });
 
@@ -58,7 +49,6 @@ Deno.serve(async (req) => {
     const sourceText = data.source || (isCompensation ? 'MGE' : 'Offense');
 
     const payload = {
-      content: '@everyone',
       embeds: [{
         title,
         description: `**${data.player_name}**`,
@@ -79,7 +69,10 @@ Deno.serve(async (req) => {
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) console.error(`Discord send failed for channel ${ch}: ${res.status}`);
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error(`Discord send failed for channel ${ch}: ${res.status} - ${errBody}`);
+      }
     }
 
     return Response.json({ success: true });

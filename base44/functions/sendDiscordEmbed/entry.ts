@@ -129,6 +129,9 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (sent === 0) {
+      return Response.json({ success: false, error: 'Failed to send to any channel' }, { status: 500 });
+    }
     return Response.json({ success: true, channels: sent });
   } catch (error) {
     console.error('sendDiscordEmbed error:', error);

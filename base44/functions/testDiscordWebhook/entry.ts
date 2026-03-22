@@ -1,4 +1,4 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
@@ -37,7 +37,6 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { session } = body;
 
-    // Validate session nur wenn vorhanden (für Admin-Panel), sonst erlauben (für Bot)
     if (session) {
       const auth = await validateSession(service, session);
       if (!auth.valid) return Response.json({ error: auth.error }, { status: auth.status });
@@ -55,7 +54,6 @@ Deno.serve(async (req) => {
 
     if (servers.length === 0) return Response.json({ error: 'No servers configured' }, { status: 400 });
 
-    // Send test to all default channels
     let sent = 0;
     const errors = [];
 
@@ -67,10 +65,9 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: `🧪 **Discord Bot Test** — Server: ${server.name || 'Unnamed'}`,
           embeds: [{
             title: '✅ Discord Bot Test',
-            description: 'Bot integration works! @everyone mentions are supported.',
+            description: `Bot integration works! Server: **${server.name || 'Unnamed'}**`,
             color: 16776960,
             fields: [
               { name: '🔗 App Link', value: '[Open App](https://mge002.base44.app)', inline: false },

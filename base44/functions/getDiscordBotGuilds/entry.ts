@@ -61,8 +61,8 @@ Deno.serve(async (req) => {
         channels,
       });
       
-      // Small delay between requests to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Delay between requests to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     return Response.json({ guilds: result });

@@ -24,22 +24,16 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
-async function refreshServerConfig(service) {
-  try {
-    const settings = await service.entities.AppSettings.list();
-    return settings;
-  } catch {
-    return [];
-  }
-}
-
 async function sendToChannel(channelId, payload) {
   const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: 'POST',
     headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) console.error(`Discord send failed for ${channelId}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`Discord send failed for ${channelId}: ${res.status} - ${errBody}`);
+  }
   return res.ok;
 }
 
@@ -49,14 +43,13 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { eventName, eventDate, playersUpdated, totalDkpDistributed, rankings } = body;
 
-    // Validate input
     if (!eventName || !eventDate) {
       return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
     }
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
-    const settings = await refreshServerConfig(service);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'events');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
@@ -67,7 +60,6 @@ Deno.serve(async (req) => {
       : 'No ranking data';
 
     const payload = {
-      content: '@everyone',
       embeds: [{
         title: '📊 Event Data Uploaded',
         description: `**${eventName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`,

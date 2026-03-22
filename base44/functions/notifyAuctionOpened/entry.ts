@@ -24,22 +24,16 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
-async function refreshServerConfig(service) {
-  try {
-    const settings = await service.entities.AppSettings.list();
-    return settings;
-  } catch {
-    return [];
-  }
-}
-
 async function sendToChannel(channelId, payload) {
   const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: 'POST',
     headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) console.error(`Discord send failed for ${channelId}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`Discord send failed for ${channelId}: ${res.status} - ${errBody}`);
+  }
   return res.ok;
 }
 
@@ -51,16 +45,13 @@ Deno.serve(async (req) => {
 
     let auction;
     if (event?.type) {
-      // Only notify when status changes TO 'open'
       if (data.status !== 'open') {
         return Response.json({ success: true, skipped: true, reason: 'not open' });
       }
-      // Skip if it was already open before (old_data may be null for large payloads)
       const old_data = body.old_data;
       if (old_data && old_data.status === 'open') {
         return Response.json({ success: true, skipped: true, reason: 'already open' });
       }
-      // If old_data is null (payload_too_large), fetch the auction to be safe
       if (!old_data && body.payload_too_large) {
         auction = await service.entities.Auction.get(event.entity_id || data.id);
       } else {
@@ -74,7 +65,7 @@ Deno.serve(async (req) => {
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
-    const settings = await refreshServerConfig(service);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'auction');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
@@ -103,10 +94,12 @@ Deno.serve(async (req) => {
     }
 
     embed.fields = embed.fields || [];
-    embed.fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
+    const hasLink = embed.fields.some(f => f.name === '🔗 Link');
+    if (!hasLink) {
+      embed.fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
+    }
 
     const payload = {
-      content: '@everyone',
       embeds: [embed],
     };
 

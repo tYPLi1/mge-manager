@@ -24,22 +24,16 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
-async function refreshServerConfig(service) {
-  try {
-    const settings = await service.entities.AppSettings.list();
-    return settings;
-  } catch {
-    return [];
-  }
-}
-
 async function sendToChannel(channelId, payload) {
   const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: 'POST',
     headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) console.error(`Discord send failed for ${channelId}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`Discord send failed for ${channelId}: ${res.status} - ${errBody}`);
+  }
   return res.ok;
 }
 
@@ -64,7 +58,7 @@ Deno.serve(async (req) => {
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
     const results = await service.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
-    const settings = await refreshServerConfig(service);
+    const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'results');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
@@ -105,7 +99,6 @@ Deno.serve(async (req) => {
     fields.push({ name: '🔗 Link', value: `[View Results](${resultsUrl})`, inline: false });
 
     const payload = {
-      content: '@everyone',
       embeds: [{
         title: '🏆 Auction Results Ready',
         description: auction.title,
