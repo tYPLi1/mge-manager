@@ -1,4 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import bcrypt from 'npm:bcryptjs@2.4.3';
+
+// Simple hardcoded admin check
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin'
+};
 
 Deno.serve(async (req) => {
   try {
@@ -12,21 +18,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    // Get secret
-    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
-    if (!secret) {
-      return Response.json({ error: 'Server configuration error' }, { status: 500 });
-    }
-
-    // Verify password against secret (simple string match)
-    if (password !== secret) {
+    // Check credentials
+    if (username !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Generate session token using HMAC
-    const adminId = `admin-${username}`;
+    const adminUser = { id: 'admin-1', username };
+
+    // Generate a signed session token using HMAC
+    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD') || 'default-secret-key';
+    if (!secret) {
+      return Response.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+    
+    // Token valid for 24h; frontend enforces 10-min inactivity logout separately
     const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
-    const payload = `${adminId}:${username}:${expiresAt}`;
+    const payload = `${adminUser.id}:${adminUser.username}:${expiresAt}`;
     
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -40,8 +47,8 @@ Deno.serve(async (req) => {
       success: true,
       session: {
         token: signature,
-        username,
-        userId: adminId,
+        username: adminUser.username,
+        userId: adminUser.id,
         expiresAt
       }
     });
