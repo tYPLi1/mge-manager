@@ -24,11 +24,11 @@ export default function DeleteEventData() {
   const [deleting, setDeleting] = useState(false);
   const queryClient = useQueryClient();
 
-  // Get all transactions with event_date
+  // Get all transactions with event_date (all types: earn, bid, penalty, bonus, compensation, king_allocation)
   const { data: allTransactions = [], isLoading } = useQuery({
     queryKey: ["all-transactions-by-date"],
     queryFn: async () => {
-      const txs = await base44.entities.DKPTransaction.filter({ type: "earn" }, "-event_date", 5000);
+      const txs = await base44.entities.DKPTransaction.list("-event_date", 5000);
       return txs;
     },
   });
