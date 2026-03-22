@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       content: '@everyone',
       embeds: [{
         title: '📊 Event Data Uploaded',
-        description: `**${eventName}** - ${new Date(eventDate).toLocaleDateString("de-CH")}`,
+        description: `**${eventName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`,
         color: 0x8b5cf6,
         url: leaderboardUrl,
         fields: [
