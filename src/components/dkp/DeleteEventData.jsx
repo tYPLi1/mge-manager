@@ -101,12 +101,14 @@ export default function DeleteEventData() {
       }
 
       // STEP 3: Delete all transactions (only the validated ones)
-      await Promise.all(txsToDelete.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
+      for (const tx of txsToDelete) {
+        await base44.entities.DKPTransaction.delete(tx.id);
+      }
 
       // STEP 4: Update player DKP balances
-      await Promise.all(Object.entries(playerUpdates).map(([playerId, newDkp]) =>
-        adminEntities.Player.update(playerId, { total_dkp: newDkp })
-      ));
+      for (const [playerId, newDkp] of Object.entries(playerUpdates)) {
+        await base44.entities.Player.update(playerId, { total_dkp: newDkp });
+      }
 
       toast.success(`Deleted ${txsToDelete.length} transactions`, {
         description: `Event: ${selectedEvent.source}${selectedEvent.source_stage ? ` - ${selectedEvent.source_stage}` : ""}`
