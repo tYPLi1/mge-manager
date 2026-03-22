@@ -5,7 +5,10 @@ function getServiceClient(req) {
     const client = createClientFromRequest(req);
     return client.asServiceRole;
   } catch {
-    return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole;
+    const appId = Deno.env.get('BASE44_APP_ID');
+    const serviceToken = Deno.env.get('BASE44_SERVICE_ROLE_KEY');
+    if (!serviceToken) throw new Error('Service role credentials not configured');
+    return createClient({ appId, serviceRoleKey: serviceToken }).asServiceRole;
   }
 }
 
