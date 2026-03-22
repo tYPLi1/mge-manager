@@ -104,28 +104,28 @@ export default function AdminSessionGuard({ children }) {
 
   // --- Activity tracking + inactivity logout ---
   useEffect(() => {
-    if (!isAuthorized) return;
+   if (!isAuthorized) return;
 
-    const handleActivity = () => {
-      localStorage.setItem('adminLastActivity', Date.now().toString());
-    };
+   let inactivityTimer = null;
+   const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-    // Check for inactivity every 30 seconds (logout after 30 min of inactivity)
-    const inactivityCheck = setInterval(() => {
-      const last = parseInt(localStorage.getItem('adminLastActivity') || '0');
-      if (Date.now() - last > 30 * 60 * 1000) {
-        forceLogout();
-      }
-    }, 30000);
+   const resetInactivityTimer = () => {
+     if (inactivityTimer) clearTimeout(inactivityTimer);
+     inactivityTimer = setTimeout(() => {
+       forceLogout();
+     }, INACTIVITY_TIMEOUT);
+   };
 
-    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
-    events.forEach(e => window.addEventListener(e, handleActivity));
-    // Set initial activity timestamp
-    handleActivity();
-    return () => {
-      clearInterval(inactivityCheck);
-      events.forEach(e => window.removeEventListener(e, handleActivity));
-    };
+   const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+   events.forEach(e => window.addEventListener(e, resetInactivityTimer));
+
+   // Start initial timer
+   resetInactivityTimer();
+
+   return () => {
+     if (inactivityTimer) clearTimeout(inactivityTimer);
+     events.forEach(e => window.removeEventListener(e, resetInactivityTimer));
+   };
   }, [isAuthorized]);
 
   if (loading) {
