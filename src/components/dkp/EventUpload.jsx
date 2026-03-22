@@ -237,6 +237,7 @@ export default function EventUpload({ players, eventTypes }) {
     }
 
     queryClient.invalidateQueries({ queryKey: ["players"] });
+    queryClient.invalidateQueries({ queryKey: ["last-upload-batch"] });
     setApplied(true);
     setApplying(false);
     setPreview(null);
