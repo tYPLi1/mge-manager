@@ -530,7 +530,12 @@ export default function AdminEventConfig() {
   const handleSave = () => saveMutation.mutate();
 
   const handleDiscard = () => {
-    setDrafts({ ...savedSnapshot });
+    // Deep-clone each event in snapshot to reset drafts cleanly
+    const freshDrafts = {};
+    Object.keys(savedSnapshotRef.current).forEach(id => {
+      freshDrafts[id] = { ...savedSnapshotRef.current[id] };
+    });
+    setDrafts(freshDrafts);
     setShowUnsavedDialog(false);
     if (pendingNavigationRef.current) {
       const target = pendingNavigationRef.current;
