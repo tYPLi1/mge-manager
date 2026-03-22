@@ -153,14 +153,13 @@ export default function ResendLastEventNotification() {
         embeds[embeds.length - 1].footer = { text: "DKP System" };
       }
 
-      const channelId = settings.find(s => s.key === "discord_auction_channel")?.value;
-      setDiscordPreview({ embeds, channelId, onSent: () => {}, notifType: "event_upload" });
-    } catch (error) {
+      setDiscordPreview({ embeds, onSent: () => {}, notifType: "event_upload" });
+      } catch (error) {
       console.error("Error preparing resend:", error);
       toast.error("Failed to prepare notification");
-    }
+      }
 
-    setSending(false);
+      setSending(false);
   };
 
   if (!lastEvent) {
