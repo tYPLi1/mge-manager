@@ -4,7 +4,7 @@ import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { History, Plus } from "lucide-react";
 import EventUpload from "@/components/dkp/EventUpload";
-import UndoLastUpload from "@/components/dkp/UndoLastUpload";
+import DeleteEventData from "@/components/dkp/DeleteEventData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
