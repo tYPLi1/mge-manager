@@ -448,6 +448,7 @@ export default function EventUpload({ players, eventTypes }) {
                   {!isYN && <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Group Rank</th>}
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Group</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
