@@ -622,7 +622,7 @@ export default function AdminPlayers() {
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <DKPValue value={(p.total_dkp || 0) - (p.dkp_spent || 0)} size="sm" />
+                      <DKPValue value={(p.total_dkp || 0) + (p.dkp_spent || 0)} size="sm" />
                     </td>
                     <td className="px-3 py-2 hidden sm:table-cell">
                       <Input
@@ -655,7 +655,7 @@ export default function AdminPlayers() {
                 ) : (
                   <tr key={p.id} className="hover:bg-white/[0.02]">
                     <td className="px-3 py-2.5 text-sm font-medium text-white">{p.name}</td>
-                    <td className="px-3 py-2.5"><DKPValue value={(p.total_dkp || 0) - (p.dkp_spent || 0)} size="sm" /></td>
+                    <td className="px-3 py-2.5"><DKPValue value={(p.total_dkp || 0) + (p.dkp_spent || 0)} size="sm" /></td>
                     <td className="px-3 py-2.5 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <StatusBadge cooldownUntil={p.cooldown_until} />

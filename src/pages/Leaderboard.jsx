@@ -109,7 +109,7 @@ export default function Leaderboard() {
 
     return players.map(p => ({
       ...p,
-      current_dkp: (p.total_dkp || 0) - (p.dkp_spent || 0),
+      current_dkp: (p.total_dkp || 0) + (p.dkp_spent || 0),
       powerRank: powerRanks[p.id] || 0,
       ...eventMap[p.id],
     }));

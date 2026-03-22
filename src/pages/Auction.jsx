@@ -166,7 +166,7 @@ export default function Auction() {
     return new Date(selectedPlayerData.cooldown_until) > new Date();
   }, [selectedPlayerData]);
   const isAuctionBanned = selectedPlayerData?.auction_ban_count > 0;
-  const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp - selectedPlayerData.dkp_spent) : 0;
+  const currentDkp = selectedPlayerData ? (selectedPlayerData.total_dkp || 0) + (selectedPlayerData.dkp_spent || 0) : 0;
   const bidTooHigh = bidAmount && parseInt(bidAmount) > currentDkp;
   const eligibleForFriendlyZone = friendlyZoneEnabled && currentDkp <= friendlyZoneThreshold;
 

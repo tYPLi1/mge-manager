@@ -90,7 +90,7 @@ export default function LeaderboardTable({ data, isLoading, sortField, sortDir, 
                   </td>
                   <td className="px-2.5 py-2"><DKPValue value={p.current_dkp} size="sm" /></td>
                   <td className="px-2.5 py-2 text-sm text-gray-400 font-mono">{(p.total_dkp || 0).toLocaleString()}</td>
-                  <td className="px-2.5 py-2 text-sm text-gray-400 font-mono">{(p.dkp_spent || 0).toLocaleString()}</td>
+                  <td className="px-2.5 py-2 text-sm text-gray-400 font-mono">{Math.abs(p.dkp_spent || 0).toLocaleString()}</td>
                   <td className="px-2.5 py-2 text-right text-sm font-mono text-amber-400">
                     {p.power ? p.power.toLocaleString() : <span className="text-gray-700">—</span>}
                   </td>
