@@ -11,6 +11,24 @@ function getServiceClient(req) {
   }
 }
 
+function getTargetChannels(settings, type) {
+  const serverConfig = settings.find(s => s.key === 'discord_servers');
+  if (!serverConfig) return [];
+  
+  try {
+    const servers = JSON.parse(serverConfig.value);
+    const channels = [];
+    for (const server of servers) {
+      if (type === 'manual' && server.defaultChannelId) {
+        channels.push(server.defaultChannelId);
+      }
+    }
+    return channels;
+  } catch {
+    return [];
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
