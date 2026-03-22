@@ -70,6 +70,20 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
     onClose();
   };
 
+  // Calculate character counts
+  const calculateEmbedLength = (embed) => {
+    let length = 0;
+    if (embed.title) length += embed.title.length;
+    if (embed.description) length += embed.description.length;
+    if (embed.fields) {
+      for (const field of embed.fields) {
+        if (field.name) length += field.name.length;
+        if (field.value) length += field.value.length;
+      }
+    }
+    return length;
+  };
+
   // Render embed preview
   const firstEmbed = embedsToSend[0] || {};
   const colorHex = firstEmbed.color ? `#${firstEmbed.color.toString(16).padStart(6, "0")}` : "#f59e0b";
@@ -95,6 +109,28 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
              </p>
            </div>
          )}
+
+        {/* Character Count Info */}
+         <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 space-y-2">
+           {embedsToSend.map((embed, idx) => {
+             const charCount = calculateEmbedLength(embed);
+             const limit = 5000;
+             const percentage = Math.round((charCount / limit) * 100);
+             return (
+               <div key={idx} className="flex items-center justify-between text-xs">
+                 <span className="text-slate-400">
+                   Nachricht {idx + 1}: <strong className={charCount > limit ? 'text-red-400' : 'text-slate-300'}>{charCount}</strong> / {limit} Zeichen
+                 </span>
+                 <div className="w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                   <div 
+                     className={`h-full transition-all ${charCount > limit ? 'bg-red-500' : 'bg-emerald-500'}`}
+                     style={{ width: `${Math.min(percentage, 100)}%` }}
+                   />
+                 </div>
+               </div>
+             );
+           })}
+         </div>
 
          {/* Embed Previews */}
          {embedsToSend.map((embedItem, idx) => (
