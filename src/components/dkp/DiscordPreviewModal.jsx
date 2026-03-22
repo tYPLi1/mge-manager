@@ -39,12 +39,13 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
     }
 
     try {
-      for (const singleEmbed of embedsToSend) {
+      for (let i = 0; i < embedsToSend.length; i++) {
+        const singleEmbed = embedsToSend[i];
         const res = await base44.functions.invoke("sendDiscordEmbed", {
           session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
           embed: singleEmbed,
           channelId,
-          extraText: extraText.trim() || undefined,
+          extraText: i === 0 ? (extraText.trim() || undefined) : undefined,
           notifType: notifType || undefined,
         });
 
