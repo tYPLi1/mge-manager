@@ -259,8 +259,7 @@ export default function EventUpload({ players, eventTypes }) {
           let line = `${rank} **${r.playerName}** — \`${dkpStr} DKP\``;
           if (r.overrideApplied) line += " ⚡ *Override*";
           if (r.note && r.note.trim()) {
-            const truncatedNote = r.note.length > 50 ? r.note.substring(0, 47) + "..." : r.note;
-            line += ` — _${truncatedNote}_`;
+            line += ` — _${r.note}_`;
           }
           lines.push(line);
         }
@@ -281,35 +280,60 @@ export default function EventUpload({ players, eventTypes }) {
       if (present.length) allLines.push(...buildGroupLines("✅ Present", present), "");
       if (absent.length) allLines.push(...buildGroupLines("❌ Absent", absent), "");
 
-      // Split into embed fields respecting 1024 char limit
-      const fields = [
+      const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
+
+      // Split into multiple embeds if needed (max ~5000 chars per embed)
+      const embeds = [];
+      const MAX_EMBED_LENGTH = 5000;
+      
+      let currentFields = [
         { name: "Players Updated", value: String(toApply.length), inline: true },
         { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
       ];
+      let currentLength = 200; // base length for title + description
       let chunk = "";
       let fieldIdx = 0;
+
       for (const line of allLines) {
-        if ((chunk + "\n" + line).length > 1020) {
-          fields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+        const lineWithNewline = (chunk ? "\n" : "") + line;
+        if (currentLength + lineWithNewline.length > MAX_EMBED_LENGTH || currentFields.length >= 25) {
+          // Finalize current embed
+          if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+          
+          embeds.push({
+            title: embeds.length === 0 ? "📊 Event Data Uploaded" : "📊 Event Data (continued)",
+            description: embeds.length === 0 ? `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}` : undefined,
+            color: 0x8b5cf6,
+            fields: currentFields,
+            url: embeds.length === 0 ? leaderboardUrl : undefined,
+            footer: { text: "DKP System" },
+          });
+
+          // Start new embed
+          currentFields = [];
+          currentLength = 100;
           chunk = line;
-          fieldIdx++;
+          fieldIdx = 0;
         } else {
           chunk = chunk ? chunk + "\n" + line : line;
+          currentLength += lineWithNewline.length;
         }
       }
-      if (chunk) fields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
 
-      const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
+      // Add remaining chunk
+      if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
+      if (currentFields.length > 0) {
+        embeds.push({
+          title: embeds.length === 0 ? "📊 Event Data Uploaded" : "📊 Event Data (continued)",
+          description: embeds.length === 0 ? `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}` : undefined,
+          color: 0x8b5cf6,
+          fields: currentFields,
+          url: embeds.length === 0 ? leaderboardUrl : undefined,
+          footer: { text: "DKP System" },
+        });
+      }
 
-      const embed = {
-        title: "📊 Event Data Uploaded",
-        description: `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`,
-        color: 0x8b5cf6,
-        fields,
-        url: leaderboardUrl,
-        footer: { text: "DKP System" },
-      };
-      setDiscordPreview({ embed, onSent: doApply });
+      setDiscordPreview({ embeds, onSent: doApply });
     } else {
       await doApply();
     }
