@@ -322,17 +322,24 @@ export default function EventUpload({ players, eventTypes }) {
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
 
       // Split lines into field-safe chunks (Discord max 1024 chars per field value)
+      // Ensures group headers (bold lines like **🏆 Top 20**) never end up orphaned at the end of a chunk
       const MAX_FIELD_LENGTH = 1000;
       const resultChunks = [];
       let currentChunk = "";
 
-      for (const line of allLines) {
-        const newLine = currentChunk ? "\n" + line : line;
-        if ((currentChunk + newLine).length > MAX_FIELD_LENGTH) {
-          if (currentChunk) resultChunks.push(currentChunk);
-          currentChunk = line;
+      for (let i = 0; i < allLines.length; i++) {
+        const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
+        if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
+          // Before finalizing, pull back trailing empty lines or lone group headers
+          const chunkLines = currentChunk.split("\n");
+          while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === "" || (chunkLines[chunkLines.length - 1].startsWith("**") && chunkLines[chunkLines.length - 1].endsWith("**")))) {
+            allLines.splice(i, 0, chunkLines.pop());
+          }
+          const trimmed = chunkLines.join("\n");
+          if (trimmed) resultChunks.push(trimmed);
+          currentChunk = allLines[i];
         } else {
-          currentChunk += newLine;
+          currentChunk = tentative;
         }
       }
       if (currentChunk) resultChunks.push(currentChunk);
