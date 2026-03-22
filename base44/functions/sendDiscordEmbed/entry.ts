@@ -70,19 +70,29 @@ Deno.serve(async (req) => {
 
     const linkUrl = 'https://mge002.base44.app/Leaderboard';
 
-    const finalEmbed = { ...embed };
-    if (extraText?.trim()) {
-      finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
+    // Handle both single embed and multiple embeds
+    const embedsToProcess = Array.isArray(embed) ? embed : [embed];
+    
+    // Add extraText to first embed if provided
+    if (extraText?.trim() && embedsToProcess.length > 0) {
+      embedsToProcess[0].description = (embedsToProcess[0].description || "") + "\n\n" + extraText.trim();
     }
-    finalEmbed.fields = finalEmbed.fields || [];
-    finalEmbed.fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
+
+    // Ensure first embed has title, last embed has link/footer
+    if (embedsToProcess.length > 0) {
+      embedsToProcess[0].title = embedsToProcess[0].title || '📊 Update';
+      
+      embedsToProcess[embedsToProcess.length - 1].fields = embedsToProcess[embedsToProcess.length - 1].fields || [];
+      embedsToProcess[embedsToProcess.length - 1].fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
+      embedsToProcess[embedsToProcess.length - 1].footer = embedsToProcess[embedsToProcess.length - 1].footer || { text: 'DKP System' };
+    }
 
     let sent = 0;
     for (const ch of channels) {
       const res = await fetch(`https://discord.com/api/v10/channels/${ch}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: '@everyone', embeds: [finalEmbed] }),
+        body: JSON.stringify({ content: '@everyone', embeds: embedsToProcess }),
       });
       if (res.ok) sent++;
       else console.error(`Discord send failed for channel ${ch}: ${res.status}`);
