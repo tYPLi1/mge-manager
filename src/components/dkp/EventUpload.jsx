@@ -321,51 +321,48 @@ export default function EventUpload({ players, eventTypes }) {
 
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
 
-      // Split into multiple embeds if needed (max ~5000 chars per embed)
+      // Split lines into field-safe chunks (Discord max 1024 chars per field value)
+      const MAX_FIELD_LENGTH = 1000;
+      const resultChunks = [];
+      let currentChunk = "";
+
+      for (const line of allLines) {
+        const newLine = currentChunk ? "\n" + line : line;
+        if ((currentChunk + newLine).length > MAX_FIELD_LENGTH) {
+          if (currentChunk) resultChunks.push(currentChunk);
+          currentChunk = line;
+        } else {
+          currentChunk += newLine;
+        }
+      }
+      if (currentChunk) resultChunks.push(currentChunk);
+
+      // Build embeds, splitting across multiple if needed (max ~5500 chars per embed)
       const embeds = [];
-      const MAX_EMBED_LENGTH = 5000;
-      
+      const MAX_EMBED_LENGTH = 5500;
+
       let currentFields = [
         { name: "Players Updated", value: String(toApply.length), inline: true },
         { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
       ];
-      let currentLength = 200; // base length for title + description
-      let chunk = "";
+      let currentLength = 200;
 
-      for (const line of allLines) {
-        const lineWithNewline = (chunk ? "\n" : "") + line;
-        const newLength = currentLength + lineWithNewline.length;
-        
-        if (newLength > MAX_EMBED_LENGTH || currentFields.length >= 25) {
-          // Finalize current embed before starting new one
-          if (chunk) {
-            currentFields.push({ name: "Results", value: chunk, inline: false });
-          }
-          
-          embeds.push({
-            color: 0x8b5cf6,
-            fields: currentFields,
-          });
+      for (let i = 0; i < resultChunks.length; i++) {
+        const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
+        const fieldLength = fieldName.length + resultChunks[i].length;
 
-          // Start new embed with this line
+        if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
+          embeds.push({ color: 0x8b5cf6, fields: currentFields });
           currentFields = [];
-          chunk = line;
-          currentLength = 100 + line.length;
-        } else {
-          chunk = chunk ? chunk + "\n" + line : line;
-          currentLength = newLength;
+          currentLength = 100;
         }
+
+        currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
+        currentLength += fieldLength;
       }
 
-      // Add remaining chunk
-      if (chunk) {
-        currentFields.push({ name: "Results", value: chunk, inline: false });
-      }
       if (currentFields.length > 0) {
-        embeds.push({
-          color: 0x8b5cf6,
-          fields: currentFields,
-        });
+        embeds.push({ color: 0x8b5cf6, fields: currentFields });
       }
 
       // Add title/description to first embed, link/footer to last embed
