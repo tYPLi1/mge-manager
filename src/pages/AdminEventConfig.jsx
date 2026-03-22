@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/dkp/PageHeader";
+import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
 
 function DkpRankEditor({ label, tableJson, color = "text-amber-400", onChange }) {
   const [values, setValues] = useState([]);
