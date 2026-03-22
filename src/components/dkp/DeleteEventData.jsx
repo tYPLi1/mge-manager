@@ -65,8 +65,30 @@ export default function DeleteEventData() {
     setDeleting(true);
 
     try {
+      // FAILSAFE 1: Verify all transactions still match the frozen event
+      const txsToDelete = previewTransactions.filter(tx => frozenTransactionIds.has(tx.id));
+      
+      if (txsToDelete.length === 0) {
+        throw new Error("No valid transactions to delete. Selection may have changed.");
+      }
+
+      if (txsToDelete.length !== frozenTransactionIds.size) {
+        throw new Error("Transaction count mismatch. Aborting deletion for safety.");
+      }
+
+      // FAILSAFE 2: Verify all transactions match event date and source
+      const allValid = txsToDelete.every(tx => 
+        tx.event_date === selectedEvent.event_date &&
+        tx.source === selectedEvent.source &&
+        (tx.source_stage || null) === (selectedEvent.source_stage || null)
+      );
+
+      if (!allValid) {
+        throw new Error("Some transactions do not match the selected event. Aborting.");
+      }
+
       // STEP 1: Fetch all affected players FIRST (before any deletes)
-      const affectedPlayerIds = [...new Set(previewTransactions.map(tx => tx.player_id))];
+      const affectedPlayerIds = [...new Set(txsToDelete.map(tx => tx.player_id))];
       const playersList = await Promise.all(affectedPlayerIds.map(id => base44.entities.Player.get(id)));
       const playerMap = Object.fromEntries(playersList.map(p => [p.id, p]));
 
@@ -74,19 +96,19 @@ export default function DeleteEventData() {
       const playerUpdates = {};
       for (const playerId of affectedPlayerIds) {
         const player = playerMap[playerId];
-        const totalRemove = previewTransactions.filter(tx => tx.player_id === playerId).reduce((sum, tx) => sum + tx.amount, 0);
+        const totalRemove = txsToDelete.filter(tx => tx.player_id === playerId).reduce((sum, tx) => sum + tx.amount, 0);
         playerUpdates[playerId] = Math.max(0, (player.total_dkp || 0) - totalRemove);
       }
 
-      // STEP 3: Delete all transactions
-      await Promise.all(previewTransactions.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
+      // STEP 3: Delete all transactions (only the validated ones)
+      await Promise.all(txsToDelete.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
 
       // STEP 4: Update player DKP balances
       await Promise.all(Object.entries(playerUpdates).map(([playerId, newDkp]) =>
         adminEntities.Player.update(playerId, { total_dkp: newDkp })
       ));
 
-      toast.success(`Deleted ${previewTransactions.length} transactions`, {
+      toast.success(`Deleted ${txsToDelete.length} transactions`, {
         description: `Event: ${selectedEvent.source}${selectedEvent.source_stage ? ` - ${selectedEvent.source_stage}` : ""}`
       });
 
@@ -94,6 +116,7 @@ export default function DeleteEventData() {
       setShowPreview(false);
       setSelectedEvent(null);
       setPreviewTransactions([]);
+      setFrozenTransactionIds(new Set());
       setSelectedDate("");
 
       // Refresh data
