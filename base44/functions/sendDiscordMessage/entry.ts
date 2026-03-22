@@ -20,30 +20,32 @@ Deno.serve(async (req) => {
     if (!message) return Response.json({ error: 'Missing message' }, { status: 400 });
     if (!BOT_TOKEN) return Response.json({ error: 'Bot token not configured' }, { status: 400 });
 
-    // Validate admin session
-    if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    if (new Date(session.expiresAt) <= new Date()) {
-      return Response.json({ error: 'Session expired' }, { status: 401 });
-    }
+    // Validate admin session nur wenn vorhanden (für Admin-Panel), sonst erlauben (für Bot/Automationen)
+    if (session) {
+      if (!session.userId || !session.username || !session.expiresAt || !session.token) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (new Date(session.expiresAt) <= new Date()) {
+        return Response.json({ error: 'Session expired' }, { status: 401 });
+      }
 
-    const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
-    const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-    const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
-    const expectedSignature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
+      const payload = `${session.userId}:${session.username}:${session.expiresAt}`;
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+      const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+      const expectedSignature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-    if (session.token !== expectedSignature) return Response.json({ error: 'Invalid token' }, { status: 403 });
+      if (session.token !== expectedSignature) return Response.json({ error: 'Invalid token' }, { status: 403 });
 
-    try {
-      const user = await service.entities.AdminUser.get(session.userId);
-      if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
-    } catch (e) {
-      const msg = e?.message || '';
-      if (msg.includes('not found') || msg.includes('does not exist')) {
-        return Response.json({ error: 'User not found' }, { status: 403 });
+      try {
+        const user = await service.entities.AdminUser.get(session.userId);
+        if (!user || !user.is_active) return Response.json({ error: 'User deactivated' }, { status: 403 });
+      } catch (e) {
+        const msg = e?.message || '';
+        if (msg.includes('not found') || msg.includes('does not exist')) {
+          return Response.json({ error: 'User not found' }, { status: 403 });
+        }
       }
     }
 

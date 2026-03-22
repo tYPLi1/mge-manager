@@ -37,8 +37,11 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { session } = body;
 
-    const auth = await validateSession(service, session);
-    if (!auth.valid) return Response.json({ error: auth.error }, { status: auth.status });
+    // Validate session nur wenn vorhanden (für Admin-Panel), sonst erlauben (für Bot)
+    if (session) {
+      const auth = await validateSession(service, session);
+      if (!auth.valid) return Response.json({ error: auth.error }, { status: auth.status });
+    }
 
     if (!BOT_TOKEN) return Response.json({ error: 'Discord bot token not configured' }, { status: 400 });
 
