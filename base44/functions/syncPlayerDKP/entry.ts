@@ -8,12 +8,6 @@ function getServiceClient(req) {
 Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
-    const user = await service.auth.me();
-
-    // Only admins can sync
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
 
     const players = await service.entities.Player.list();
     const transactions = await service.entities.DKPTransaction.list();
