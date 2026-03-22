@@ -148,11 +148,11 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
                    <p className="text-gray-300 text-xs whitespace-pre-wrap">{embedItem.description}</p>
                  )}
                  {embedItem.fields?.length > 0 && (
-                   <div className="grid grid-cols-2 gap-2 mt-2">
+                   <div className="space-y-2 mt-2">
                      {embedItem.fields.map((f, i) => (
-                       <div key={i} className={f.inline === false ? "col-span-2" : ""}>
+                       <div key={i}>
                          <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
-                         <p className="text-gray-200 text-xs whitespace-pre-wrap">{f.value}</p>
+                         <p className="text-gray-200 text-xs whitespace-pre-wrap break-words">{f.value}</p>
                        </div>
                      ))}
                    </div>
