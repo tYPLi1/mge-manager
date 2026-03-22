@@ -59,7 +59,7 @@ export default function UndoLastUpload() {
     setUndoing(true);
     const session = getSession();
     if (!session) {
-      toast.error("Keine Admin-Session gefunden");
+      toast.error("No admin session found");
       setUndoing(false);
       return;
     }
@@ -75,10 +75,10 @@ export default function UndoLastUpload() {
     });
 
     if (response.data?.error) {
-      toast.error("Fehler: " + response.data.error);
+      toast.error("Error: " + response.data.error);
     } else {
-      toast.success(`${response.data.undone_count} Transaktionen rückgängig gemacht`, {
-        description: `${response.data.players_affected} Spieler betroffen`,
+      toast.success(`${response.data.undone_count} transactions undone`, {
+        description: `${response.data.players_affected} players affected`,
       });
       queryClient.invalidateQueries({ queryKey: ["last-upload-batch"] });
       queryClient.invalidateQueries({ queryKey: ["players"] });
@@ -92,20 +92,20 @@ export default function UndoLastUpload() {
     return (
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-6">
         <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-          <Undo2 className="w-4 h-4 text-gray-500" /> Letzten Upload rückgängig machen
+          <Undo2 className="w-4 h-4 text-gray-500" /> Undo Last Upload
         </h3>
-        <p className="text-xs text-gray-500">Kein Upload mit Batch-ID gefunden. Nur neue Uploads können rückgängig gemacht werden.</p>
+        <p className="text-xs text-gray-500">No upload with batch ID found. Only new uploads can be undone.</p>
       </div>
     );
   }
 
   const stageLabel = lastBatch.source_stage === "prep" ? "Prep" : lastBatch.source_stage === "war" ? "War" : "";
-  const dateLabel = lastBatch.event_date ? new Date(lastBatch.event_date).toLocaleDateString("de-CH") : "";
+  const dateLabel = lastBatch.event_date ? new Date(lastBatch.event_date).toLocaleDateString("en-US") : "";
 
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-6">
       <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-        <Undo2 className="w-4 h-4 text-orange-400" /> Letzten Upload rückgängig machen
+        <Undo2 className="w-4 h-4 text-orange-400" /> Undo Last Upload
       </h3>
 
       <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-white/5 border border-white/10">
@@ -114,14 +114,14 @@ export default function UndoLastUpload() {
             {lastBatch.source}{stageLabel ? ` — ${stageLabel}` : ""}{dateLabel ? ` — ${dateLabel}` : ""}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {lastBatch.count} Transaktionen · {lastBatch.total_dkp > 0 ? "+" : ""}{lastBatch.total_dkp} DKP gesamt
+            {lastBatch.count} transactions · {lastBatch.total_dkp > 0 ? "+" : ""}{lastBatch.total_dkp} DKP total
           </p>
         </div>
 
         {confirmId === lastBatch.id ? (
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-yellow-400 flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5" /> Sicher?
+              <AlertTriangle className="w-3.5 h-3.5" /> Are you sure?
             </span>
             <Button
               size="sm"
@@ -129,7 +129,7 @@ export default function UndoLastUpload() {
               disabled={undoing}
               className="bg-red-600 hover:bg-red-700 text-white text-xs h-7 px-3"
             >
-              {undoing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Ja, rückgängig"}
+              {undoing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Yes, undo"}
             </Button>
             <Button
               size="sm"
@@ -138,7 +138,7 @@ export default function UndoLastUpload() {
               disabled={undoing}
               className="border-white/10 text-gray-400 text-xs h-7 px-3"
             >
-              Abbrechen
+              Cancel
             </Button>
           </div>
         ) : (
@@ -148,7 +148,7 @@ export default function UndoLastUpload() {
             onClick={() => setConfirmId(lastBatch.id)}
             className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs h-7 px-3 shrink-0"
           >
-            <Undo2 className="w-3.5 h-3.5 mr-1" /> Rückgängig
+            <Undo2 className="w-3.5 h-3.5 mr-1" /> Undo
           </Button>
         )}
       </div>
