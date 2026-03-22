@@ -1,15 +1,11 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
-function getServiceClient(req) {
-  try { return createClientFromRequest(req).asServiceRole; }
-  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
-}
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient(req);
+    const base44 = createClientFromRequest(req);
+    const service = base44.asServiceRole;
     const auctions = await service.entities.Auction.list('-created_date', 10);
-    
+
     // Strip sensitive fields
     const publicAuctions = auctions.map(a => {
       const { bid_password, discord_embed, discord_extra_text, ...safe } = a;

@@ -1,30 +1,14 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
-function getServiceClient(req) {
-  try {
-    const client = createClientFromRequest(req);
-    return client.asServiceRole;
-  } catch {
-    const appId = Deno.env.get('BASE44_APP_ID');
-    const serviceToken = Deno.env.get('BASE44_SERVICE_ROLE_KEY');
-    if (!serviceToken) throw new Error('Service role credentials not configured');
-    return createClient({ appId, serviceRoleKey: serviceToken }).asServiceRole;
-  }
-}
-
-/**
- * Admin Entity Proxy — allows authenticated admin sessions to perform
- * CRUD operations on entities via the service role.
- * Validates the admin session token (HMAC) before executing any operation.
- */
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient(req);
+    const base44 = createClientFromRequest(req);
+    const service = base44.asServiceRole;
     const body = await req.json();
     const { session, operation, entityName, entityId, data, sort, limit, filter } = body;
 
-    // Validate admin session
-    if (!session || !session.userId || !session.username || !session.expiresAt || !session.token) {
+    // Validate session structure
+    if (!session?.userId || !session?.username || !session?.expiresAt || !session?.token) {
       return Response.json({ error: 'Invalid session' }, { status: 401 });
     }
 
@@ -48,23 +32,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid token' }, { status: 403 });
     }
 
-    // Verify user still active (best-effort; if SDK auth context missing, trust HMAC)
-    try {
-      const user = await service.entities.AdminUser.get(session.userId);
-      if (!user || !user.is_active) {
-        return Response.json({ error: 'User deactivated' }, { status: 403 });
-      }
-    } catch (e) {
-      // If the error is about authentication context (not entity not found),
-      // trust the HMAC-verified session and proceed
-      const msg = e?.message || '';
-      if (msg.includes('not found') || msg.includes('does not exist')) {
-        return Response.json({ error: 'User not found' }, { status: 403 });
-      }
-      console.log('AdminUser lookup skipped (no auth context), trusting HMAC:', msg);
-    }
-
-    // Entity whitelist — only allow known entities through the proxy
+    // Entity whitelist
     const ALLOWED_ENTITIES = [
       'Player', 'Auction', 'Bid', 'AuctionResult', 'DKPTransaction',
       'Penalty', 'PowerHistory', 'EventType', 'AppSettings', 'AdminUser',
@@ -74,14 +42,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Entity "${entityName}" not allowed` }, { status: 403 });
     }
 
-    // Execute the requested operation using service role
     const entity = service.entities[entityName];
     if (!entity) {
       return Response.json({ error: `Entity "${entityName}" not found` }, { status: 400 });
     }
 
     let result;
-
     switch (operation) {
       case 'list':
         result = await entity.list(sort || '-created_date', limit || 500);

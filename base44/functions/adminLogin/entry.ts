@@ -1,15 +1,12 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
-import bcrypt from 'npm:bcryptjs@2.4.3';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
-function getServiceClient(req) {
-  try { 
-    return createClientFromRequest(req).asServiceRole; 
-  } catch { 
-    const appId = Deno.env.get('BASE44_APP_ID');
-    const serviceToken = Deno.env.get('BASE44_SERVICE_ROLE_KEY');
-    if (!serviceToken) throw new Error('Service role credentials not configured');
-    return createClient({ appId, serviceRoleKey: serviceToken }).asServiceRole; 
-  }
+async function hmacHash(password, salt) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(salt), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(password));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 Deno.serve(async (req) => {
@@ -19,14 +16,13 @@ Deno.serve(async (req) => {
     }
 
     const { username, password } = await req.json();
-
     if (!username || !password) {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
-    const service = getServiceClient(req);
-    
-    // Lookup user in AdminUser entity
+    const base44 = createClientFromRequest(req);
+    const service = base44.asServiceRole;
+
     const users = await service.entities.AdminUser.filter({ username });
     if (users.length === 0) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -37,22 +33,43 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Account deactivated' }, { status: 403 });
     }
 
-    // Verify password against hash
-    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+    const storedHash = adminUser.password_hash;
+
+    // Support both bcrypt (legacy, starts with $2) and HMAC hashes
+    let passwordMatch = false;
+    if (storedHash.startsWith('$2')) {
+      // Legacy bcrypt — import dynamically only when needed
+      const bcrypt = await import('npm:bcryptjs@2.4.3');
+      passwordMatch = await bcrypt.default.compare(password, storedHash);
+      
+      // Migrate to HMAC hash for faster future logins
+      if (passwordMatch) {
+        const salt = crypto.randomUUID();
+        const newHash = await hmacHash(password, salt);
+        await service.entities.AdminUser.update(adminUser.id, {
+          password_hash: `hmac:${salt}:${newHash}`
+        });
+      }
+    } else if (storedHash.startsWith('hmac:')) {
+      const [, salt, hash] = storedHash.split(':');
+      const computed = await hmacHash(password, salt);
+      passwordMatch = computed === hash;
+    } else {
+      return Response.json({ error: 'Invalid password format' }, { status: 500 });
+    }
+
     if (!passwordMatch) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Generate signed session token using HMAC
+    // Generate session token
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
     if (!secret) {
       return Response.json({ error: 'Server configuration error' }, { status: 500 });
     }
-    
-    // Token valid for 24h; frontend enforces 10-min inactivity logout separately
+
     const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
     const payload = `${adminUser.id}:${adminUser.username}:${expiresAt}`;
-    
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
