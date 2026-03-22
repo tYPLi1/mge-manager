@@ -39,26 +39,23 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
     }
 
     try {
-      for (let i = 0; i < embedsToSend.length; i++) {
-        const singleEmbed = embedsToSend[i];
-        const res = await base44.functions.invoke("sendDiscordEmbed", {
-          session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-          embed: singleEmbed,
-          channelId,
-          extraText: i === 0 ? (extraText.trim() || undefined) : undefined,
-          notifType: notifType || undefined,
-        });
+      const res = await base44.functions.invoke("sendDiscordEmbed", {
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+        embed: embedsToSend.length === 1 ? embedsToSend[0] : embedsToSend,
+        extraText: extraText.trim() || undefined,
+        notifType: notifType || "auction",
+      });
 
-        if (!res.data?.success) {
-          toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
-          setSending(false);
-          onSent?.(extraText);
-          onClose();
-          return;
-        }
+      if (!res.data?.success) {
+        toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+        setSending(false);
+        onSent?.(extraText);
+        onClose();
+        return;
       }
       toast.success(`Discord message${embedsToSend.length > 1 ? 's' : ''} sent!`);
     } catch (error) {
+      console.error("Discord send error:", error);
       toast.error(`Failed to send: ${error.message}`);
     }
 

@@ -46,12 +46,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!embed) return Response.json({ error: 'Missing embed' }, { status: 400 });
+    if (!embed || (Array.isArray(embed) && embed.length === 0)) {
+      return Response.json({ error: 'Missing embed data' }, { status: 400 });
+    }
 
     const settings = await service.entities.AppSettings.list();
 
     // Get target channels based on notification type (default: auction)
-    const type = notifType || 'auction';
+    const type = notifType === 'event_upload' ? 'events' : (notifType || 'auction');
     const serversJson = settings.find(s => s.key === 'discord_servers')?.value;
     let channels = [];
     if (serversJson) {
