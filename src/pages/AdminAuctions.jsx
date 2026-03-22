@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock } from "lucide-react";
+import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -356,9 +356,21 @@ export default function AdminAuctions() {
     statusMutation.mutate({ id: auction.id, status: "open" });
   };
 
+  const [deletingBidId, setDeletingBidId] = useState(null);
   const deleteBidMutation = useMutation({
-    mutationFn: ({ id, reason }) => adminEntities.Bid.update(id, { is_deleted: true, deleted_reason: reason }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] }),
+    mutationFn: ({ id, reason }) => {
+      setDeletingBidId(id);
+      return adminEntities.Bid.update(id, { is_deleted: true, deleted_reason: reason });
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] });
+      toast.success("Bid deleted");
+      setDeletingBidId(null);
+    },
+    onError: () => {
+      toast.error("Failed to delete bid");
+      setDeletingBidId(null);
+    },
   });
 
   const updateBidMutation = useMutation({
@@ -831,9 +843,12 @@ export default function AdminAuctions() {
                                 const reason = prompt("Reason for deleting this bid:");
                                 if (reason !== null) deleteBidMutation.mutate({ id: b.id, reason });
                               }}
-                              className="text-gray-500 hover:text-red-400 transition-colors"
+                              disabled={deletingBidId === b.id}
+                              className="text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
                             >
-                              <Trash2 className="w-3 h-3" />
+                              {deletingBidId === b.id
+                                ? <Loader2 className="w-3 h-3 animate-spin text-red-400" />
+                                : <Trash2 className="w-3 h-3" />}
                             </button>
                           </div>
                         </td>
