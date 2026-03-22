@@ -24,7 +24,7 @@ export default function AdminLogin() {
        if (session) {
          const parsed = JSON.parse(session);
          if (new Date(parsed.expiresAt) > new Date()) {
-           navigate(createPageUrl('AdminDKP'));
+           navigate(createPageUrl('AdminDashboard'));
            return;
         } else {
           localStorage.removeItem('adminSession');
@@ -77,7 +77,7 @@ export default function AdminLogin() {
        localStorage.setItem('adminSession', JSON.stringify(session));
        localStorage.setItem('adminLastActivity', Date.now().toString());
 
-       navigate(createPageUrl('AdminDKP'));
+       navigate(createPageUrl('AdminDashboard'));
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
       setLoading(false);
