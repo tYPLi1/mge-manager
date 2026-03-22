@@ -1,9 +1,4 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
-function getServiceClient(req) {
-  try { return createClientFromRequest(req).asServiceRole; }
-  catch { return createClient({ appId: Deno.env.get('BASE44_APP_ID') }).asServiceRole; }
-}
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const PUBLIC_KEYS = [
   'friendly_zone_enabled',
@@ -19,10 +14,10 @@ const PUBLIC_KEYS = [
 
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient(req);
+    const base44 = createClientFromRequest(req);
+    const service = base44.asServiceRole;
     const allSettings = await service.entities.AppSettings.list('-created_date', 500);
     
-    // Filter to only public keys
     const publicSettings = allSettings
       .filter(s => PUBLIC_KEYS.includes(s.key))
       .map(s => ({ key: s.key, value: s.value }));
