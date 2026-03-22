@@ -493,20 +493,27 @@ export default function AdminEventConfig() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const currentDrafts = draftsRef.current;
       const ids = getChangedIds();
       for (const id of ids) {
         const data = {};
-        COMPARE_KEYS.forEach(k => { data[k] = drafts[id][k]; });
+        COMPARE_KEYS.forEach(k => { data[k] = currentDrafts[id][k]; });
         await adminEntities.EventType.update(id, data);
       }
       return ids;
     },
     onSuccess: (ids) => {
+      // Immediately update snapshot to match drafts so dirty state clears
+      const currentDrafts = draftsRef.current;
+      const newSnap = { ...savedSnapshotRef.current };
+      ids.forEach(id => { newSnap[id] = { ...currentDrafts[id] }; });
+      setSavedSnapshot(newSnap);
+
       queryClient.invalidateQueries({ queryKey: ["event-types"] });
       if (ids.length === 0) {
         toast.info("No changes to save.");
       } else {
-        const names = ids.map(id => drafts[id]?.display_name || id);
+        const names = ids.map(id => currentDrafts[id]?.display_name || id);
         toast.success(`Saved ${ids.length} event${ids.length > 1 ? "s" : ""}`, {
           description: names.join(", "),
           duration: 5000,
