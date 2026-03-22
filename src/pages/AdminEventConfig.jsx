@@ -390,27 +390,140 @@ function CreateEventModal({ onClose, onCreate }) {
   );
 }
 
+// Fields to compare for dirty detection (exclude built-in fields)
+const COMPARE_KEYS = [
+  "display_name", "key", "participation_type", "has_prep_stage", "has_war_stage",
+  "prep_top20_enabled", "war_top20_enabled",
+  "dkp_table_prep", "dkp_table_prep_top20", "dkp_table_prep_outside",
+  "prep_top20_fallback", "prep_outside_fallback",
+  "dkp_table_war_top20", "dkp_table_war_outside",
+  "war_top20_fallback", "war_outside_fallback",
+  "dkp_yn_present", "dkp_yn_absent", "war_ranking_cutoff",
+  "active", "sort_order",
+];
+
+function isEventDirty(draft, original) {
+  return COMPARE_KEYS.some(k => JSON.stringify(draft[k] ?? "") !== JSON.stringify(original[k] ?? ""));
+}
+
 export default function AdminEventConfig() {
   const [expanded, setExpanded] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [drafts, setDrafts] = useState({});
+  const [savedSnapshot, setSavedSnapshot] = useState({});
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const pendingNavigationRef = useRef(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ["event-types"],
     queryFn: () => base44.entities.EventType.list("sort_order", 20),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => adminEntities.EventType.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["event-types"] }),
+  // Sync drafts from server data
+  useEffect(() => {
+    const draftMap = {};
+    const snapMap = {};
+    eventTypes.forEach(et => {
+      // Only set draft if not already modified by user
+      if (!drafts[et.id] || !isEventDirty(drafts[et.id], savedSnapshot[et.id] || {})) {
+        draftMap[et.id] = { ...et };
+      } else {
+        draftMap[et.id] = drafts[et.id];
+      }
+      snapMap[et.id] = { ...et };
+    });
+    setDrafts(draftMap);
+    setSavedSnapshot(snapMap);
+  }, [eventTypes]);
+
+  const updateDraft = (id, newDraft) => {
+    setDrafts(prev => ({ ...prev, [id]: newDraft }));
+  };
+
+  // Get list of dirty event IDs
+  const getChangedIds = useCallback(() => {
+    return Object.keys(drafts).filter(id => {
+      const original = savedSnapshot[id];
+      if (!original) return false;
+      return isEventDirty(drafts[id], original);
+    });
+  }, [drafts, savedSnapshot]);
+
+  const changedIds = getChangedIds();
+  const hasChanges = changedIds.length > 0;
+
+  // Intercept in-app navigation via link clicks
+  useEffect(() => {
+    if (!hasChanges) return;
+    const handler = (e) => {
+      const anchor = e.target.closest("a[href]");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("http") || href.startsWith("#")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pendingNavigationRef.current = href;
+      setShowUnsavedDialog(true);
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [hasChanges]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const ids = getChangedIds();
+      for (const id of ids) {
+        const data = {};
+        COMPARE_KEYS.forEach(k => { data[k] = drafts[id][k]; });
+        await adminEntities.EventType.update(id, data);
+      }
+      return ids;
+    },
+    onSuccess: (ids) => {
+      queryClient.invalidateQueries({ queryKey: ["event-types"] });
+      if (ids.length === 0) {
+        toast.info("No changes to save.");
+      } else {
+        const names = ids.map(id => drafts[id]?.display_name || id);
+        toast.success(`Saved ${ids.length} event${ids.length > 1 ? "s" : ""}`, {
+          description: names.join(", "),
+          duration: 5000,
+        });
+      }
+      if (pendingNavigationRef.current) {
+        const target = pendingNavigationRef.current;
+        pendingNavigationRef.current = null;
+        navigate(target);
+      }
+    },
   });
+
+  const handleSave = () => saveMutation.mutate();
+
+  const handleDiscard = () => {
+    setDrafts({ ...savedSnapshot });
+    setShowUnsavedDialog(false);
+    if (pendingNavigationRef.current) {
+      const target = pendingNavigationRef.current;
+      pendingNavigationRef.current = null;
+      navigate(target);
+    }
+  };
+
+  // Toggle active directly updates draft (will be saved with Save All)
+  const toggleActive = (id) => {
+    setDrafts(prev => ({ ...prev, [id]: { ...prev[id], active: !prev[id]?.active } }));
+  };
 
   const createMutation = useMutation({
     mutationFn: (data) => adminEntities.EventType.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-types"] });
       setShowCreate(false);
+      toast.success("Event created");
     },
   });
 
@@ -419,86 +532,112 @@ export default function AdminEventConfig() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-types"] });
       setDeleteConfirm(null);
+      toast.success("Event deleted");
     },
   });
 
   return (
     <div>
+      <UnsavedChangesGuard
+        hasChanges={hasChanges}
+        onSave={() => { setShowUnsavedDialog(false); handleSave(); }}
+        onDiscard={handleDiscard}
+        showDialog={showUnsavedDialog}
+        setShowDialog={setShowUnsavedDialog}
+      />
       <PageHeader title="Event Configuration" subtitle="DKP rules per event type" icon={Settings2}>
-        <Button
-          onClick={() => setShowCreate(true)}
-          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5"
-        >
-          <PlusCircle className="w-4 h-4" /> New Event
-        </Button>
+        <div className="flex items-center gap-3">
+          {hasChanges && (
+            <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+              {changedIds.length} unsaved change{changedIds.length > 1 ? "s" : ""}
+            </span>
+          )}
+          <Button onClick={handleSave} disabled={!hasChanges || saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm h-8 gap-1.5">
+            <Save className="w-3.5 h-3.5" /> Save All
+          </Button>
+          <Button
+            onClick={() => setShowCreate(true)}
+            variant="outline"
+            className="border-white/10 text-gray-300 hover:bg-white/5 text-sm h-8 gap-1.5"
+          >
+            <PlusCircle className="w-4 h-4" /> New Event
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="space-y-3">
-        {eventTypes.map((et) => (
-          <div key={et.id} className="bg-[#111827] rounded-xl border border-white/5">
-            <div className="p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={et.active}
-                  onCheckedChange={(v) => updateMutation.mutate({ id: et.id, data: { active: v } })}
-                />
-                <div>
-                  <h3 className="font-semibold text-white text-sm">{et.display_name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {et.key} · {et.participation_type}
-                    {et.participation_type === "ranked" && ` · Cutoff Top ${et.war_ranking_cutoff}`}
-                  </p>
+        {eventTypes.map((et) => {
+          const draft = drafts[et.id];
+          if (!draft) return null;
+          const isDirty = isEventDirty(draft, savedSnapshot[et.id] || {});
+          return (
+            <div key={et.id} className={`bg-[#111827] rounded-xl border ${isDirty ? "border-amber-500/30" : "border-white/5"}`}>
+              <div className="p-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={draft.active}
+                    onCheckedChange={() => toggleActive(et.id)}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-white text-sm">{draft.display_name}</h3>
+                      {isDirty && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {draft.key} · {draft.participation_type}
+                      {draft.participation_type === "ranked" && ` · Cutoff Top ${draft.war_ranking_cutoff}`}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                    draft.active
+                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                      : "bg-gray-500/15 text-gray-500 border border-gray-500/20"
+                  }`}>
+                    {draft.active ? "Active" : "Inactive"}
+                  </span>
+                  {deleteConfirm === et.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => deleteMutation.mutate(et.id)}
+                        className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(null)}
+                        className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setDeleteConfirm(et.id)}
+                      className="text-gray-600 hover:text-red-400 transition-colors p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setExpanded(expanded === et.id ? null : et.id)}
+                    className="text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    {expanded === et.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                  et.active
-                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                    : "bg-gray-500/15 text-gray-500 border border-gray-500/20"
-                }`}>
-                  {et.active ? "Active" : "Inactive"}
-                </span>
-                {deleteConfirm === et.id ? (
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => deleteMutation.mutate(et.id)}
-                      className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirm(null)}
-                      className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setDeleteConfirm(et.id)}
-                    className="text-gray-600 hover:text-red-400 transition-colors p-1"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <button
-                  onClick={() => setExpanded(expanded === et.id ? null : et.id)}
-                  className="text-gray-500 hover:text-gray-300 transition-colors"
-                >
-                  {expanded === et.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
 
-            {expanded === et.id && (
-              <EventEditor
-                et={et}
-                onSave={(id, data) => updateMutation.mutate({ id, data })}
-                isSaving={updateMutation.isPending}
-              />
-            )}
-          </div>
-        ))}
+              {expanded === et.id && (
+                <EventEditor
+                  draft={draft}
+                  onChange={(newDraft) => updateDraft(et.id, newDraft)}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {showCreate && (
