@@ -102,20 +102,27 @@ export default function ResendLastEventNotification() {
       const resultChunks = [];
       let currentChunk = "";
 
-      for (const entry of sortedByDkp) {
-        const rank = sortedByDkp.indexOf(entry) + 1;
+      const allLines = sortedByDkp.map((entry, idx) => {
+        const rank = idx + 1;
         const dkpStr = entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`;
         let line = `**${rank}. ${entry.player_name}** — \`${dkpStr} DKP\``;
-        if (entry.note && entry.note.trim()) {
-          line += ` — _${entry.note}_`;
-        }
+        if (entry.note && entry.note.trim()) line += ` — _${entry.note}_`;
+        return line;
+      });
 
-        const newLine = currentChunk ? "\n" + line : line;
-        if ((currentChunk + newLine).length > MAX_FIELD_LENGTH) {
-          if (currentChunk) resultChunks.push(currentChunk);
-          currentChunk = line;
+      for (let i = 0; i < allLines.length; i++) {
+        const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
+        if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
+          // Pull back trailing empty lines or group headers
+          const chunkLines = currentChunk.split("\n");
+          while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === "" || (chunkLines[chunkLines.length - 1].startsWith("**") && chunkLines[chunkLines.length - 1].endsWith("**")))) {
+            allLines.splice(i, 0, chunkLines.pop());
+          }
+          const trimmed = chunkLines.join("\n");
+          if (trimmed) resultChunks.push(trimmed);
+          currentChunk = allLines[i];
         } else {
-          currentChunk += newLine;
+          currentChunk = tentative;
         }
       }
       if (currentChunk) resultChunks.push(currentChunk);
