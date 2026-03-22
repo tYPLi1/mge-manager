@@ -159,23 +159,30 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-1">
-          <Button
-            variant="outline"
-            onClick={handleSkip}
-            className="flex-1 border-white/10 text-gray-400 hover:text-white"
-          >
-            Continue without Discord
-          </Button>
-          <Button
-            onClick={handleSend}
-            disabled={sending}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
-          >
-            <Send className="w-4 h-4 mr-1.5" />
-            {sending ? "Sending..." : sendNow === false ? "Save & Create" : "Send & Continue"}
-          </Button>
-        </div>
+         <div className="flex gap-3 pt-1">
+           <Button
+             variant="outline"
+             onClick={onClose}
+             className="flex-1 border-white/10 text-gray-400 hover:text-white"
+           >
+             Abbrechen
+           </Button>
+           <Button
+             variant="outline"
+             onClick={handleSkip}
+             className="flex-1 border-white/10 text-gray-400 hover:text-white"
+           >
+             Ohne Discord
+           </Button>
+           <Button
+             onClick={handleSend}
+             disabled={sending}
+             className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+           >
+             <Send className="w-4 h-4 mr-1.5" />
+             {sending ? "Sending..." : sendNow === false ? "Save & Create" : "Send & Continue"}
+           </Button>
+         </div>
       </div>
     </div>
   );
