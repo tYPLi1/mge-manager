@@ -90,35 +90,47 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
           </button>
         </div>
 
-        {/* Embed Previews */}
-        {embedsToSend.map((embedItem, idx) => (
-          <div key={idx} className="bg-[#2f3136] rounded-lg overflow-hidden">
-            <div className="flex">
-              <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
-              <div className="p-3 flex-1 space-y-2">
-                {embedItem.title && (
-                  <p className="text-white font-semibold text-sm">{embedItem.title}</p>
-                )}
-                {embedItem.description && (
-                  <p className="text-gray-300 text-xs whitespace-pre-wrap">{embedItem.description}</p>
-                )}
-                {embedItem.fields?.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {embedItem.fields.map((f, i) => (
-                      <div key={i} className={f.inline === false ? "col-span-2" : ""}>
-                        <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
-                        <p className="text-gray-200 text-xs whitespace-pre-wrap">{f.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {embedItem.footer && (
-                  <p className="text-gray-500 text-[10px] mt-2 border-t border-white/5 pt-1.5">{embedItem.footer.text}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Message Split Info */}
+         {embedsToSend.length > 1 && (
+           <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-3">
+             <p className="text-blue-300 text-xs">
+               ⚠️ Event wird in <strong>{embedsToSend.length} Discord-Nachrichten</strong> geteilt (zu viele Daten für eine Nachricht)
+             </p>
+           </div>
+         )}
+
+         {/* Embed Previews */}
+         {embedsToSend.map((embedItem, idx) => (
+           <div key={idx} className="bg-[#2f3136] rounded-lg overflow-hidden">
+             <div className="flex">
+               <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
+               <div className="p-3 flex-1 space-y-2">
+                 {embedsToSend.length > 1 && (
+                   <p className="text-gray-500 text-[10px] font-semibold">Nachricht {idx + 1}/{embedsToSend.length}</p>
+                 )}
+                 {embedItem.title && (
+                   <p className="text-white font-semibold text-sm">{embedItem.title}</p>
+                 )}
+                 {embedItem.description && (
+                   <p className="text-gray-300 text-xs whitespace-pre-wrap">{embedItem.description}</p>
+                 )}
+                 {embedItem.fields?.length > 0 && (
+                   <div className="grid grid-cols-2 gap-2 mt-2">
+                     {embedItem.fields.map((f, i) => (
+                       <div key={i} className={f.inline === false ? "col-span-2" : ""}>
+                         <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
+                         <p className="text-gray-200 text-xs whitespace-pre-wrap">{f.value}</p>
+                       </div>
+                     ))}
+                   </div>
+                 )}
+                 {embedItem.footer && (
+                   <p className="text-gray-500 text-[10px] mt-2 border-t border-white/5 pt-1.5">{embedItem.footer.text}</p>
+                 )}
+               </div>
+             </div>
+           </div>
+         ))}
 
         {extraText.trim() && (
           <div className="bg-[#2f3136] rounded-lg overflow-hidden">
