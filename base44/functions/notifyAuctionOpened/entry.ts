@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
     const channels = getTargetChannels(settings, 'auction');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
-    const auctionUrl = 'https://mge002.base44.app/Leaderboard';
+    const auctionUrl = 'https://mge002.base44.app/Auction';
 
     let embed;
     if (auction.discord_embed) {
@@ -94,12 +94,12 @@ Deno.serve(async (req) => {
     }
 
     embed.fields = embed.fields || [];
-    embed.fields.push({ name: '🔗 Link', value: `[View Leaderboard](${auctionUrl})`, inline: false });
+    embed.fields.push({ name: '🔗 Link', value: `[View Auction](${auctionUrl})`, inline: false });
 
     const payload = {
       content: '@everyone',
       embeds: [embed],
-      components: [{ type: 1, components: [{ type: 2, label: 'View Leaderboard', style: 5, url: auctionUrl }] }],
+      components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
     };
 
     let sent = 0;
