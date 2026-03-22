@@ -77,23 +77,26 @@ export default function ResendLastEventNotification() {
       const toApply = lastEvent.transactions;
       const totalDkp = toApply.reduce((sum, e) => sum + e.amount, 0);
 
+      // Rank players by DKP amount (descending like in upload preview)
+      const sortedByDkp = [...toApply].sort((a, b) => b.amount - a.amount);
+
       const buildGroupLines = (groupName, entries) => {
         if (entries.length === 0) return [];
         const lines = [`**${groupName}**`];
-        for (const r of entries) {
+        entries.forEach((r, idx) => {
+          const rank = idx + 1;
           const dkpStr = r.amount > 0 ? `+${r.amount}` : `${r.amount}`;
-          let line = `**${r.player_name}** — \`${dkpStr} DKP\``;
+          let line = `**${rank}. ${r.player_name}** — \`${dkpStr} DKP\``;
           if (r.note && r.note.trim()) {
             line += ` — _${r.note}_`;
           }
           lines.push(line);
-        }
+        });
         return lines;
       };
 
       const allLines = [];
-      const allGroup = toApply.filter(r => !r.source_stage);
-      if (allGroup.length) allLines.push(...buildGroupLines("📋 Results", allGroup), "");
+      if (sortedByDkp.length) allLines.push(...buildGroupLines("📋 Results", sortedByDkp), "");
 
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
 
