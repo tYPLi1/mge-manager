@@ -77,7 +77,7 @@ export default function Auction() {
   const [tick, setTick] = useState(0);
   const queryClient = useQueryClient();
 
-  const { data: auctions = [] } = useQuery({
+  const { data: auctions = [], isLoading: auctionsLoading } = useQuery({
     queryKey: ["auctions"],
     queryFn: async () => {
       const res = await base44.functions.invoke("getPublicAuctions", {});
@@ -200,6 +200,17 @@ export default function Auction() {
     }
     setSubmitting(false);
   };
+
+  if (auctionsLoading) {
+    return (
+      <div>
+        <PageHeader title="MGE Auction" icon={Gavel} />
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-12 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-gray-700 border-t-amber-500 rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!currentAuction) {
     return (

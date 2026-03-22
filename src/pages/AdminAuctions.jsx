@@ -141,7 +141,7 @@ export default function AdminAuctions() {
   const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: auctions = [] } = useQuery({
+  const { data: auctions = [], isLoading: auctionsLoading } = useQuery({
     queryKey: ["auctions"],
     queryFn: () => adminEntities.Auction.list("-created_date", 50),
   });
@@ -277,14 +277,14 @@ export default function AdminAuctions() {
     if (friendlyZoneEnabled && top10.length >= 10) {
       const rank10Bid = top10[9];
       const rank10Player = players.find((p) => p.id === rank10Bid.player_id);
-      const rank10Dkp = rank10Player ? (rank10Player.total_dkp - rank10Player.dkp_spent) : 999;
+      const rank10Dkp = rank10Player ? (rank10Player.total_dkp || 0) + (rank10Player.dkp_spent || 0) : 999;
       // Rank 10 ist NICHT Friendly-Zone-berechtigt → suche einen opt-in Kandidaten ausserhalb Top 10
       if (rank10Dkp > friendlyZoneThreshold || !rank10Bid.want_friendly_zone) {
         const eligibleBid = sorted.slice(10).find((b) => {
           if (!b.want_friendly_zone) return false;
           const pl = players.find((p) => p.id === b.player_id);
           if (!pl) return false;
-          return (pl.total_dkp - pl.dkp_spent) <= friendlyZoneThreshold;
+          return ((pl.total_dkp || 0) + (pl.dkp_spent || 0)) <= friendlyZoneThreshold;
         });
         if (eligibleBid) top10[9] = { ...eligibleBid, _friendlyZone: true };
       }
@@ -425,7 +425,7 @@ export default function AdminAuctions() {
       const player = players.find((p) => p.id === entry.player_id);
       if (player) {
         await adminEntities.Player.update(entry.player_id, {
-          dkp_spent: (player.dkp_spent || 0) + entry.dkp_bid,
+          dkp_spent: (player.dkp_spent || 0) - entry.dkp_bid,
           cooldown_until: cooldownDate,
         });
       }
@@ -692,6 +692,11 @@ export default function AdminAuctions() {
 
       {/* Auction List */}
       <div className="space-y-3 mb-6">
+        {auctionsLoading && (
+          <div className="bg-[#111827] rounded-xl border border-white/5 p-8 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-gray-700 border-t-amber-500 rounded-full animate-spin" />
+          </div>
+        )}
         {auctions.map((a) => (
           <div key={a.id} className="bg-[#111827] rounded-xl border border-white/5 p-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
