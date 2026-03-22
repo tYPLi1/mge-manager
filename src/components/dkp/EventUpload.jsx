@@ -34,7 +34,7 @@ export default function EventUpload({ players, eventTypes }) {
 
   const selectedEventType = eventTypes.find(e => e.id === eventTypeId);
   const isYN = selectedEventType?.participation_type === "yn";
-  const isMEE = selectedEventType?.key === "MEE";
+  const hasMultipleStages = selectedEventType?.has_prep_stage && selectedEventType?.has_war_stage;
 
   const downloadTemplate = () => {
     if (!selectedEventType) return;
@@ -43,7 +43,7 @@ export default function EventUpload({ players, eventTypes }) {
     if (isYN) {
       const data = [["Name", "Participated (Y/N)", "Note"], ...names.map(n => [n, "Y", ""])];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
-    } else if (isMEE) {
+    } else if (hasMultipleStages) {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Name", "Server Rank", "Note"], ...names.map(n => [n, "", ""])]), "Preparation");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Name", "Server Rank", "Power", "Note"], ...names.map(n => [n, "", "", ""])]), "War Stage");
     } else {
@@ -75,8 +75,8 @@ export default function EventUpload({ players, eventTypes }) {
         setPreview(results);
       } else {
         let sheetName = wb.SheetNames[0];
-        if (isMEE && stage === "prep") sheetName = "Preparation";
-        if (isMEE && stage === "war") sheetName = "War Stage";
+        if (hasMultipleStages && stage === "prep") sheetName = "Preparation";
+        if (hasMultipleStages && stage === "war") sheetName = "War Stage";
         const ws = wb.Sheets[sheetName];
         if (!ws) { alert(`Sheet "${sheetName}" not found in file`); return; }
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1 }).slice(1);
@@ -320,14 +320,14 @@ export default function EventUpload({ players, eventTypes }) {
             </SelectContent>
           </Select>
         </div>
-        {isMEE && (
+        {hasMultipleStages && (
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Stage</Label>
             <Select value={stage} onValueChange={setStage}>
               <SelectTrigger className="bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="prep">Preparation</SelectItem>
-                <SelectItem value="war">War Stage</SelectItem>
+                {selectedEventType?.has_prep_stage && <SelectItem value="prep">Preparation</SelectItem>}
+                {selectedEventType?.has_war_stage && <SelectItem value="war">War Stage</SelectItem>}
               </SelectContent>
             </Select>
           </div>
