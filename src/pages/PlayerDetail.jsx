@@ -49,7 +49,8 @@ export default function PlayerDetail() {
   const player = players.find(p => p.id === playerId);
   if (!player) return <div className="text-gray-400 p-6">Player not found.</div>;
 
-  const currentDkp = (player.total_dkp || 0) - (player.dkp_spent || 0);
+  // dkp_spent is stored as negative value (e.g. -660), so we ADD it
+  const currentDkp = (player.total_dkp || 0) + (player.dkp_spent || 0);
   const playersWithPower = players.filter(p => p.power > 0);
   const sortedByPower = [...playersWithPower].sort((a, b) => (b.power || 0) - (a.power || 0));
   const powerRank = sortedByPower.findIndex(p => p.id === playerId) + 1;
@@ -77,7 +78,7 @@ export default function PlayerDetail() {
         </div>
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
           <p className="text-xs text-gray-400 mb-1">DKP Spent</p>
-          <p className="text-lg font-bold font-mono text-gray-400">{(player.dkp_spent || 0).toLocaleString()}</p>
+          <p className="text-lg font-bold font-mono text-gray-400">{Math.abs(player.dkp_spent || 0).toLocaleString()}</p>
         </div>
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
           <p className="text-xs text-gray-400 mb-1">Status</p>
