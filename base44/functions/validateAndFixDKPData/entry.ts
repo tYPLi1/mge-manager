@@ -1,15 +1,5 @@
-import { createClientFromRequest, createClient } from 'npm:@base44/sdk@0.8.21';
-
-function getServiceClient(req) {
-  try {
-    return createClientFromRequest(req).asServiceRole;
-  } catch {
-    const appId = Deno.env.get('BASE44_APP_ID');
-    const serviceToken = Deno.env.get('BASE44_SERVICE_ROLE_KEY');
-    if (!serviceToken) throw new Error('Service role credentials not configured');
-    return createClient({ appId, serviceRoleKey: serviceToken }).asServiceRole;
-  }
-}
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import crypto from 'node:crypto';
 
 Deno.serve(async (req) => {
   try {
@@ -17,7 +7,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Method not allowed' }, { status: 405 });
     }
 
-    const service = getServiceClient(req);
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    // Get session from request body
+    const body = await req.json();
+    const { validate_only, adminSession } = body;
+
+    if (!adminSession) {
+      return Response.json({ error: 'Admin session required' }, { status: 401 });
+    }
+
+    // Use adminEntityProxy to fetch data
+    const proxyCall = async (operation, entity, payload) => {
+      const response = await base44.functions.invoke('adminEntityProxy', {
+        operation,
+        entity,
+        payload,
+        adminSession
+      });
+      return response.data;
+    };
     const body = await req.json();
     const { validate_only } = body; // If true, only report issues without fixing
 
