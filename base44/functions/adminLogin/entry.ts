@@ -9,6 +9,44 @@ async function hmacHash(password, salt) {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// In-memory rate limiting (resets on cold start, but that's fine for brute-force protection)
+const failedAttempts = new Map(); // key: username -> { count, lockedUntil }
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
+
+function checkRateLimit(username) {
+  const entry = failedAttempts.get(username);
+  if (!entry) return { allowed: true };
+  
+  // If locked, check if lockout expired
+  if (entry.lockedUntil && Date.now() < entry.lockedUntil) {
+    const remainingMs = entry.lockedUntil - Date.now();
+    const remainingMin = Math.ceil(remainingMs / 60000);
+    return { allowed: false, remainingMin };
+  }
+  
+  // Lockout expired — reset
+  if (entry.lockedUntil && Date.now() >= entry.lockedUntil) {
+    failedAttempts.delete(username);
+    return { allowed: true };
+  }
+  
+  return { allowed: true };
+}
+
+function recordFailedAttempt(username) {
+  const entry = failedAttempts.get(username) || { count: 0, lockedUntil: null };
+  entry.count += 1;
+  if (entry.count >= MAX_ATTEMPTS) {
+    entry.lockedUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
+  }
+  failedAttempts.set(username, entry);
+}
+
+function clearFailedAttempts(username) {
+  failedAttempts.delete(username);
+}
+
 Deno.serve(async (req) => {
   try {
     if (req.method !== 'POST') {
@@ -20,11 +58,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username and password required' }, { status: 400 });
     }
 
+    // Check rate limit before any DB/crypto work
+    const rateCheck = checkRateLimit(username);
+    if (!rateCheck.allowed) {
+      return Response.json({ 
+        error: `Zu viele Fehlversuche. Account gesperrt für ${rateCheck.remainingMin} Minuten.` 
+      }, { status: 429 });
+    }
+
     const base44 = createClientFromRequest(req);
     const service = base44.asServiceRole;
 
     const users = await service.entities.AdminUser.filter({ username });
     if (users.length === 0) {
+      recordFailedAttempt(username);
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -59,8 +106,12 @@ Deno.serve(async (req) => {
     }
 
     if (!passwordMatch) {
+      recordFailedAttempt(username);
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
+
+    // Login successful — clear failed attempts
+    clearFailedAttempts(username);
 
     // Generate session token
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
