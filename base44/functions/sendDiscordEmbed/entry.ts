@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       const res = await fetch(`https://discord.com/api/v10/channels/${ch}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: '@everyone', embeds: embedsToProcess }),
+        body: JSON.stringify({ embeds: embedsToProcess }),
       });
       if (res.ok) sent++;
       else console.error(`Discord send failed for channel ${ch}: ${res.status}`);
