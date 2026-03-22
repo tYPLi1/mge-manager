@@ -89,8 +89,8 @@ export default function DeleteEventData() {
 
       // STEP 1: Fetch all affected players FIRST (before any deletes)
       const affectedPlayerIds = [...new Set(txsToDelete.map(tx => tx.player_id))];
-      const playersList = await Promise.all(affectedPlayerIds.map(id => base44.entities.Player.get(id)));
-      const playerMap = Object.fromEntries(playersList.map(p => [p.id, p]));
+      const allPlayers = await base44.entities.Player.list("name", 1000);
+      const playerMap = Object.fromEntries(allPlayers.filter(p => affectedPlayerIds.includes(p.id)).map(p => [p.id, p]));
 
       // STEP 2: Calculate DKP reductions per player BEFORE deleting
       const playerUpdates = {};
