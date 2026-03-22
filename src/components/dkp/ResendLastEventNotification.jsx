@@ -11,11 +11,11 @@ export default function ResendLastEventNotification() {
   const [sending, setSending] = useState(false);
   const [discordPreview, setDiscordPreview] = useState(null);
 
-  // Get last 1 event uploads (by created_date descending)
+  // Get last transactions (by created_date descending)
   const { data: lastTransactions = [] } = useQuery({
     queryKey: ["lastEventTransactions"],
     queryFn: async () => {
-      const txns = await base44.entities.DKPTransaction.filter({ type: "earn" }, "-created_date", 100);
+      const txns = await base44.entities.DKPTransaction.list("-created_date", 200);
       return txns;
     },
   });
