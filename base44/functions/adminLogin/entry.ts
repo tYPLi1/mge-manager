@@ -23,18 +23,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const adminUser = { id: 'admin-1', username };
-
-    if (!adminUser) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
     // Verify password
-    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+    const passwordMatch = await bcrypt.compare(password, passwordHash);
 
     if (!passwordMatch) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
+
+    const adminUser = { id: 'admin-1', username };
 
     // Generate a signed session token using HMAC
     const secret = Deno.env.get('ADMIN_MANAGEMENT_PASSWORD');
