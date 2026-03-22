@@ -80,13 +80,21 @@ Deno.serve(async (req) => {
       embedsToProcess[0].description = (embedsToProcess[0].description || "") + "\n\n" + extraText.trim();
     }
 
-    // Ensure first embed has title, last embed has link/footer
+    // Only add title/footer/link if not already present
     if (embedsToProcess.length > 0) {
-      embedsToProcess[0].title = embedsToProcess[0].title || '📊 Update';
+      if (!embedsToProcess[0].title) {
+        embedsToProcess[0].title = '📊 Update';
+      }
       
-      embedsToProcess[embedsToProcess.length - 1].fields = embedsToProcess[embedsToProcess.length - 1].fields || [];
-      embedsToProcess[embedsToProcess.length - 1].fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
-      embedsToProcess[embedsToProcess.length - 1].footer = embedsToProcess[embedsToProcess.length - 1].footer || { text: 'DKP System' };
+      const lastEmbed = embedsToProcess[embedsToProcess.length - 1];
+      lastEmbed.fields = lastEmbed.fields || [];
+      const hasLink = lastEmbed.fields.some(f => f.name === '🔗 Link');
+      if (!hasLink) {
+        lastEmbed.fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
+      }
+      if (!lastEmbed.footer) {
+        lastEmbed.footer = { text: 'DKP System' };
+      }
     }
 
     let sent = 0;
