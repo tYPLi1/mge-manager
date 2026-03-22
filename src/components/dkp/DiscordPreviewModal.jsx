@@ -31,21 +31,27 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
     if (!session) {
       toast.error("No admin session found");
       setSending(false);
+      onSent?.();
+      onClose();
       return;
     }
 
-    const res = await base44.functions.invoke("sendDiscordEmbed", {
-      session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-      embed,
-      channelId,
-      extraText: extraText.trim() || undefined,
-      notifType: notifType || undefined,
-    });
+    try {
+      const res = await base44.functions.invoke("sendDiscordEmbed", {
+        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+        embed,
+        channelId,
+        extraText: extraText.trim() || undefined,
+        notifType: notifType || undefined,
+      });
 
-    if (res.data?.success) {
-      toast.success("Discord message sent!");
-    } else {
-      toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+      if (res.data?.success) {
+        toast.success("Discord message sent!");
+      } else {
+        toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+      }
+    } catch (error) {
+      toast.error(`Failed to send: ${error.message}`);
     }
 
     setSending(false);
