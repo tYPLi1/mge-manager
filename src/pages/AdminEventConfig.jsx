@@ -402,8 +402,18 @@ const COMPARE_KEYS = [
   "active", "sort_order",
 ];
 
+function normalizeValue(v) {
+  if (v === undefined || v === null || v === "") return "";
+  return v;
+}
+
 function isEventDirty(draft, original) {
-  return COMPARE_KEYS.some(k => JSON.stringify(draft[k] ?? "") !== JSON.stringify(original[k] ?? ""));
+  if (!draft || !original) return false;
+  return COMPARE_KEYS.some(k => {
+    const a = normalizeValue(draft[k]);
+    const b = normalizeValue(original[k]);
+    return JSON.stringify(a) !== JSON.stringify(b);
+  });
 }
 
 export default function AdminEventConfig() {
