@@ -65,16 +65,26 @@ export default function EventUpload({ players, eventTypes }) {
     reader.onload = (e) => {
       const wb = XLSX.read(e.target.result, { type: "binary" });
       if (isYN) {
-        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }).slice(1);
+        const allRows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
+
+        // Detect column indices
+        const headers = (allRows[0] || []).map(h => h?.toString().toLowerCase().trim());
+        const nameIdx = headers.findIndex(h => h === "name");
+        const participatedIdx = headers.findIndex(h => h === "participated (y/n)");
+        const noteIdx = headers.findIndex(h => h === "note");
+
+        if (nameIdx < 0 || participatedIdx < 0) { alert("Missing required columns: Name, Participated (Y/N)"); return; }
+
+        const rows = allRows.slice(1);
         const results = [];
         const missing = [];
         for (const row of rows) {
-          const name = row[0]?.toString().trim();
-          const participated = row[1]?.toString().trim().toUpperCase();
+          const name = row[nameIdx]?.toString().trim();
+          const participated = row[participatedIdx]?.toString().trim().toUpperCase();
           if (!name || !participated) continue;
           const player = players.find(p => p.name.toLowerCase() === name.toLowerCase());
           if (!player) { missing.push(name); continue; }
-          const note = row[2]?.toString().trim() || "";
+          const note = noteIdx >= 0 ? (row[noteIdx]?.toString().trim() || "") : "";
           const dkp = participated === "Y" ? (selectedEventType.dkp_yn_present ?? 5) : (selectedEventType.dkp_yn_absent ?? -5);
           results.push({ playerId: player.id, playerName: player.name, dkp, group: participated === "Y" ? "Present" : "Absent", note });
         }
