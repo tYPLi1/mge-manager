@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const isPenalty = data.type === 'penalty';
     if (!isCompensation && !isPenalty) return Response.json({ success: true });
 
-    const punishmentsUrl = 'https://mge002.base44.app/Punishments';
+    const punishmentsUrl = 'https://mge002.base44.app/Leaderboard';
 
     const title = isCompensation ? '💰 DKP Compensation' : '⚠️ DKP Penalty';
     const color = isCompensation ? 65280 : 16711680;
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
           { name: 'Amount', value: `${data.amount > 0 ? '+' : ''}${data.amount} DKP`, inline: true },
           { name: 'Reason', value: sourceText, inline: true },
           { name: 'Details', value: data.note || 'No note', inline: false },
-          { name: '🔗 Link', value: `[View Penalties](${punishmentsUrl})`, inline: false },
+          { name: '🔗 Link', value: `[View Leaderboard](${punishmentsUrl})`, inline: false },
         ],
         color,
         timestamp: new Date().toISOString(),

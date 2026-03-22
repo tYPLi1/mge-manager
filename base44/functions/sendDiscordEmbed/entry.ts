@@ -68,16 +68,14 @@ Deno.serve(async (req) => {
     }
     if (channels.length === 0) return Response.json({ error: 'No channels configured' }, { status: 400 });
 
-    const pageMap = { auction: 'Auction', results: 'Results', events: 'Leaderboard', penalties: 'Punishments', reminder: 'Auction' };
-    const page = pageMap[type] || '';
-    const linkUrl = `https://mge002.base44.app/${page}`;
+    const linkUrl = 'https://mge002.base44.app/Leaderboard';
 
     const finalEmbed = { ...embed };
     if (extraText?.trim()) {
       finalEmbed.description = (finalEmbed.description || "") + "\n\n" + extraText.trim();
     }
     finalEmbed.fields = finalEmbed.fields || [];
-    finalEmbed.fields.push({ name: '🔗 Link', value: `[Open App](${linkUrl})`, inline: false });
+    finalEmbed.fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
 
     let sent = 0;
     for (const ch of channels) {

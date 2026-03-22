@@ -472,8 +472,8 @@ export default function AdminAuctions() {
           fields.push({ name: "Tiebreaker", value: tiebreakerNote, inline: false });
         }
 
-        const auctionPageUrl = "https://mge002.base44.app/Auction";
-        fields.push({ name: "🔗 Link", value: `[View Auction](${auctionPageUrl})`, inline: false });
+        const auctionPageUrl = "https://mge002.base44.app/Leaderboard";
+        fields.push({ name: "🔗 Link", value: `[View Leaderboard](${auctionPageUrl})`, inline: false });
 
         const embed = {
           title: "🏆 Auction Results Ready",
@@ -539,7 +539,7 @@ export default function AdminAuctions() {
   };
 
   const buildAuctionEmbed = () => {
-    const auctionUrl = "https://mge002.base44.app/Auction";
+    const auctionUrl = "https://mge002.base44.app/Leaderboard";
     const embed = {
       title: "🔔 New Auction Opened!",
       description: title,
@@ -554,7 +554,7 @@ export default function AdminAuctions() {
     if (password) {
       embed.fields.push({ name: "Password", value: `||${password}||`, inline: false });
     }
-    embed.fields.push({ name: "🔗 Link", value: `[View Auction](${auctionUrl})`, inline: false });
+    embed.fields.push({ name: "🔗 Link", value: `[View Leaderboard](${auctionUrl})`, inline: false });
     return embed;
   };
 
