@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Save } from "lucide-react";
@@ -39,10 +39,25 @@ export default function AdminSettings() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  // Refs to avoid stale closures
+  const formRef = useRef(form);
+  const savedSnapshotRef = useRef(savedSnapshot);
+  formRef.current = form;
+  savedSnapshotRef.current = savedSnapshot;
+
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
     queryFn: () => adminEntities.AppSettings.list(),
   });
+
+  // Build a stable lookup map from settings: key -> id
+  const settingsLookup = useMemo(() => {
+    const map = {};
+    settings.forEach(s => { map[s.key] = s.id; });
+    return map;
+  }, [settings]);
+  const settingsLookupRef = useRef(settingsLookup);
+  settingsLookupRef.current = settingsLookup;
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ["event-types-settings"],
@@ -50,10 +65,31 @@ export default function AdminSettings() {
   });
 
   useEffect(() => {
-    const map = {};
-    settings.forEach((s) => { map[s.key] = s.value; });
-    setForm(map);
-    setSavedSnapshot(map);
+    const currentForm = formRef.current;
+    const currentSnap = savedSnapshotRef.current;
+    const newSnap = {};
+    settings.forEach((s) => { newSnap[s.key] = s.value; });
+
+    // Preserve user edits for keys that were modified from the saved snapshot
+    const newForm = {};
+    Object.keys(newSnap).forEach(key => {
+      if (currentForm[key] !== undefined && currentSnap[key] !== undefined &&
+          String(currentForm[key]) !== String(currentSnap[key])) {
+        // User had unsaved changes for this key — keep their edit
+        newForm[key] = currentForm[key];
+      } else {
+        newForm[key] = newSnap[key];
+      }
+    });
+    // Also keep any form keys that don't exist in settings yet (new settings)
+    Object.keys(currentForm).forEach(key => {
+      if (!(key in newForm)) {
+        newForm[key] = currentForm[key];
+      }
+    });
+
+    setSavedSnapshot(newSnap);
+    setForm(newForm);
   }, [settings]);
 
   // Detect changed keys
@@ -85,20 +121,28 @@ export default function AdminSettings() {
   }, [hasChanges]);
 
   const saveMutation = useMutation({
-    mutationFn: async (updates) => {
+    mutationFn: async () => {
+      const currentForm = formRef.current;
       const changedKeys = getChangedKeys();
+      const lookup = settingsLookupRef.current;
       for (const key of changedKeys) {
-        const value = updates[key];
-        const existing = settings.find((s) => s.key === key);
-        if (existing) {
-          await adminEntities.AppSettings.update(existing.id, { value: String(value) });
+        const value = String(currentForm[key] ?? "");
+        const existingId = lookup[key];
+        if (existingId) {
+          await adminEntities.AppSettings.update(existingId, { value });
         } else {
-          await adminEntities.AppSettings.create({ key, value: String(value) });
+          await adminEntities.AppSettings.create({ key, value });
         }
       }
       return changedKeys;
     },
     onSuccess: (changedKeys) => {
+      // Immediately update snapshot so dirty state clears
+      const currentForm = formRef.current;
+      const newSnap = { ...savedSnapshotRef.current };
+      changedKeys.forEach(k => { newSnap[k] = String(currentForm[k] ?? ""); });
+      setSavedSnapshot(newSnap);
+
       queryClient.invalidateQueries({ queryKey: ["settings"] });
       if (changedKeys.length === 0) {
         toast.info("No changes to save.");
@@ -118,10 +162,10 @@ export default function AdminSettings() {
     },
   });
 
-  const handleSave = () => saveMutation.mutate(form);
+  const handleSave = () => saveMutation.mutate();
 
   const handleDiscard = () => {
-    setForm({ ...savedSnapshot });
+    setForm({ ...savedSnapshotRef.current });
     setShowUnsavedDialog(false);
     if (pendingNavigationRef.current) {
       const target = pendingNavigationRef.current;
