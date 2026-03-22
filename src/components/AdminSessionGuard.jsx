@@ -87,19 +87,24 @@ export default function AdminSessionGuard({ children }) {
   useEffect(() => {
     if (!isAuthorized) return;
 
-    const unsubscribe = base44.entities.AdminUser.subscribe((event) => {
-      const myId = userIdRef.current || getSessionUserId();
-      if (!myId) return;
+    try {
+      const unsubscribe = base44.entities.AdminUser.subscribe((event) => {
+        const myId = userIdRef.current || getSessionUserId();
+        if (!myId) return;
 
-      if (event.type === 'delete' && event.id === myId) {
-        forceLogout();
-      }
-      if (event.type === 'update' && event.id === myId && event.data?.is_active === false) {
-        forceLogout();
-      }
-    });
+        if (event.type === 'delete' && event.id === myId) {
+          forceLogout();
+        }
+        if (event.type === 'update' && event.id === myId && event.data?.is_active === false) {
+          forceLogout();
+        }
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (err) {
+      // If subscription fails (no records), just skip monitoring
+      console.warn('AdminUser subscription unavailable');
+    }
   }, [isAuthorized]);
 
   // --- Activity tracking + inactivity logout ---
