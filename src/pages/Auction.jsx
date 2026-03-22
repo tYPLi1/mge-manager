@@ -298,6 +298,7 @@ export default function Auction() {
                   <div>
                     <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Auction Password</Label>
                     <Input type="password" value={bidPassword} onChange={(e) => setBidPassword(e.target.value)} placeholder="Enter password" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+                    <p className="text-xs text-gray-500 mt-1.5">The password can be found in the Discord auction announcement.</p>
                   </div>
                 )}
 
