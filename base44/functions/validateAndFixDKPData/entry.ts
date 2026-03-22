@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
-import crypto from 'node:crypto';
 
 Deno.serve(async (req) => {
   try {
@@ -14,7 +13,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    // Get session from request body
     const body = await req.json();
     const { validate_only, adminSession } = body;
 
@@ -23,7 +21,7 @@ Deno.serve(async (req) => {
     }
 
     // Use adminEntityProxy to fetch data
-    const proxyCall = async (operation, entity, payload) => {
+    const proxyFetch = async (operation, entity, payload = {}) => {
       const response = await base44.functions.invoke('adminEntityProxy', {
         operation,
         entity,
@@ -32,12 +30,10 @@ Deno.serve(async (req) => {
       });
       return response.data;
     };
-    const body = await req.json();
-    const { validate_only } = body; // If true, only report issues without fixing
 
-    // Fetch all data
-    const players = await service.entities.Player.list('name', 1000);
-    const transactions = await service.entities.DKPTransaction.list('-created_date', 10000);
+    // Fetch all data via proxy
+    const players = await proxyFetch('list', 'Player', { sort: 'name', limit: 1000 });
+    const transactions = await proxyFetch('list', 'DKPTransaction', { sort: '-created_date', limit: 10000 });
 
     const issues = [];
     const fixes = [];
@@ -124,7 +120,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Apply fixes
+    // Apply fixes via proxy
     let updated = 0;
     for (const player of players) {
       const expectedDkpSpent = dkpSpentMap[player.id] || 0;
@@ -136,7 +132,8 @@ Deno.serve(async (req) => {
       const actualTotal = player.total_dkp || 0;
 
       if (earnTotal !== actualTotal || expectedDkpSpent !== actualDkpSpent) {
-        await service.entities.Player.update(player.id, {
+        await proxyFetch('update', 'Player', {
+          id: player.id,
           total_dkp: earnTotal,
           dkp_spent: expectedDkpSpent
         });
