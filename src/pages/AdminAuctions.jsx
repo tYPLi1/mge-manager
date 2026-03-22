@@ -42,7 +42,7 @@ function ensureUTC(dateStr) {
 
 function formatUTCDate(dateStr) {
   if (!dateStr) return '';
-  return new Date(ensureUTC(dateStr)).toLocaleString("de-CH", { timeZone: "UTC" }) + " (UTC)";
+  return new Date(ensureUTC(dateStr)).toLocaleString("en-GB", { timeZone: "UTC" }) + " (UTC)";
 }
 
 function DeleteModal({ auction, players, onClose, onDelete }) {
@@ -71,7 +71,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
         </div>
 
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-          <p className="text-white font-semibold text-sm mb-1">„{auction.title}"</p>
+          <p className="text-white font-semibold text-sm mb-1">"{auction.title}"</p>
           <p className="text-gray-400 text-xs">Status: <span className="text-red-400 font-medium">{auction.status}</span></p>
         </div>
 
@@ -797,7 +797,7 @@ export default function AdminAuctions() {
                           )}
                         </td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono whitespace-nowrap">
-                          {b.created_date ? new Date(b.created_date).toLocaleString("de-CH", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
+                          {b.created_date ? new Date(b.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
                         </td>
                         <td className="px-2 py-1.5 hidden sm:table-cell">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${
