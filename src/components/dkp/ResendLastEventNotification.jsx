@@ -174,11 +174,38 @@ export default function ResendLastEventNotification() {
     <>
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-6">
         <h3 className="text-sm font-semibold text-white mb-3">Resend Last Event Notification</h3>
-        <p className="text-xs text-gray-400 mb-3">
+        <p className="text-xs text-gray-400 mb-4">
           <strong>Event:</strong> {lastEvent.source} ({lastEvent.eventDate})
           <br />
           <strong>Transactions:</strong> {lastEvent.transactions.length} | <strong>Total DKP:</strong> {lastEvent.transactions.reduce((sum, e) => sum + e.amount, 0)}
         </p>
+
+        {/* Transactions Table */}
+        <div className="mb-4 overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead className="border-b border-white/10">
+              <tr>
+                <th className="text-left py-2 px-2 text-gray-400 font-medium">Player</th>
+                <th className="text-left py-2 px-2 text-gray-400 font-medium">DKP</th>
+                <th className="text-left py-2 px-2 text-gray-400 font-medium">Type</th>
+                <th className="text-left py-2 px-2 text-gray-400 font-medium">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lastEvent.transactions.map((txn, idx) => (
+                <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
+                  <td className="py-2 px-2 text-white">{txn.player_name}</td>
+                  <td className={`py-2 px-2 font-semibold ${txn.amount > 0 ? "text-green-400" : "text-red-400"}`}>
+                    {txn.amount > 0 ? "+" : ""}{txn.amount}
+                  </td>
+                  <td className="py-2 px-2 text-gray-400">{txn.type}</td>
+                  <td className="py-2 px-2 text-gray-500 truncate">{txn.note || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         <Button
           onClick={handleResend}
           disabled={sending}
