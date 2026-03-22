@@ -6,7 +6,7 @@ function getServiceClient() {
 
 Deno.serve(async (req) => {
   try {
-    const service = getServiceClient(req);
+    const service = getServiceClient();
     const { userId, username, expiresAt, token } = await req.json();
 
     if (!userId || !username || !expiresAt || !token) {
