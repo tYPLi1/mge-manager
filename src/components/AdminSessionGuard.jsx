@@ -112,24 +112,44 @@ export default function AdminSessionGuard({ children }) {
    if (!isAuthorized) return;
 
    let inactivityTimer = null;
+   let debounceTimer = null;
    const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+   const DEBOUNCE_DELAY = 1000; // Debounce activity events to 1s
+   let logoutInProgress = false;
 
    const resetInactivityTimer = () => {
+     if (logoutInProgress) return;
+
+     // Clear old debounce and inactivity timers
+     if (debounceTimer) clearTimeout(debounceTimer);
      if (inactivityTimer) clearTimeout(inactivityTimer);
-     inactivityTimer = setTimeout(() => {
-       forceLogout();
-     }, INACTIVITY_TIMEOUT);
+
+     // Debounce: wait before setting new timer to avoid constant resets
+     debounceTimer = setTimeout(() => {
+       inactivityTimer = setTimeout(() => {
+         logoutInProgress = true;
+         forceLogout();
+       }, INACTIVITY_TIMEOUT);
+     }, DEBOUNCE_DELAY);
    };
 
    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
-   events.forEach(e => window.addEventListener(e, resetInactivityTimer));
+   const boundResetters = events.map(e => {
+     const handler = resetInactivityTimer;
+     window.addEventListener(e, handler, { passive: true });
+     return { event: e, handler };
+   });
 
    // Start initial timer
    resetInactivityTimer();
 
    return () => {
+     logoutInProgress = true; // Prevent any further operations
+     if (debounceTimer) clearTimeout(debounceTimer);
      if (inactivityTimer) clearTimeout(inactivityTimer);
-     events.forEach(e => window.removeEventListener(e, resetInactivityTimer));
+     boundResetters.forEach(({ event, handler }) => {
+       window.removeEventListener(event, handler);
+     });
    };
   }, [isAuthorized]);
 
