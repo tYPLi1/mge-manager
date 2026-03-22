@@ -63,6 +63,13 @@ Deno.serve(async (req) => {
 
     // Check available DKP (dkp_spent is stored as negative value)
     const currentDkp = (player.total_dkp || 0) + (player.dkp_spent || 0);
+    
+    // Failsafe: if calculation results in negative, something is wrong with data
+    if (currentDkp < 0) {
+      console.error(`Data integrity issue: player ${player.name} has negative DKP balance: total=${player.total_dkp}, spent=${player.dkp_spent}, calculated=${currentDkp}`);
+      return Response.json({ error: 'DKP balance error. Please contact an admin.' }, { status: 400 });
+    }
+    
     if (bidAmount > currentDkp) {
       return Response.json({ error: `Not enough DKP. Available: ${currentDkp}` }, { status: 400 });
     }

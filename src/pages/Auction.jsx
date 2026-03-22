@@ -279,7 +279,26 @@ export default function Auction() {
 
                 <div>
                   <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Bid Amount</Label>
-                  <Input type="number" min="1" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="Enter DKP amount" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+                  <Input
+                    type="number"
+                    min="0"
+                    max={currentDkp > 0 ? currentDkp : 0}
+                    value={bidAmount}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Prevent entering more than available DKP
+                      if (val && parseInt(val) > currentDkp) {
+                        setBidAmount(String(currentDkp));
+                      } else {
+                        setBidAmount(val);
+                      }
+                    }}
+                    placeholder={selectedPlayerData ? `Max: ${currentDkp}` : "Enter DKP amount"}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                  />
+                  {bidTooHigh && (
+                    <p className="text-xs text-red-400 mt-1">Bid exceeds available DKP ({currentDkp})</p>
+                  )}
                 </div>
 
                 {eligibleForFriendlyZone && (
