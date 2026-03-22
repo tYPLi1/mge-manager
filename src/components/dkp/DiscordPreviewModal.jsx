@@ -6,9 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export default function DiscordPreviewModal({ embed, channelId, onClose, onSent, sendNow = true, notifType }) {
+export default function DiscordPreviewModal({ embed, embeds, channelId, onClose, onSent, sendNow = true, notifType }) {
   const [extraText, setExtraText] = useState("");
   const [sending, setSending] = useState(false);
+  
+  const embedsToSend = embeds || (embed ? [embed] : []);
 
   const getSession = () => {
     try {
@@ -37,19 +39,24 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
     }
 
     try {
-      const res = await base44.functions.invoke("sendDiscordEmbed", {
-        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-        embed,
-        channelId,
-        extraText: extraText.trim() || undefined,
-        notifType: notifType || undefined,
-      });
+      for (const singleEmbed of embedsToSend) {
+        const res = await base44.functions.invoke("sendDiscordEmbed", {
+          session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
+          embed: singleEmbed,
+          channelId,
+          extraText: extraText.trim() || undefined,
+          notifType: notifType || undefined,
+        });
 
-      if (res.data?.success) {
-        toast.success("Discord message sent!");
-      } else {
-        toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+        if (!res.data?.success) {
+          toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+          setSending(false);
+          onSent?.(extraText);
+          onClose();
+          return;
+        }
       }
+      toast.success(`Discord message${embedsToSend.length > 1 ? 's' : ''} sent!`);
     } catch (error) {
       toast.error(`Failed to send: ${error.message}`);
     }
@@ -66,7 +73,8 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
   };
 
   // Render embed preview
-  const colorHex = embed.color ? `#${embed.color.toString(16).padStart(6, "0")}` : "#f59e0b";
+  const firstEmbed = embedsToSend[0] || {};
+  const colorHex = firstEmbed.color ? `#${firstEmbed.color.toString(16).padStart(6, "0")}` : "#f59e0b";
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
@@ -74,39 +82,42 @@ export default function DiscordPreviewModal({ embed, channelId, onClose, onSent,
         <div className="flex items-center justify-between">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Preview
+            {embedsToSend.length > 1 && <span className="text-xs text-gray-400">({embedsToSend.length} messages)</span>}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Embed Preview */}
-        <div className="bg-[#2f3136] rounded-lg overflow-hidden">
-          <div className="flex">
-            <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
-            <div className="p-3 flex-1 space-y-2">
-              {embed.title && (
-                <p className="text-white font-semibold text-sm">{embed.title}</p>
-              )}
-              {embed.description && (
-                <p className="text-gray-300 text-xs whitespace-pre-wrap">{embed.description}</p>
-              )}
-              {embed.fields?.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {embed.fields.map((f, i) => (
-                    <div key={i} className={f.inline === false ? "col-span-2" : ""}>
-                      <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
-                      <p className="text-gray-200 text-xs">{f.value}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {embed.footer && (
-                <p className="text-gray-500 text-[10px] mt-2 border-t border-white/5 pt-1.5">{embed.footer.text}</p>
-              )}
+        {/* Embed Previews */}
+        {embedsToSend.map((embedItem, idx) => (
+          <div key={idx} className="bg-[#2f3136] rounded-lg overflow-hidden">
+            <div className="flex">
+              <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
+              <div className="p-3 flex-1 space-y-2">
+                {embedItem.title && (
+                  <p className="text-white font-semibold text-sm">{embedItem.title}</p>
+                )}
+                {embedItem.description && (
+                  <p className="text-gray-300 text-xs whitespace-pre-wrap">{embedItem.description}</p>
+                )}
+                {embedItem.fields?.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {embedItem.fields.map((f, i) => (
+                      <div key={i} className={f.inline === false ? "col-span-2" : ""}>
+                        <p className="text-gray-400 text-xs font-semibold">{f.name}</p>
+                        <p className="text-gray-200 text-xs whitespace-pre-wrap">{f.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {embedItem.footer && (
+                  <p className="text-gray-500 text-[10px] mt-2 border-t border-white/5 pt-1.5">{embedItem.footer.text}</p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ))}
 
         {extraText.trim() && (
           <div className="bg-[#2f3136] rounded-lg overflow-hidden">
