@@ -24,7 +24,40 @@ function getTargetChannels(settings, type) {
   } catch { return []; }
 }
 
+function sanitizeEmbeds(embeds) {
+  for (const e of embeds) {
+    if (!e.description && (!e.fields || e.fields.length === 0)) e.description = ' ';
+    if (e.fields) {
+      e.fields = e.fields.filter(f => f.name && f.value);
+      const newFields = [];
+      for (const f of e.fields) {
+        if (!f.value) f.value = '-';
+        if (!f.name) f.name = '-';
+        if (f.value.length > 1024) {
+          let remaining = f.value;
+          let part = 0;
+          while (remaining.length > 0) {
+            let chunk;
+            if (remaining.length <= 1024) { chunk = remaining; remaining = ''; }
+            else {
+              const cut = remaining.lastIndexOf('\n', 1024);
+              const pos = cut > 200 ? cut : 1024;
+              chunk = remaining.substring(0, pos);
+              remaining = remaining.substring(pos).replace(/^\n/, '');
+            }
+            newFields.push({ name: part === 0 ? f.name : `${f.name} (cont.)`, value: chunk, inline: f.inline || false });
+            part++;
+          }
+        } else { newFields.push(f); }
+      }
+      e.fields = newFields;
+    }
+  }
+  return embeds;
+}
+
 async function sendToChannel(channelId, payload) {
+  if (payload.embeds) sanitizeEmbeds(payload.embeds);
   const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: 'POST',
     headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
