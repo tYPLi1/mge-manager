@@ -86,7 +86,6 @@ Deno.serve(async (req) => {
         ],
         footer: { text: 'DKP System' },
       }],
-      components: [{ type: 1, components: [{ type: 2, label: 'View Leaderboard', style: 5, url: leaderboardUrl }] }],
     };
 
     let sent = 0;

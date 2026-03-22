@@ -99,7 +99,6 @@ Deno.serve(async (req) => {
     const payload = {
       content: '@everyone',
       embeds: [embed],
-      components: [{ type: 1, components: [{ type: 2, label: 'View Auction', style: 5, url: auctionUrl }] }],
     };
 
     let sent = 0;

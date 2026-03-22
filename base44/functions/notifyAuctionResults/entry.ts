@@ -105,7 +105,6 @@ Deno.serve(async (req) => {
         fields,
         footer: { text: 'DKP System' },
       }],
-      components: [{ type: 1, components: [{ type: 2, label: 'View Results', style: 5, url: resultsUrl }] }],
     };
 
     let sent = 0;
