@@ -1,4 +1,4 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
@@ -38,25 +38,11 @@ Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
     const body = await req.json();
-    const { event, data } = body;
+    const { eventName, eventDate, playersUpdated, totalDkpDistributed, rankings } = body;
 
-    let eventName, eventDate, playersUpdated, totalDkpDistributed, rankings;
-
-    if (event?.type) {
-      if (data?.type === 'penalty' || data?.type === 'compensation') return Response.json({ success: true });
-      if (data?.source && data?.source_stage && data?.amount) {
-        eventName = `${data.source}${data.source_stage ? ' - ' + data.source_stage : ''}`;
-        eventDate = data.event_date;
-        playersUpdated = 1;
-        totalDkpDistributed = data.amount;
-        rankings = [];
-      } else {
-        return Response.json({ success: true });
-      }
-    } else {
-      const { eventName: name, eventDate: date, playersUpdated: players, totalDkpDistributed: total, rankings: ranks } = body;
-      if (!name || !date) return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
-      eventName = name; eventDate = date; playersUpdated = players; totalDkpDistributed = total; rankings = ranks;
+    // Validate input
+    if (!eventName || !eventDate) {
+      return Response.json({ error: 'Missing eventName or eventDate' }, { status: 400 });
     }
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
