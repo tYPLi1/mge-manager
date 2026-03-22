@@ -68,18 +68,22 @@ export default function UndoLastUpload() {
     setDeleting(true);
 
     try {
-      // Delete all transactions for this event
-      for (const tx of previewTransactions) {
-        await adminEntities.DKPTransaction.delete(tx.id);
-        
-        // Update player total_dkp
-        const player = await base44.entities.Player.get(tx.player_id);
-        if (player) {
-          await adminEntities.Player.update(tx.player_id, {
-            total_dkp: (player.total_dkp || 0) - tx.amount
-          });
-        }
-      }
+      // Get affected players (once)
+      const affectedPlayerIds = [...new Set(previewTransactions.map(tx => tx.player_id))];
+      const players = await Promise.all(affectedPlayerIds.map(id => base44.entities.Player.get(id)));
+      const playerMap = Object.fromEntries(players.map(p => [p.id, p]));
+
+      // Delete all transactions in parallel
+      await Promise.all(previewTransactions.map(tx => adminEntities.DKPTransaction.delete(tx.id)));
+
+      // Update players in parallel
+      await Promise.all(affectedPlayerIds.map(playerId => {
+        const player = playerMap[playerId];
+        const totalRemove = previewTransactions.filter(tx => tx.player_id === playerId).reduce((sum, tx) => sum + tx.amount, 0);
+        return adminEntities.Player.update(playerId, {
+          total_dkp: Math.max(0, (player.total_dkp || 0) - totalRemove)
+        });
+      }));
 
       toast.success(`Deleted ${previewTransactions.length} transactions`, {
         description: `Event: ${selectedEvent.source}${selectedEvent.source_stage ? ` - ${selectedEvent.source_stage}` : ""}`
