@@ -301,12 +301,8 @@ export default function EventUpload({ players, eventTypes }) {
           if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
           
           embeds.push({
-            title: embeds.length === 0 ? "📊 Event Data Uploaded" : "📊 Event Data (continued)",
-            description: embeds.length === 0 ? `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}` : undefined,
             color: 0x8b5cf6,
             fields: currentFields,
-            url: embeds.length === 0 ? leaderboardUrl : undefined,
-            footer: { text: "DKP System" },
           });
 
           // Start new embed
@@ -324,13 +320,19 @@ export default function EventUpload({ players, eventTypes }) {
       if (chunk) currentFields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
       if (currentFields.length > 0) {
         embeds.push({
-          title: embeds.length === 0 ? "📊 Event Data Uploaded" : "📊 Event Data (continued)",
-          description: embeds.length === 0 ? `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}` : undefined,
           color: 0x8b5cf6,
           fields: currentFields,
-          url: embeds.length === 0 ? leaderboardUrl : undefined,
-          footer: { text: "DKP System" },
         });
+      }
+
+      // Add title/description to first embed, link/footer to last embed
+      if (embeds.length > 0) {
+        embeds[0].title = "📊 Event Data Uploaded";
+        embeds[0].description = `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`;
+        embeds[0].url = leaderboardUrl;
+        
+        embeds[embeds.length - 1].fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
+        embeds[embeds.length - 1].footer = { text: "DKP System" };
       }
 
       setDiscordPreview({ embeds, onSent: doApply });
