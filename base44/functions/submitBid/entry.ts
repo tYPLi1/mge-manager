@@ -61,8 +61,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Player is banned from auctions' }, { status: 400 });
     }
 
-    // Check available DKP
-    const currentDkp = (player.total_dkp || 0) - (player.dkp_spent || 0);
+    // Check available DKP (dkp_spent is stored as negative value)
+    const currentDkp = (player.total_dkp || 0) + (player.dkp_spent || 0);
     if (bidAmount > currentDkp) {
       return Response.json({ error: `Not enough DKP. Available: ${currentDkp}` }, { status: 400 });
     }
