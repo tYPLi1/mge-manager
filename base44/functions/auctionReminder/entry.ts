@@ -88,20 +88,22 @@ Deno.serve(async (req) => {
               const newFields = [];
               for (const f of e.fields) {
                 if (f.value && f.value.length > 1024) {
-                  let remaining = f.value;
+                  const lines = f.value.split('\n');
+                  let chunk = '';
                   let part = 0;
-                  while (remaining.length > 0) {
-                    let chunk;
-                    if (remaining.length <= 1024) { chunk = remaining; remaining = ''; }
-                    else {
-                      const cut = remaining.lastIndexOf('\n', 1024);
-                      const pos = cut > 200 ? cut : 1024;
-                      chunk = remaining.substring(0, pos);
-                      remaining = remaining.substring(pos).replace(/^\n/, '');
-                    }
-                    newFields.push({ name: part === 0 ? f.name : `${f.name} (cont.)`, value: chunk, inline: f.inline || false });
-                    part++;
+                  for (let li = 0; li < lines.length; li++) {
+                    const tentative = chunk ? chunk + '\n' + lines[li] : lines[li];
+                    if (tentative.length > 1000 && chunk) {
+                      const chunkLines = chunk.split('\n');
+                      while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === '' || (chunkLines[chunkLines.length - 1].startsWith('**') && chunkLines[chunkLines.length - 1].endsWith('**')))) {
+                        lines.splice(li, 0, chunkLines.pop());
+                      }
+                      const trimmed = chunkLines.join('\n');
+                      if (trimmed) { newFields.push({ name: part === 0 ? f.name : `${f.name} (cont.)`, value: trimmed, inline: f.inline || false }); part++; }
+                      chunk = lines[li];
+                    } else { chunk = tentative; }
                   }
+                  if (chunk) { newFields.push({ name: part === 0 ? f.name : `${f.name} (cont.)`, value: chunk, inline: f.inline || false }); }
                 } else { newFields.push(f); }
               }
               e.fields = newFields;
