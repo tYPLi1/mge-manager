@@ -258,6 +258,20 @@ export default function EventUpload({ players, eventTypes }) {
       await adminEntities.Player.update(entry.playerId, updateData);
     }
 
+    // Send Discord notification
+    if (eventsEnabled && webhookUrl) {
+      const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
+      const stageLabel = effectiveStage === "prep" ? "Preparation" : "War Stage";
+      const stageName = isYN ? "" : ` - ${stageLabel}`;
+
+      await base44.functions.invoke('notifyEventUpload', {
+        eventName: `${selectedEventType.display_name}${stageName}`,
+        eventDate,
+        playersUpdated: toApply.length,
+        totalDkpDistributed: totalDkp,
+      });
+    }
+
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setApplied(true);
     setApplying(false);
