@@ -432,21 +432,30 @@ export default function AdminEventConfig() {
     queryFn: () => base44.entities.EventType.list("sort_order", 20),
   });
 
+  // Use refs to avoid stale closures in the sync effect
+  const draftsRef = useRef(drafts);
+  const savedSnapshotRef = useRef(savedSnapshot);
+  draftsRef.current = drafts;
+  savedSnapshotRef.current = savedSnapshot;
+
   // Sync drafts from server data
   useEffect(() => {
+    if (eventTypes.length === 0) return;
+    const currentDrafts = draftsRef.current;
+    const currentSnap = savedSnapshotRef.current;
     const draftMap = {};
     const snapMap = {};
     eventTypes.forEach(et => {
-      // Only set draft if not already modified by user
-      if (!drafts[et.id] || !isEventDirty(drafts[et.id], savedSnapshot[et.id] || {})) {
-        draftMap[et.id] = { ...et };
-      } else {
-        draftMap[et.id] = drafts[et.id];
-      }
       snapMap[et.id] = { ...et };
+      // Preserve user edits if draft was modified from its saved snapshot
+      if (currentDrafts[et.id] && currentSnap[et.id] && isEventDirty(currentDrafts[et.id], currentSnap[et.id])) {
+        draftMap[et.id] = currentDrafts[et.id];
+      } else {
+        draftMap[et.id] = { ...et };
+      }
     });
-    setDrafts(draftMap);
     setSavedSnapshot(snapMap);
+    setDrafts(draftMap);
   }, [eventTypes]);
 
   const updateDraft = (id, newDraft) => {
