@@ -335,7 +335,7 @@ export default function EventUpload({ players, eventTypes }) {
         embeds[embeds.length - 1].footer = { text: "DKP System" };
       }
 
-      setDiscordPreview({ embeds, onSent: doApply });
+      setDiscordPreview({ embeds, channelId, onSent: doApply, notifType: "event_upload" });
     } else {
       await doApply();
     }
