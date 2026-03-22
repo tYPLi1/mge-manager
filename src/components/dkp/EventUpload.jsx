@@ -297,7 +297,6 @@ export default function EventUpload({ players, eventTypes }) {
       if (chunk) fields.push({ name: fieldIdx === 0 ? "Results" : "​", value: chunk, inline: false });
 
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
-      fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
 
       const embed = {
         title: "📊 Event Data Uploaded",
