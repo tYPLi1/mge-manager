@@ -155,8 +155,6 @@ export default function Results() {
                 <tbody className="divide-y divide-white/5">
                   {results.map((r, i) => {
                     const t = mgeTargets.find((m) => m.rank === r.rank);
-                    const isTied = (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
-                                   (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid);
                     return (
                       <tr key={r.id} className="hover:bg-white/[0.02]">
                         <td className="px-3 py-2.5">
