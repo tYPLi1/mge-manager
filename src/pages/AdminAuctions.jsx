@@ -493,16 +493,16 @@ export default function AdminAuctions() {
         if (tiebreaker !== "fcfs") {
           tiebreakerNote += `\n↳ **Backup:** ${ruleLabel(tiebreakerFallback)}`;
         }
-        tiebreakerNote += `\n\n_Tiebreaker greift wenn 2+ Spieler das gleiche DKP-Gebot haben. Zuerst wird der Primary-Tiebreaker geprüft. Falls dort ebenfalls Gleichstand herrscht, entscheidet der Backup-Tiebreaker._`;
+        tiebreakerNote += `\n\n_Tiebreaker applies when 2+ players have the same DKP bid. The primary tiebreaker is checked first. If there is still a tie, the backup tiebreaker decides._`;
 
         const fields = [
           { name: "Winners (Top 10)", value: resultsText || "No results", inline: false },
           { name: "Total Participants", value: String(previewRanking.length), inline: true },
         ];
         if (hasFzWinner) {
-          fields.push({ name: "🤝 Friendly Zone", value: `Platz 10 reserviert für berechtigten FZ-Bieter (≤ ${friendlyZoneThreshold} DKP). Höchstes FZ-Gebot gewinnt.`, inline: false });
+          fields.push({ name: "🤝 Friendly Zone", value: `Rank 10 reserved for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP). Highest FZ bid wins.`, inline: false });
         }
-        fields.push({ name: "⚖ Tiebreaker-Regeln", value: tiebreakerNote, inline: false });
+        fields.push({ name: "⚖ Tiebreaker Rules", value: tiebreakerNote, inline: false });
 
         const auctionPageUrl = "https://mge002.base44.app/Auction";
         fields.push({ name: "🔗 Link", value: `[View Auction](${auctionPageUrl})`, inline: false });
