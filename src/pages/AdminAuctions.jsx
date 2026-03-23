@@ -268,29 +268,46 @@ export default function AdminAuctions() {
     return compareBids(a, b, tiebreakerFallback);
   });
 
+  // Helper: check if a bid is FZ-eligible (opted in + player DKP ≤ threshold)
+  const isFzEligible = (bid) => {
+    if (!bid.want_friendly_zone) return false;
+    const pl = players.find((p) => p.id === bid.player_id);
+    if (!pl) return false;
+    return ((pl.total_dkp || 0) + (pl.dkp_spent || 0)) <= friendlyZoneThreshold;
+  };
+
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
     const activeBids = bids.filter((b) => !b.is_deleted);
     const sorted = sortBids(activeBids);
-    const top10 = sorted.slice(0, 10);
 
-    if (friendlyZoneEnabled && top10.length >= 10) {
-      const rank10Bid = top10[9];
-      const rank10Player = players.find((p) => p.id === rank10Bid.player_id);
-      const rank10Dkp = rank10Player ? (rank10Player.total_dkp || 0) + (rank10Player.dkp_spent || 0) : 999;
-      // Rank 10 ist NICHT Friendly-Zone-berechtigt → suche einen opt-in Kandidaten ausserhalb Top 10
-      if (rank10Dkp > friendlyZoneThreshold || !rank10Bid.want_friendly_zone) {
-        const eligibleBid = sorted.slice(10).find((b) => {
-          if (!b.want_friendly_zone) return false;
-          const pl = players.find((p) => p.id === b.player_id);
-          if (!pl) return false;
-          return ((pl.total_dkp || 0) + (pl.dkp_spent || 0)) <= friendlyZoneThreshold;
-        });
-        if (eligibleBid) top10[9] = { ...eligibleBid, _friendlyZone: true };
+    let top10;
+
+    if (friendlyZoneEnabled) {
+      // Find FZ-eligible bids (sorted by DKP + tiebreaker, same order as sorted)
+      const fzBids = sorted.filter(b => isFzEligible(b));
+      const nonFzBids = sorted.filter(b => !isFzEligible(b));
+
+      if (fzBids.length > 0) {
+        // Best FZ bidder gets Rank 10, rest of Top 9 filled by non-FZ bids
+        // If an FZ bidder also made it into Top 9 by pure ranking, they stay there and next FZ bidder gets Rank 10
+        const fzWinner = fzBids[0]; // best FZ bid (already sorted)
+        const top9 = nonFzBids.slice(0, 9);
+        // If less than 9 non-FZ bids, fill remaining spots from FZ bids (excluding the FZ winner)
+        if (top9.length < 9) {
+          const remainingFz = fzBids.filter(b => b.id !== fzWinner.id);
+          top9.push(...remainingFz.slice(0, 9 - top9.length));
+        }
+        top10 = [...top9, { ...fzWinner, _friendlyZone: true }];
+      } else {
+        // No FZ bidders → all 10 ranks normal
+        top10 = sorted.slice(0, 10);
       }
+    } else {
+      top10 = sorted.slice(0, 10);
     }
 
-    // Detect tiebreaker situations: consecutive entries with same dkp_bid
+    // Detect tiebreaker situations
     const getRuleLabel = (rule, playerId) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
@@ -298,27 +315,24 @@ export default function AdminAuctions() {
     };
     return top10.map((b, i) => {
       let _tiebreaker = null;
-      const hasTie = (i > 0 && top10[i].dkp_bid === top10[i - 1].dkp_bid) ||
-                     (i < top10.length - 1 && top10[i].dkp_bid === top10[i + 1].dkp_bid);
-      if (hasTie) {
-        const primaryVal = compareBids(
-          { player_id: b.player_id, created_date: b.created_date },
-          { player_id: "___dummy___", created_date: new Date(0).toISOString() },
-          tiebreaker
-        );
-        // Check if primary tiebreaker is 0 for all tied players
-        const tiedGroup = top10.filter(t => t.dkp_bid === b.dkp_bid);
-        const allPrimarySame = tiedGroup.every(t => {
-          const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
-                        tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
-          const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
-                             tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
-          return score === firstScore;
-        });
-        if (allPrimarySame && tiebreaker !== "fcfs") {
-          _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
-        } else {
-          _tiebreaker = getRuleLabel(tiebreaker, b.player_id);
+      // Only check tiebreakers within the same group (don't compare rank 9 vs rank 10 FZ)
+      if (!b._friendlyZone) {
+        const hasTie = (i > 0 && !top10[i - 1]._friendlyZone && top10[i].dkp_bid === top10[i - 1].dkp_bid) ||
+                       (i < top10.length - 1 && !top10[i + 1]?._friendlyZone && top10[i].dkp_bid === top10[i + 1]?.dkp_bid);
+        if (hasTie) {
+          const tiedGroup = top10.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
+          const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
+            const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
+                          tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
+            const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
+                               tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
+            return score === firstScore;
+          });
+          if (allPrimarySame && tiebreaker !== "fcfs") {
+            _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
+          } else {
+            _tiebreaker = getRuleLabel(tiebreaker, b.player_id);
+          }
         }
       }
       return {
