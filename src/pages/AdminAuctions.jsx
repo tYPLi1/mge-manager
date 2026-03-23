@@ -835,7 +835,7 @@ export default function AdminAuctions() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {rankedBids.map((b) => (
-                      <tr key={b.id} className={b._rank <= 10 ? "" : "opacity-50"}>
+                      <tr key={b.id} className={`${b._rank <= 10 ? "" : "opacity-50"} ${b._friendlyZone ? "bg-emerald-500/5" : ""}`}>
                         <td className="px-2 py-1.5">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                             b._rank <= 3 ? "bg-amber-500/20 text-amber-400" :
