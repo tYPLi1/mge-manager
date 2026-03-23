@@ -768,8 +768,13 @@ export default function AdminAuctions() {
             {/* Bid Table */}
             {viewBids?.id === a.id && !showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                   <p className="text-xs text-gray-500">{activeBids.length} active bids{deletedBids.length > 0 ? ` · ${deletedBids.length} deleted` : ""}</p>
+                  {friendlyZoneEnabled && (
+                    <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5">
+                      Friendly Zone active (≤ {friendlyZoneThreshold} DKP)
+                    </span>
+                  )}
                 </div>
                 <div className="overflow-x-auto">
                 <table className="w-full">
