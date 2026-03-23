@@ -436,6 +436,8 @@ export default function AdminAuctions() {
         dkp_bid: entry.dkp_bid,
         target_score: entry.target,
         hero_medals: entry.medals,
+        tiebreaker_note: entry._tiebreaker || null,
+        is_friendly_zone: !!entry._friendlyZone,
       });
 
       await adminEntities.DKPTransaction.create({

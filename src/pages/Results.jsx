@@ -168,9 +168,14 @@ export default function Results() {
                         </td>
                         <td className="px-3 py-2.5">
                           <span className="text-sm font-medium text-white">{r.player_name}</span>
-                          {isTied && (
+                          {r.is_friendly_zone && (
+                            <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5">
+                              🤝 Friendly Zone
+                            </span>
+                          )}
+                          {r.tiebreaker_note && (
                             <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
-                              ⚖ Tie
+                              ⚖ {r.tiebreaker_note}
                             </span>
                           )}
                         </td>
