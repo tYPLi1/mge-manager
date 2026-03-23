@@ -280,7 +280,7 @@ export default function AdminPlayers() {
         const rawCooldown = hasCooldown ? row[cooldownCol] : null;
         // Normalize cooldown: could be Date object, serial number, or string
         const cooldown = hasCooldown ? normalizeDateValue(rawCooldown) : null;
-        const power = hasPower ? (Math.round(Number(row[powerCol])) || 0) : null;
+        const power = hasPower ? (row[powerCol] !== undefined && row[powerCol] !== null && row[powerCol] !== "" ? Math.round(Number(row[powerCol])) || 0 : null) : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
         // Try exact match first, then normalized match
