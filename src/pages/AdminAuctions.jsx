@@ -831,9 +831,14 @@ export default function AdminAuctions() {
                           </span>
                         </td>
                         <td className="px-2 py-1.5">
-                          {b.want_friendly_zone
-                            ? <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5">✓</span>
-                            : <span className="text-xs text-gray-600">—</span>}
+                          {b.want_friendly_zone ? (() => {
+                            const pl = players.find(p => p.id === b.player_id);
+                            const plDkp = pl ? (pl.total_dkp || 0) + (pl.dkp_spent || 0) : 0;
+                            const eligible = friendlyZoneEnabled && plDkp <= friendlyZoneThreshold;
+                            return eligible
+                              ? <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5" title={`${plDkp} DKP ≤ ${friendlyZoneThreshold}`}>✓ {plDkp}</span>
+                              : <span className="text-xs font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded px-1.5 py-0.5" title={`Opted in but ${plDkp} DKP > ${friendlyZoneThreshold}`}>⚠ {plDkp}</span>;
+                          })() : <span className="text-xs text-gray-600">—</span>}
                         </td>
                         <td className="px-2 py-1.5">
                           <div className="flex items-center gap-1">
