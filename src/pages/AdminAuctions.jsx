@@ -621,7 +621,7 @@ export default function AdminAuctions() {
   const activeBids = bids.filter((b) => !b.is_deleted);
   const deletedBids = bids.filter((b) => b.is_deleted);
 
-  // Ranked active bids with reason for each rank position
+  // Ranked active bids with reason for each rank position (includes FZ logic)
   const rankedBids = useMemo(() => {
     if (activeBids.length === 0) return [];
     const sorted = sortBids(activeBids);
@@ -630,10 +630,40 @@ export default function AdminAuctions() {
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
       return "Earlier bid";
     };
-    return sorted.map((b, i) => {
-      let rankReason = "Highest DKP bid";
-      if (i > 0 && b.dkp_bid === sorted[i - 1].dkp_bid) {
-        const tiedGroup = sorted.filter(t => t.dkp_bid === b.dkp_bid);
+
+    // Build the effective ranking with FZ logic applied
+    let effectiveTop;
+    let fzWinnerId = null;
+
+    if (friendlyZoneEnabled) {
+      const fzBids = sorted.filter(b => isFzEligible(b));
+      const nonFzBids = sorted.filter(b => !isFzEligible(b));
+
+      if (fzBids.length > 0) {
+        const fzWinner = fzBids[0];
+        fzWinnerId = fzWinner.id;
+        const top9 = nonFzBids.slice(0, 9);
+        if (top9.length < 9) {
+          const remainingFz = fzBids.filter(b => b.id !== fzWinner.id);
+          top9.push(...remainingFz.slice(0, 9 - top9.length));
+        }
+        // Rank 10 = FZ winner, ranks 1-9 = top9
+        effectiveTop = [...top9, { ...fzWinner, _friendlyZone: true }];
+        // Remaining bids after the top 10
+        const usedIds = new Set(effectiveTop.map(b => b.id));
+        const rest = sorted.filter(b => !usedIds.has(b.id));
+        effectiveTop = [...effectiveTop, ...rest];
+      } else {
+        effectiveTop = sorted;
+      }
+    } else {
+      effectiveTop = sorted;
+    }
+
+    return effectiveTop.map((b, i) => {
+      let rankReason = b._friendlyZone ? "Friendly Zone (Platz 10)" : "Highest DKP bid";
+      if (!b._friendlyZone && i > 0 && !effectiveTop[i - 1]._friendlyZone && b.dkp_bid === effectiveTop[i - 1].dkp_bid) {
+        const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
         const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
           const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
                         tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
@@ -649,7 +679,7 @@ export default function AdminAuctions() {
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
     });
-  }, [activeBids, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores]);
+  }, [activeBids, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores, friendlyZoneEnabled, friendlyZoneThreshold, players]);
 
   // Compute effective status client-side
   const getEffectiveStatus = (auction) => {
