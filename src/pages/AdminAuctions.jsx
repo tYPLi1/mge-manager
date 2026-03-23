@@ -472,31 +472,35 @@ export default function AdminAuctions() {
           let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
           if (r.target) line += ` | Target: ${r.target.toLocaleString()}`;
           if (r.medals) line += ` | Medals: ${r.medals}`;
+          if (r._friendlyZone) line += ` 🤝 _(Friendly Zone)_`;
           if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
           return line;
         }).join("\n");
 
         const hasTiebreakers = previewRanking.some(r => r._tiebreaker);
+        const hasFzWinner = previewRanking.some(r => r._friendlyZone);
         const ruleLabel = (rule) => {
           if (rule === "activity") return "Higher Activity Score";
           if (rule === "last_event_dkp") return "Most DKP in last event";
           return "First to bid";
         };
-        let tiebreakerNote = null;
-        if (hasTiebreakers) {
-          tiebreakerNote = `⚖ ${ruleLabel(tiebreaker)}`;
-          if (tiebreaker !== "fcfs") {
-            tiebreakerNote += `\n↳ Fallback: ${ruleLabel(tiebreakerFallback)}`;
-          }
+
+        // Build tiebreaker explanation
+        let tiebreakerNote = "";
+        tiebreakerNote += `⚖ **Primary:** ${ruleLabel(tiebreaker)}`;
+        if (tiebreaker !== "fcfs") {
+          tiebreakerNote += `\n↳ **Backup:** ${ruleLabel(tiebreakerFallback)}`;
         }
+        tiebreakerNote += `\n\n_Tiebreaker greift wenn 2+ Spieler das gleiche DKP-Gebot haben. Zuerst wird der Primary-Tiebreaker geprüft. Falls dort ebenfalls Gleichstand herrscht, entscheidet der Backup-Tiebreaker._`;
 
         const fields = [
           { name: "Winners (Top 10)", value: resultsText || "No results", inline: false },
           { name: "Total Participants", value: String(previewRanking.length), inline: true },
         ];
-        if (tiebreakerNote) {
-          fields.push({ name: "Tiebreaker", value: tiebreakerNote, inline: false });
+        if (hasFzWinner) {
+          fields.push({ name: "🤝 Friendly Zone", value: `Platz 10 reserviert für berechtigten FZ-Bieter (≤ ${friendlyZoneThreshold} DKP). Höchstes FZ-Gebot gewinnt.`, inline: false });
         }
+        fields.push({ name: "⚖ Tiebreaker-Regeln", value: tiebreakerNote, inline: false });
 
         const auctionPageUrl = "https://mge002.base44.app/Auction";
         fields.push({ name: "🔗 Link", value: `[View Auction](${auctionPageUrl})`, inline: false });
