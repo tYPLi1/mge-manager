@@ -1,4 +1,4 @@
-import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 
@@ -31,16 +31,12 @@ Deno.serve(async (req) => {
     if (!BOT_TOKEN) return Response.json({ skipped: true, reason: "No bot token" });
 
     const openAuctions = await service.entities.Auction.filter({ status: "open" });
-    const settings = await service.entities.AppSettings.list();
-    const channels = getTargetChannels(settings, 'reminder');
-
-    if (channels.length === 0) {
-      return Response.json({ skipped: true, reason: "No reminder channels configured" });
+    if (openAuctions.length === 0) {
+      return Response.json({ skipped: true, reason: "No open auctions" });
     }
 
+    // Only fetch settings if there are auctions that might need a reminder
     const now = new Date();
-    const auctionUrl = 'https://mge002.base44.app/Auction';
-
     function ensureUTC(dateStr) {
       if (!dateStr) return dateStr;
       if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.*[-+]/.test(dateStr)) {
@@ -49,6 +45,24 @@ Deno.serve(async (req) => {
       return dateStr;
     }
 
+    const needsReminder = openAuctions.some(a => {
+      if (!a.scheduled_close || a.reminder_sent) return false;
+      const diffMin = (new Date(ensureUTC(a.scheduled_close)) - now) / 60000;
+      return diffMin > 0 && diffMin <= 35;
+    });
+
+    if (!needsReminder) {
+      return Response.json({ skipped: true, reason: "No auctions need reminder right now" });
+    }
+
+    const settings = await service.entities.AppSettings.list();
+    const channels = getTargetChannels(settings, 'reminder');
+
+    if (channels.length === 0) {
+      return Response.json({ skipped: true, reason: "No reminder channels configured" });
+    }
+
+    const auctionUrl = 'https://mge002.base44.app/Auction';
     let remindersSent = 0;
 
     for (const auction of openAuctions) {
