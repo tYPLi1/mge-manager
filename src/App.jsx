@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AdminUserManagement from '@/pages/AdminUserManagement';
+import DesignPreview from '@/pages/DesignPreview';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
           <AdminUserManagement />
         </LayoutWrapper>
       } />
+      <Route path="/DesignPreview" element={<DesignPreview />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
