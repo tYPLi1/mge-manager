@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from "lucide-react";
 
 const DEFAULT_CONFIG = {
@@ -14,16 +13,16 @@ const DEFAULT_CONFIG = {
 };
 
 export default function PenaltyConfigEditor({ value, onChange }) {
-  const [config, setConfig] = useState(DEFAULT_CONFIG);
-
-  useEffect(() => {
+  // Pure derivation from value — no local state, no effects, no sync bugs.
+  const config = useMemo(() => {
     try {
-      if (value) setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(value) });
-    } catch {}
+      return value ? { ...DEFAULT_CONFIG, ...JSON.parse(value) } : DEFAULT_CONFIG;
+    } catch {
+      return DEFAULT_CONFIG;
+    }
   }, [value]);
 
   const update = (newConfig) => {
-    setConfig(newConfig);
     onChange(JSON.stringify(newConfig, null, 2));
   };
 

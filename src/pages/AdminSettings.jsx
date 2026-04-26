@@ -70,39 +70,17 @@ export default function AdminSettings() {
     staleTime: Infinity,
   });
 
+  // Initialize form once from server settings. After that, the local form is
+  // source-of-truth — server refetches never overwrite user edits.
+  const initializedRef = useRef(false);
   useEffect(() => {
-    const currentForm = formRef.current;
-    const currentSnap = savedSnapshotRef.current;
-    const newSnap = {};
-    settings.forEach((s) => { newSnap[s.key] = s.value; });
-
-    // Skip update if snapshot content is identical (prevents render loops on refetch)
-    const snapKeys = Object.keys(newSnap);
-    const oldKeys = Object.keys(currentSnap);
-    const snapChanged = snapKeys.length !== oldKeys.length ||
-      snapKeys.some(k => String(newSnap[k]) !== String(currentSnap[k]));
-    if (!snapChanged) return;
-
-    // Preserve user edits for keys that were modified from the saved snapshot
-    const newForm = {};
-    Object.keys(newSnap).forEach(key => {
-      if (currentForm[key] !== undefined && currentSnap[key] !== undefined &&
-          String(currentForm[key]) !== String(currentSnap[key])) {
-        // User had unsaved changes for this key — keep their edit
-        newForm[key] = currentForm[key];
-      } else {
-        newForm[key] = newSnap[key];
-      }
-    });
-    // Also keep any form keys that don't exist in settings yet (new settings)
-    Object.keys(currentForm).forEach(key => {
-      if (!(key in newForm)) {
-        newForm[key] = currentForm[key];
-      }
-    });
-
-    setSavedSnapshot(newSnap);
-    setForm(newForm);
+    if (initializedRef.current) return;
+    if (settings.length === 0) return;
+    const snap = {};
+    settings.forEach((s) => { snap[s.key] = s.value; });
+    setSavedSnapshot(snap);
+    setForm(snap);
+    initializedRef.current = true;
   }, [settings]);
 
   // Detect changed keys
