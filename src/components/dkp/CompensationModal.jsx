@@ -239,8 +239,8 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                         className="bg-white/5 border-white/10 text-white h-8 w-24 text-sm"
                       />
                     </td>
-                    <td className="px-2 py-2 text-sm text-amber-400 font-mono font-semibold">
-                      {r.selected && r.compDkp > 0 ? `+${r.compDkp}` : "—"}
+                    <td className={`px-2 py-2 text-sm font-mono font-semibold ${r.selected ? "text-amber-400" : "text-gray-500"}`}>
+                      {r.compDkp > 0 ? `+${r.compDkp}` : "—"}
                     </td>
                     <td className="px-2 py-2 text-xs text-gray-400 hidden md:table-cell">
                       {r.medalDiff > 0 ? <span className="text-orange-400">−{r.medalDiff}</span> : <span className="text-gray-600">{t("compensation.discord.noMedals")}</span>}
