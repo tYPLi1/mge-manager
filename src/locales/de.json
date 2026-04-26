@@ -152,7 +152,11 @@
       "playerNotFound": "Spieler nicht gefunden"
     },
     "fixBadge": "Fix",
-    "resultColumn": "Fix"
+    "resultColumn": "Fix",
+    "inlineTitle": "Fix vergebene Ränge",
+    "inlineHint": "(Gebote auf einen fixen Rang rutschen automatisch um ihn herum)",
+    "saved": "Fix-Vergaben aktualisiert",
+    "saveFailed": "Speichern fehlgeschlagen"
   },
   "charts": {
     "title": "Diagramme",
@@ -241,6 +245,13 @@
       "medals": "Medaillen",
       "targetScore": "Ziel-Score",
       "notes": "Notizen"
+    },
+    "compensations": {
+      "title": "Kompensationen",
+      "player": "Spieler",
+      "dkp": "DKP",
+      "date": "Datum",
+      "note": "Notiz"
     }
   },
   "transactions": {
@@ -284,6 +295,18 @@
     "divisorMissing": "Gutschrifts-Divisor ist nicht konfiguriert. Stelle ihn in den Einstellungen ein.",
     "noEligible": "Keine berechtigten Bieter gefunden.",
     "selectAll": "Alle auswählen",
+    "cancel": "Abbrechen",
+    "reserveNextHint": "ℹ „Nächste reservieren\" reserviert den Rang in einer kommenden Auktion — dafür gibt es keine DKP-Gutschrift.",
+    "reservationTarget": "Ziel-Auktion für Reservierung",
+    "reservationTargetMissing": "Bitte wähle eine Ziel-Auktion für die Reservierungen.",
+    "reservationTargetUnavailable": "Ausgewählte Ziel-Auktion nicht mehr verfügbar — Reservierungen übersprungen.",
+    "reservationSkipped": "Reservierung übersprungen (Rang/Spieler bereits fix): {{names}}",
+    "reservedLabel": "reserviert",
+    "auctionStatus": {
+      "draft": "Entwurf",
+      "open": "offen"
+    },
+    "opensLabel": "öffnet",
     "columns": {
       "select": "Auswahl",
       "player": "Spieler",
@@ -291,13 +314,16 @@
       "wonRank": "Gewonnener Rang",
       "achievedRank": "Erreichter Rang",
       "compensationDkp": "Gutschrift DKP",
-      "medalDiff": "Medaillen-Diff."
+      "medalDiff": "Medaillen-Diff.",
+      "reserveNext": "Nächste reservieren"
     },
     "noRank": "Kein Rang",
     "achievedHint": "Leer lassen, wenn kein Rang erreicht",
+    "reserveNextOnlyIfNoRank": "Nur wenn kein Rang erreicht",
     "summary": "{{count}} Spieler ausgewählt · {{dkp}} DKP insgesamt",
     "submit": "Vergeben & benachrichtigen",
     "submitting": "Wird vergeben…",
+    "submitFailed": "Gutschriften konnten nicht vergeben werden",
     "successToast": "Gutschrift an {{count}} Spieler vergeben",
     "discord": {
       "title": "💰 Auktions-Gutschriften",

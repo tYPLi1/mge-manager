@@ -176,7 +176,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
       if (reservations.length > 0) {
         const target = reservableAuctions.find(a => a.id === reservationTargetId);
         if (!target) {
-          toast.warning("Selected target auction no longer available — reservations skipped.");
+          toast.warning(t("compensation.reservationTargetUnavailable"));
         } else {
           // Re-fetch fresh to avoid overwriting concurrent edits
           const fresh = await adminEntities.Auction.get(target.id).catch(() => target);
@@ -204,7 +204,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
             fixed_assignments: JSON.stringify(existing),
           });
           if (skipped.length > 0) {
-            toast.warning(`Reservation skipped (rank/player already fixed): ${skipped.join(", ")}`);
+            toast.warning(t("compensation.reservationSkipped", { names: skipped.join(", ") }));
           }
         }
       }
@@ -214,7 +214,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error(err?.message || "Failed to award compensations");
+      toast.error(err?.message || t("compensation.submitFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -229,7 +229,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
     }
     const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
     if (reservations.length > 0 && !reservationTargetId) {
-      toast.error("Please select a target auction for reservations.");
+      toast.error(t("compensation.reservationTargetMissing"));
       return;
     }
     // Show Discord preview first — user decides whether to send DC, then we run doSubmit
@@ -255,7 +255,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
             ⚖ {formula ? <>Formula: <code className="font-mono">{formula}</code></> : t("compensation.divisorMissing")}
           </p>
           <p className="text-[11px] text-amber-300/70 mt-1">
-            ℹ "Reserve next" reserviert den Rang in einer kommenden Auktion — dafür gibt es <b>keine</b> DKP-Gutschrift.
+            {t("compensation.reserveNextHint")}
           </p>
         </div>
 
@@ -263,18 +263,22 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         {reservableAuctions.length > 0 && (
           <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
-              Reservation target auction
+              {t("compensation.reservationTarget")}
             </label>
             <select
               value={reservationTargetId}
               onChange={(e) => setReservationTargetId(e.target.value)}
               className="w-full bg-white/5 border border-white/10 text-white text-sm rounded-md px-2 py-1.5 dark-select"
             >
-              {reservableAuctions.map((a) => (
-                <option key={a.id} value={a.id} className="bg-[#111827]">
-                  {a.title} — {a.status}{a.scheduled_open ? ` · opens ${new Date(a.scheduled_open).toLocaleString("en-GB", { timeZone: "UTC" })} UTC` : ""}
-                </option>
-              ))}
+              {reservableAuctions.map((a) => {
+                const statusLabel = t(`compensation.auctionStatus.${a.status}`);
+                const opensLabel = a.scheduled_open ? ` · ${t("compensation.opensLabel")} ${new Date(a.scheduled_open).toLocaleString("en-GB", { timeZone: "UTC" })} UTC` : "";
+                return (
+                  <option key={a.id} value={a.id} className="bg-[#111827]">
+                    {a.title} — {statusLabel}{opensLabel}
+                  </option>
+                );
+              })}
             </select>
           </div>
         )}
@@ -295,7 +299,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">{t("compensation.columns.achievedRank")}</th>
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">{t("compensation.columns.compensationDkp")}</th>
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("compensation.columns.medalDiff")}</th>
-                  <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Reserve next</th>
+                  <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">{t("compensation.columns.reserveNext")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -331,7 +335,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                       />
                     </td>
                     <td className={`px-2 py-2 text-sm font-mono font-semibold ${r.selected ? "text-amber-400" : "text-gray-500"}`}>
-                      {r.reserveNext ? <span className="text-blue-400 text-xs">reserved</span> : (r.compDkp > 0 ? `+${r.compDkp}` : "—")}
+                      {r.reserveNext ? <span className="text-blue-400 text-xs">{t("compensation.reservedLabel")}</span> : (r.compDkp > 0 ? `+${r.compDkp}` : "—")}
                     </td>
                     <td className="px-2 py-2 text-xs text-gray-400 hidden md:table-cell">
                       {r.medalDiff > 0 ? <span className="text-orange-400">−{r.medalDiff}</span> : <span className="text-gray-600">{t("compensation.discord.noMedals")}</span>}
@@ -348,7 +352,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                           <span>#{r.wonRank}</span>
                         </label>
                       ) : (
-                        <span className="text-[11px] text-gray-600" title="Only when no rank achieved">—</span>
+                        <span className="text-[11px] text-gray-600" title={t("compensation.reserveNextOnlyIfNoRank")}>—</span>
                       )}
                     </td>
                   </tr>
@@ -366,7 +370,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
 
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">
-            Cancel
+            {t("compensation.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}

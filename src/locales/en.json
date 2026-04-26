@@ -152,7 +152,11 @@
       "playerNotFound": "Player not found"
     },
     "fixBadge": "Fix",
-    "resultColumn": "Fix"
+    "resultColumn": "Fix",
+    "inlineTitle": "Pre-assigned Ranks",
+    "inlineHint": "(Bids on a fixed rank automatically slide around it)",
+    "saved": "Fixed assignments updated",
+    "saveFailed": "Failed to save"
   },
   "charts": {
     "title": "Charts",
@@ -241,6 +245,13 @@
       "medals": "Medals",
       "targetScore": "Target Score",
       "notes": "Notes"
+    },
+    "compensations": {
+      "title": "Compensations",
+      "player": "Player",
+      "dkp": "DKP",
+      "date": "Date",
+      "note": "Note"
     }
   },
   "transactions": {
@@ -284,6 +295,18 @@
     "divisorMissing": "Compensation Formula Divisor not configured. Set it in Settings.",
     "noEligible": "No eligible bidders found.",
     "selectAll": "Select all",
+    "cancel": "Cancel",
+    "reserveNextHint": "ℹ \"Reserve next\" reserves the rank in an upcoming auction — no DKP credit is granted.",
+    "reservationTarget": "Reservation target auction",
+    "reservationTargetMissing": "Please select a target auction for reservations.",
+    "reservationTargetUnavailable": "Selected target auction no longer available — reservations skipped.",
+    "reservationSkipped": "Reservation skipped (rank/player already fixed): {{names}}",
+    "reservedLabel": "reserved",
+    "auctionStatus": {
+      "draft": "draft",
+      "open": "open"
+    },
+    "opensLabel": "opens",
     "columns": {
       "select": "Select",
       "player": "Player",
@@ -291,13 +314,16 @@
       "wonRank": "Won rank",
       "achievedRank": "Achieved rank",
       "compensationDkp": "Compensation DKP",
-      "medalDiff": "Medal diff"
+      "medalDiff": "Medal diff",
+      "reserveNext": "Reserve next"
     },
     "noRank": "No rank",
     "achievedHint": "Leave empty if no rank achieved",
+    "reserveNextOnlyIfNoRank": "Only when no rank achieved",
     "summary": "{{count}} player(s) selected · {{dkp}} DKP total",
     "submit": "Award & Notify",
     "submitting": "Awarding…",
+    "submitFailed": "Failed to award compensations",
     "successToast": "Awarded compensation to {{count}} player(s)",
     "discord": {
       "title": "💰 Auction Compensations",

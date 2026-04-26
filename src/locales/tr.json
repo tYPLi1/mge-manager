@@ -152,7 +152,11 @@
       "playerNotFound": "Oyuncu bulunamadı"
     },
     "fixBadge": "Sbt",
-    "resultColumn": "Sbt"
+    "resultColumn": "Sbt",
+    "inlineTitle": "Sabit Verilen Sıralar",
+    "inlineHint": "(Sabit bir sıraya verilen teklifler otomatik olarak çevresinde kayar)",
+    "saved": "Sabit atamalar güncellendi",
+    "saveFailed": "Kaydetme başarısız"
   },
   "charts": {
     "title": "Grafikler",
@@ -241,6 +245,13 @@
       "medals": "Madalya",
       "targetScore": "Hedef Skor",
       "notes": "Notlar"
+    },
+    "compensations": {
+      "title": "Tazminatlar",
+      "player": "Oyuncu",
+      "dkp": "DKP",
+      "date": "Tarih",
+      "note": "Not"
     }
   },
   "transactions": {
@@ -284,6 +295,18 @@
     "divisorMissing": "Tazminat Formül Bölücüsü ayarlanmamış. Ayarlardan yapılandır.",
     "noEligible": "Uygun teklif sahibi bulunamadı.",
     "selectAll": "Tümünü seç",
+    "cancel": "İptal",
+    "reserveNextHint": "ℹ \"Sonrakini ayır\" sırayı bir sonraki açık artırmada ayırır — DKP iadesi yapılmaz.",
+    "reservationTarget": "Ayırma için hedef açık artırma",
+    "reservationTargetMissing": "Lütfen ayırmalar için bir hedef açık artırma seç.",
+    "reservationTargetUnavailable": "Seçilen hedef açık artırma artık uygun değil — ayırmalar atlandı.",
+    "reservationSkipped": "Ayırma atlandı (sıra/oyuncu zaten sabit): {{names}}",
+    "reservedLabel": "ayrıldı",
+    "auctionStatus": {
+      "draft": "taslak",
+      "open": "açık"
+    },
+    "opensLabel": "açılış",
     "columns": {
       "select": "Seç",
       "player": "Oyuncu",
@@ -291,13 +314,16 @@
       "wonRank": "Kazanılan sıra",
       "achievedRank": "Ulaşılan sıra",
       "compensationDkp": "Tazminat DKP",
-      "medalDiff": "Madalya farkı"
+      "medalDiff": "Madalya farkı",
+      "reserveNext": "Sonrakini ayır"
     },
     "noRank": "Sıra yok",
     "achievedHint": "Sıra alınmadıysa boş bırak",
+    "reserveNextOnlyIfNoRank": "Yalnızca sıra alınmadığında",
     "summary": "{{count}} oyuncu seçildi · toplam {{dkp}} DKP",
     "submit": "Ver & Bildir",
     "submitting": "Veriliyor…",
+    "submitFailed": "Tazminatlar verilemedi",
     "successToast": "{{count}} oyuncuya tazminat verildi",
     "discord": {
       "title": "💰 Açık Artırma Tazminatları",

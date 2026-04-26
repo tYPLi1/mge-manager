@@ -221,7 +221,7 @@ export default function Results() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <Award size={14} style={{ color: "var(--dp-accent)" }} />
                 <h3 className="dp-heading" style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
-                  Kompensationen
+                  {t("results.compensations.title")}
                 </h3>
                 <span style={{ fontSize: 11, color: "var(--dp-text-dim)" }}>
                   ({compensations.length})
@@ -231,7 +231,7 @@ export default function Results() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 480 }}>
                   <thead>
                     <tr style={{ background: "var(--dp-bg-elevated)" }}>
-                      {["Player", "DKP", "Date", "Note"].map((h, i) => (
+                      {[t("results.compensations.player"), t("results.compensations.dkp"), t("results.compensations.date"), t("results.compensations.note")].map((h, i) => (
                         <th key={i} style={{
                           textAlign: i === 1 ? "right" : "left",
                           padding: "8px 14px",

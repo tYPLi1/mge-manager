@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Pin, Plus, X, Loader2 } from "lucide-react";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Inline editor to add/remove fixed_assignments on an existing auction
@@ -13,6 +14,7 @@ import { toast } from "sonner";
  * the existing previewRanking logic in AdminAuctions handles that on confirm.
  */
 export default function InlineFixedAssignmentsEditor({ auction, players, maxRanks, onChanged }) {
+  const { t } = useTranslation();
   const initial = (() => {
     try { return JSON.parse(auction.fixed_assignments || "[]") || []; } catch { return []; }
   })();
@@ -37,10 +39,10 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
       });
       setList(next);
       onChanged?.();
-      toast.success("Fixed assignments updated");
+      toast.success(t("fixedRanks.saved"));
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save");
+      toast.error(t("fixedRanks.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -49,14 +51,14 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
   const handleAdd = async () => {
     setError("");
     const rankNum = parseInt(draftRank, 10);
-    if (!rankNum || rankNum < 1 || rankNum > maxRanks) { setError(`Rank must be between 1 and ${maxRanks}`); return; }
-    if (usedRanks.has(rankNum)) { setError(`Rank ${rankNum} already fixed`); return; }
-    if (!draftPlayer) { setError("Select a player"); return; }
-    if (usedPlayerIds.has(draftPlayer)) { setError("Player already fixed"); return; }
-    if (!draftReason.trim()) { setError("Reason required"); return; }
+    if (!rankNum || rankNum < 1 || rankNum > maxRanks) { setError(t("fixedRanks.errors.rankRange", { max: maxRanks })); return; }
+    if (usedRanks.has(rankNum)) { setError(t("fixedRanks.errors.rankUsed", { rank: rankNum })); return; }
+    if (!draftPlayer) { setError(t("fixedRanks.errors.selectPlayer")); return; }
+    if (usedPlayerIds.has(draftPlayer)) { setError(t("fixedRanks.errors.playerUsed")); return; }
+    if (!draftReason.trim()) { setError(t("fixedRanks.errors.reasonRequired")); return; }
 
     const player = players.find(p => p.id === draftPlayer);
-    if (!player) { setError("Player not found"); return; }
+    if (!player) { setError(t("fixedRanks.errors.playerNotFound")); return; }
 
     const next = [...list, {
       rank: rankNum,
@@ -78,9 +80,9 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
     <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3 space-y-3">
       <div className="flex items-center gap-2">
         <Pin className="w-4 h-4 text-amber-400" />
-        <h4 className="text-sm font-semibold text-white">Fix vergebene Ränge</h4>
+        <h4 className="text-sm font-semibold text-white">{t("fixedRanks.inlineTitle")}</h4>
         <span className="text-[10px] text-gray-500">
-          (Bids auf einen fixen Rang rutschen automatisch um ihn herum)
+          {t("fixedRanks.inlineHint")}
         </span>
       </div>
 
@@ -98,7 +100,7 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
                 onClick={() => handleRemove(a.rank)}
                 disabled={saving}
                 className="ml-auto text-gray-500 hover:text-red-400 disabled:opacity-50"
-                title="Remove"
+                title={t("fixedRanks.remove")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -109,7 +111,7 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <div>
-          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Rank</Label>
+          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.rank")}</Label>
           <Input
             type="number"
             min={1}
@@ -121,21 +123,21 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
           />
         </div>
         <div className="sm:col-span-2">
-          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Player</Label>
+          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.player")}</Label>
           <PlayerSearchSelect
             players={players.filter(p => !usedPlayerIds.has(p.id))}
             value={draftPlayer}
             onValueChange={setDraftPlayer}
-            placeholder="Select player…"
+            placeholder={t("fixedRanks.playerPlaceholder")}
           />
         </div>
       </div>
       <div>
-        <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Reason</Label>
+        <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.reason")}</Label>
         <Input
           value={draftReason}
           onChange={(e) => setDraftReason(e.target.value)}
-          placeholder="e.g. Compensation, Pre-allocated"
+          placeholder={t("fixedRanks.reasonPlaceholder")}
           className="bg-white/5 border-white/10 text-white h-9"
         />
       </div>
@@ -148,7 +150,7 @@ export default function InlineFixedAssignmentsEditor({ auction, players, maxRank
         className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30"
       >
         {saving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Plus className="w-3.5 h-3.5 mr-1" />}
-        Add fixed rank
+        {t("fixedRanks.addButton")}
       </Button>
     </div>
   );
