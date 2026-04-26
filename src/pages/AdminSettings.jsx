@@ -70,6 +70,13 @@ export default function AdminSettings() {
     const newSnap = {};
     settings.forEach((s) => { newSnap[s.key] = s.value; });
 
+    // Skip update if snapshot content is identical (prevents render loops on refetch)
+    const snapKeys = Object.keys(newSnap);
+    const oldKeys = Object.keys(currentSnap);
+    const snapChanged = snapKeys.length !== oldKeys.length ||
+      snapKeys.some(k => String(newSnap[k]) !== String(currentSnap[k]));
+    if (!snapChanged) return;
+
     // Preserve user edits for keys that were modified from the saved snapshot
     const newForm = {};
     Object.keys(newSnap).forEach(key => {
