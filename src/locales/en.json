@@ -276,6 +276,38 @@
     },
     "transactionsLabel": "{{count}} transactions"
   },
+  "compensation": {
+    "button": "Compensations",
+    "title": "Award Compensations",
+    "subtitle": "Compensate bidders who didn't get their target rank.",
+    "formula": "Formula: bid ÷ {{divisor}} = compensation DKP",
+    "divisorMissing": "Compensation Formula Divisor not configured. Set it in Settings.",
+    "noEligible": "No eligible bidders found.",
+    "selectAll": "Select all",
+    "columns": {
+      "select": "Select",
+      "player": "Player",
+      "bid": "Bid (DKP)",
+      "wonRank": "Won rank",
+      "achievedRank": "Achieved rank",
+      "compensationDkp": "Compensation DKP",
+      "medalDiff": "Medal diff"
+    },
+    "noRank": "No rank",
+    "achievedHint": "Leave empty if no rank achieved",
+    "summary": "{{count}} player(s) selected · {{dkp}} DKP total",
+    "submit": "Award & Notify",
+    "submitting": "Awarding…",
+    "successToast": "Awarded compensation to {{count}} player(s)",
+    "discord": {
+      "title": "💰 Auction Compensations",
+      "description": "Compensations for {{auction}}",
+      "fieldLabel": "Recipients",
+      "noMedals": "no medals lost",
+      "lineFormat": "**{{player}}** — +{{dkp}} DKP _(bid {{bid}}, achieved {{achieved}})_"
+    },
+    "txNote": "Compensation: {{auction}} (achieved rank {{achieved}}, won rank {{won}})"
+  },
   "punishments": {
     "title": "Punishments",
     "subtitle": "Active probations and reset history",
@@ -352,7 +384,9 @@
       "penaltyConfig": "Penalty Configuration",
       "discordTitle": "Discord Bot — Server & Channels",
       "discordDesc": "Configure multiple Discord servers. Per server you can decide which messages go to which channel. The bot sends with @everyone and a link to the app.",
-      "discordHint": "💡 Right-click on a channel → \"Copy ID\" (enable Developer Mode in Discord)"
+      "discordHint": "💡 Right-click on a channel → \"Copy ID\" (enable Developer Mode in Discord)",
+      "compensationDivisor": "Compensation Formula Divisor",
+      "compensationDivisorDesc": "When awarding compensations, the player's bid is divided by this value to calculate refunded DKP."
     },
     "auctionConfig": {
       "title": "Auction Configuration",

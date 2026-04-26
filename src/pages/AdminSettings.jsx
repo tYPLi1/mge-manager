@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Save } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ const SETTING_LABELS = {
   cooldown_table: "Cooldown Table",
   penalty_config: "Penalty Configuration",
   discord_servers: "Discord Server Config",
+  compensation_formula_divisor: "Compensation Formula Divisor",
 };
 
 export default function AdminSettings() {
@@ -233,6 +235,21 @@ export default function AdminSettings() {
           <PenaltyConfigEditor
             value={form.penalty_config}
             onChange={(val) => setForm({ ...form, penalty_config: val })}
+          />
+        </div>
+
+        {/* Compensation Formula */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-2">{t("admin.settings.compensationDivisor")}</h3>
+          <p className="text-xs text-gray-500 mb-3">{t("admin.settings.compensationDivisorDesc")}</p>
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={form.compensation_formula_divisor || ""}
+            onChange={(e) => setForm({ ...form, compensation_formula_divisor: e.target.value })}
+            placeholder="e.g. 2"
+            className="bg-white/5 border-white/10 text-white max-w-[200px]"
           />
         </div>
 

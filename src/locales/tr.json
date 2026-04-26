@@ -276,6 +276,38 @@
     },
     "transactionsLabel": "{{count}} işlem"
   },
+  "compensation": {
+    "button": "Tazminatlar",
+    "title": "Tazminat Ver",
+    "subtitle": "Hedeflediği sırayı alamayan teklif sahiplerini tazmin et.",
+    "formula": "Formül: teklif ÷ {{divisor}} = tazminat DKP",
+    "divisorMissing": "Tazminat Formül Bölücüsü ayarlanmamış. Ayarlardan yapılandır.",
+    "noEligible": "Uygun teklif sahibi bulunamadı.",
+    "selectAll": "Tümünü seç",
+    "columns": {
+      "select": "Seç",
+      "player": "Oyuncu",
+      "bid": "Teklif (DKP)",
+      "wonRank": "Kazanılan sıra",
+      "achievedRank": "Ulaşılan sıra",
+      "compensationDkp": "Tazminat DKP",
+      "medalDiff": "Madalya farkı"
+    },
+    "noRank": "Sıra yok",
+    "achievedHint": "Sıra alınmadıysa boş bırak",
+    "summary": "{{count}} oyuncu seçildi · toplam {{dkp}} DKP",
+    "submit": "Ver & Bildir",
+    "submitting": "Veriliyor…",
+    "successToast": "{{count}} oyuncuya tazminat verildi",
+    "discord": {
+      "title": "💰 Açık Artırma Tazminatları",
+      "description": "{{auction}} için tazminatlar",
+      "fieldLabel": "Alıcılar",
+      "noMedals": "madalya kaybı yok",
+      "lineFormat": "**{{player}}** — +{{dkp}} DKP _(teklif {{bid}}, ulaşılan {{achieved}})_"
+    },
+    "txNote": "Tazminat: {{auction}} (ulaşılan sıra {{achieved}}, kazanılan sıra {{won}})"
+  },
   "punishments": {
     "title": "Cezalar",
     "subtitle": "Aktif şartlı tahliye ve sıfırlama geçmişi",
@@ -352,7 +384,9 @@
       "penaltyConfig": "Ceza Yapılandırması",
       "discordTitle": "Discord Bot — Sunucu & Kanallar",
       "discordDesc": "Birden fazla Discord sunucusu yapılandır. Her sunucu için hangi mesajın hangi kanala gideceğini belirleyebilirsin. Bot, @everyone ve uygulama bağlantısı ile gönderir.",
-      "discordHint": "💡 Bir kanala sağ tıkla → „Kimliği Kopyala\" (Discord'da Developer Mode'u etkinleştir)"
+      "discordHint": "💡 Bir kanala sağ tıkla → „Kimliği Kopyala\" (Discord'da Developer Mode'u etkinleştir)",
+      "compensationDivisor": "Tazminat Formül Bölücüsü",
+      "compensationDivisorDesc": "Tazminat verilirken oyuncunun teklifi bu değere bölünerek iade edilen DKP hesaplanır."
     },
     "auctionConfig": {
       "title": "Açık Artırma Yapılandırması",

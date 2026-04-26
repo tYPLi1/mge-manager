@@ -2,7 +2,9 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock, Loader2 } from "lucide-react";
+import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock, Loader2, Coins } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
+import CompensationModal from "@/components/dkp/CompensationModal";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -130,6 +132,8 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
 }
 
 export default function AdminAuctions() {
+  const { t } = useTranslation();
+  const [compensationAuction, setCompensationAuction] = useState(null);
   const [title, setTitle] = useState("");
   const [scheduledOpen, setScheduledOpen] = useState("");
   const [scheduledClose, setScheduledClose] = useState("");
@@ -219,6 +223,23 @@ export default function AdminAuctions() {
     const v = parseInt(settings.find((s) => s.key === "auction_max_ranks")?.value || "10", 10);
     return Number.isFinite(v) && v > 0 ? v : 10;
   }, [settings]);
+
+  const compensationDivisor = useMemo(() => {
+    const v = parseInt(settings.find((s) => s.key === "compensation_formula_divisor")?.value || "0", 10);
+    return Number.isFinite(v) && v > 0 ? v : 0;
+  }, [settings]);
+
+  // Bids and results for the currently active compensation auction
+  const { data: compensationBids = [] } = useQuery({
+    queryKey: ["bids-comp", compensationAuction?.id],
+    queryFn: () => compensationAuction ? base44.entities.Bid.filter({ auction_id: compensationAuction.id }, "-dkp_bid", 500) : [],
+    enabled: !!compensationAuction,
+  });
+  const { data: compensationResults = [] } = useQuery({
+    queryKey: ["results-comp", compensationAuction?.id],
+    queryFn: () => compensationAuction ? base44.entities.AuctionResult.filter({ auction_id: compensationAuction.id }, "rank", 100) : [],
+    enabled: !!compensationAuction,
+  });
 
   // Parse fixed assignments for the currently viewed auction
   const currentFixedAssignments = useMemo(() => {
@@ -903,6 +924,15 @@ export default function AdminAuctions() {
                     {showPreview ? "Hide Preview" : "Ranking Preview"}
                   </Button>
                 )}
+                {a.status === "confirmed" && (
+                  <Button
+                    size="sm"
+                    onClick={() => setCompensationAuction(a)}
+                    className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs hover:bg-amber-500/30"
+                  >
+                    <Coins className="w-3 h-3 mr-1" /> {t("compensation.button")}
+                  </Button>
+                )}
                 {/* Delete Button */}
                 <button
                   onClick={() => setDeleteModal(a)}
@@ -1125,6 +1155,21 @@ export default function AdminAuctions() {
           sendNow={discordPreview.sendNow !== undefined ? discordPreview.sendNow : true}
           onClose={() => setDiscordPreview(null)}
           onSent={discordPreview.onSent}
+        />
+      )}
+
+      {compensationAuction && (
+        <CompensationModal
+          auction={compensationAuction}
+          bids={compensationBids}
+          results={compensationResults}
+          mgeTargets={mgeTargets}
+          divisor={compensationDivisor}
+          onClose={() => setCompensationAuction(null)}
+          onDone={() => {
+            queryClient.invalidateQueries({ queryKey: ["players"] });
+            queryClient.invalidateQueries({ queryKey: ["transactions-activity"] });
+          }}
         />
       )}
     </div>

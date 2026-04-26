@@ -276,6 +276,38 @@
     },
     "transactionsLabel": "{{count}} Transaktionen"
   },
+  "compensation": {
+    "button": "Gutschriften",
+    "title": "Gutschriften vergeben",
+    "subtitle": "Bieter kompensieren, die ihren angestrebten Rang nicht erreicht haben.",
+    "formula": "Formel: Gebot ÷ {{divisor}} = Gutschrift DKP",
+    "divisorMissing": "Gutschrifts-Divisor ist nicht konfiguriert. Stelle ihn in den Einstellungen ein.",
+    "noEligible": "Keine berechtigten Bieter gefunden.",
+    "selectAll": "Alle auswählen",
+    "columns": {
+      "select": "Auswahl",
+      "player": "Spieler",
+      "bid": "Gebot (DKP)",
+      "wonRank": "Gewonnener Rang",
+      "achievedRank": "Erreichter Rang",
+      "compensationDkp": "Gutschrift DKP",
+      "medalDiff": "Medaillen-Diff."
+    },
+    "noRank": "Kein Rang",
+    "achievedHint": "Leer lassen, wenn kein Rang erreicht",
+    "summary": "{{count}} Spieler ausgewählt · {{dkp}} DKP insgesamt",
+    "submit": "Vergeben & benachrichtigen",
+    "submitting": "Wird vergeben…",
+    "successToast": "Gutschrift an {{count}} Spieler vergeben",
+    "discord": {
+      "title": "💰 Auktions-Gutschriften",
+      "description": "Gutschriften für {{auction}}",
+      "fieldLabel": "Empfänger",
+      "noMedals": "keine Medaillen verloren",
+      "lineFormat": "**{{player}}** — +{{dkp}} DKP _(Gebot {{bid}}, erreicht {{achieved}})_"
+    },
+    "txNote": "Gutschrift: {{auction}} (erreichter Rang {{achieved}}, gewonnener Rang {{won}})"
+  },
   "punishments": {
     "title": "Strafen",
     "subtitle": "Aktive Bewährungen und Reset-Verlauf",
@@ -352,7 +384,9 @@
       "penaltyConfig": "Strafen-Konfiguration",
       "discordTitle": "Discord Bot — Server & Channels",
       "discordDesc": "Konfiguriere mehrere Discord-Server. Pro Server kannst du festlegen, welche Nachrichten in welchen Channel gesendet werden. Der Bot sendet mit @everyone und einem Link zur App.",
-      "discordHint": "💡 Rechtsklick auf einen Channel → „ID kopieren\" (Developer Mode in Discord aktivieren)"
+      "discordHint": "💡 Rechtsklick auf einen Channel → „ID kopieren\" (Developer Mode in Discord aktivieren)",
+      "compensationDivisor": "Gutschrifts-Divisor",
+      "compensationDivisorDesc": "Bei Gutschriften wird das Gebot des Spielers durch diesen Wert geteilt, um die zurückerstattete DKP-Menge zu berechnen."
     },
     "auctionConfig": {
       "title": "Auktions-Konfiguration",

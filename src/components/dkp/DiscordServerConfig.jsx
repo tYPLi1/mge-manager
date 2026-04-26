@@ -11,6 +11,7 @@ const NOTIFICATION_TYPES = [
   { key: "results", label: "🏆 Results Notifications", desc: "When auction results are published" },
   { key: "events", label: "📊 Event Upload Notifications", desc: "When event data is uploaded" },
   { key: "penalties", label: "⚠️ Penalty Notifications", desc: "For penalties and compensations" },
+  { key: "compensation", label: "💰 Compensation Notifications", desc: "When auction compensations are awarded" },
   { key: "reminder", label: "⏰ Auction Reminder", desc: "~10 min before auction ends" },
   { key: "manual", label: "📢 Manual Messages", desc: "Manually sent messages" },
 ];
