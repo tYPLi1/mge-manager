@@ -225,8 +225,14 @@ export default function AdminAuctions() {
   }, [settings]);
 
   const compensationDivisor = useMemo(() => {
-    const v = parseInt(settings.find((s) => s.key === "compensation_formula_divisor")?.value || "0", 10);
-    return Number.isFinite(v) && v > 0 ? v : 0;
+    // Read from penalty_config.compensation_divisor (managed in PenaltyConfigEditor)
+    try {
+      const raw = settings.find((s) => s.key === "penalty_config")?.value;
+      if (!raw) return 0;
+      const cfg = JSON.parse(raw);
+      const v = parseFloat(cfg.compensation_divisor);
+      return Number.isFinite(v) && v > 0 ? v : 0;
+    } catch { return 0; }
   }, [settings]);
 
   // Bids and results for the currently active compensation auction

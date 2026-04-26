@@ -238,21 +238,6 @@ export default function AdminSettings() {
           />
         </div>
 
-        {/* Compensation Formula */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-2">{t("admin.settings.compensationDivisor")}</h3>
-          <p className="text-xs text-gray-500 mb-3">{t("admin.settings.compensationDivisorDesc")}</p>
-          <Input
-            type="number"
-            min="1"
-            step="1"
-            value={form.compensation_formula_divisor || ""}
-            onChange={(e) => setForm({ ...form, compensation_formula_divisor: e.target.value })}
-            placeholder="e.g. 2"
-            className="bg-white/5 border-white/10 text-white max-w-[200px]"
-          />
-        </div>
-
         {/* Discord Integration */}
          <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
            <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.discordTitle")}</h3>
