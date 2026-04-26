@@ -21,6 +21,29 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
   const { t } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
 
+  // Available target auctions for reservation (draft + open, excluding current)
+  const [reservableAuctions, setReservableAuctions] = useState([]);
+  const [reservationTargetId, setReservationTargetId] = useState("");
+
+  React.useEffect(() => {
+    let mounted = true;
+    adminEntities.Auction.list("-created_date", 200)
+      .then((all) => {
+        if (!mounted) return;
+        const list = (all || [])
+          .filter((a) => a.id !== auction.id && (a.status === "draft" || a.status === "open"))
+          .sort((a, b) => {
+            const ta = a.scheduled_open ? new Date(a.scheduled_open).getTime() : Infinity;
+            const tb = b.scheduled_open ? new Date(b.scheduled_open).getTime() : Infinity;
+            return ta - tb;
+          });
+        setReservableAuctions(list);
+        if (list.length > 0) setReservationTargetId(list[0].id);
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, [auction.id]);
+
   // Map: player_id -> won rank (from AuctionResult) — null if no rank won
   const wonRankByPlayer = useMemo(() => {
     const m = {};
@@ -73,14 +96,16 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
       const wonMedals = medalsForRank(wonRank);
       const achievedMedals = medalsForRank(achievedRank);
       const medalDiff = wonMedals - achievedMedals; // positive = lost medals
-      const compDkp = formula ? evalCompensationFormula(formula, {
+      const reserveNext = !!rs.reserveNext;
+      // No DKP compensation if the player is being reserved for the next auction
+      const compDkp = reserveNext ? 0 : (formula ? evalCompensationFormula(formula, {
         bid: b.dkp_bid || 0,
         wonRank: wonRank || 0,
         achievedRank: achievedRank || 0,
         wonMedals,
         achievedMedals,
         medalDiff,
-      }) : 0;
+      }) : 0);
       return {
         bid: b,
         wonRank,
@@ -89,7 +114,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         compDkp,
         medalDiff,
         selected: !!rs.selected,
-        reserveNext: !!rs.reserveNext,
+        reserveNext,
       };
     });
   }, [activeBids, rowState, wonRankByPlayer, formula]);
@@ -125,14 +150,21 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
 
   const handleSubmit = async () => {
     if (selectedRows.length === 0) return;
-    if (!formula) {
+    const hasDkpRows = selectedRows.some(r => !r.reserveNext);
+    if (hasDkpRows && !formula) {
       toast.error(t("compensation.divisorMissing"));
+      return;
+    }
+    const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
+    if (reservations.length > 0 && !reservationTargetId) {
+      toast.error("Please select a target auction for reservations.");
       return;
     }
     setSubmitting(true);
     try {
-      // 1) Create DKPTransaction (type=compensation, positive amount) + update player.dkp_spent (refund)
+      // 1) For DKP rows only: create DKPTransaction + update player.dkp_spent (refund)
       for (const r of selectedRows) {
+        if (r.reserveNext) continue; // skip — no DKP for reserved players
         const note = t("compensation.txNote", {
           auction: auction.title,
           achieved: r.achievedRank ? `#${r.achievedRank}` : t("compensation.noRank"),
@@ -147,7 +179,6 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
           event_date: today,
           note,
         });
-        // Refund: dkp_spent is stored as negative; adding positive amount reduces the spent amount
         const player = await adminEntities.Player.get(r.bid.player_id).catch(() => null);
         if (player) {
           await adminEntities.Player.update(r.bid.player_id, {
@@ -156,23 +187,16 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         }
       }
 
-      // 1b) Reserve fixed ranks in next draft auction for selected players with no achieved rank
-      const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
+      // 1b) Reserve fixed ranks in chosen target auction (draft or open)
       if (reservations.length > 0) {
-        const allAuctions = await adminEntities.Auction.list("-created_date", 200).catch(() => []);
-        const nextAuction = allAuctions
-          .filter(a => a.status === "draft" && a.id !== auction.id)
-          .sort((a, b) => {
-            const ta = a.scheduled_open ? new Date(a.scheduled_open).getTime() : Infinity;
-            const tb = b.scheduled_open ? new Date(b.scheduled_open).getTime() : Infinity;
-            return ta - tb;
-          })[0];
-
-        if (!nextAuction) {
-          toast.warning("No draft auction found — reservations skipped. Create the next auction first.");
+        const target = reservableAuctions.find(a => a.id === reservationTargetId);
+        if (!target) {
+          toast.warning("Selected target auction no longer available — reservations skipped.");
         } else {
+          // Re-fetch fresh to avoid overwriting concurrent edits
+          const fresh = await adminEntities.Auction.get(target.id).catch(() => target);
           let existing = [];
-          try { existing = JSON.parse(nextAuction.fixed_assignments || "[]") || []; } catch { existing = []; }
+          try { existing = JSON.parse(fresh.fixed_assignments || "[]") || []; } catch { existing = []; }
           const usedRanks = new Set(existing.map(a => Number(a.rank)));
           const usedPlayers = new Set(existing.map(a => a.player_id));
           const skipped = [];
@@ -191,7 +215,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
             usedPlayers.add(r.bid.player_id);
           }
           existing.sort((a, b) => Number(a.rank) - Number(b.rank));
-          await adminEntities.Auction.update(nextAuction.id, {
+          await adminEntities.Auction.update(target.id, {
             fixed_assignments: JSON.stringify(existing),
           });
           if (skipped.length > 0) {
@@ -243,7 +267,30 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
           <p className="text-xs text-amber-300">
             ⚖ {formula ? <>Formula: <code className="font-mono">{formula}</code></> : t("compensation.divisorMissing")}
           </p>
+          <p className="text-[11px] text-amber-300/70 mt-1">
+            ℹ "Reserve next" reserviert den Rang in einer kommenden Auktion — dafür gibt es <b>keine</b> DKP-Gutschrift.
+          </p>
         </div>
+
+        {/* Reservation target selector */}
+        {reservableAuctions.length > 0 && (
+          <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
+              Reservation target auction
+            </label>
+            <select
+              value={reservationTargetId}
+              onChange={(e) => setReservationTargetId(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 text-white text-sm rounded-md px-2 py-1.5 dark-select"
+            >
+              {reservableAuctions.map((a) => (
+                <option key={a.id} value={a.id} className="bg-[#111827]">
+                  {a.title} — {a.status}{a.scheduled_open ? ` · opens ${new Date(a.scheduled_open).toLocaleString("en-GB", { timeZone: "UTC" })} UTC` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {activeBids.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-6">{t("compensation.noEligible")}</p>
@@ -297,7 +344,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                       />
                     </td>
                     <td className={`px-2 py-2 text-sm font-mono font-semibold ${r.selected ? "text-amber-400" : "text-gray-500"}`}>
-                      {r.compDkp > 0 ? `+${r.compDkp}` : "—"}
+                      {r.reserveNext ? <span className="text-blue-400 text-xs">reserved</span> : (r.compDkp > 0 ? `+${r.compDkp}` : "—")}
                     </td>
                     <td className="px-2 py-2 text-xs text-gray-400 hidden md:table-cell">
                       {r.medalDiff > 0 ? <span className="text-orange-400">−{r.medalDiff}</span> : <span className="text-gray-600">{t("compensation.discord.noMedals")}</span>}
@@ -336,7 +383,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || selectedRows.length === 0 || !formula}
+            disabled={submitting || selectedRows.length === 0 || (selectedRows.some(r => !r.reserveNext) && !formula)}
             className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
             {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Coins className="w-4 h-4 mr-2" />}

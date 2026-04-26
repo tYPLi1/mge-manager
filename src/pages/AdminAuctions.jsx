@@ -13,6 +13,7 @@ import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import FixedAssignmentsEditor from "@/components/dkp/FixedAssignmentsEditor";
+import InlineFixedAssignmentsEditor from "@/components/dkp/InlineFixedAssignmentsEditor";
 
 const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
@@ -925,9 +926,9 @@ export default function AdminAuctions() {
                     <Square className="w-3 h-3 mr-1" /> Close
                   </Button>
                 )}
-                {(a.status === "open" || a.status === "closed") && (
+                {(a.status === "draft" || a.status === "open" || a.status === "closed") && (
                   <Button size="sm" variant="outline" onClick={() => { setViewBids(viewBids?.id === a.id ? null : a); setShowPreview(false); }} className="border-white/10 text-gray-300 text-xs hover:bg-white/5">
-                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : "Bids"}
+                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : (a.status === "draft" ? "Edit" : "Bids")}
                   </Button>
                 )}
                 {a.status === "closed" && viewBids?.id === a.id && (
@@ -958,7 +959,16 @@ export default function AdminAuctions() {
             {/* Bid Table */}
             {viewBids?.id === a.id && !showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
-                {currentFixedAssignments.length > 0 && (
+                {(a.status === "draft" || a.status === "open") ? (
+                  <div className="mb-3">
+                    <InlineFixedAssignmentsEditor
+                      auction={a}
+                      players={players}
+                      maxRanks={auctionMaxRanks}
+                      onChanged={() => queryClient.invalidateQueries({ queryKey: ["auctions"] })}
+                    />
+                  </div>
+                ) : currentFixedAssignments.length > 0 && (
                   <div className="mb-3 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
                     <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1">
                       📌 Fix vergebene Ränge
