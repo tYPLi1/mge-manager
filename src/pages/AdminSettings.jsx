@@ -48,6 +48,9 @@ export default function AdminSettings() {
   const { data: settings = [] } = useQuery({
     queryKey: ["settings"],
     queryFn: () => adminEntities.AppSettings.list(),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: Infinity,
   });
 
   // Build a stable lookup map from settings: key -> id
@@ -62,6 +65,9 @@ export default function AdminSettings() {
   const { data: eventTypes = [] } = useQuery({
     queryKey: ["event-types-settings"],
     queryFn: () => adminEntities.EventType.filter({ active: true }, "sort_order", 100),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: Infinity,
   });
 
   useEffect(() => {
