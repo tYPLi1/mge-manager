@@ -20,15 +20,18 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
   const { t } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
 
-  // Eligible bidders = bids that are NOT deleted (active bids only). The admin manually picks who to compensate.
-  const activeBids = useMemo(() => bids.filter(b => !b.is_deleted), [bids]);
-
   // Map: player_id -> won rank (from AuctionResult) — null if no rank won
   const wonRankByPlayer = useMemo(() => {
     const m = {};
     results.forEach(r => { m[r.player_id] = r.rank; });
     return m;
   }, [results]);
+
+  // Eligible = winners only (players with a rank in AuctionResult). Exclude deleted bids.
+  const activeBids = useMemo(
+    () => bids.filter(b => !b.is_deleted && wonRankByPlayer[b.player_id]),
+    [bids, wonRankByPlayer]
+  );
 
   // Per-row state: { [bidId]: { selected, achievedRank } }
   const [rowState, setRowState] = useState(() => {
