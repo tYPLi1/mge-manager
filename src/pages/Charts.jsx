@@ -7,8 +7,10 @@ import PageHeader from "@/components/dkp/PageHeader";
 import PlayerDKPChart from "@/components/dkp/PlayerDKPChart";
 import PlayerPowerChart from "@/components/dkp/PlayerPowerChart";
 import PlayerDKPCumulativeChart from "@/components/dkp/PlayerDKPCumulativeChart";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Charts() {
+  const { t } = useTranslation();
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
   const [search, setSearch] = useState("");
 
@@ -44,12 +46,12 @@ export default function Charts() {
 
   return (
     <div>
-      <PageHeader title="Charts" subtitle="Player statistics & history" icon={BarChart3} />
+      <PageHeader title={t("charts.title")} subtitle={t("charts.subtitle")} icon={BarChart3} />
 
       {/* Player Selector */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <p className="text-sm font-medium text-gray-400">Select Player</p>
+          <p className="text-sm font-medium text-gray-400">{t("charts.selectPlayer")}</p>
           {selectedPlayer && (
             <span className="text-sm text-amber-400 font-semibold">{selectedPlayer.name}</span>
           )}
@@ -57,7 +59,7 @@ export default function Charts() {
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Search player..."
+            placeholder={t("charts.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
@@ -96,7 +98,7 @@ export default function Charts() {
       ) : (
         <div className="bg-[#111827] rounded-xl border border-white/5 p-12 text-center">
           <BarChart3 className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Wähle einen Spieler aus, um die Statistiken zu sehen</p>
+          <p className="text-gray-500 text-sm">{t("charts.selectPrompt")}</p>
         </div>
       )}
     </div>

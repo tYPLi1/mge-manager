@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Trophy, AlertCircle, Loader2, ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '@/utils';
+import { useTranslation } from '@/lib/i18n';
 
 export default function AdminLogin() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -54,15 +56,15 @@ export default function AdminLogin() {
         // Progressive lockout: 5s after 3 fails, 30s after 5, 60s after 8
         if (newAttempts >= 8) {
           setLockedUntil(Date.now() + 60000);
-          setError('Too many failed attempts. Locked for 60 seconds.');
+          setError(t('adminLogin.lockedLong'));
         } else if (newAttempts >= 5) {
           setLockedUntil(Date.now() + 30000);
-          setError('Too many failed attempts. Locked for 30 seconds.');
+          setError(t('adminLogin.lockedMedium'));
         } else if (newAttempts >= 3) {
           setLockedUntil(Date.now() + 5000);
-          setError('Too many failed attempts. Please wait 5 seconds.');
+          setError(t('adminLogin.lockedShort'));
         } else {
-          setError(response.data.error || 'Login failed');
+          setError(response.data.error || t('adminLogin.loginFailed'));
         }
         setLoading(false);
         return;
@@ -83,15 +85,15 @@ export default function AdminLogin() {
       setFailedAttempts(newAttempts);
       if (newAttempts >= 8) {
         setLockedUntil(Date.now() + 60000);
-        setError('Too many failed attempts. Locked for 60 seconds.');
+        setError(t('adminLogin.lockedLong'));
       } else if (newAttempts >= 5) {
         setLockedUntil(Date.now() + 30000);
-        setError('Too many failed attempts. Locked for 30 seconds.');
+        setError(t('adminLogin.lockedMedium'));
       } else if (newAttempts >= 3) {
         setLockedUntil(Date.now() + 5000);
-        setError('Too many failed attempts. Please wait 5 seconds.');
+        setError(t('adminLogin.lockedShort'));
       } else {
-        setError(err.response?.data?.error || err.message || 'Login failed. Please try again.');
+        setError(err.response?.data?.error || err.message || t('adminLogin.loginFailedRetry'));
       }
       setLoading(false);
     }
@@ -111,8 +113,8 @@ export default function AdminLogin() {
 
         {/* Title */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">DKP Admin</h1>
-          <p className="text-gray-400">Sign in to access the admin panel</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('adminLogin.title')}</h1>
+          <p className="text-gray-400">{t('adminLogin.subtitle')}</p>
         </div>
 
         {/* Error Alert */}
@@ -126,12 +128,12 @@ export default function AdminLogin() {
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('adminLogin.username')}</label>
             <Input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder={t('adminLogin.usernamePlaceholder')}
               disabled={loading}
               className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
               autoFocus
@@ -139,12 +141,12 @@ export default function AdminLogin() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('adminLogin.password')}</label>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={t('adminLogin.passwordPlaceholder')}
               disabled={loading}
               className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
             />
@@ -157,10 +159,10 @@ export default function AdminLogin() {
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in...
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('adminLogin.signingIn')}
               </>
             ) : (
-              'Sign In'
+              t('adminLogin.signIn')
             )}
           </Button>
         </form>
@@ -171,12 +173,12 @@ export default function AdminLogin() {
           className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-sm font-medium text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to Public Site
+          {t('adminLogin.backToPublic')}
         </Link>
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-gray-500">
-          <p>Session expires after 10 minutes of inactivity</p>
+          <p>{t('adminLogin.sessionInfo')}</p>
         </div>
       </div>
     </div>

@@ -4,8 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import PageHeader from "@/components/dkp/PageHeader";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Rules() {
+  const { t } = useTranslation();
   const { data: settings = [] } = useQuery({
     queryKey: ["public-settings"],
     queryFn: async () => {
@@ -18,7 +20,7 @@ export default function Rules() {
 
   return (
     <div>
-      <PageHeader title="Guild Rules" subtitle="DKP system rules and guidelines" icon={BookOpen} />
+      <PageHeader title={t("rules.title")} subtitle={t("rules.subtitle")} icon={BookOpen} />
 
       <div className="bg-[#111827] rounded-xl border border-white/5 p-6 sm:p-8">
         {rulesText ? (
@@ -28,7 +30,7 @@ export default function Rules() {
         ) : (
           <div className="text-center py-12">
             <BookOpen className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500">No rules have been published yet.</p>
+            <p className="text-gray-500">{t("rules.noRules")}</p>
           </div>
         )}
       </div>

@@ -138,6 +138,68 @@
     "fixBadge": "Fix",
     "resultColumn": "Fix"
   },
+  "charts": {
+    "title": "Charts",
+    "subtitle": "Player statistics & history",
+    "selectPlayer": "Select Player",
+    "searchPlaceholder": "Search player...",
+    "selectPrompt": "Select a player to view their statistics"
+  },
+  "rules": {
+    "title": "Guild Rules",
+    "subtitle": "DKP system rules and guidelines",
+    "noRules": "No rules have been published yet."
+  },
+  "playerDetail": {
+    "backToLeaderboard": "Back to Leaderboard",
+    "playerProfile": "Player Profile",
+    "noPlayerSelected": "No player selected.",
+    "loading": "Loading...",
+    "playerNotFound": "Player not found.",
+    "currentDkp": "Current DKP",
+    "totalEarned": "Total Earned",
+    "dkpSpent": "DKP Spent",
+    "status": "Status",
+    "cooldownUntil": "Cooldown until {{date}} (UTC)",
+    "power": "Power",
+    "auctionBans": "Auction Bans",
+    "top20": "Top 20 (#{{rank}})",
+    "outsideTop20": "Outside Top 20 (#{{rank}})",
+    "transactionHistory": "Transaction History ({{count}})",
+    "noTransactions": "No transactions",
+    "auctionHistory": "Auction History",
+    "penaltyHistory": "Penalty History",
+    "cols": {
+      "date": "Date",
+      "source": "Source",
+      "type": "Type",
+      "dkp": "DKP",
+      "rank": "Rank",
+      "dkpBid": "DKP Bid",
+      "targetScore": "Target Score",
+      "medals": "Medals",
+      "level": "Level",
+      "offenseCount": "Offense #",
+      "status": "Status"
+    }
+  },
+  "adminLogin": {
+    "title": "DKP Admin",
+    "subtitle": "Sign in to access the admin panel",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "backToPublic": "Back to Public Site",
+    "sessionInfo": "Session expires after 10 minutes of inactivity",
+    "loginFailed": "Login failed",
+    "loginFailedRetry": "Login failed. Please try again.",
+    "lockedShort": "Too many failed attempts. Please wait 5 seconds.",
+    "lockedMedium": "Too many failed attempts. Locked for 30 seconds.",
+    "lockedLong": "Too many failed attempts. Locked for 60 seconds."
+  },
   "results": {
     "title": "Auction Results",
     "subtitle": "Confirmed winners and bid history",

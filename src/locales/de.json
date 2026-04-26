@@ -138,6 +138,68 @@
     "fixBadge": "Fix",
     "resultColumn": "Fix"
   },
+  "charts": {
+    "title": "Diagramme",
+    "subtitle": "Spieler-Statistiken & Verlauf",
+    "selectPlayer": "Spieler auswählen",
+    "searchPlaceholder": "Spieler suchen…",
+    "selectPrompt": "Wähle einen Spieler aus, um die Statistiken zu sehen"
+  },
+  "rules": {
+    "title": "Gilden-Regeln",
+    "subtitle": "Regeln und Richtlinien des DKP-Systems",
+    "noRules": "Es wurden noch keine Regeln veröffentlicht."
+  },
+  "playerDetail": {
+    "backToLeaderboard": "Zurück zur Bestenliste",
+    "playerProfile": "Spieler-Profil",
+    "noPlayerSelected": "Kein Spieler ausgewählt.",
+    "loading": "Lädt…",
+    "playerNotFound": "Spieler nicht gefunden.",
+    "currentDkp": "Aktuelle DKP",
+    "totalEarned": "Total Erhalten",
+    "dkpSpent": "DKP Ausgegeben",
+    "status": "Status",
+    "cooldownUntil": "Cooldown bis {{date}} (UTC)",
+    "power": "Macht",
+    "auctionBans": "Auktions-Sperren",
+    "top20": "Top 20 (#{{rank}})",
+    "outsideTop20": "Ausserhalb Top 20 (#{{rank}})",
+    "transactionHistory": "Transaktions-Verlauf ({{count}})",
+    "noTransactions": "Keine Transaktionen",
+    "auctionHistory": "Auktions-Verlauf",
+    "penaltyHistory": "Strafen-Verlauf",
+    "cols": {
+      "date": "Datum",
+      "source": "Quelle",
+      "type": "Typ",
+      "dkp": "DKP",
+      "rank": "Rang",
+      "dkpBid": "DKP-Gebot",
+      "targetScore": "Ziel-Score",
+      "medals": "Medaillen",
+      "level": "Stufe",
+      "offenseCount": "Vergehen #",
+      "status": "Status"
+    }
+  },
+  "adminLogin": {
+    "title": "DKP Admin",
+    "subtitle": "Melde dich an, um auf das Admin-Panel zuzugreifen",
+    "username": "Benutzername",
+    "usernamePlaceholder": "Benutzername eingeben",
+    "password": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "signIn": "Anmelden",
+    "signingIn": "Anmeldung läuft…",
+    "backToPublic": "Zurück zur öffentlichen Seite",
+    "sessionInfo": "Sitzung läuft nach 10 Minuten Inaktivität ab",
+    "loginFailed": "Anmeldung fehlgeschlagen",
+    "loginFailedRetry": "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+    "lockedShort": "Zu viele Fehlversuche. Bitte 5 Sekunden warten.",
+    "lockedMedium": "Zu viele Fehlversuche. 30 Sekunden gesperrt.",
+    "lockedLong": "Zu viele Fehlversuche. 60 Sekunden gesperrt."
+  },
   "results": {
     "title": "Auktions-Ergebnisse",
     "subtitle": "Bestätigte Gewinner und Gebot-Verlauf",

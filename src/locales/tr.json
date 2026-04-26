@@ -138,6 +138,68 @@
     "fixBadge": "Sbt",
     "resultColumn": "Sbt"
   },
+  "charts": {
+    "title": "Grafikler",
+    "subtitle": "Oyuncu istatistikleri ve geçmişi",
+    "selectPlayer": "Oyuncu Seç",
+    "searchPlaceholder": "Oyuncu ara…",
+    "selectPrompt": "İstatistikleri görmek için bir oyuncu seç"
+  },
+  "rules": {
+    "title": "Lonca Kuralları",
+    "subtitle": "DKP sistemi kuralları ve yönergeleri",
+    "noRules": "Henüz yayınlanmış bir kural yok."
+  },
+  "playerDetail": {
+    "backToLeaderboard": "Sıralamaya Dön",
+    "playerProfile": "Oyuncu Profili",
+    "noPlayerSelected": "Oyuncu seçilmedi.",
+    "loading": "Yükleniyor…",
+    "playerNotFound": "Oyuncu bulunamadı.",
+    "currentDkp": "Mevcut DKP",
+    "totalEarned": "Toplam Kazanılan",
+    "dkpSpent": "Harcanan DKP",
+    "status": "Durum",
+    "cooldownUntil": "{{date}} (UTC) tarihine kadar bekleme",
+    "power": "Güç",
+    "auctionBans": "Açık Artırma Yasakları",
+    "top20": "İlk 20 (#{{rank}})",
+    "outsideTop20": "İlk 20 Dışı (#{{rank}})",
+    "transactionHistory": "İşlem Geçmişi ({{count}})",
+    "noTransactions": "İşlem yok",
+    "auctionHistory": "Açık Artırma Geçmişi",
+    "penaltyHistory": "Ceza Geçmişi",
+    "cols": {
+      "date": "Tarih",
+      "source": "Kaynak",
+      "type": "Tür",
+      "dkp": "DKP",
+      "rank": "Sıra",
+      "dkpBid": "DKP Teklifi",
+      "targetScore": "Hedef Skor",
+      "medals": "Madalya",
+      "level": "Seviye",
+      "offenseCount": "İhlal #",
+      "status": "Durum"
+    }
+  },
+  "adminLogin": {
+    "title": "DKP Yönetici",
+    "subtitle": "Yönetici paneline erişmek için giriş yap",
+    "username": "Kullanıcı Adı",
+    "usernamePlaceholder": "Kullanıcı adını gir",
+    "password": "Şifre",
+    "passwordPlaceholder": "Şifreni gir",
+    "signIn": "Giriş Yap",
+    "signingIn": "Giriş yapılıyor…",
+    "backToPublic": "Genel Siteye Dön",
+    "sessionInfo": "Oturum 10 dakika hareketsizlik sonrası sona erer",
+    "loginFailed": "Giriş başarısız",
+    "loginFailedRetry": "Giriş başarısız. Lütfen tekrar dene.",
+    "lockedShort": "Çok fazla başarısız deneme. Lütfen 5 saniye bekle.",
+    "lockedMedium": "Çok fazla başarısız deneme. 30 saniye kilitli.",
+    "lockedLong": "Çok fazla başarısız deneme. 60 saniye kilitli."
+  },
   "results": {
     "title": "Açık Artırma Sonuçları",
     "subtitle": "Onaylanmış kazananlar ve teklif geçmişi",
