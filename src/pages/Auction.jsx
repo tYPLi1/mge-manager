@@ -215,56 +215,24 @@ export default function Auction() {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <DPPageHeader title={t("auction.title")} subtitle={t("auction.subtitleLive")} />
 
-      <HeroCard auction={currentAuction} bidCount={auctionBids.length} t={t} />
+      <HeroCard auction={currentAuction} t={t} />
 
-      <div className="dp-grid-2">
-        {/* Top bids */}
-        <div className="dp-card" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--dp-border)", display: "flex", alignItems: "center", gap: 8 }}>
-            <Users size={14} style={{ color: "var(--dp-text-muted)" }} />
-            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>{t("auction.topBids")}</span>
-            <span style={{ fontSize: 11, color: "var(--dp-text-dim)", marginLeft: "auto" }}>{t("auction.live")}</span>
-          </div>
-          <div>
-            {auctionBids.length === 0 ? (
-              <div style={{ padding: 32, textAlign: "center", color: "var(--dp-text-dim)", fontSize: 13 }}>
-                {t("common.noData")}
-              </div>
-            ) : auctionBids.map((b, i) => (
-              <div key={b.id} className="dp-hover-row" style={{
-                padding: "14px 20px",
-                display: "flex", alignItems: "center", gap: 14,
-                borderBottom: i < auctionBids.length - 1 ? "1px solid var(--dp-border)" : "none",
-              }}>
-                <div className="dp-mono dp-heading" style={{
-                  fontSize: 14, fontWeight: 600, width: 28,
-                  color: i === 0 ? "var(--dp-accent)" : "var(--dp-text-muted)",
-                }}>
-                  #{i + 1}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 500, fontSize: 14 }}>{b.player_name}</div>
-                  {b.want_friendly_zone && (
-                    <div style={{ fontSize: 11, color: "var(--dp-info)", marginTop: 2 }}>{t("auction.friendlyZone")}</div>
-                  )}
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div className="dp-mono dp-accent-text" style={{ fontSize: 15, fontWeight: 600 }}>
-                    {b.dkp_bid} DKP
-                  </div>
-                  {b.mge_score ? (
-                    <div className="dp-mono" style={{ fontSize: 11, color: "var(--dp-text-dim)", marginTop: 2 }}>
-                      MGE {b.mge_score.toLocaleString("en-US")}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
+      <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+        {/* Blind auction notice */}
+        <div className="dp-card" style={{
+          padding: "12px 16px", marginBottom: 16,
+          display: "flex", alignItems: "center", gap: 10,
+          background: "var(--dp-accent-soft)",
+          border: "1px solid var(--dp-accent-border)",
+        }}>
+          <Lock size={14} style={{ color: "var(--dp-accent)", flexShrink: 0 }} />
+          <span style={{ fontSize: 12.5, color: "var(--dp-text-muted)" }}>
+            {t("auction.blindNotice")}
+          </span>
         </div>
 
         {/* Bid form */}
-        <div className="dp-card-elevated" style={{ padding: 20, height: "fit-content" }}>
+        <div className="dp-card-elevated" style={{ padding: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <Gavel size={14} style={{ color: "var(--dp-accent)" }} />
             <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>{t("auction.placeBid")}</span>
@@ -416,7 +384,7 @@ function Alert({ color, icon: Icon, children }) {
   );
 }
 
-function HeroCard({ auction, bidCount, t }) {
+function HeroCard({ auction, t }) {
   const { timeLeft } = useCountdown(auction.scheduled_close);
   return (
     <div className="dp-card-elevated" style={{ padding: 20, position: "relative", overflow: "hidden" }}>
@@ -457,13 +425,6 @@ function HeroCard({ auction, bidCount, t }) {
             <div style={{ fontSize: 11, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{t("auction.remaining")}</div>
             <div className="dp-heading dp-mono dp-accent-text" style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}>
               {timeLeft || "—"}
-            </div>
-          </div>
-          <div style={{ width: 1, height: 48, background: "var(--dp-border)" }} />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 11, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{t("auction.bids")}</div>
-            <div className="dp-heading dp-mono" style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}>
-              {bidCount}
             </div>
           </div>
         </div>

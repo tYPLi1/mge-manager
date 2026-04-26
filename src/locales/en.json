@@ -110,7 +110,8 @@
     "biddingAvailableLater": "Bidding will be available once the auction opens.",
     "biddingClosed": "Bidding Closed",
     "biddingClosedDesc": "The auction \"{{title}}\" has ended.",
-    "resultsSoon": "Results will be published soon."
+    "resultsSoon": "Results will be published soon.",
+    "blindNotice": "This is a blind auction. Bids are hidden from all players until results are published."
   },
   "results": {
     "title": "Auction Results",
