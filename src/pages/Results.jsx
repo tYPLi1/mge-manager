@@ -168,7 +168,7 @@ export default function Results() {
                       <td style={{ padding: "12px 18px", fontWeight: 500 }}>
                         {r.player_name}
                         {isFixed && (
-                          <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-accent)" }}>· 📌 Fix</span>
+                          <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-accent)" }}>· 📌 {t("fixedRanks.fixBadge")}</span>
                         )}
                         {r.is_friendly_zone && (
                           <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-info)" }}>· FZ</span>

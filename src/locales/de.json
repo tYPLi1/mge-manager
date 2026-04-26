@@ -112,7 +112,31 @@
     "biddingClosed": "Auktion geschlossen",
     "biddingClosedDesc": "Die Auktion „{{title}}\" ist beendet.",
     "resultsSoon": "Ergebnisse werden in Kürze veröffentlicht.",
-    "blindNotice": "Dies ist eine Blind-Auktion. Gebote sind für alle Spieler verborgen, bis die Ergebnisse veröffentlicht werden."
+    "blindNotice": "Dies ist eine Blind-Auktion. Gebote sind für alle Spieler verborgen, bis die Ergebnisse veröffentlicht werden.",
+    "fixedRankNotice": "Du hast bereits Rang #{{rank}} fix vergeben bekommen ({{reason}}). Bieten ist nicht möglich."
+  },
+  "fixedRanks": {
+    "title": "Fix vergebene Ränge",
+    "optional": "(optional)",
+    "description": "Vergib einen Rang fix an einen Spieler. Diese Ränge werden in der Auktion und in den Ergebnissen mit Begründung angezeigt. Fix zugewiesene Spieler können nicht bieten und zahlen kein DKP, erhalten aber den normalen Cooldown.",
+    "rank": "Rang",
+    "rankPlaceholder": "z.B. 1",
+    "player": "Spieler",
+    "playerPlaceholder": "Spieler auswählen\u2026",
+    "reason": "Begründung *",
+    "reasonPlaceholder": "z.B. King-Allocation, Kompensation, MGE-Promise\u2026",
+    "addButton": "Fix-Rang hinzufügen",
+    "remove": "Entfernen",
+    "errors": {
+      "rankRange": "Rang muss zwischen 1 und {{max}} liegen",
+      "rankUsed": "Rang {{rank}} ist bereits fix vergeben",
+      "selectPlayer": "Bitte einen Spieler auswählen",
+      "playerUsed": "Dieser Spieler hat bereits einen fixen Rang",
+      "reasonRequired": "Bitte eine Begründung eingeben",
+      "playerNotFound": "Spieler nicht gefunden"
+    },
+    "fixBadge": "Fix",
+    "resultColumn": "Fix"
   },
   "results": {
     "title": "Auktions-Ergebnisse",

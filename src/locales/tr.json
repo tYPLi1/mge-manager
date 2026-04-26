@@ -112,7 +112,31 @@
     "biddingClosed": "Teklif Kapalı",
     "biddingClosedDesc": "„{{title}}\" açık artırması sona erdi.",
     "resultsSoon": "Sonuçlar yakında yayınlanacak.",
-    "blindNotice": "Bu kör bir açık artırmadır. Sonuçlar yayınlanana kadar teklifler tüm oyunculardan gizlidir."
+    "blindNotice": "Bu kör bir açık artırmadır. Sonuçlar yayınlanana kadar teklifler tüm oyunculardan gizlidir.",
+    "fixedRankNotice": "Sana zaten #{{rank}} sırası sabit olarak verildi ({{reason}}). Teklif vermek mümkün değil."
+  },
+  "fixedRanks": {
+    "title": "Sabit Verilen Sıralar",
+    "optional": "(opsiyonel)",
+    "description": "Bir sırayı bir oyuncuya sabit ata. Bu sıralar açık artırmada ve sonuçlarda gerekçesiyle gösterilir. Sabit atanmış oyuncular teklif veremez ve DKP ödemez, ancak normal bekleme süresini alır.",
+    "rank": "Sıra",
+    "rankPlaceholder": "ör. 1",
+    "player": "Oyuncu",
+    "playerPlaceholder": "Oyuncu seç\u2026",
+    "reason": "Gerekçe *",
+    "reasonPlaceholder": "ör. Kral tahsisi, tazminat, MGE sözü\u2026",
+    "addButton": "Sabit sıra ekle",
+    "remove": "Kaldır",
+    "errors": {
+      "rankRange": "Sıra 1 ile {{max}} arasında olmalı",
+      "rankUsed": "{{rank}} sırası zaten atandı",
+      "selectPlayer": "Lütfen bir oyuncu seç",
+      "playerUsed": "Bu oyuncunun zaten sabit bir sırası var",
+      "reasonRequired": "Lütfen bir gerekçe gir",
+      "playerNotFound": "Oyuncu bulunamadı"
+    },
+    "fixBadge": "Sbt",
+    "resultColumn": "Sbt"
   },
   "results": {
     "title": "Açık Artırma Sonuçları",

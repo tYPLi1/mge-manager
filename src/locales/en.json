@@ -112,7 +112,31 @@
     "biddingClosed": "Bidding Closed",
     "biddingClosedDesc": "The auction \"{{title}}\" has ended.",
     "resultsSoon": "Results will be published soon.",
-    "blindNotice": "This is a blind auction. Bids are hidden from all players until results are published."
+    "blindNotice": "This is a blind auction. Bids are hidden from all players until results are published.",
+    "fixedRankNotice": "You have been pre-assigned rank #{{rank}} ({{reason}}). Bidding is not possible."
+  },
+  "fixedRanks": {
+    "title": "Pre-assigned Ranks",
+    "optional": "(optional)",
+    "description": "Assign a rank fixed to a player. These ranks are shown in the auction and results with a reason. Pre-assigned players cannot bid and pay no DKP, but receive the normal cooldown.",
+    "rank": "Rank",
+    "rankPlaceholder": "e.g. 1",
+    "player": "Player",
+    "playerPlaceholder": "Select player\u2026",
+    "reason": "Reason *",
+    "reasonPlaceholder": "e.g. King allocation, compensation, MGE promise\u2026",
+    "addButton": "Add fixed rank",
+    "remove": "Remove",
+    "errors": {
+      "rankRange": "Rank must be between 1 and {{max}}",
+      "rankUsed": "Rank {{rank}} is already assigned",
+      "selectPlayer": "Please select a player",
+      "playerUsed": "This player already has a fixed rank",
+      "reasonRequired": "Please enter a reason",
+      "playerNotFound": "Player not found"
+    },
+    "fixBadge": "Fix",
+    "resultColumn": "Fix"
   },
   "results": {
     "title": "Auction Results",

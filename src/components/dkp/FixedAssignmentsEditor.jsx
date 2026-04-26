@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, X, Pin } from "lucide-react";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Editor for pre-assigning specific ranks to specific players when
@@ -16,6 +17,7 @@ import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
  *  - maxRanks: total ranks available in this auction
  */
 export default function FixedAssignmentsEditor({ value = [], onChange, players = [], maxRanks = 10 }) {
+  const { t } = useTranslation();
   const [draftRank, setDraftRank] = useState("");
   const [draftPlayer, setDraftPlayer] = useState("");
   const [draftReason, setDraftReason] = useState("");
@@ -28,28 +30,28 @@ export default function FixedAssignmentsEditor({ value = [], onChange, players =
     setError("");
     const rankNum = parseInt(draftRank, 10);
     if (!rankNum || rankNum < 1 || rankNum > maxRanks) {
-      setError(`Rang muss zwischen 1 und ${maxRanks} liegen`);
+      setError(t("fixedRanks.errors.rankRange", { max: maxRanks }));
       return;
     }
     if (usedRanks.has(rankNum)) {
-      setError(`Rang ${rankNum} ist bereits fix vergeben`);
+      setError(t("fixedRanks.errors.rankUsed", { rank: rankNum }));
       return;
     }
     if (!draftPlayer) {
-      setError("Bitte einen Spieler auswählen");
+      setError(t("fixedRanks.errors.selectPlayer"));
       return;
     }
     if (usedPlayerIds.has(draftPlayer)) {
-      setError("Dieser Spieler hat bereits einen fixen Rang");
+      setError(t("fixedRanks.errors.playerUsed"));
       return;
     }
     if (!draftReason.trim()) {
-      setError("Bitte eine Begründung eingeben");
+      setError(t("fixedRanks.errors.reasonRequired"));
       return;
     }
 
     const player = players.find(p => p.id === draftPlayer);
-    if (!player) { setError("Spieler nicht gefunden"); return; }
+    if (!player) { setError(t("fixedRanks.errors.playerNotFound")); return; }
 
     const next = [...value, {
       rank: rankNum,
@@ -72,11 +74,11 @@ export default function FixedAssignmentsEditor({ value = [], onChange, players =
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Pin className="w-4 h-4 text-amber-400" />
-        <h4 className="text-sm font-semibold text-white">Fix vergebene Ränge</h4>
-        <span className="text-xs text-gray-500">(optional)</span>
+        <h4 className="text-sm font-semibold text-white">{t("fixedRanks.title")}</h4>
+        <span className="text-xs text-gray-500">{t("fixedRanks.optional")}</span>
       </div>
       <p className="text-xs text-gray-500">
-        Vergib einen Rang fix an einen Spieler. Diese Ränge werden in der Auktion und in den Ergebnissen mit Begründung angezeigt. Fix zugewiesene Spieler können nicht bieten und zahlen kein DKP, erhalten aber den normalen Cooldown.
+        {t("fixedRanks.description")}
       </p>
 
       {/* Existing assignments */}
@@ -95,7 +97,7 @@ export default function FixedAssignmentsEditor({ value = [], onChange, players =
                 type="button"
                 onClick={() => handleRemove(a.rank)}
                 className="text-gray-500 hover:text-red-400 transition-colors p-1"
-                title="Entfernen"
+                title={t("fixedRanks.remove")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -108,33 +110,33 @@ export default function FixedAssignmentsEditor({ value = [], onChange, players =
       <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <div>
-            <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Rang</Label>
+            <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.rank")}</Label>
             <Input
               type="number"
               min={1}
               max={maxRanks}
               value={draftRank}
               onChange={(e) => setDraftRank(e.target.value)}
-              placeholder="z.B. 1"
+              placeholder={t("fixedRanks.rankPlaceholder")}
               className="bg-white/5 border-white/10 text-white h-9"
             />
           </div>
           <div className="sm:col-span-2">
-            <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Spieler</Label>
+            <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.player")}</Label>
             <PlayerSearchSelect
               players={players.filter(p => !usedPlayerIds.has(p.id))}
               value={draftPlayer}
               onValueChange={setDraftPlayer}
-              placeholder="Spieler auswählen…"
+              placeholder={t("fixedRanks.playerPlaceholder")}
             />
           </div>
         </div>
         <div>
-          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">Begründung *</Label>
+          <Label className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">{t("fixedRanks.reason")}</Label>
           <Input
             value={draftReason}
             onChange={(e) => setDraftReason(e.target.value)}
-            placeholder="z.B. King-Allocation, Kompensation, MGE-Promise…"
+            placeholder={t("fixedRanks.reasonPlaceholder")}
             className="bg-white/5 border-white/10 text-white h-9"
           />
         </div>
@@ -145,7 +147,7 @@ export default function FixedAssignmentsEditor({ value = [], onChange, players =
           onClick={handleAdd}
           className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30"
         >
-          <Plus className="w-3.5 h-3.5 mr-1" /> Fix-Rang hinzufügen
+          <Plus className="w-3.5 h-3.5 mr-1" /> {t("fixedRanks.addButton")}
         </Button>
       </div>
     </div>
