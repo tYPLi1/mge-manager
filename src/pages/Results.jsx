@@ -77,7 +77,11 @@ export default function Results() {
     (i < nonFixedResults.length - 1 && r.dkp_bid === nonFixedResults[i + 1].dkp_bid)
   );
 
-  const ruleLabel = (rule) => t(`results.tiebreakerRule.${rule}`) || t("results.tiebreakerRule.fcfs");
+  const ruleLabel = (rule) => {
+    const key = `results.tiebreakerRule.${rule}`;
+    const val = t(key);
+    return val === key ? t("results.tiebreakerRule.fcfs") : val;
+  };
 
   const totalDkp = results.reduce((s, r) => s + (r.dkp_bid || 0), 0);
 
