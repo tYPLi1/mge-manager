@@ -3,18 +3,18 @@ import { Users, Gavel, TrendingUp, AlertTriangle, Settings2, Activity } from "lu
 
 export default function AdminPreview() {
   const stats = [
-    { icon: Users, label: "Spieler", value: "127", sub: "+3 diese Woche", color: "var(--dp-info)" },
-    { icon: Gavel, label: "Aktive Auktionen", value: "2", sub: "1 schliesst bald", color: "var(--dp-accent)" },
-    { icon: TrendingUp, label: "DKP (7T)", value: "+24.8k", sub: "über alle Events", color: "var(--dp-success)" },
-    { icon: AlertTriangle, label: "Offene Strafen", value: "4", sub: "2 Level 1, 2 Level 2", color: "var(--dp-danger)" },
+    { icon: Users, label: "Players", value: "127", sub: "+3 this week", color: "var(--dp-info)" },
+    { icon: Gavel, label: "Active Auctions", value: "2", sub: "1 closing soon", color: "var(--dp-accent)" },
+    { icon: TrendingUp, label: "DKP (7d)", value: "+24.8k", sub: "across all events", color: "var(--dp-success)" },
+    { icon: AlertTriangle, label: "Open Penalties", value: "4", sub: "2 Level 1, 2 Level 2", color: "var(--dp-danger)" },
   ];
 
   const recentActivity = [
-    { type: "auction", text: "MGE #42 geöffnet", time: "vor 12 min", user: "Admin" },
-    { type: "dkp", text: "DKP-Log importiert: GEE Prep", time: "vor 1 h", user: "Admin" },
-    { type: "penalty", text: "Strafe für 'IronFist_88' (Level 1)", time: "vor 3 h", user: "Admin" },
-    { type: "player", text: "3 neue Spieler registriert", time: "vor 5 h", user: "System" },
-    { type: "auction", text: "MGE #41 bestätigt", time: "gestern", user: "Admin" },
+    { type: "auction", text: "MGE #42 opened", time: "12 min ago", user: "Admin" },
+    { type: "dkp", text: "DKP log imported: GEE Prep", time: "1 h ago", user: "Admin" },
+    { type: "penalty", text: "Penalty issued to 'IronFist_88' (Level 1)", time: "3 h ago", user: "Admin" },
+    { type: "player", text: "3 new players registered", time: "5 h ago", user: "System" },
+    { type: "auction", text: "MGE #41 confirmed", time: "yesterday", user: "Admin" },
   ];
 
   return (
@@ -24,12 +24,12 @@ export default function AdminPreview() {
           Admin Dashboard
         </h1>
         <p style={{ fontSize: 13.5, color: "var(--dp-text-muted)", margin: 0 }}>
-          Überblick · Letzte Aktualisierung vor 2 Minuten
+          Overview · Last updated 2 minutes ago
         </p>
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
@@ -56,17 +56,17 @@ export default function AdminPreview() {
       </div>
 
       {/* Main grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 20 }}>
+      <div className="dp-grid-2">
         {/* Quick actions */}
         <div className="dp-card" style={{ padding: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <Settings2 size={14} style={{ color: "var(--dp-text-muted)" }} />
-            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>Schnellzugriff</span>
+            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>Quick Actions</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
             {[
-              "Neue Auktion", "DKP-Log importieren", "Spieler verwalten",
-              "Strafe erfassen", "Event konfigurieren", "Discord senden",
+              "New Auction", "Import DKP Log", "Manage Players",
+              "Issue Penalty", "Configure Event", "Send to Discord",
             ].map((a, i) => (
               <button key={i} className="dp-btn-ghost" style={{
                 padding: "14px 12px",
@@ -85,7 +85,7 @@ export default function AdminPreview() {
         <div className="dp-card" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--dp-border)", display: "flex", alignItems: "center", gap: 8 }}>
             <Activity size={14} style={{ color: "var(--dp-text-muted)" }} />
-            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>Letzte Aktivität</span>
+            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>Recent Activity</span>
           </div>
           <div>
             {recentActivity.map((a, i) => (

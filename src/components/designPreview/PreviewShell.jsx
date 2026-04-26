@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Gavel, Shield, ArrowLeft, Eye } from "lucide-react";
+import {
+  Trophy, Gavel, Shield, ArrowLeft, Eye, Monitor, Smartphone,
+  ScrollText, History, AlertTriangle, Menu, X,
+} from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const fontStyle = `
@@ -129,14 +132,89 @@ const fontStyle = `
   .dp-rank-1 { background: linear-gradient(135deg, rgba(212, 168, 89, 0.18), rgba(212, 168, 89, 0.04)); border-left: 2px solid var(--dp-accent); }
   .dp-rank-2 { background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), transparent); border-left: 2px solid #c0c0c0; }
   .dp-rank-3 { background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), transparent); border-left: 2px solid #cd7f32; }
+
+  /* Mobile frame */
+  .dp-mobile-frame {
+    width: 390px;
+    max-width: 100%;
+    margin: 24px auto;
+    border: 1px solid var(--dp-border-strong);
+    border-radius: 36px;
+    overflow: hidden;
+    background: var(--dp-bg);
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6), 0 0 0 8px #0a0c11;
+    position: relative;
+  }
+  .dp-mobile-frame::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 22px;
+    background: #0a0c11;
+    border-radius: 0 0 14px 14px;
+    z-index: 20;
+  }
+  .dp-mobile-content {
+    height: 780px;
+    overflow-y: auto;
+    padding-top: 36px;
+  }
+
+  /* Responsive helpers */
+  .dp-grid-2 { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+  @media (max-width: 900px) {
+    .dp-grid-2 { grid-template-columns: 1fr; }
+  }
+  .dp-hide-mobile { }
+  @media (max-width: 640px) {
+    .dp-hide-mobile { display: none !important; }
+  }
 `;
 
+const tabs = [
+  { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+  { id: "auction", label: "Auction", icon: Gavel },
+  { id: "results", label: "Results", icon: ScrollText },
+  { id: "transactions", label: "Transactions", icon: History },
+  { id: "punishments", label: "Punishments", icon: AlertTriangle },
+  { id: "admin", label: "Admin", icon: Shield },
+];
+
 export default function PreviewShell({ view, onViewChange, children }) {
-  const tabs = [
-    { id: "leaderboard", label: "Leaderboard", icon: Trophy },
-    { id: "auction", label: "Auction", icon: Gavel },
-    { id: "admin", label: "Admin", icon: Shield },
-  ];
+  const [device, setDevice] = useState("desktop");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const isMobile = device === "mobile";
+  const activeTab = tabs.find(t => t.id === view);
+
+  const navButtons = (
+    <>
+      {tabs.map(t => {
+        const Icon = t.icon;
+        const active = view === t.id;
+        return (
+          <button
+            key={t.id}
+            onClick={() => { onViewChange(t.id); setMobileNavOpen(false); }}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              padding: "8px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+              background: active ? "var(--dp-accent-soft)" : "transparent",
+              color: active ? "var(--dp-accent)" : "var(--dp-text-muted)",
+              border: active ? "1px solid var(--dp-accent-border)" : "1px solid transparent",
+              cursor: "pointer", transition: "all 0.15s ease",
+              fontFamily: "inherit",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <Icon size={14} />
+            {t.label}
+          </button>
+        );
+      })}
+    </>
+  );
 
   return (
     <div className="dp-root">
@@ -148,75 +226,202 @@ export default function PreviewShell({ view, onViewChange, children }) {
         position: "relative",
         background: "linear-gradient(90deg, rgba(212, 168, 89, 0.12), rgba(212, 168, 89, 0.04))",
         borderBottom: "1px solid var(--dp-accent-border)",
-        padding: "10px 24px",
+        padding: "10px 16px",
         zIndex: 10,
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 1400, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 1400, margin: "0 auto", gap: 12, flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12.5, color: "var(--dp-text-muted)" }}>
             <Eye size={14} style={{ color: "var(--dp-accent)" }} />
-            <span><strong style={{ color: "var(--dp-text)" }}>Design Preview Modus</strong> — Dies ist eine isolierte Vorschau. Die laufende App ist unverändert.</span>
+            <span>
+              <strong style={{ color: "var(--dp-text)" }}>Design Preview Mode</strong>
+              <span className="dp-hide-mobile"> — Isolated preview. The live app is unchanged.</span>
+            </span>
           </div>
-          <Link to={createPageUrl("Leaderboard")} style={{
-            display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: "var(--dp-text-muted)", textDecoration: "none",
-          }}>
-            <ArrowLeft size={14} /> Zurück zur App
-          </Link>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Device toggle */}
+            <div style={{
+              display: "inline-flex",
+              background: "var(--dp-bg)",
+              border: "1px solid var(--dp-border)",
+              borderRadius: 8,
+              padding: 3,
+            }}>
+              <button
+                onClick={() => setDevice("desktop")}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "5px 10px", fontSize: 12, fontWeight: 500,
+                  background: !isMobile ? "var(--dp-accent-soft)" : "transparent",
+                  color: !isMobile ? "var(--dp-accent)" : "var(--dp-text-muted)",
+                  border: "none", borderRadius: 6, cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <Monitor size={13} /> Desktop
+              </button>
+              <button
+                onClick={() => setDevice("mobile")}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "5px 10px", fontSize: 12, fontWeight: 500,
+                  background: isMobile ? "var(--dp-accent-soft)" : "transparent",
+                  color: isMobile ? "var(--dp-accent)" : "var(--dp-text-muted)",
+                  border: "none", borderRadius: 6, cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <Smartphone size={13} /> Mobile
+              </button>
+            </div>
+
+            <Link to={createPageUrl("Leaderboard")} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: "var(--dp-text-muted)", textDecoration: "none",
+            }}>
+              <ArrowLeft size={14} /> <span className="dp-hide-mobile">Back to App</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Header */}
+      {/* Top control bar with tabs (always visible) */}
       <header style={{
         position: "relative",
         borderBottom: "1px solid var(--dp-border)",
         background: "var(--dp-bg-elevated)",
         zIndex: 5,
       }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
             <div style={{
               width: 38, height: 38, borderRadius: 10,
               background: "linear-gradient(135deg, #d9b068, #a67c38)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 1px 0 rgba(255,255,255,0.2) inset, 0 4px 12px rgba(212, 168, 89, 0.25)",
+              flexShrink: 0,
             }}>
               <Trophy size={18} style={{ color: "#2a1f10" }} />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div className="dp-heading" style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.1 }}>DKP System</div>
               <div style={{ fontSize: 11, color: "var(--dp-text-dim)", letterSpacing: "0.05em", textTransform: "uppercase" }}>Guild Management</div>
             </div>
           </div>
 
-          <nav style={{ display: "flex", gap: 4 }}>
-            {tabs.map(t => {
-              const Icon = t.icon;
-              const active = view === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => onViewChange(t.id)}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 7,
-                    padding: "8px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500,
-                    background: active ? "var(--dp-accent-soft)" : "transparent",
-                    color: active ? "var(--dp-accent)" : "var(--dp-text-muted)",
-                    border: active ? "1px solid var(--dp-accent-border)" : "1px solid transparent",
-                    cursor: "pointer", transition: "all 0.15s ease",
-                    fontFamily: "inherit",
-                  }}
-                >
-                  <Icon size={14} />
-                  {t.label}
-                </button>
-              );
-            })}
+          <nav style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none" }} className="dp-hide-mobile">
+            {navButtons}
           </nav>
+
+          {/* Mobile-screen tab toggle (for narrow viewport of preview itself) */}
+          <button
+            onClick={() => setMobileNavOpen(v => !v)}
+            style={{
+              display: "none",
+              padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
+              borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer",
+            }}
+            className="dp-show-mobile-only"
+          >
+            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
+
+        {/* Horizontal scrollable tabs on mobile viewport */}
+        <div style={{
+          display: "none",
+          padding: "0 16px 12px",
+          overflowX: "auto",
+          scrollbarWidth: "none",
+        }} className="dp-show-mobile-tabs">
+          <div style={{ display: "flex", gap: 4 }}>
+            {navButtons}
+          </div>
+        </div>
+
+        <style>{`
+          @media (max-width: 768px) {
+            .dp-show-mobile-tabs { display: block !important; }
+          }
+        `}</style>
       </header>
 
-      <main style={{ position: "relative", maxWidth: 1400, margin: "0 auto", padding: "28px 24px", zIndex: 1 }}>
-        {children}
-      </main>
+      {/* Content area: either full-width desktop or mobile frame */}
+      {isMobile ? (
+        <div style={{ position: "relative", zIndex: 1, padding: "0 16px" }}>
+          <div className="dp-mobile-frame">
+            <div className="dp-mobile-content">
+              {/* Mobile in-app top bar (simulating real app) */}
+              <div style={{
+                position: "sticky", top: 0, zIndex: 10,
+                background: "var(--dp-bg-elevated)",
+                borderBottom: "1px solid var(--dp-border)",
+                padding: "10px 16px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 7,
+                    background: "linear-gradient(135deg, #d9b068, #a67c38)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <Trophy size={14} style={{ color: "#2a1f10" }} />
+                  </div>
+                  <span className="dp-heading" style={{ fontSize: 14, fontWeight: 700 }}>
+                    {activeTab?.label || "DKP"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setMobileNavOpen(v => !v)}
+                  style={{
+                    padding: 6, background: "transparent", border: "1px solid var(--dp-border)",
+                    borderRadius: 6, color: "var(--dp-text-muted)", cursor: "pointer",
+                  }}
+                >
+                  {mobileNavOpen ? <X size={16} /> : <Menu size={16} />}
+                </button>
+              </div>
+
+              {mobileNavOpen && (
+                <div style={{
+                  background: "var(--dp-bg-elevated)",
+                  borderBottom: "1px solid var(--dp-border)",
+                  padding: 12,
+                  display: "flex", flexDirection: "column", gap: 4,
+                }}>
+                  {tabs.map(t => {
+                    const Icon = t.icon;
+                    const active = view === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => { onViewChange(t.id); setMobileNavOpen(false); }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 10,
+                          padding: "10px 12px", borderRadius: 8, fontSize: 13,
+                          background: active ? "var(--dp-accent-soft)" : "transparent",
+                          color: active ? "var(--dp-accent)" : "var(--dp-text-muted)",
+                          border: "none", textAlign: "left", cursor: "pointer",
+                          fontFamily: "inherit", fontWeight: 500,
+                        }}
+                      >
+                        <Icon size={14} /> {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div style={{ padding: 16 }}>
+                {children}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <main style={{ position: "relative", maxWidth: 1400, margin: "0 auto", padding: "28px 24px", zIndex: 1 }}>
+          {children}
+        </main>
+      )}
     </div>
   );
 }

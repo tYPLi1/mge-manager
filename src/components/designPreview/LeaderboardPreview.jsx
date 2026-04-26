@@ -27,17 +27,17 @@ export default function LeaderboardPreview() {
           Leaderboard
         </h1>
         <p style={{ fontSize: 13.5, color: "var(--dp-text-muted)", margin: 0 }}>
-          Aktuelle DKP-Rangliste aller aktiven Spieler
+          Current DKP ranking of all active players
         </p>
       </div>
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
         {[
-          { label: "Aktive Spieler", value: "127", change: "+3 diese Woche" },
-          { label: "Ø DKP", value: "2'840", change: "+120 vs. letzte Woche" },
-          { label: "Events (30T)", value: "24", change: "18 Ranked · 6 Y/N" },
-          { label: "Gesamt Macht", value: "18.4B", change: "+2.1% vs. letzte Woche" },
+          { label: "Active Players", value: "127", change: "+3 this week" },
+          { label: "Avg DKP", value: "2,840", change: "+120 vs last week" },
+          { label: "Events (30d)", value: "24", change: "18 Ranked · 6 Y/N" },
+          { label: "Total Power", value: "18.4B", change: "+2.1% vs last week" },
         ].map((s, i) => (
           <div key={i} className="dp-card-elevated" style={{ padding: "16px 18px" }}>
             <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
@@ -53,24 +53,24 @@ export default function LeaderboardPreview() {
 
       {/* Filters */}
       <div className="dp-card" style={{ padding: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-        <div style={{ position: "relative", flex: "1 1 280px", maxWidth: 360 }}>
+        <div style={{ position: "relative", flex: "1 1 240px", maxWidth: 360 }}>
           <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--dp-text-dim)" }} />
-          <input className="dp-input" placeholder="Spieler suchen…" style={{ paddingLeft: 34 }} />
+          <input className="dp-input" placeholder="Search player…" style={{ paddingLeft: 34 }} />
         </div>
         <button className="dp-btn-ghost" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Filter size={13} /> Filter
+          <Filter size={13} /> Filters
         </button>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 12, color: "var(--dp-text-dim)" }}>Zeige 1–8 von 127</span>
+        <span style={{ fontSize: 12, color: "var(--dp-text-dim)" }}>Showing 1–8 of 127</span>
       </div>
 
       {/* Table */}
       <div className="dp-card-elevated" style={{ overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 640 }}>
             <thead>
               <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)" }}>
-                {["Rang", "Spieler", "DKP", "Ausgegeben", "Macht", "Aktivität", "Trend"].map((h, i) => (
+                {["Rank", "Player", "DKP", "Spent", "Power", "Activity", "Trend"].map((h, i) => (
                   <th key={i} style={{
                     textAlign: i === 0 || i === 1 ? "left" : "right",
                     padding: "12px 18px",
@@ -102,11 +102,11 @@ export default function LeaderboardPreview() {
                     <td style={{ padding: "14px 18px", fontWeight: 500 }}>{p.name}</td>
                     <td style={{ padding: "14px 18px", textAlign: "right" }}>
                       <span className="dp-mono dp-accent-text" style={{ fontWeight: 600 }}>
-                        {p.dkp.toLocaleString("de-CH")}
+                        {p.dkp.toLocaleString("en-US")}
                       </span>
                     </td>
                     <td className="dp-mono" style={{ padding: "14px 18px", textAlign: "right", color: "var(--dp-text-muted)" }}>
-                      {p.spent.toLocaleString("de-CH")}
+                      {p.spent.toLocaleString("en-US")}
                     </td>
                     <td className="dp-mono" style={{ padding: "14px 18px", textAlign: "right" }}>{p.power}</td>
                     <td style={{ padding: "14px 18px", textAlign: "right" }}>
