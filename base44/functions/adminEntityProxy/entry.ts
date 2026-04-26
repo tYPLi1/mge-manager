@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     const ALLOWED_ENTITIES = [
       'Player', 'Auction', 'Bid', 'AuctionResult', 'DKPTransaction',
       'Penalty', 'PowerHistory', 'EventType', 'AppSettings', 'AdminUser',
-      'OffenseResetLog'
+      'OffenseResetLog', 'UserReport'
     ];
     if (!ALLOWED_ENTITIES.includes(entityName)) {
       return Response.json({ error: `Entity "${entityName}" not allowed` }, { status: 403 });

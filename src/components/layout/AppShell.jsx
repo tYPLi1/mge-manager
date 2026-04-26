@@ -3,11 +3,12 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Trophy, Gavel, ScrollText, History, AlertTriangle, BookOpen, BarChart3,
-  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users,
+  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users, Bug,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import AdminSessionGuard from "@/components/AdminSessionGuard";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import ReportButton from "@/components/reports/ReportButton";
 
 const publicNavConfig = [
   { name: "leaderboard", page: "Leaderboard", icon: Trophy },
@@ -28,6 +29,7 @@ const adminNavConfig = [
   { name: "eventConfig", page: "AdminEventConfig", icon: Settings2 },
   { name: "auctionConfig", page: "AdminAuctionConfig", icon: Gavel },
   { name: "settings", page: "AdminSettings", icon: Settings },
+  { name: "reports", page: "AdminReports", icon: Bug },
   { name: "logins", page: "AdminUserManagement", icon: Shield },
 ];
 
@@ -215,6 +217,8 @@ export default function AppShell({ children, currentPageName }) {
           <AdminSessionGuard>{children}</AdminSessionGuard>
         ) : children}
       </main>
+
+      {!isAdminLogin && <ReportButton />}
     </div>
   );
 }
