@@ -113,7 +113,23 @@
     "biddingClosedDesc": "Die Auktion „{{title}}\" ist beendet.",
     "resultsSoon": "Ergebnisse werden in Kürze veröffentlicht.",
     "blindNotice": "Dies ist eine Blind-Auktion. Gebote sind für alle Spieler verborgen, bis die Ergebnisse veröffentlicht werden.",
-    "fixedRankNotice": "Du hast bereits Rang #{{rank}} fix vergeben bekommen ({{reason}}). Bieten ist nicht möglich."
+    "fixedRankNotice": "Du hast bereits Rang #{{rank}} fix vergeben bekommen ({{reason}}). Bieten ist nicht möglich.",
+    "maxLabel": "Max",
+    "errors": {
+      "MISSING_FIELDS": "Pflichtfelder fehlen.",
+      "INVALID_BID": "Ungültiger Gebotsbetrag.",
+      "AUCTION_NOT_FOUND": "Auktion nicht gefunden.",
+      "AUCTION_NOT_OPEN": "Auktion ist nicht zum Bieten geöffnet.",
+      "FIXED_RANK": "Du hast bereits einen fix vergebenen Rang in dieser Auktion und kannst nicht bieten.",
+      "BAD_PASSWORD": "Falsches Auktions-Passwort.",
+      "PLAYER_NOT_FOUND": "Spieler nicht gefunden.",
+      "ON_COOLDOWN": "Du bist im Cooldown bis {{date}}.",
+      "BANNED": "Du bist von Auktionen gesperrt.",
+      "DKP_BALANCE_ERROR": "DKP-Saldo-Fehler. Bitte einen Admin kontaktieren.",
+      "NOT_ENOUGH_DKP": "Nicht genug DKP. Verfügbar: {{amount}}",
+      "ALREADY_BID": "Du hast bereits ein Gebot für diese Auktion abgegeben.",
+      "GENERIC": "Gebot konnte nicht gesendet werden."
+    }
   },
   "fixedRanks": {
     "title": "Fix vergebene Ränge",

@@ -113,7 +113,23 @@
     "biddingClosedDesc": "The auction \"{{title}}\" has ended.",
     "resultsSoon": "Results will be published soon.",
     "blindNotice": "This is a blind auction. Bids are hidden from all players until results are published.",
-    "fixedRankNotice": "You have been pre-assigned rank #{{rank}} ({{reason}}). Bidding is not possible."
+    "fixedRankNotice": "You have been pre-assigned rank #{{rank}} ({{reason}}). Bidding is not possible.",
+    "maxLabel": "Max",
+    "errors": {
+      "MISSING_FIELDS": "Missing required fields.",
+      "INVALID_BID": "Invalid bid amount.",
+      "AUCTION_NOT_FOUND": "Auction not found.",
+      "AUCTION_NOT_OPEN": "Auction is not open for bidding.",
+      "FIXED_RANK": "You have a pre-assigned rank in this auction and cannot bid.",
+      "BAD_PASSWORD": "Incorrect auction password.",
+      "PLAYER_NOT_FOUND": "Player not found.",
+      "ON_COOLDOWN": "You are on cooldown until {{date}}.",
+      "BANNED": "You are banned from auctions.",
+      "DKP_BALANCE_ERROR": "DKP balance error. Please contact an admin.",
+      "NOT_ENOUGH_DKP": "Not enough DKP. Available: {{amount}}",
+      "ALREADY_BID": "You have already placed a bid for this auction.",
+      "GENERIC": "Bid submission failed."
+    }
   },
   "fixedRanks": {
     "title": "Pre-assigned Ranks",

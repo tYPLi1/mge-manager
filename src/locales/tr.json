@@ -113,7 +113,23 @@
     "biddingClosedDesc": "„{{title}}\" açık artırması sona erdi.",
     "resultsSoon": "Sonuçlar yakında yayınlanacak.",
     "blindNotice": "Bu kör bir açık artırmadır. Sonuçlar yayınlanana kadar teklifler tüm oyunculardan gizlidir.",
-    "fixedRankNotice": "Sana zaten #{{rank}} sırası sabit olarak verildi ({{reason}}). Teklif vermek mümkün değil."
+    "fixedRankNotice": "Sana zaten #{{rank}} sırası sabit olarak verildi ({{reason}}). Teklif vermek mümkün değil.",
+    "maxLabel": "Maks",
+    "errors": {
+      "MISSING_FIELDS": "Zorunlu alanlar eksik.",
+      "INVALID_BID": "Geçersiz teklif miktarı.",
+      "AUCTION_NOT_FOUND": "Açık artırma bulunamadı.",
+      "AUCTION_NOT_OPEN": "Açık artırma teklif vermeye açık değil.",
+      "FIXED_RANK": "Bu açık artırmada sabit atanmış bir sıran var, teklif veremezsin.",
+      "BAD_PASSWORD": "Yanlış açık artırma şifresi.",
+      "PLAYER_NOT_FOUND": "Oyuncu bulunamadı.",
+      "ON_COOLDOWN": "{{date}} tarihine kadar beklemedesin.",
+      "BANNED": "Açık artırmalardan yasaklısın.",
+      "DKP_BALANCE_ERROR": "DKP bakiye hatası. Lütfen bir yönetici ile iletişime geç.",
+      "NOT_ENOUGH_DKP": "Yeterli DKP yok. Mevcut: {{amount}}",
+      "ALREADY_BID": "Bu açık artırma için zaten teklif verdin.",
+      "GENERIC": "Teklif gönderilemedi."
+    }
   },
   "fixedRanks": {
     "title": "Sabit Verilen Sıralar",
