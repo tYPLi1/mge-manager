@@ -1,12 +1,14 @@
 import React, { useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
+import { DEFAULT_FORMULA, FORMULA_VARS, evalCompensationFormula } from "./compensationFormula";
 
 const DEFAULT_CONFIG = {
   level1_offenses: [0, 5, 10, 20, 40, 80],
   level2_minimum: 50,
-  compensation_divisor: 2,
+  compensation_formula: DEFAULT_FORMULA,
   level1_reset_days: null,
   level2_reset_days: null,
   level3_reset_days: null,
@@ -144,28 +146,53 @@ export default function PenaltyConfigEditor({ value, onChange }) {
         </div>
       </div>
 
-      {/* Compensation */}
+      {/* Compensation Formula */}
       <div>
         <div className="flex items-center gap-2 mb-1">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
-          <h4 className="text-sm font-semibold text-emerald-400">Compensation Formula Divisor</h4>
+          <h4 className="text-sm font-semibold text-emerald-400">Compensation Formula</h4>
         </div>
-        <p className="text-xs text-gray-500 mb-3 ml-4">
-          Formula: <code className="text-amber-300">floor(((Missing Medals / Expected Medals) / <span className="font-bold">{config.compensation_divisor ?? 2}</span>) × Bid DKP)</code>
+        <p className="text-xs text-gray-500 mb-2 ml-4">
+          Free-form arithmetic expression. Result is floored and clamped to ≥ 0.
         </p>
-        <div className="flex items-center gap-2 ml-4">
-          <Input
-            type="number"
-            min="1"
-            step="0.5"
-            value={config.compensation_divisor ?? 2}
-            onChange={(e) => update({ ...config, compensation_divisor: parseFloat(e.target.value) || 2 })}
-            className="bg-white/5 border-white/10 text-white w-24"
+        <div className="ml-4 space-y-2">
+          <Textarea
+            value={config.compensation_formula ?? DEFAULT_FORMULA}
+            onChange={(e) => update({ ...config, compensation_formula: e.target.value })}
+            rows={2}
+            placeholder={DEFAULT_FORMULA}
+            className="bg-white/5 border-white/10 text-white font-mono text-sm"
           />
-          <span className="text-xs text-gray-500">divisor</span>
+          <div className="text-[11px] text-gray-500 leading-relaxed">
+            <div className="mb-1">Available variables:</div>
+            <div className="flex flex-wrap gap-1.5">
+              {FORMULA_VARS.map((v) => (
+                <code key={v} className="text-amber-300 bg-amber-500/5 border border-amber-500/10 rounded px-1.5 py-0.5">{v}</code>
+              ))}
+              <code className="text-amber-300 bg-amber-500/5 border border-amber-500/10 rounded px-1.5 py-0.5">Math.*</code>
+            </div>
+            <div className="mt-2 text-gray-600">
+              Examples:
+              <code className="ml-1 text-gray-400">bid / 2</code>,
+              <code className="ml-1 text-gray-400">bid * (medalDiff / wonMedals)</code>,
+              <code className="ml-1 text-gray-400">Math.min(bid / 2, 500)</code>
+            </div>
+            <FormulaPreview formula={config.compensation_formula ?? DEFAULT_FORMULA} />
+          </div>
         </div>
       </div>
 
+    </div>
+  );
+}
+
+function FormulaPreview({ formula }) {
+  const sample = { bid: 1000, wonRank: 1, achievedRank: 3, wonMedals: 100, achievedMedals: 60, medalDiff: 40 };
+  const result = evalCompensationFormula(formula, sample);
+  return (
+    <div className="mt-2 text-gray-500">
+      Preview with sample (bid=1000, wonRank=1, achievedRank=3, wonMedals=100, achievedMedals=60, medalDiff=40):{" "}
+      <span className="text-emerald-400 font-mono font-semibold">+{result} DKP</span>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n";
+import { evalCompensationFormula } from "./compensationFormula";
 
 const APP_URL = "https://mge002.base44.app/Results";
 
@@ -16,7 +17,7 @@ function getSession() {
   } catch { return null; }
 }
 
-export default function CompensationModal({ auction, bids, results, mgeTargets, divisor, onClose, onDone }) {
+export default function CompensationModal({ auction, bids, results, mgeTargets, formula, onClose, onDone }) {
   const { t } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
 
@@ -69,10 +70,17 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
       const wonRank = wonRankByPlayer[b.player_id] || null;
       const achievedRaw = String(rs.achievedRank || "").trim();
       const achievedRank = achievedRaw ? parseInt(achievedRaw, 10) : null;
-      const compDkp = divisor > 0 ? Math.floor((b.dkp_bid || 0) / divisor) : 0;
       const wonMedals = medalsForRank(wonRank);
       const achievedMedals = medalsForRank(achievedRank);
       const medalDiff = wonMedals - achievedMedals; // positive = lost medals
+      const compDkp = formula ? evalCompensationFormula(formula, {
+        bid: b.dkp_bid || 0,
+        wonRank: wonRank || 0,
+        achievedRank: achievedRank || 0,
+        wonMedals,
+        achievedMedals,
+        medalDiff,
+      }) : 0;
       return {
         bid: b,
         wonRank,
@@ -83,7 +91,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         selected: !!rs.selected,
       };
     });
-  }, [activeBids, rowState, wonRankByPlayer, divisor]);
+  }, [activeBids, rowState, wonRankByPlayer, formula]);
 
   const selectedRows = rows.filter(r => r.selected);
   const totalDkp = selectedRows.reduce((s, r) => s + r.compDkp, 0);
@@ -116,7 +124,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
 
   const handleSubmit = async () => {
     if (selectedRows.length === 0) return;
-    if (!divisor || divisor <= 0) {
+    if (!formula) {
       toast.error(t("compensation.divisorMissing"));
       return;
     }
@@ -188,7 +196,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
 
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
           <p className="text-xs text-amber-300">
-            ⚖ {divisor > 0 ? t("compensation.formula", { divisor }) : t("compensation.divisorMissing")}
+            ⚖ {formula ? <>Formula: <code className="font-mono">{formula}</code></> : t("compensation.divisorMissing")}
           </p>
         </div>
 
@@ -267,7 +275,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || selectedRows.length === 0 || !divisor}
+            disabled={submitting || selectedRows.length === 0 || !formula}
             className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
             {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Coins className="w-4 h-4 mr-2" />}

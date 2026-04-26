@@ -224,15 +224,20 @@ export default function AdminAuctions() {
     return Number.isFinite(v) && v > 0 ? v : 10;
   }, [settings]);
 
-  const compensationDivisor = useMemo(() => {
-    // Read from penalty_config.compensation_divisor (managed in PenaltyConfigEditor)
+  const compensationFormula = useMemo(() => {
+    // Read from penalty_config.compensation_formula (managed in PenaltyConfigEditor)
+    // Backwards compat: if only legacy compensation_divisor exists, build "bid / N"
     try {
       const raw = settings.find((s) => s.key === "penalty_config")?.value;
-      if (!raw) return 0;
+      if (!raw) return "";
       const cfg = JSON.parse(raw);
-      const v = parseFloat(cfg.compensation_divisor);
-      return Number.isFinite(v) && v > 0 ? v : 0;
-    } catch { return 0; }
+      if (typeof cfg.compensation_formula === "string" && cfg.compensation_formula.trim()) {
+        return cfg.compensation_formula.trim();
+      }
+      const div = parseFloat(cfg.compensation_divisor);
+      if (Number.isFinite(div) && div > 0) return `bid / ${div}`;
+      return "";
+    } catch { return ""; }
   }, [settings]);
 
   // Bids and results for the currently active compensation auction
@@ -1170,7 +1175,7 @@ export default function AdminAuctions() {
           bids={compensationBids}
           results={compensationResults}
           mgeTargets={mgeTargets}
-          divisor={compensationDivisor}
+          formula={compensationFormula}
           onClose={() => setCompensationAuction(null)}
           onDone={() => {
             queryClient.invalidateQueries({ queryKey: ["players"] });
