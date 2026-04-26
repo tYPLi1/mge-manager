@@ -92,13 +92,17 @@ Deno.serve(async (req) => {
 
     if (!BOT_TOKEN) return Response.json({ status: 'no_token' });
 
-    const results = await service.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', 10);
     const settings = await service.entities.AppSettings.list();
     const channels = getTargetChannels(settings, 'results');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
+    const maxRanks = parseInt(settings.find(s => s.key === 'auction_max_ranks')?.value || '10', 10) || 10;
+    const results = await service.entities.AuctionResult.filter({ auction_id: auctionId }, 'rank', Math.max(maxRanks, 50));
+
     const tiebreaker = settings.find(s => s.key === 'auction_tiebreaker')?.value || 'fcfs';
     const tiebreakerFallback = settings.find(s => s.key === 'auction_tiebreaker_fallback')?.value || 'fcfs';
+    const friendlyZoneEnabled = settings.find(s => s.key === 'friendly_zone_enabled')?.value === 'true';
+    const friendlyZoneThreshold = parseInt(settings.find(s => s.key === 'friendly_zone_threshold')?.value || '50', 10);
     const resultsUrl = 'https://mge002.base44.app/Results';
 
     const ruleLabel = (rule) => {
@@ -111,6 +115,8 @@ Deno.serve(async (req) => {
       let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
       if (r.target_score) line += ` | Target: ${r.target_score.toLocaleString()}`;
       if (r.hero_medals) line += ` | Medals: ${r.hero_medals}`;
+      if (r.is_friendly_zone) line += ` 🤝 _(Friendly Zone)_`;
+      if (r.tiebreaker_note) line += ` _(${r.tiebreaker_note})_`;
       return line;
     }).join('\n');
 
@@ -118,18 +124,23 @@ Deno.serve(async (req) => {
       (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
       (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
     );
+    const hasFzWinner = results.some(r => r.is_friendly_zone);
+
     let tiebreakerNote = null;
     if (hasTies) {
-      tiebreakerNote = `⚖ ${ruleLabel(tiebreaker)}`;
+      tiebreakerNote = `⚖ **Primary:** ${ruleLabel(tiebreaker)}`;
       if (tiebreaker !== 'fcfs') {
-        tiebreakerNote += `\n↳ Fallback: ${ruleLabel(tiebreakerFallback)}`;
+        tiebreakerNote += `\n↳ **Backup:** ${ruleLabel(tiebreakerFallback)}`;
       }
     }
 
     const fields = [
-      { name: 'Winners (Top 10)', value: resultsText || 'No results', inline: false },
+      { name: `Winners (Top ${maxRanks})`, value: resultsText || 'No results', inline: false },
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
+    if (friendlyZoneEnabled && hasFzWinner) {
+      fields.push({ name: '🤝 Friendly Zone', value: `Reserved slot for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP).`, inline: false });
+    }
     if (tiebreakerNote) fields.push({ name: 'Tiebreaker', value: tiebreakerNote, inline: false });
     fields.push({ name: '🔗 Link', value: `[View Results](${resultsUrl})`, inline: false });
 

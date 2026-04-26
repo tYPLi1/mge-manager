@@ -206,6 +206,7 @@ export default function RankConfigEditor({
                   <Checkbox
                     checked={isFZ(rank)}
                     onCheckedChange={() => toggleFZ(rank)}
+                    className="border-gray-500 bg-white/5 hover:border-emerald-400 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 data-[state=checked]:text-white"
                   />
                 </td>
               </tr>
