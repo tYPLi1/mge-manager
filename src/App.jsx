@@ -9,14 +9,16 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AdminUserManagement from '@/pages/AdminUserManagement';
 import DesignPreview from '@/pages/DesignPreview';
+import AppShell from '@/components/layout/AppShell';
+import { I18nProvider } from '@/lib/i18n';
 
-const { Pages, Layout, mainPage } = pagesConfig;
+const { Pages, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+const LayoutWrapper = ({ children, currentPageName }) => (
+  <AppShell currentPageName={currentPageName}>{children}</AppShell>
+);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -76,13 +78,15 @@ function App() {
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-        <SonnerToaster theme="dark" position="top-right" richColors />
-      </QueryClientProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+          <SonnerToaster theme="dark" position="top-right" richColors />
+        </QueryClientProvider>
+      </I18nProvider>
     </AuthProvider>
   )
 }

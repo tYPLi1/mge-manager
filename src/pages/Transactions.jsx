@@ -1,16 +1,24 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { History, Filter } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import PageHeader from "@/components/dkp/PageHeader";
-import DKPValue from "@/components/dkp/DKPValue";
+import { Filter, ArrowUpCircle, ArrowDownCircle, Search } from "lucide-react";
+import DPPageHeader from "@/components/dp/PageHeader";
+import StatCard from "@/components/dp/StatCard";
+import { useTranslation } from "@/lib/i18n";
+
+const typeStyle = (type) => {
+  if (type === "bid" || type === "penalty") {
+    return { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.25)" };
+  }
+  return { color: "var(--dp-success)", bg: "rgba(109, 185, 137, 0.12)", border: "rgba(109, 185, 137, 0.25)" };
+};
 
 export default function Transactions() {
+  const { t } = useTranslation();
   const [filterPlayer, setFilterPlayer] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [searchQ, setSearchQ] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 50;
 
@@ -32,132 +40,190 @@ export default function Transactions() {
   }, [queryClient]);
 
   const sources = useMemo(() => {
-    const s = new Set(transactions.map((t) => t.source).filter(Boolean));
+    const s = new Set(transactions.map((tx) => tx.source).filter(Boolean));
     return Array.from(s).sort();
   }, [transactions]);
 
   const filtered = useMemo(() => {
-    return transactions.filter((t) => {
-      if (filterPlayer !== "all" && t.player_id !== filterPlayer) return false;
-      if (filterSource !== "all" && t.source !== filterSource) return false;
-      if (filterType !== "all" && t.type !== filterType) return false;
+    const q = searchQ.trim().toLowerCase();
+    return transactions.filter((tx) => {
+      if (filterPlayer !== "all" && tx.player_id !== filterPlayer) return false;
+      if (filterSource !== "all" && tx.source !== filterSource) return false;
+      if (filterType !== "all" && tx.type !== filterType) return false;
+      if (q && !`${tx.player_name || ""} ${tx.source || ""} ${tx.note || ""}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [transactions, filterPlayer, filterSource, filterType]);
+  }, [transactions, filterPlayer, filterSource, filterType, searchQ]);
+
+  const totalEarned = filtered.filter(tx => tx.amount > 0).reduce((s, tx) => s + tx.amount, 0);
+  const totalSpent = Math.abs(filtered.filter(tx => tx.amount < 0).reduce((s, tx) => s + tx.amount, 0));
 
   const paged = filtered.slice(page * pageSize, (page + 1) * pageSize);
-  const totalPages = Math.ceil(filtered.length / pageSize);
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+
+  const selectStyle = {
+    background: "var(--dp-bg)",
+    border: "1px solid var(--dp-border)",
+    borderRadius: 8,
+    padding: "8px 10px",
+    color: "var(--dp-text)",
+    fontSize: 13,
+    fontFamily: "inherit",
+    minWidth: 140,
+    cursor: "pointer",
+  };
 
   return (
-    <div>
-      <PageHeader title="DKP Transaction Log" subtitle={`${filtered.length} transactions`} icon={History} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <DPPageHeader title={t("transactions.title")} subtitle={t("transactions.transactionsLabel", { count: filtered.length })} />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <Select value={filterPlayer} onValueChange={(v) => { setFilterPlayer(v); setPage(0); }}>
-            <SelectTrigger className="w-48 bg-white/5 border-white/10 text-white text-sm">
-              <SelectValue placeholder="All Players" />
-            </SelectTrigger>
-            <SelectContent className="max-h-60">
-              <SelectItem value="all">All Players</SelectItem>
-              {players.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+        <div className="dp-card-elevated" style={{ padding: 16 }}>
+          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+            {t("transactions.totalEarned")}
+          </div>
+          <div className="dp-heading dp-mono dp-success-text" style={{ fontSize: 24, fontWeight: 600 }}>
+            +{totalEarned.toLocaleString("en-US")}
+          </div>
         </div>
-        <Select value={filterSource} onValueChange={(v) => { setFilterSource(v); setPage(0); }}>
-          <SelectTrigger className="w-36 bg-white/5 border-white/10 text-white text-sm">
-            <SelectValue placeholder="All Events" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Events</SelectItem>
-            {sources.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterType} onValueChange={(v) => { setFilterType(v); setPage(0); }}>
-          <SelectTrigger className="w-36 bg-white/5 border-white/10 text-white text-sm">
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="earn">Earn</SelectItem>
-            <SelectItem value="bid">Bid</SelectItem>
-            <SelectItem value="penalty">Penalty</SelectItem>
-            <SelectItem value="bonus">Bonus</SelectItem>
-            <SelectItem value="compensation">Compensation</SelectItem>
-            <SelectItem value="king_allocation">King Allocation</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="dp-card-elevated" style={{ padding: 16 }}>
+          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+            {t("transactions.totalSpent")}
+          </div>
+          <div className="dp-heading dp-mono dp-danger-text" style={{ fontSize: 24, fontWeight: 600 }}>
+            −{totalSpent.toLocaleString("en-US")}
+          </div>
+        </div>
+        <StatCard label={t("transactions.transactionsCount")} value={filtered.length.toLocaleString("en-US")} />
       </div>
 
-      {/* Table */}
-      <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px]">
-            <thead className="bg-[#0d1117] border-b border-white/5">
-              <tr>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Player</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Event</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Stage</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Type</th>
+      <div className="dp-card" style={{ padding: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: "1 1 240px", maxWidth: 360 }}>
+          <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--dp-text-dim)" }} />
+          <input
+            className="dp-input"
+            placeholder={t("transactions.searchPlaceholder")}
+            style={{ paddingLeft: 34 }}
+            value={searchQ}
+            onChange={(e) => { setSearchQ(e.target.value); setPage(0); }}
+          />
+        </div>
+
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Filter size={13} style={{ color: "var(--dp-text-dim)" }} />
+          <select value={filterPlayer} onChange={(e) => { setFilterPlayer(e.target.value); setPage(0); }} style={selectStyle}>
+            <option value="all">{t("transactions.filters.allPlayers")}</option>
+            {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <select value={filterSource} onChange={(e) => { setFilterSource(e.target.value); setPage(0); }} style={selectStyle}>
+            <option value="all">{t("transactions.filters.allEvents")}</option>
+            {sources.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(0); }} style={selectStyle}>
+            <option value="all">{t("transactions.filters.allTypes")}</option>
+            <option value="earn">{t("transactions.types.earn")}</option>
+            <option value="bid">{t("transactions.types.bid")}</option>
+            <option value="penalty">{t("transactions.types.penalty")}</option>
+            <option value="bonus">{t("transactions.types.bonus")}</option>
+            <option value="compensation">{t("transactions.types.compensation")}</option>
+            <option value="king_allocation">{t("transactions.types.king_allocation")}</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="dp-card-elevated" style={{ overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
+            <thead>
+              <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)" }}>
+                {[
+                  t("transactions.columns.date"),
+                  t("transactions.columns.player"),
+                  t("transactions.columns.event"),
+                  t("transactions.columns.stage"),
+                  t("transactions.columns.note"),
+                  t("transactions.columns.amount"),
+                  t("transactions.columns.type"),
+                ].map((h, i) => (
+                  <th key={i} style={{
+                    textAlign: i === 5 ? "right" : "left",
+                    padding: "12px 18px", fontSize: 11, fontWeight: 600,
+                    color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em",
+                  }}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {isLoading ? (
-                Array(10).fill(0).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    {Array(6).fill(0).map((_, j) => (
-                      <td key={j} className="px-3 py-3"><div className="h-4 w-16 bg-gray-700 rounded" /></td>
+                Array(8).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                    {Array(7).fill(0).map((_, j) => (
+                      <td key={j} style={{ padding: "12px 18px" }}>
+                        <div style={{ height: 12, width: 70, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
+                      </td>
                     ))}
                   </tr>
                 ))
               ) : (
-                paged.map((t) => (
-                  <tr key={t.id} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2 text-xs text-gray-400 font-mono">{t.event_date}</td>
-                    <td className="px-3 py-2 text-sm font-medium text-white">{t.player_name}</td>
-                    <td className="px-3 py-2">
-                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/20">
-                        {t.source}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-xs text-gray-500">{t.source_stage || "—"}</td>
-                    <td className="px-3 py-2"><DKPValue value={t.amount} size="sm" showSign /></td>
-                    <td className="px-3 py-2 text-xs text-gray-500">{t.type}</td>
-                  </tr>
-                ))
+                paged.map((tx) => {
+                  const ts = typeStyle(tx.type);
+                  const positive = tx.amount > 0;
+                  return (
+                    <tr key={tx.id} className="dp-hover-row" style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                      <td className="dp-mono" style={{ padding: "12px 18px", color: "var(--dp-text-muted)", fontSize: 12.5 }}>
+                        {tx.event_date}
+                      </td>
+                      <td style={{ padding: "12px 18px", fontWeight: 500 }}>{tx.player_name}</td>
+                      <td style={{ padding: "12px 18px", color: "var(--dp-text-muted)" }}>
+                        <span className="dp-badge" style={{ background: "rgba(107, 147, 201, 0.12)", color: "var(--dp-info)", border: "1px solid rgba(107, 147, 201, 0.25)" }}>
+                          {tx.source}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 18px", fontSize: 12, color: "var(--dp-text-dim)" }}>{tx.source_stage || "—"}</td>
+                      <td style={{ padding: "12px 18px", fontSize: 12.5, color: "var(--dp-text-dim)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {tx.note || "—"}
+                      </td>
+                      <td style={{ padding: "12px 18px", textAlign: "right" }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          {positive
+                            ? <ArrowUpCircle size={13} style={{ color: "var(--dp-success)" }} />
+                            : <ArrowDownCircle size={13} style={{ color: "var(--dp-danger)" }} />
+                          }
+                          <span className="dp-mono" style={{
+                            fontWeight: 600,
+                            color: positive ? "var(--dp-success)" : "var(--dp-danger)",
+                          }}>
+                            {positive ? "+" : "−"}{Math.abs(tx.amount)}
+                          </span>
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 18px" }}>
+                        <span className="dp-badge" style={{ background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
+                          {tx.type}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
-            <p className="text-xs text-gray-500">
-              Page {page + 1} of {totalPages}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(Math.max(0, page - 1))}
-                disabled={page === 0}
-                className="px-3 py-1 text-xs rounded bg-white/5 text-gray-400 hover:bg-white/10 disabled:opacity-30"
-              >
-                Previous
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "12px 18px", borderTop: "1px solid var(--dp-border)",
+          }}>
+            <span style={{ fontSize: 12, color: "var(--dp-text-dim)" }}>
+              {t("common.page")} {page + 1} {t("common.of")} {totalPages}
+            </span>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="dp-btn-ghost" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} style={{ opacity: page === 0 ? 0.4 : 1 }}>
+                {t("common.previous")}
               </button>
-              <button
-                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-                disabled={page >= totalPages - 1}
-                className="px-3 py-1 text-xs rounded bg-white/5 text-gray-400 hover:bg-white/10 disabled:opacity-30"
-              >
-                Next
+              <button className="dp-btn-ghost" onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} style={{ opacity: page >= totalPages - 1 ? 0.4 : 1 }}>
+                {t("common.next")}
               </button>
             </div>
           </div>

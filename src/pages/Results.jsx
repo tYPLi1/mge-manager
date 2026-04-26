@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ScrollText, ChevronRight, Medal } from "lucide-react";
-import PageHeader from "@/components/dkp/PageHeader";
-import DKPValue from "@/components/dkp/DKPValue";
+import { Trophy, Calendar, Award, ChevronRight, ScrollText } from "lucide-react";
+import DPPageHeader from "@/components/dp/PageHeader";
+import { useTranslation } from "@/lib/i18n";
 
 const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
@@ -19,6 +19,7 @@ const DEFAULT_MGE_TARGETS = [
 ];
 
 export default function Results() {
+  const { t } = useTranslation();
   const [selectedAuction, setSelectedAuction] = useState(null);
   const queryClient = useQueryClient();
 
@@ -45,19 +46,19 @@ export default function Results() {
     },
   });
 
+  // Auto-select latest
   useEffect(() => {
-    // Auction is admin-only, use polling for public pages
+    if (!selectedAuction && auctions.length > 0) setSelectedAuction(auctions[0]);
+  }, [auctions, selectedAuction]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       queryClient.invalidateQueries({ queryKey: ["auctions-confirmed"] });
     }, 30000);
-    
     const unsub = base44.entities.AuctionResult.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ["results"] });
     });
-    return () => {
-      clearInterval(interval);
-      unsub();
-    };
+    return () => { clearInterval(interval); unsub(); };
   }, [queryClient]);
 
   const mgeTargets = useMemo(() => {
@@ -70,140 +71,174 @@ export default function Results() {
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
   const tiebreakerFallback = settings.find((s) => s.key === "auction_tiebreaker_fallback")?.value || "fcfs";
 
-  // Detect if there are ties in this result set
   const hasTies = results.some((r, i) =>
     (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
     (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
   );
 
-  const ruleLabel = (rule) => {
-    if (rule === "activity") return "Activity Score";
-    if (rule === "last_event_dkp") return "Last Event DKP";
-    return "First Come First Served";
-  };
+  const ruleLabel = (rule) => t(`results.tiebreakerRule.${rule}`) || t("results.tiebreakerRule.fcfs");
+
+  const totalDkp = results.reduce((s, r) => s + (r.dkp_bid || 0), 0);
 
   return (
-    <div>
-      <PageHeader title="Results Archive" subtitle="Past MGE auction results" icon={ScrollText} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <DPPageHeader title={t("results.title")} subtitle={t("results.subtitle")} />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Auction List */}
-        <div className="space-y-2">
-          {isLoading ? (
-            Array(5).fill(0).map((_, i) => (
-              <div key={i} className="bg-[#111827] rounded-xl border border-white/5 p-4 animate-pulse">
-                <div className="h-4 w-32 bg-gray-700 rounded mb-2" />
-                <div className="h-3 w-24 bg-gray-700 rounded" />
-              </div>
-            ))
-          ) : auctions.length === 0 ? (
-            <div className="bg-[#111827] rounded-xl border border-white/5 p-8 text-center">
-              <p className="text-gray-500 text-sm">No confirmed auctions yet</p>
-            </div>
-          ) : (
-            auctions.map((auction) => (
-              <button
-                key={auction.id}
-                onClick={() => setSelectedAuction(auction)}
-                className={`w-full text-left bg-[#111827] rounded-xl border p-4 transition-all ${
-                  selectedAuction?.id === auction.id
-                    ? "border-amber-500/30 bg-amber-500/5"
-                    : "border-white/5 hover:border-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-white text-sm">{auction.title}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {auction.confirmed_at ? new Date(auction.confirmed_at).toLocaleDateString("de-CH", { timeZone: "UTC" }) + " (UTC)" : ""}
-                    </p>
-                  </div>
-                  <ChevronRight className={`w-4 h-4 transition-colors ${
-                    selectedAuction?.id === auction.id ? "text-amber-400" : "text-gray-600"
-                  }`} />
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-
-        {/* Results Table */}
-        <div className="lg:col-span-2">
-          {selectedAuction ? (
-            <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
-              <div className="p-4 border-b border-white/5">
-                <h3 className="font-semibold text-white">{selectedAuction.title}</h3>
-                {hasTies && (
-                  <div className="text-xs text-purple-400 mt-1 space-y-0.5">
-                    <p>⚖ Tiebreaker: {ruleLabel(tiebreaker)}</p>
-                    {tiebreaker !== "fcfs" && (
-                      <p className="text-gray-500">↳ Fallback: {ruleLabel(tiebreakerFallback)}</p>
-                    )}
-                  </div>
+      {selectedAuction ? (
+        <div className="dp-card-elevated" style={{ padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            <div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                <span className="dp-badge" style={{
+                  background: "var(--dp-accent-soft)",
+                  color: "var(--dp-accent)",
+                  border: "1px solid var(--dp-accent-border)",
+                }}>
+                  <Trophy size={11} /> {t("results.confirmed")}
+                </span>
+                {selectedAuction.confirmed_at && (
+                  <span style={{ fontSize: 11.5, color: "var(--dp-text-dim)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Calendar size={11} /> {new Date(selectedAuction.confirmed_at).toLocaleDateString("en-US", { timeZone: "UTC" })}
+                  </span>
                 )}
               </div>
-              <table className="w-full">
-                <thead className="bg-[#0d1117]">
-                  <tr>
-                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Rank</th>
-                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Player</th>
-                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">DKP Bid</th>
-                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">Medals</th>
-                    <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Target Score</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {results.map((r, i) => {
-                    const t = mgeTargets.find((m) => m.rank === r.rank);
-                    return (
-                      <tr key={r.id} className="hover:bg-white/[0.02]">
-                        <td className="px-3 py-2.5">
-                          <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                            r.rank <= 3 ? "bg-amber-500/20 text-amber-400" : "bg-gray-700/50 text-gray-400"
-                          }`}>
-                            {r.rank}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <span className="text-sm font-medium text-white">{r.player_name}</span>
-                          {r.is_friendly_zone && (
-                            <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded px-1.5 py-0.5">
-                              🤝 Friendly Zone
-                            </span>
-                          )}
-                          {r.tiebreaker_note && (
-                            <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
-                              ⚖ {r.tiebreaker_note}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5"><DKPValue value={r.dkp_bid} size="sm" /></td>
-                        <td className="px-3 py-2.5 hidden sm:table-cell">
-                          <span className="flex items-center gap-1 text-sm text-gray-400">
-                            <Medal className="w-3.5 h-3.5 text-amber-400" />
-                            {r.hero_medals ?? t?.medals}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5 hidden md:table-cell text-sm text-gray-400 font-mono">
-                          {(r.target_score ?? t?.target)?.toLocaleString()}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {results.length === 0 && (
-                <div className="p-8 text-center text-gray-500 text-sm">No results found</div>
+              <h2 className="dp-heading" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{selectedAuction.title}</h2>
+              {hasTies && (
+                <div style={{ fontSize: 11.5, color: "#a96fce", marginTop: 6 }}>
+                  ⚖ {t("results.tiebreaker")}: {ruleLabel(tiebreaker)}
+                  {tiebreaker !== "fcfs" && (
+                    <div style={{ color: "var(--dp-text-dim)" }}>↳ {t("results.fallback")}: {ruleLabel(tiebreakerFallback)}</div>
+                  )}
+                </div>
               )}
             </div>
-          ) : (
-            <div className="bg-[#111827] rounded-xl border border-white/5 p-12 text-center">
-              <ScrollText className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500 text-sm">Select an auction to view results</p>
+            <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{t("results.slots")}</div>
+                <div className="dp-heading dp-mono" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{results.length}</div>
+              </div>
+              <div style={{ width: 1, height: 36, background: "var(--dp-border)" }} />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{t("results.totalDkp")}</div>
+                <div className="dp-heading dp-mono dp-accent-text" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{totalDkp.toLocaleString("en-US")}</div>
+              </div>
             </div>
-          )}
+          </div>
+
+          <div style={{ overflowX: "auto", margin: "0 -20px -20px", borderTop: "1px solid var(--dp-border)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 560 }}>
+              <thead>
+                <tr style={{ background: "var(--dp-bg-elevated)" }}>
+                  {[
+                    t("results.columns.rank"),
+                    t("results.columns.player"),
+                    t("results.columns.dkpBid"),
+                    t("results.columns.score"),
+                    t("results.columns.medals"),
+                    t("results.columns.notes"),
+                  ].map((h, i) => (
+                    <th key={i} style={{
+                      textAlign: i <= 1 ? "left" : i === 5 ? "left" : "right",
+                      padding: "10px 18px",
+                      fontSize: 11, fontWeight: 600,
+                      color: "var(--dp-text-dim)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                    }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((r) => {
+                  const tg = mgeTargets.find((m) => m.rank === r.rank);
+                  const rankClass = r.rank === 1 ? "dp-rank-1" : r.rank === 2 ? "dp-rank-2" : r.rank === 3 ? "dp-rank-3" : "";
+                  return (
+                    <tr key={r.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                      <td style={{ padding: "12px 18px" }}>
+                        <span className="dp-heading dp-mono" style={{
+                          fontSize: 14, fontWeight: 600,
+                          color: r.rank <= 3 ? "var(--dp-accent)" : "var(--dp-text)",
+                        }}>
+                          #{r.rank}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 18px", fontWeight: 500 }}>
+                        {r.player_name}
+                        {r.is_friendly_zone && (
+                          <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-info)" }}>· FZ</span>
+                        )}
+                      </td>
+                      <td className="dp-mono dp-accent-text" style={{ padding: "12px 18px", textAlign: "right", fontWeight: 600 }}>
+                        {r.dkp_bid}
+                      </td>
+                      <td className="dp-mono" style={{ padding: "12px 18px", textAlign: "right", color: "var(--dp-text-muted)" }}>
+                        {(r.target_score ?? tg?.target)?.toLocaleString("en-US") || "—"}
+                      </td>
+                      <td style={{ padding: "12px 18px", textAlign: "right" }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--dp-text-muted)" }}>
+                          <Award size={12} style={{ color: "var(--dp-accent)" }} />
+                          <span className="dp-mono">{r.hero_medals ?? tg?.medals ?? "—"}</span>
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 18px", fontSize: 11.5, color: "var(--dp-text-dim)" }}>
+                        {r.tiebreaker_note ? `⚖ ${r.tiebreaker_note}` : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {results.length === 0 && (
+              <div style={{ padding: 32, textAlign: "center", color: "var(--dp-text-dim)", fontSize: 13 }}>
+                {t("results.noResults")}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      ) : isLoading ? (
+        <div className="dp-card" style={{ padding: 60, display: "flex", justifyContent: "center" }}>
+          <div style={{ width: 32, height: 32, border: "3px solid var(--dp-border)", borderTopColor: "var(--dp-accent)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        </div>
+      ) : auctions.length === 0 ? (
+        <div className="dp-card-elevated" style={{ padding: 48, textAlign: "center" }}>
+          <ScrollText size={36} style={{ color: "var(--dp-text-dim)", margin: "0 auto 12px" }} />
+          <p style={{ fontSize: 13, color: "var(--dp-text-muted)", margin: 0 }}>{t("results.noConfirmed")}</p>
+        </div>
+      ) : null}
+
+      {auctions.length > 1 && (
+        <div>
+          <h2 className="dp-heading" style={{ fontSize: 16, fontWeight: 600, margin: "0 0 12px" }}>
+            {t("results.pastAuctions")}
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {auctions.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => setSelectedAuction(a)}
+                className="dp-card dp-hover-row"
+                style={{
+                  padding: "14px 18px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", gap: 12, flexWrap: "wrap",
+                  background: selectedAuction?.id === a.id ? "var(--dp-accent-soft)" : "var(--dp-bg-card)",
+                  borderColor: selectedAuction?.id === a.id ? "var(--dp-accent-border)" : "var(--dp-border)",
+                  textAlign: "left", color: "var(--dp-text)", fontFamily: "inherit",
+                  width: "100%",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 4 }}>{a.title}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
+                    {a.confirmed_at ? new Date(a.confirmed_at).toLocaleDateString("en-US", { timeZone: "UTC" }) : ""}
+                  </div>
+                </div>
+                <ChevronRight size={16} style={{ color: selectedAuction?.id === a.id ? "var(--dp-accent)" : "var(--dp-text-dim)" }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

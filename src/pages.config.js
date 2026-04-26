@@ -66,7 +66,6 @@ import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
 import Transactions from './pages/Transactions';
-import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -94,5 +93,4 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "Leaderboard",
     Pages: PAGES,
-    Layout: __Layout,
 };

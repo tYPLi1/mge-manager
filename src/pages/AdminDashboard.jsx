@@ -4,11 +4,21 @@ import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, Gavel, History, Shield, Settings, ChevronRight } from "lucide-react";
-import PageHeader from "@/components/dkp/PageHeader";
+import { Users, Gavel, AlertTriangle, History, Shield, Settings, Settings2, Activity, ChevronRight, TrendingUp } from "lucide-react";
+import DPPageHeader from "@/components/dp/PageHeader";
+import StatCard from "@/components/dp/StatCard";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
+import { useTranslation } from "@/lib/i18n";
+
+function ensureUTC(dateStr) {
+  if (!dateStr) return dateStr;
+  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) return dateStr + 'Z';
+  return dateStr;
+}
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
+  const a = (k) => t(`admin.dashboard.${k}`);
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
@@ -33,95 +43,143 @@ export default function AdminDashboard() {
     return () => { unsub1(); unsub2(); unsub3(); };
   }, [queryClient]);
 
-  const openAuction = auctions.find((a) => a.status === "open" || a.status === "closed");
-
-  function ensureUTC(dateStr) {
-    if (!dateStr) return dateStr;
-    if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 11)) {
-      return dateStr + 'Z';
-    }
-    return dateStr;
-  }
-
+  const openAuction = auctions.find((au) => au.status === "open" || au.status === "closed");
   const isAuctionExpired = openAuction?.status === "open" && openAuction?.scheduled_close &&
     new Date(ensureUTC(openAuction.scheduled_close)) <= new Date();
 
+  const onCooldownCount = players.filter((p) => p.cooldown_until && new Date(p.cooldown_until) > new Date()).length;
 
   const stats = [
-    { label: "Total Players", value: players.length, color: "from-blue-500/20 to-cyan-500/20", border: "border-blue-500/20" },
-    { label: "Active Penalties", value: penalties.length, color: "from-red-500/20 to-orange-500/20", border: "border-red-500/20" },
-    { label: "On Cooldown", value: players.filter((p) => p.cooldown_until && new Date(p.cooldown_until) > new Date()).length, color: "from-amber-500/20 to-yellow-500/20", border: "border-amber-500/20" },
+    { label: a("totalPlayers"), value: players.length, icon: Users, accent: "var(--dp-info)" },
+    { label: a("activePenalties"), value: penalties.length, icon: AlertTriangle, accent: "var(--dp-danger)" },
+    { label: a("onCooldown"), value: onCooldownCount, icon: TrendingUp, accent: "var(--dp-accent)" },
   ];
 
   const quickLinks = [
-    { name: "Manage Auctions", page: "AdminAuctions", icon: Gavel, desc: "Create and manage MGE auctions" },
-    { name: "Manage Players", page: "AdminPlayers", icon: Users, desc: "Add, edit, or remove players" },
-    { name: "DKP Management", page: "AdminDKP", icon: History, desc: "Manual adjustments and event uploads" },
-    { name: "Penalties", page: "AdminPenalties", icon: Shield, desc: "Apply and manage penalties" },
-    { name: "Settings", page: "AdminSettings", icon: Settings, desc: "Configure system settings" },
+    { name: a("manageAuctions"), desc: a("manageAuctionsDesc"), page: "AdminAuctions", icon: Gavel },
+    { name: a("managePlayers"), desc: a("managePlayersDesc"), page: "AdminPlayers", icon: Users },
+    { name: a("dkpManagement"), desc: a("dkpManagementDesc"), page: "AdminDKP", icon: History },
+    { name: a("penalties"), desc: a("penaltiesDesc"), page: "AdminPenalties", icon: Shield },
+    { name: a("settings"), desc: a("settingsDesc"), page: "AdminSettings", icon: Settings },
   ];
 
-  return (
-    <div>
-      <PageHeader title="Admin Dashboard" icon={Zap} />
+  const statusColor = isAuctionExpired ? "#e89556" : openAuction?.status === "open" ? "var(--dp-success)" : "var(--dp-danger)";
 
-      {/* Open Auction Card */}
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <DPPageHeader title={a("title")} />
+
       {openAuction && (
-        <Link to={createPageUrl("AdminAuctions")} className="block mb-6">
-          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/20 p-5 hover:border-amber-500/40 transition-all">
-            <div className="flex items-center justify-between">
+        <Link to={createPageUrl("AdminAuctions")} style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="dp-card-elevated dp-hover-row" style={{
+            padding: 20,
+            background: "linear-gradient(135deg, rgba(212, 168, 89, 0.08), rgba(212, 168, 89, 0.02))",
+            borderColor: "var(--dp-accent-border)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
               <div>
-                <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-1">Active Auction</p>
-                <h3 className="text-lg font-bold text-white">{openAuction.title}</h3>
-                <p className="text-sm text-gray-400 mt-1">
-                  Status: <span className={isAuctionExpired ? "text-orange-400 animate-pulse" : openAuction.status === "open" ? "text-emerald-400" : "text-red-400"}>
-                    {isAuctionExpired ? "closing..." : openAuction.status}
+                <div className="dp-accent-text" style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
+                  {a("activeAuction")}
+                </div>
+                <h3 className="dp-heading" style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 4 }}>{openAuction.title}</h3>
+                <div style={{ fontSize: 13, color: "var(--dp-text-muted)" }}>
+                  {a("status")}: <span style={{ color: statusColor, fontWeight: 600 }}>
+                    {isAuctionExpired ? a("closing") : openAuction.status}
                   </span>
-                </p>
+                </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-amber-400" />
+              <ChevronRight size={20} style={{ color: "var(--dp-accent)" }} />
             </div>
           </div>
         </Link>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        {stats.map((s) => (
-          <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl border ${s.border} p-5`}>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{s.label}</p>
-            <p className="text-3xl font-bold text-white mt-1 font-mono">{s.value}</p>
-          </div>
-        ))}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+        {stats.map((s, i) => <StatCard key={i} {...s} />)}
       </div>
 
-      {/* Discord Notifications */}
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Discord Notifications</h2>
-      <DiscordNotificationPanel />
+      <div>
+        <h2 className="dp-heading" style={{ fontSize: 13, fontWeight: 600, color: "var(--dp-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "8px 0 12px" }}>
+          {a("discordNotifications")}
+        </h2>
+        <DiscordNotificationPanel />
+      </div>
 
-      {/* Quick Links */}
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6">Quick Actions</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {quickLinks.map((link) => {
-          const Icon = link.icon;
-          return (
-            <Link
-              key={link.page}
-              to={createPageUrl(link.page)}
-              className="bg-[#111827] rounded-xl border border-white/5 p-4 hover:border-white/10 transition-all group"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-amber-500/10 transition-colors">
-                  <Icon className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" />
+      <div className="dp-grid-2">
+        <div className="dp-card" style={{ padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <Settings2 size={14} style={{ color: "var(--dp-text-muted)" }} />
+            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>{a("quickActions")}</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+            {quickLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.page}
+                  to={createPageUrl(link.page)}
+                  className="dp-hover-row"
+                  style={{
+                    padding: "14px 14px",
+                    background: "var(--dp-bg)",
+                    border: "1px solid var(--dp-border)",
+                    borderRadius: 10,
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "flex", alignItems: "center", gap: 12,
+                  }}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 8,
+                    background: "var(--dp-accent-soft)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={16} style={{ color: "var(--dp-accent)" }} />
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--dp-text)" }}>{link.name}</div>
+                    <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginTop: 2 }}>{link.desc}</div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="dp-card" style={{ padding: 0, overflow: "hidden", height: "fit-content" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--dp-border)", display: "flex", alignItems: "center", gap: 8 }}>
+            <Activity size={14} style={{ color: "var(--dp-text-muted)" }} />
+            <span className="dp-heading" style={{ fontSize: 14, fontWeight: 600 }}>{a("activeAuction")}</span>
+          </div>
+          <div>
+            {auctions.slice(0, 5).map((au, i, arr) => (
+              <Link
+                key={au.id}
+                to={createPageUrl("AdminAuctions")}
+                style={{
+                  display: "block",
+                  padding: "14px 20px",
+                  borderBottom: i < arr.length - 1 ? "1px solid var(--dp-border)" : "none",
+                  textDecoration: "none", color: "inherit",
+                }}
+                className="dp-hover-row"
+              >
+                <div style={{ fontSize: 13, marginBottom: 4, color: "var(--dp-text)" }}>{au.title}</div>
+                <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", display: "flex", gap: 8 }}>
+                  <span>{au.status}</span>
+                  <span>·</span>
+                  <span>{au.created_date ? new Date(au.created_date).toLocaleDateString("en-US") : ""}</span>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">{link.name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{link.desc}</p>
-                </div>
+              </Link>
+            ))}
+            {auctions.length === 0 && (
+              <div style={{ padding: 20, textAlign: "center", color: "var(--dp-text-dim)", fontSize: 13 }}>
+                {t("common.noData")}
               </div>
-            </Link>
-          );
-        })}
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

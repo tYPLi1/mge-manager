@@ -1,12 +1,18 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Shield, Filter } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import PageHeader from "@/components/dkp/PageHeader";
-import DKPValue from "@/components/dkp/DKPValue";
+import { Shield, AlertTriangle, CheckCircle2, Clock, Filter } from "lucide-react";
+import DPPageHeader from "@/components/dp/PageHeader";
+import { useTranslation } from "@/lib/i18n";
+
+const levelStyle = (level) => {
+  if (level === 1) return { color: "#e6c171", bg: "rgba(230, 193, 113, 0.12)", border: "rgba(230, 193, 113, 0.3)" };
+  if (level === 2) return { color: "#e89556", bg: "rgba(232, 149, 86, 0.12)", border: "rgba(232, 149, 86, 0.3)" };
+  return { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.3)" };
+};
 
 export default function Punishments() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState("active");
 
   const { data: penalties = [], isLoading } = useQuery({
@@ -26,90 +32,163 @@ export default function Punishments() {
     return penalties;
   }, [penalties, statusFilter]);
 
-  return (
-    <div>
-      <PageHeader title="Punishment Log" subtitle={`${filtered.length} records`} icon={Shield}>
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36 bg-white/5 border-white/10 text-white text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active Only</SelectItem>
-              <SelectItem value="reset">Reset Only</SelectItem>
-              <SelectItem value="all">All</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </PageHeader>
+  const open = penalties.filter(p => p.status === "probation");
+  const closed = penalties.filter(p => p.status === "reset");
+  const totalDeducted = penalties.reduce((s, p) => s + (p.dkp_deducted || 0), 0);
 
-      <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#0d1117] border-b border-white/5">
-              <tr>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Player</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Level</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Offense #</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">Date</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">DKP Deducted</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Reset Date</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Note</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {isLoading ? (
-                Array(5).fill(0).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    {Array(8).fill(0).map((_, j) => (
-                      <td key={j} className="px-3 py-3"><div className="h-4 w-16 bg-gray-700 rounded" /></td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                filtered.map((p) => (
-                  <tr key={p.id} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 text-sm font-medium text-white">{p.player_name}</td>
-                    <td className="px-3 py-2.5">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold ${
-                        p.level === 1 ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/20" :
-                        p.level === 2 ? "bg-orange-500/15 text-orange-400 border border-orange-500/20" :
-                        "bg-red-500/15 text-red-400 border border-red-500/20"
-                      }`}>
-                        L{p.level}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-sm text-gray-300 font-mono">{p.offense_count}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{p.offense_date}</td>
-                    <td className="px-3 py-2.5 hidden sm:table-cell">
-                      {p.dkp_deducted ? <DKPValue value={-p.dkp_deducted} size="sm" showSign /> : <span className="text-gray-600">—</span>}
-                    </td>
-                    <td className="px-3 py-2.5">
-                      {p.status === "probation" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-orange-500/15 text-orange-400 border border-orange-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                          Probation
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gray-500/15 text-gray-400 border border-gray-500/20">
-                          Reset
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400 font-mono hidden md:table-cell">{p.eligible_reset_date || "—"}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell max-w-[200px] truncate">{p.note || "—"}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+  const showOpen = statusFilter === "active" || statusFilter === "all";
+  const showClosed = statusFilter === "reset" || statusFilter === "all";
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <DPPageHeader title={t("punishments.title")} subtitle={t("punishments.recordsCount", { count: filtered.length })}>
+        <Filter size={13} style={{ color: "var(--dp-text-dim)" }} />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{
+            background: "var(--dp-bg)", border: "1px solid var(--dp-border)",
+            borderRadius: 8, padding: "8px 10px", color: "var(--dp-text)",
+            fontSize: 13, fontFamily: "inherit", cursor: "pointer",
+          }}
+        >
+          <option value="active">{t("punishments.filters.active")}</option>
+          <option value="reset">{t("punishments.filters.reset")}</option>
+          <option value="all">{t("punishments.filters.all")}</option>
+        </select>
+      </DPPageHeader>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+        <div className="dp-card-elevated" style={{ padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t("punishments.open")}</div>
+            <AlertTriangle size={14} style={{ color: "var(--dp-danger)" }} />
+          </div>
+          <div className="dp-heading dp-mono" style={{ fontSize: 24, fontWeight: 600 }}>{open.length}</div>
         </div>
-        {!isLoading && filtered.length === 0 && (
-          <div className="p-8 text-center text-gray-500 text-sm">No penalties found</div>
-        )}
+        <div className="dp-card-elevated" style={{ padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t("punishments.resolved")}</div>
+            <CheckCircle2 size={14} style={{ color: "var(--dp-success)" }} />
+          </div>
+          <div className="dp-heading dp-mono" style={{ fontSize: 24, fontWeight: 600 }}>{closed.length}</div>
+        </div>
+        <div className="dp-card-elevated" style={{ padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t("punishments.dkpDeducted")}</div>
+            <Shield size={14} style={{ color: "var(--dp-text-muted)" }} />
+          </div>
+          <div className="dp-heading dp-mono dp-danger-text" style={{ fontSize: 24, fontWeight: 600 }}>
+            −{Math.abs(totalDeducted).toLocaleString("en-US")}
+          </div>
+        </div>
       </div>
+
+      {isLoading && (
+        <div className="dp-card" style={{ padding: 60, display: "flex", justifyContent: "center" }}>
+          <div style={{ width: 32, height: 32, border: "3px solid var(--dp-border)", borderTopColor: "var(--dp-accent)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        </div>
+      )}
+
+      {showOpen && open.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <h2 className="dp-heading" style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{t("punishments.activeProbations")}</h2>
+            <span className="dp-badge" style={{ background: "rgba(201, 101, 101, 0.12)", color: "var(--dp-danger)", border: "1px solid rgba(201, 101, 101, 0.25)" }}>
+              {open.length}
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {open.map((p) => {
+              const ls = levelStyle(p.level);
+              return (
+                <div key={p.id} className="dp-card" style={{ padding: 16 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+                    <div style={{ minWidth: 0, flex: "1 1 200px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: 600, fontSize: 15 }}>{p.player_name}</span>
+                        <span className="dp-badge" style={{ background: ls.bg, color: ls.color, border: `1px solid ${ls.border}` }}>
+                          <Shield size={11} /> {t("punishments.level", { n: p.level })}
+                        </span>
+                        <span className="dp-badge" style={{ background: "var(--dp-bg)", color: "var(--dp-text-muted)", border: "1px solid var(--dp-border)" }}>
+                          {t("punishments.offense", { n: p.offense_count })}
+                        </span>
+                      </div>
+                      {p.note && (
+                        <div style={{ fontSize: 12.5, color: "var(--dp-text-muted)", marginBottom: 8 }}>{p.note}</div>
+                      )}
+                      <div style={{ display: "flex", gap: 16, fontSize: 11.5, color: "var(--dp-text-dim)", flexWrap: "wrap" }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <Clock size={11} /> {t("punishments.issued")}: {p.offense_date}
+                        </span>
+                        {p.eligible_reset_date && (
+                          <span>{t("punishments.eligibleReset")}: <span style={{ color: "var(--dp-text-muted)" }}>{p.eligible_reset_date}</span></span>
+                        )}
+                      </div>
+                    </div>
+                    {p.dkp_deducted ? (
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 11, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
+                          {t("punishments.dkpDeducted")}
+                        </div>
+                        <div className="dp-heading dp-mono dp-danger-text" style={{ fontSize: 18, fontWeight: 600 }}>
+                          −{p.dkp_deducted}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {showClosed && closed.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <h2 className="dp-heading" style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{t("punishments.resolved")}</h2>
+            <span className="dp-badge" style={{ background: "rgba(109, 185, 137, 0.12)", color: "var(--dp-success)", border: "1px solid rgba(109, 185, 137, 0.25)" }}>
+              {closed.length}
+            </span>
+          </div>
+          <div className="dp-card" style={{ padding: 0, overflow: "hidden" }}>
+            {closed.map((p, i) => {
+              const ls = levelStyle(p.level);
+              return (
+                <div key={p.id} style={{
+                  padding: "12px 16px",
+                  display: "flex", alignItems: "center", gap: 14,
+                  borderBottom: i < closed.length - 1 ? "1px solid var(--dp-border)" : "none",
+                  opacity: 0.75,
+                }}>
+                  <CheckCircle2 size={14} style={{ color: "var(--dp-success)", flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontWeight: 500 }}>{p.player_name}</span>
+                      <span className="dp-badge" style={{ background: ls.bg, color: ls.color, border: `1px solid ${ls.border}`, fontSize: 10.5 }}>
+                        {t("punishments.level", { n: p.level })}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginTop: 2 }}>
+                      {p.offense_date}{p.eligible_reset_date ? ` → ${p.eligible_reset_date}` : ""}
+                    </div>
+                  </div>
+                  {p.dkp_deducted ? (
+                    <div className="dp-mono" style={{ fontSize: 13, color: "var(--dp-text-muted)" }}>−{p.dkp_deducted}</div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {!isLoading && filtered.length === 0 && (
+        <div className="dp-card-elevated" style={{ padding: 40, textAlign: "center", color: "var(--dp-text-dim)", fontSize: 13 }}>
+          {t("punishments.noPenalties")}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trophy } from "lucide-react";
-import PageHeader from "@/components/dkp/PageHeader";
-import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
-import LeaderboardTable from "@/components/leaderboard/LeaderboardTable";
+import DPPageHeader from "@/components/dp/PageHeader";
+import StatCard from "@/components/dp/StatCard";
+import DPLeaderboardFilters from "@/components/dp/leaderboard/LeaderboardFilters";
+import DPLeaderboardTable from "@/components/dp/leaderboard/LeaderboardTable";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Leaderboard() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState("current_dkp");
   const [sortDir, setSortDir] = useState("desc");
@@ -38,24 +40,16 @@ export default function Leaderboard() {
 
   const isLoading = pLoading || txLoading || etLoading;
 
-  // Build dynamic event columns from EventType entity
   const eventColumns = useMemo(() => {
     const cols = [];
     eventTypes.forEach(et => {
-      if (et.has_prep_stage) {
-        cols.push({ key: `${et.key}_prep`, label: `${et.display_name} Prep` });
-      }
-      if (et.has_war_stage) {
-        cols.push({ key: `${et.key}_war`, label: `${et.display_name} War` });
-      }
-      if (!et.has_prep_stage && !et.has_war_stage) {
-        cols.push({ key: et.key, label: et.display_name });
-      }
+      if (et.has_prep_stage) cols.push({ key: `${et.key}_prep`, label: `${et.display_name} Prep` });
+      if (et.has_war_stage) cols.push({ key: `${et.key}_war`, label: `${et.display_name} War` });
+      if (!et.has_prep_stage && !et.has_war_stage) cols.push({ key: et.key, label: et.display_name });
     });
     return cols;
   }, [eventTypes]);
 
-  // Compute power ranks
   const powerRanks = useMemo(() => {
     const withPower = players.filter(p => p.power > 0).sort((a, b) => b.power - a.power);
     const map = {};
@@ -63,7 +57,6 @@ export default function Leaderboard() {
     return map;
   }, [players]);
 
-  // Set of event keys that count toward activity (exclude MGE/auction events)
   const activityKeys = useMemo(() => {
     const keys = new Set();
     eventTypes.forEach(et => {
@@ -74,7 +67,6 @@ export default function Leaderboard() {
     return keys;
   }, [eventTypes]);
 
-  // Build enriched player data
   const enrichedPlayers = useMemo(() => {
     const eventMap = {};
     players.forEach(p => {
@@ -96,14 +88,10 @@ export default function Leaderboard() {
         e[key].dkp += t.amount;
         e.total_events++;
       }
-      // Activity score: only count actual event participation keys
       if (activityKeys.has(key)) {
         e.activity_score += t.amount;
-        // 30-day activity
         const txDate = t.event_date ? new Date(t.event_date) : null;
-        if (txDate && txDate >= thirtyDaysAgo) {
-          e.activity_30d += t.amount;
-        }
+        if (txDate && txDate >= thirtyDaysAgo) e.activity_30d += t.amount;
       }
     });
 
@@ -115,7 +103,6 @@ export default function Leaderboard() {
     }));
   }, [players, transactions, powerRanks, eventColumns, activityKeys]);
 
-  // Filter & sort
   const filtered = useMemo(() => {
     let result = enrichedPlayers;
 
@@ -159,10 +146,33 @@ export default function Leaderboard() {
 
   const hasActiveFilters = search || powerGroup !== "all" || statusFilter !== "all";
 
+  // Stats
+  const totalDkp = enrichedPlayers.reduce((s, p) => s + (p.current_dkp || 0), 0);
+  const avgDkp = enrichedPlayers.length ? Math.round(totalDkp / enrichedPlayers.length) : 0;
+  const onCooldownCount = enrichedPlayers.filter(p => p.cooldown_until && new Date(p.cooldown_until) > new Date()).length;
+  const totalPower = enrichedPlayers.reduce((s, p) => s + (p.power || 0), 0);
+  const formatPower = (n) => {
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+    return String(n);
+  };
+
   return (
-    <div>
-      <PageHeader title="DKP Leaderboard" subtitle={`${players.length} Players`} icon={Trophy} />
-      <LeaderboardFilters
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <DPPageHeader
+        title={t("leaderboard.title")}
+        subtitle={t("leaderboard.subtitle")}
+      />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+        <StatCard label="Players" value={enrichedPlayers.length} sub={t("leaderboard.playersCount", { count: enrichedPlayers.length })} />
+        <StatCard label="Avg DKP" value={avgDkp.toLocaleString("en-US")} />
+        <StatCard label={t("leaderboard.filters.cooldown")} value={onCooldownCount} />
+        <StatCard label={t("leaderboard.columns.power")} value={formatPower(totalPower)} />
+      </div>
+
+      <DPLeaderboardFilters
         search={search}
         setSearch={setSearch}
         powerGroup={powerGroup}
@@ -172,7 +182,8 @@ export default function Leaderboard() {
         hasActiveFilters={hasActiveFilters}
         onClearFilters={() => { setSearch(""); setPowerGroup("all"); setStatusFilter("all"); }}
       />
-      <LeaderboardTable
+
+      <DPLeaderboardTable
         data={filtered}
         isLoading={isLoading}
         sortField={sortField}
