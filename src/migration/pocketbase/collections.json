@@ -1,0 +1,201 @@
+[
+  {
+    "name": "players",
+    "type": "base",
+    "schema": [
+      { "name": "name", "type": "text", "required": true, "options": { "min": 1, "max": 100 } },
+      { "name": "total_dkp", "type": "number" },
+      { "name": "dkp_spent", "type": "number" },
+      { "name": "cooldown_until", "type": "date" },
+      { "name": "power", "type": "number" },
+      { "name": "auction_ban_count", "type": "number" }
+    ],
+    "indexes": ["CREATE UNIQUE INDEX idx_players_name ON players (name)"],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "auctions",
+    "type": "base",
+    "schema": [
+      { "name": "title", "type": "text", "required": true },
+      { "name": "status", "type": "select", "required": true, "options": { "values": ["draft","open","closed","confirmed"], "maxSelect": 1 } },
+      { "name": "scheduled_open", "type": "date" },
+      { "name": "scheduled_close", "type": "date" },
+      { "name": "bid_password", "type": "text" },
+      { "name": "has_password", "type": "bool" },
+      { "name": "confirmed_at", "type": "date" },
+      { "name": "discord_embed", "type": "text" },
+      { "name": "discord_extra_text", "type": "text" },
+      { "name": "reminder_sent", "type": "bool" }
+    ],
+    "listRule": "@request.auth.id != '' || status != 'draft'",
+    "viewRule": "@request.auth.id != '' || status != 'draft'",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "bids",
+    "type": "base",
+    "schema": [
+      { "name": "auction_id", "type": "relation", "required": true, "options": { "collectionId": "auctions", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_id", "type": "relation", "required": true, "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "dkp_bid", "type": "number", "required": true },
+      { "name": "mge_score", "type": "number" },
+      { "name": "want_friendly_zone", "type": "bool" },
+      { "name": "is_deleted", "type": "bool" },
+      { "name": "deleted_reason", "type": "text" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "auction_results",
+    "type": "base",
+    "schema": [
+      { "name": "auction_id", "type": "relation", "required": true, "options": { "collectionId": "auctions", "cascadeDelete": true, "maxSelect": 1 } },
+      { "name": "player_id", "type": "relation", "required": true, "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "rank", "type": "number", "required": true },
+      { "name": "bid_id", "type": "relation", "options": { "collectionId": "bids", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "dkp_bid", "type": "number" },
+      { "name": "target_score", "type": "number" },
+      { "name": "hero_medals", "type": "number" },
+      { "name": "tiebreaker_note", "type": "text" },
+      { "name": "is_friendly_zone", "type": "bool" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "dkp_transactions",
+    "type": "base",
+    "schema": [
+      { "name": "player_id", "type": "relation", "required": true, "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "amount", "type": "number", "required": true },
+      { "name": "type", "type": "select", "required": true, "options": { "values": ["earn","bid","penalty","bonus","compensation","king_allocation"], "maxSelect": 1 } },
+      { "name": "source", "type": "text" },
+      { "name": "source_stage", "type": "text" },
+      { "name": "event_date", "type": "date", "required": true },
+      { "name": "note", "type": "text" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "penalties",
+    "type": "base",
+    "schema": [
+      { "name": "player_id", "type": "relation", "required": true, "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "level", "type": "number", "required": true },
+      { "name": "offense_count", "type": "number" },
+      { "name": "offense_date", "type": "date", "required": true },
+      { "name": "eligible_reset_date", "type": "date" },
+      { "name": "status", "type": "select", "options": { "values": ["probation","reset"], "maxSelect": 1 } },
+      { "name": "note", "type": "text" },
+      { "name": "dkp_deducted", "type": "number" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "offense_reset_log",
+    "type": "base",
+    "schema": [
+      { "name": "player_id", "type": "relation", "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "offense_count", "type": "number" },
+      { "name": "offense_date", "type": "date" },
+      { "name": "eligible_reset_date", "type": "date" },
+      { "name": "status", "type": "select", "options": { "values": ["probation","reset"], "maxSelect": 1 } },
+      { "name": "notes", "type": "text" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "event_types",
+    "type": "base",
+    "schema": [
+      { "name": "key", "type": "text", "required": true },
+      { "name": "display_name", "type": "text", "required": true },
+      { "name": "participation_type", "type": "select", "options": { "values": ["ranked","yn"], "maxSelect": 1 } },
+      { "name": "has_prep_stage", "type": "bool" },
+      { "name": "has_war_stage", "type": "bool" },
+      { "name": "prep_top20_enabled", "type": "bool" },
+      { "name": "war_top20_enabled", "type": "bool" },
+      { "name": "dkp_table_prep", "type": "text" },
+      { "name": "dkp_table_prep_top20", "type": "text" },
+      { "name": "dkp_table_prep_outside", "type": "text" },
+      { "name": "prep_top20_fallback", "type": "number" },
+      { "name": "prep_outside_fallback", "type": "number" },
+      { "name": "dkp_table_war_top20", "type": "text" },
+      { "name": "dkp_table_war_outside", "type": "text" },
+      { "name": "war_top20_fallback", "type": "number" },
+      { "name": "war_outside_fallback", "type": "number" },
+      { "name": "dkp_yn_present", "type": "number" },
+      { "name": "dkp_yn_absent", "type": "number" },
+      { "name": "war_ranking_cutoff", "type": "number" },
+      { "name": "active", "type": "bool" },
+      { "name": "sort_order", "type": "number" }
+    ],
+    "indexes": ["CREATE UNIQUE INDEX idx_event_types_key ON event_types (key)"],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "power_history",
+    "type": "base",
+    "schema": [
+      { "name": "player_id", "type": "relation", "required": true, "options": { "collectionId": "players", "cascadeDelete": false, "maxSelect": 1 } },
+      { "name": "player_name", "type": "text" },
+      { "name": "power", "type": "number", "required": true },
+      { "name": "recorded_at", "type": "date", "required": true },
+      { "name": "source", "type": "text" }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  },
+  {
+    "name": "app_settings",
+    "type": "base",
+    "schema": [
+      { "name": "key", "type": "text", "required": true },
+      { "name": "value", "type": "text" }
+    ],
+    "indexes": ["CREATE UNIQUE INDEX idx_app_settings_key ON app_settings (key)"],
+    "listRule": "key ~ 'friendly_zone' || key = 'cooldown_days' || key = 'app_base_url' || key ~ 'auction_tiebreaker' || key = 'mge_targets' || key = 'rules_text' || @request.auth.id != ''",
+    "viewRule": "key ~ 'friendly_zone' || key = 'cooldown_days' || key = 'app_base_url' || key ~ 'auction_tiebreaker' || key = 'mge_targets' || key = 'rules_text' || @request.auth.id != ''",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  }
+]

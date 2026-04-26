@@ -1,0 +1,168 @@
+{
+  "_comment": "Alle 12 Entitäten des DKP-Systems. Built-in fields (id, created_date, updated_date, created_by) sind NICHT enthalten – Pocketbase fügt id, created, updated automatisch hinzu.",
+  "entities": [
+    {
+      "name": "Player",
+      "description": "Spieler in der Gilde. Eindeutig per Name.",
+      "properties": {
+        "name": { "type": "string", "required": true, "unique": true, "description": "Spielername (UTF-8)" },
+        "total_dkp": { "type": "number", "default": 0, "description": "Gesamt verdiente DKP" },
+        "dkp_spent": { "type": "number", "default": 0, "description": "Ausgegebene DKP (negative Summe der Bid-Transactions)" },
+        "cooldown_until": { "type": "string", "description": "Cooldown-Ablaufdatum YYYY-MM-DD" },
+        "power": { "type": "number", "default": 0, "description": "Macht des Spielers" },
+        "auction_ban_count": { "type": "number", "default": 0 }
+      }
+    },
+    {
+      "name": "Auction",
+      "description": "Eine DKP-Auktion (für 10 MGE-Plätze).",
+      "properties": {
+        "title": { "type": "string", "required": true },
+        "status": { "type": "enum", "values": ["draft","open","closed","confirmed"], "default": "draft" },
+        "scheduled_open": { "type": "datetime" },
+        "scheduled_close": { "type": "datetime" },
+        "bid_password": { "type": "string", "private": true, "description": "Wenn gesetzt, ist Password zum Bieten nötig" },
+        "has_password": { "type": "boolean", "default": false },
+        "confirmed_at": { "type": "datetime" },
+        "discord_embed": { "type": "text", "description": "JSON-stringified Discord-Embed" },
+        "discord_extra_text": { "type": "text" },
+        "reminder_sent": { "type": "boolean", "default": false }
+      }
+    },
+    {
+      "name": "Bid",
+      "description": "Ein Gebot eines Spielers in einer Auktion.",
+      "properties": {
+        "auction_id": { "type": "relation", "target": "Auction", "required": true },
+        "player_id": { "type": "relation", "target": "Player", "required": true },
+        "player_name": { "type": "string", "description": "Denormalisiert für Anzeige" },
+        "dkp_bid": { "type": "number", "required": true },
+        "mge_score": { "type": "number" },
+        "want_friendly_zone": { "type": "boolean", "default": false },
+        "is_deleted": { "type": "boolean", "default": false },
+        "deleted_reason": { "type": "string" }
+      }
+    },
+    {
+      "name": "AuctionResult",
+      "description": "Finales Ranking einer abgeschlossenen Auktion (Top 10).",
+      "properties": {
+        "auction_id": { "type": "relation", "target": "Auction", "required": true },
+        "player_id": { "type": "relation", "target": "Player", "required": true },
+        "player_name": { "type": "string" },
+        "rank": { "type": "number", "required": true },
+        "bid_id": { "type": "relation", "target": "Bid" },
+        "dkp_bid": { "type": "number" },
+        "target_score": { "type": "number" },
+        "hero_medals": { "type": "number" },
+        "tiebreaker_note": { "type": "string" },
+        "is_friendly_zone": { "type": "boolean", "default": false }
+      }
+    },
+    {
+      "name": "DKPTransaction",
+      "description": "Jede Veränderung des DKP-Kontos eines Spielers (Quell-of-Truth).",
+      "properties": {
+        "player_id": { "type": "relation", "target": "Player", "required": true },
+        "player_name": { "type": "string" },
+        "amount": { "type": "number", "required": true, "description": "Positiv (earn/bonus/comp) oder negativ (bid/penalty)" },
+        "type": { "type": "enum", "values": ["earn","bid","penalty","bonus","compensation","king_allocation"], "required": true },
+        "source": { "type": "string", "description": "Event-Quelle: MEE, GEE, DDE, MGE, KING, MANUAL_ADJUSTMENT, …" },
+        "source_stage": { "type": "string", "description": "prep, war, …" },
+        "event_date": { "type": "date", "required": true },
+        "note": { "type": "string" }
+      }
+    },
+    {
+      "name": "Penalty",
+      "description": "Strafe gegen einen Spieler (3 Stufen, mit Reset-Mechanismus).",
+      "properties": {
+        "player_id": { "type": "relation", "target": "Player", "required": true },
+        "player_name": { "type": "string" },
+        "level": { "type": "number", "required": true, "description": "1-3" },
+        "offense_count": { "type": "number", "default": 1 },
+        "offense_date": { "type": "date", "required": true },
+        "eligible_reset_date": { "type": "date" },
+        "status": { "type": "enum", "values": ["probation","reset"], "default": "probation" },
+        "note": { "type": "string" },
+        "dkp_deducted": { "type": "number", "default": 0 }
+      }
+    },
+    {
+      "name": "OffenseResetLog",
+      "description": "Audit-Log für Penalty-Resets (manuell oder automatisch).",
+      "properties": {
+        "player_id": { "type": "relation", "target": "Player" },
+        "player_name": { "type": "string" },
+        "offense_count": { "type": "number" },
+        "offense_date": { "type": "date" },
+        "eligible_reset_date": { "type": "date" },
+        "status": { "type": "enum", "values": ["probation","reset"] },
+        "notes": { "type": "string" }
+      }
+    },
+    {
+      "name": "EventType",
+      "description": "Konfiguration eines Event-Typs (MEE, GEE, DDE, MGE, KING, …) inkl. DKP-Tabellen.",
+      "properties": {
+        "key": { "type": "string", "required": true, "unique": true },
+        "display_name": { "type": "string", "required": true },
+        "participation_type": { "type": "enum", "values": ["ranked","yn"], "default": "ranked" },
+        "has_prep_stage": { "type": "boolean", "default": false },
+        "has_war_stage": { "type": "boolean", "default": false },
+        "prep_top20_enabled": { "type": "boolean", "default": false },
+        "war_top20_enabled": { "type": "boolean", "default": true },
+        "dkp_table_prep": { "type": "text", "description": "JSON-Array (unified prep)" },
+        "dkp_table_prep_top20": { "type": "text" },
+        "dkp_table_prep_outside": { "type": "text" },
+        "prep_top20_fallback": { "type": "number", "default": 20 },
+        "prep_outside_fallback": { "type": "number", "default": 0 },
+        "dkp_table_war_top20": { "type": "text" },
+        "dkp_table_war_outside": { "type": "text" },
+        "war_top20_fallback": { "type": "number", "default": 20 },
+        "war_outside_fallback": { "type": "number", "default": 0 },
+        "dkp_yn_present": { "type": "number", "default": 5 },
+        "dkp_yn_absent": { "type": "number", "default": -5 },
+        "war_ranking_cutoff": { "type": "number", "default": 100 },
+        "active": { "type": "boolean", "default": true },
+        "sort_order": { "type": "number", "default": 0 }
+      }
+    },
+    {
+      "name": "PowerHistory",
+      "description": "Historische Macht-Werte eines Spielers für Diagramme.",
+      "properties": {
+        "player_id": { "type": "relation", "target": "Player", "required": true },
+        "player_name": { "type": "string" },
+        "power": { "type": "number", "required": true },
+        "recorded_at": { "type": "date", "required": true },
+        "source": { "type": "string" }
+      }
+    },
+    {
+      "name": "AppSettings",
+      "description": "Globale Key-Value-Settings.",
+      "properties": {
+        "key": { "type": "string", "required": true, "unique": true },
+        "value": { "type": "text", "required": true, "description": "JSON oder Plain-Text" }
+      },
+      "known_keys": [
+        "friendly_zone_enabled",
+        "friendly_zone_threshold",
+        "cooldown_days",
+        "discord_servers",
+        "app_base_url",
+        "auction_tiebreaker",
+        "auction_tiebreaker_fallback",
+        "mge_targets",
+        "rules_text",
+        "penalty_config"
+      ]
+    },
+    {
+      "name": "AdminUser",
+      "description": "ENTFÄLLT in Pocketbase – Pocketbase nutzt eingebaute _admins Collection.",
+      "_migration_note": "Diese Entität wird bei der Migration NICHT angelegt. Stattdessen werden die bestehenden Admins als Pocketbase-Admins importiert (Email + neues Passwort durch User setzen)."
+    }
+  ]
+}
