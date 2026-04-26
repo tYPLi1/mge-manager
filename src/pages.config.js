@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Activity from './pages/Activity';
+import AdminAuctionConfig from './pages/AdminAuctionConfig';
 import AdminAuctions from './pages/AdminAuctions';
 import AdminDKP from './pages/AdminDKP';
 import AdminDashboard from './pages/AdminDashboard';
@@ -70,6 +71,7 @@ import Transactions from './pages/Transactions';
 
 export const PAGES = {
     "Activity": Activity,
+    "AdminAuctionConfig": AdminAuctionConfig,
     "AdminAuctions": AdminAuctions,
     "AdminDKP": AdminDKP,
     "AdminDashboard": AdminDashboard,
