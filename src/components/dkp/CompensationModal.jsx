@@ -7,15 +7,9 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n";
 import { evalCompensationFormula } from "./compensationFormula";
+import DiscordPreviewModal from "./DiscordPreviewModal";
 
 const APP_URL = "https://mge002.base44.app/Results";
-
-function getSession() {
-  try {
-    const raw = localStorage.getItem("adminSession");
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-}
 
 export default function CompensationModal({ auction, bids, results, mgeTargets, formula, onClose, onDone }) {
   const { t } = useTranslation();
@@ -67,6 +61,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [discordPreview, setDiscordPreview] = useState(null);
 
   const updateRow = (bidId, patch) => {
     setRowState(prev => ({ ...prev, [bidId]: { ...prev[bidId], ...patch } }));
@@ -148,18 +143,8 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
     };
   };
 
-  const handleSubmit = async () => {
-    if (selectedRows.length === 0) return;
-    const hasDkpRows = selectedRows.some(r => !r.reserveNext);
-    if (hasDkpRows && !formula) {
-      toast.error(t("compensation.divisorMissing"));
-      return;
-    }
+  const doSubmit = async () => {
     const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
-    if (reservations.length > 0 && !reservationTargetId) {
-      toast.error("Please select a target auction for reservations.");
-      return;
-    }
     setSubmitting(true);
     try {
       // 1) For DKP rows only: create DKPTransaction + update player.dkp_spent (refund)
@@ -224,20 +209,6 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         }
       }
 
-      // 2) Send single Discord notification via standard pipeline (notifType=compensation)
-      const session = getSession();
-      if (session) {
-        try {
-          await base44.functions.invoke("sendDiscordEmbed", {
-            session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-            embed: buildEmbed(),
-            notifType: "compensation",
-          });
-        } catch (err) {
-          console.error("Discord send failed:", err);
-        }
-      }
-
       toast.success(t("compensation.successToast", { count: selectedRows.length }));
       onDone?.();
       onClose();
@@ -247,6 +218,22 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSubmit = () => {
+    if (selectedRows.length === 0) return;
+    const hasDkpRows = selectedRows.some(r => !r.reserveNext);
+    if (hasDkpRows && !formula) {
+      toast.error(t("compensation.divisorMissing"));
+      return;
+    }
+    const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
+    if (reservations.length > 0 && !reservationTargetId) {
+      toast.error("Please select a target auction for reservations.");
+      return;
+    }
+    // Show Discord preview first — user decides whether to send DC, then we run doSubmit
+    setDiscordPreview({ embed: buildEmbed() });
   };
 
   return (
@@ -391,6 +378,15 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
           </Button>
         </div>
       </div>
+
+      {discordPreview && (
+        <DiscordPreviewModal
+          embed={discordPreview.embed}
+          notifType="compensation"
+          onClose={() => setDiscordPreview(null)}
+          onSent={() => { setDiscordPreview(null); doSubmit(); }}
+        />
+      )}
     </div>
   );
 }

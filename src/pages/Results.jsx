@@ -38,6 +38,17 @@ export default function Results() {
     enabled: !!selectedAuction,
   });
 
+  // Compensations awarded for this auction (matched via DKPTransaction.note containing auction title)
+  const { data: compensations = [] } = useQuery({
+    queryKey: ["compensations", selectedAuction?.id],
+    queryFn: async () => {
+      if (!selectedAuction) return [];
+      const all = await base44.entities.DKPTransaction.filter({ type: "compensation" }, "-event_date", 500);
+      return all.filter(tx => typeof tx.note === "string" && tx.note.includes(selectedAuction.title));
+    },
+    enabled: !!selectedAuction,
+  });
+
   const { data: settings = [] } = useQuery({
     queryKey: ["public-settings"],
     queryFn: async () => {
@@ -204,6 +215,54 @@ export default function Results() {
               </div>
             )}
           </div>
+
+          {compensations.length > 0 && (
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--dp-border)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <Award size={14} style={{ color: "var(--dp-accent)" }} />
+                <h3 className="dp-heading" style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
+                  Kompensationen
+                </h3>
+                <span style={{ fontSize: 11, color: "var(--dp-text-dim)" }}>
+                  ({compensations.length})
+                </span>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 480 }}>
+                  <thead>
+                    <tr style={{ background: "var(--dp-bg-elevated)" }}>
+                      {["Player", "DKP", "Date", "Note"].map((h, i) => (
+                        <th key={i} style={{
+                          textAlign: i === 1 ? "right" : "left",
+                          padding: "8px 14px",
+                          fontSize: 10.5, fontWeight: 600,
+                          color: "var(--dp-text-dim)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                        }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {compensations.map((c) => (
+                      <tr key={c.id} className="dp-hover-row" style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                        <td style={{ padding: "10px 14px", fontWeight: 500 }}>{c.player_name}</td>
+                        <td className="dp-mono" style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: c.amount >= 0 ? "var(--dp-success, #10b981)" : "var(--dp-text)" }}>
+                          {c.amount >= 0 ? "+" : ""}{c.amount}
+                        </td>
+                        <td className="dp-mono" style={{ padding: "10px 14px", color: "var(--dp-text-muted)", fontSize: 12 }}>
+                          {c.event_date}
+                        </td>
+                        <td style={{ padding: "10px 14px", fontSize: 11.5, color: "var(--dp-text-dim)" }}>
+                          {c.note || "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       ) : isLoading ? (
         <div className="dp-card" style={{ padding: 60, display: "flex", justifyContent: "center" }}>
