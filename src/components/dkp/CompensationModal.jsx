@@ -34,11 +34,11 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
     [bids, wonRankByPlayer]
   );
 
-  // Per-row state: { [bidId]: { selected, achievedRank } }
+  // Per-row state: { [bidId]: { selected, achievedRank, reserveNext } }
   const [rowState, setRowState] = useState(() => {
     const init = {};
     activeBids.forEach(b => {
-      init[b.id] = { selected: false, achievedRank: "" };
+      init[b.id] = { selected: false, achievedRank: "", reserveNext: false };
     });
     return init;
   });
@@ -89,6 +89,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         compDkp,
         medalDiff,
         selected: !!rs.selected,
+        reserveNext: !!rs.reserveNext,
       };
     });
   }, [activeBids, rowState, wonRankByPlayer, formula]);
@@ -155,6 +156,50 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
         }
       }
 
+      // 1b) Reserve fixed ranks in next draft auction for selected players with no achieved rank
+      const reservations = selectedRows.filter(r => r.reserveNext && r.wonRank && !r.achievedRank);
+      if (reservations.length > 0) {
+        const allAuctions = await adminEntities.Auction.list("-created_date", 200).catch(() => []);
+        const nextAuction = allAuctions
+          .filter(a => a.status === "draft" && a.id !== auction.id)
+          .sort((a, b) => {
+            const ta = a.scheduled_open ? new Date(a.scheduled_open).getTime() : Infinity;
+            const tb = b.scheduled_open ? new Date(b.scheduled_open).getTime() : Infinity;
+            return ta - tb;
+          })[0];
+
+        if (!nextAuction) {
+          toast.warning("No draft auction found — reservations skipped. Create the next auction first.");
+        } else {
+          let existing = [];
+          try { existing = JSON.parse(nextAuction.fixed_assignments || "[]") || []; } catch { existing = []; }
+          const usedRanks = new Set(existing.map(a => Number(a.rank)));
+          const usedPlayers = new Set(existing.map(a => a.player_id));
+          const skipped = [];
+          for (const r of reservations) {
+            if (usedRanks.has(r.wonRank) || usedPlayers.has(r.bid.player_id)) {
+              skipped.push(r.bid.player_name);
+              continue;
+            }
+            existing.push({
+              rank: r.wonRank,
+              player_id: r.bid.player_id,
+              player_name: r.bid.player_name,
+              reason: `Compensation from ${auction.title}`,
+            });
+            usedRanks.add(r.wonRank);
+            usedPlayers.add(r.bid.player_id);
+          }
+          existing.sort((a, b) => Number(a.rank) - Number(b.rank));
+          await adminEntities.Auction.update(nextAuction.id, {
+            fixed_assignments: JSON.stringify(existing),
+          });
+          if (skipped.length > 0) {
+            toast.warning(`Reservation skipped (rank/player already fixed): ${skipped.join(", ")}`);
+          }
+        }
+      }
+
       // 2) Send single Discord notification via standard pipeline (notifType=compensation)
       const session = getSession();
       if (session) {
@@ -216,6 +261,7 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">{t("compensation.columns.achievedRank")}</th>
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">{t("compensation.columns.compensationDkp")}</th>
                   <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("compensation.columns.medalDiff")}</th>
+                  <th className="px-2 py-2 text-left text-xs font-semibold text-gray-400 uppercase">Reserve next</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -255,6 +301,21 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
                     </td>
                     <td className="px-2 py-2 text-xs text-gray-400 hidden md:table-cell">
                       {r.medalDiff > 0 ? <span className="text-orange-400">−{r.medalDiff}</span> : <span className="text-gray-600">{t("compensation.discord.noMedals")}</span>}
+                    </td>
+                    <td className="px-2 py-2">
+                      {r.wonRank && !r.achievedRank ? (
+                        <label className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={r.reserveNext}
+                            onChange={(e) => updateRow(r.bid.id, { reserveNext: e.target.checked })}
+                            className="accent-amber-500"
+                          />
+                          <span>#{r.wonRank}</span>
+                        </label>
+                      ) : (
+                        <span className="text-[11px] text-gray-600" title="Only when no rank achieved">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
