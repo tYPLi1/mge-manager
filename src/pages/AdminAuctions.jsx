@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -701,10 +701,15 @@ export default function AdminAuctions() {
   };
 
   // Auto-sync expired/overdue auctions to their correct status on the server
+  // Track in-flight sync requests per auction id+target-status to prevent loop while server catches up
+  const syncedRef = useRef(new Set());
   useEffect(() => {
     auctions.forEach((a) => {
       const effective = getEffectiveStatus(a);
       if (effective !== a.status) {
+        const key = `${a.id}:${effective}`;
+        if (syncedRef.current.has(key)) return;
+        syncedRef.current.add(key);
         if (effective === "open" && a.status === "draft") {
           handleOpenAuction(a);
         } else if (effective === "closed" && a.status === "open") {

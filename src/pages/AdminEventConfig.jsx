@@ -443,6 +443,17 @@ export default function AdminEventConfig() {
     if (eventTypes.length === 0) return;
     const currentDrafts = draftsRef.current;
     const currentSnap = savedSnapshotRef.current;
+
+    // Skip update if server data didn't actually change (prevents render loops on refetch)
+    const oldIds = Object.keys(currentSnap);
+    const sameLength = oldIds.length === eventTypes.length;
+    const allSame = sameLength && eventTypes.every(et => {
+      const prev = currentSnap[et.id];
+      if (!prev) return false;
+      return COMPARE_KEYS.every(k => JSON.stringify(normalizeValue(prev[k])) === JSON.stringify(normalizeValue(et[k])));
+    });
+    if (allSame) return;
+
     const draftMap = {};
     const snapMap = {};
     eventTypes.forEach(et => {

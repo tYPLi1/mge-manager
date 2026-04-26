@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -154,10 +154,10 @@ export default function DiscordServerConfig({ value, onChange }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const servers = (() => {
+  const servers = useMemo(() => {
     try { return value ? JSON.parse(value) : []; }
     catch { return []; }
-  })();
+  }, [value]);
 
   const update = (newServers) => {
     onChange(JSON.stringify(newServers));
