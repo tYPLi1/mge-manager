@@ -39,8 +39,7 @@
     "eventConfig": "Etkinlik Ayarı",
     "auctionConfig": "Açık Artırma Ayarı",
     "settings": "Ayarlar",
-    "reports": "Raporlar",
-    "logins": "Girişler"
+    "appManagement": "Uygulama Yönetimi"
   },
   "report": {
     "button": "Hata veya çeviri sorunu bildir",

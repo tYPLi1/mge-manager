@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import AdminUserManagement from '@/pages/AdminUserManagement';
 import DesignPreview from '@/pages/DesignPreview';
 import AppShell from '@/components/layout/AppShell';
 import { I18nProvider } from '@/lib/i18n';
@@ -62,11 +61,6 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/AdminUserManagement" element={
-        <LayoutWrapper currentPageName="AdminUserManagement">
-          <AdminUserManagement />
-        </LayoutWrapper>
-      } />
       <Route path="/DesignPreview" element={<DesignPreview />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

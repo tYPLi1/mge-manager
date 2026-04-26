@@ -25,7 +25,7 @@ const STATUS_COLORS = {
 
 const STATUSES = ["new", "in_progress", "resolved", "wont_fix"];
 
-export default function AdminReports() {
+export default function AdminReports({ embedded = false }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("all");
@@ -85,7 +85,9 @@ export default function AdminReports() {
 
   return (
     <div>
-      <PageHeader title={t("adminReports.title")} subtitle={t("adminReports.subtitle")} icon={Bug} />
+      {!embedded && (
+        <PageHeader title={t("adminReports.title")} subtitle={t("adminReports.subtitle")} icon={Bug} />
+      )}
 
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
         <div className="flex items-center gap-2 mb-3">

@@ -29,8 +29,7 @@ const adminNavConfig = [
   { name: "eventConfig", page: "AdminEventConfig", icon: Settings2 },
   { name: "auctionConfig", page: "AdminAuctionConfig", icon: Gavel },
   { name: "settings", page: "AdminSettings", icon: Settings },
-  { name: "reports", page: "AdminReports", icon: Bug },
-  { name: "logins", page: "AdminUserManagement", icon: Shield },
+  { name: "appManagement", page: "AdminAppManagement", icon: Shield },
 ];
 
 export default function AppShell({ children, currentPageName }) {
@@ -213,7 +212,7 @@ export default function AppShell({ children, currentPageName }) {
       </header>
 
       <main style={{ position: "relative", maxWidth: 1400, margin: "0 auto", padding: "28px 24px", zIndex: 1 }}>
-        {isAdmin && currentPageName !== "AdminUserManagement" ? (
+        {isAdmin && currentPageName !== "AdminAppManagement" ? (
           <AdminSessionGuard>{children}</AdminSessionGuard>
         ) : children}
       </main>

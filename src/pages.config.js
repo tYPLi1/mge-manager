@@ -55,10 +55,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminEventConfig from './pages/AdminEventConfig';
 import AdminLogin from './pages/AdminLogin';
 import AdminPenalties from './pages/AdminPenalties';
+import AdminAppManagement from './pages/AdminAppManagement';
 import AdminPlayers from './pages/AdminPlayers';
 import AdminReports from './pages/AdminReports';
 import AdminSettings from './pages/AdminSettings';
-import AdminUserManagement from './pages/AdminUserManagement';
 import Auction from './pages/Auction';
 import Charts from './pages/Charts';
 import Leaderboard from './pages/Leaderboard';
@@ -79,10 +79,10 @@ export const PAGES = {
     "AdminEventConfig": AdminEventConfig,
     "AdminLogin": AdminLogin,
     "AdminPenalties": AdminPenalties,
+    "AdminAppManagement": AdminAppManagement,
     "AdminPlayers": AdminPlayers,
     "AdminReports": AdminReports,
     "AdminSettings": AdminSettings,
-    "AdminUserManagement": AdminUserManagement,
     "Auction": Auction,
     "Charts": Charts,
     "Leaderboard": Leaderboard,

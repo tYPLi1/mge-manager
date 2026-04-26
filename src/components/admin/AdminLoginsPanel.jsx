@@ -1,12 +1,10 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Shield, Plus, Trash2, KeyRound, UserCheck, UserX, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Plus, Trash2, KeyRound, UserCheck, UserX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import PageHeader from "@/components/dkp/PageHeader";
-import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 function invalidateSessionIfMatch(userId) {
@@ -20,13 +18,13 @@ function invalidateSessionIfMatch(userId) {
   }
 }
 
-export default function AdminUserManagement() {
-  const [masterPassword, setMasterPassword] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+/**
+ * Logins management panel — assumes the parent has already authenticated
+ * via master password and passes the verified session through `invoke`.
+ */
+export default function AdminLoginsPanel({ invoke }) {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -35,59 +33,23 @@ export default function AdminUserManagement() {
   const [changingPwFor, setChangingPwFor] = useState(null);
   const [changedPw, setChangedPw] = useState("");
 
-  const getSession = () => {
-    try {
-      const raw = localStorage.getItem("adminSession");
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  };
-
-  const invoke = useCallback(async (action, extra = {}) => {
-    const session = getSession();
-    if (!session) throw new Error("No admin session");
-    try {
-      const res = await base44.functions.invoke("manageAdminUsers", {
-        action,
-        session: { userId: session.userId, username: session.username, expiresAt: session.expiresAt, token: session.token },
-        ...extra,
-      });
-      if (!res.data.success) throw new Error(res.data.error || "Failed");
-      return res.data;
-    } catch (err) {
-      const msg = err?.response?.data?.error || err?.message || "Request failed";
-      throw new Error(msg);
-    }
-  }, []);
-
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    const data = await invoke("list");
-    setUsers(data.users);
+    try {
+      const data = await invoke("list");
+      setUsers(data.users);
+    } catch (err) {
+      toast.error(err.message);
+    }
     setLoading(false);
   }, [invoke]);
 
-  // Live updates: reload user list when AdminUser entity changes
-  useEffect(() => {
-    if (!authenticated) return;
-    const unsub = base44.entities.AdminUser.subscribe(() => {
-      loadUsers();
-    });
-    return () => unsub();
-  }, [authenticated, loadUsers]);
+  useEffect(() => { loadUsers(); }, [loadUsers]);
 
-  const handleUnlock = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await invoke("verify", { credential: masterPassword });
-      const data = await invoke("list");
-      setUsers(data.users);
-      setAuthenticated(true);
-    } catch {
-      toast.error("Wrong password");
-    }
-    setLoading(false);
-  };
+  useEffect(() => {
+    const unsub = base44.entities.AdminUser.subscribe(() => loadUsers());
+    return () => unsub();
+  }, [loadUsers]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -131,61 +93,14 @@ export default function AdminUserManagement() {
       await invoke("delete", { userId });
       setUsers(prev => prev.filter(u => u.id !== userId));
       toast.success(`'${username}' deleted`);
-      // Kick them out if currently logged in
       invalidateSessionIfMatch(userId);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  if (!authenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-[#111827] rounded-2xl border border-white/5 p-8 w-full max-w-sm">
-          <div className="flex justify-center mb-6">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-              <Lock className="w-7 h-7 text-white" />
-            </div>
-          </div>
-          <h2 className="text-lg font-bold text-white text-center mb-2">Admin Management</h2>
-          <p className="text-xs text-gray-500 text-center mb-6">Enter master password to continue</p>
-          <form onSubmit={handleUnlock} className="space-y-4">
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                value={masterPassword}
-                onChange={(e) => setMasterPassword(e.target.value)}
-                placeholder="Master password"
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 pr-10"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            <Button
-              type="submit"
-              disabled={!masterPassword || loading}
-              className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
-              Unlock
-            </Button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
-      <PageHeader title="Manage Admin Users" icon={Shield} />
-
-      {/* Create New */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
         <h3 className="text-sm font-semibold text-white mb-4">Create New Admin</h3>
         <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3">
@@ -217,7 +132,6 @@ export default function AdminUserManagement() {
         </form>
       </div>
 
-      {/* User List */}
       <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
         <div className="p-4 border-b border-white/5">
           <h3 className="text-sm font-semibold text-white">Existing Admins ({users.length})</h3>

@@ -39,8 +39,7 @@
     "eventConfig": "Event-Konfig.",
     "auctionConfig": "Auktions-Konfig.",
     "settings": "Einstellungen",
-    "reports": "Reports",
-    "logins": "Logins"
+    "appManagement": "App Management"
   },
   "report": {
     "button": "Bug oder Übersetzungsfehler melden",
