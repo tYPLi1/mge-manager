@@ -1,0 +1,82 @@
+{
+  "name": "Auction",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Auction title"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "open",
+        "closed",
+        "confirmed"
+      ],
+      "default": "draft"
+    },
+    "scheduled_open": {
+      "type": "string",
+      "description": "Scheduled open datetime ISO"
+    },
+    "scheduled_close": {
+      "type": "string",
+      "description": "Scheduled close datetime ISO"
+    },
+    "bid_password": {
+      "type": "string",
+      "description": "Optional bid password"
+    },
+    "has_password": {
+      "type": "boolean",
+      "default": false
+    },
+    "confirmed_at": {
+      "type": "string",
+      "description": "Confirmation datetime ISO"
+    },
+    "discord_embed": {
+      "type": "string",
+      "description": "JSON-stringified Discord embed prepared at creation time"
+    },
+    "discord_extra_text": {
+      "type": "string",
+      "description": "Extra text added by admin for Discord notification"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the closing reminder was already sent"
+    },
+    "fixed_assignments": {
+      "type": "string",
+      "description": "JSON array of pre-assigned ranks: [{rank, player_id, player_name, reason}]"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

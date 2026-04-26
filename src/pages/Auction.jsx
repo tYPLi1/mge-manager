@@ -136,6 +136,19 @@ export default function Auction() {
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
 
+  const fixedAssignments = useMemo(() => {
+    if (!currentAuction?.fixed_assignments) return [];
+    try {
+      const arr = JSON.parse(currentAuction.fixed_assignments);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }, [currentAuction]);
+
+  const fixedAssignmentForSelected = useMemo(() => {
+    if (!selectedPlayer) return null;
+    return fixedAssignments.find(a => a.player_id === selectedPlayer) || null;
+  }, [fixedAssignments, selectedPlayer]);
+
   const selectedPlayerData = useMemo(() => players.find((p) => p.id === selectedPlayer), [players, selectedPlayer]);
   const isOnCooldown = useMemo(() => {
     if (!selectedPlayerData?.cooldown_until) return false;
@@ -207,8 +220,8 @@ export default function Auction() {
 
   const es = currentAuction._effectiveStatus;
 
-  if (es === "draft") return <DraftView auction={currentAuction} t={t} />;
-  if (es === "closed") return <ClosedView auction={currentAuction} t={t} />;
+  if (es === "draft") return <DraftView auction={currentAuction} t={t} fixedAssignments={fixedAssignments} />;
+  if (es === "closed") return <ClosedView auction={currentAuction} t={t} fixedAssignments={fixedAssignments} />;
 
   // OPEN view with hero + bid list + bid form
   return (
@@ -216,6 +229,12 @@ export default function Auction() {
       <DPPageHeader title={t("auction.title")} subtitle={t("auction.subtitleLive")} />
 
       <HeroCard auction={currentAuction} t={t} />
+
+      {fixedAssignments.length > 0 && (
+        <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+          <FixedRanksDisplay assignments={fixedAssignments} />
+        </div>
+      )}
 
       <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
         {/* Blind auction notice */}
@@ -270,6 +289,11 @@ export default function Auction() {
                 </select>
               </div>
 
+              {fixedAssignmentForSelected && (
+                <Alert color="warn" icon={AlertTriangle}>
+                  Du hast bereits Rang #{fixedAssignmentForSelected.rank} fix vergeben bekommen ({fixedAssignmentForSelected.reason}). Bieten ist nicht möglich.
+                </Alert>
+              )}
               {isOnCooldown && (
                 <Alert color="danger" icon={AlertTriangle}>
                   {t("auction.onCooldown", { date: selectedPlayerData.cooldown_until })}
@@ -351,7 +375,7 @@ export default function Auction() {
               <button
                 className="dp-btn-primary"
                 onClick={handleSubmit}
-                disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting || alreadyBid}
+                disabled={!selectedPlayer || !bidAmount || isOnCooldown || isAuctionBanned || bidTooHigh || submitting || alreadyBid || !!fixedAssignmentForSelected}
                 style={{ width: "100%", padding: "10px 16px", fontSize: 13.5, marginTop: 4 }}
               >
                 <CheckCircle2 size={14} style={{ display: "inline", verticalAlign: "-2px", marginRight: 6 }} />
@@ -380,6 +404,43 @@ function Alert({ color, icon: Icon, children }) {
     }}>
       {Icon && <Icon size={14} />}
       <span>{children}</span>
+    </div>
+  );
+}
+
+function FixedRanksDisplay({ assignments }) {
+  return (
+    <div className="dp-card" style={{ padding: 16, border: "1px solid rgba(212, 168, 89, 0.25)", background: "rgba(212, 168, 89, 0.06)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 14 }}>📌</span>
+        <span className="dp-heading" style={{ fontSize: 13, fontWeight: 600, color: "var(--dp-accent)" }}>Fix vergebene Ränge</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {assignments.sort((a, b) => Number(a.rank) - Number(b.rank)).map(a => (
+          <div key={a.rank} style={{
+            display: "flex", alignItems: "flex-start", gap: 10,
+            padding: "8px 10px",
+            background: "var(--dp-bg)",
+            border: "1px solid var(--dp-border)",
+            borderRadius: 8,
+          }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: "50%",
+              background: "var(--dp-accent-soft)",
+              border: "1px solid var(--dp-accent-border)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 11, fontWeight: 700, color: "var(--dp-accent)",
+              flexShrink: 0,
+            }}>
+              #{a.rank}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--dp-text)" }}>{a.player_name}</div>
+              <div style={{ fontSize: 11.5, color: "var(--dp-text-muted)", marginTop: 2 }}>{a.reason}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -433,11 +494,16 @@ function HeroCard({ auction, t }) {
   );
 }
 
-function DraftView({ auction, t }) {
+function DraftView({ auction, t, fixedAssignments = [] }) {
   const { timeLeft } = useCountdown(auction.scheduled_open);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <DPPageHeader title={t("auction.title")} />
+      {fixedAssignments.length > 0 && (
+        <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+          <FixedRanksDisplay assignments={fixedAssignments} />
+        </div>
+      )}
       <div className="dp-card-elevated" style={{ padding: 24, maxWidth: 520, margin: "0 auto", width: "100%" }}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{
@@ -495,10 +561,15 @@ function Row({ label, value, sub, icon: Icon }) {
   );
 }
 
-function ClosedView({ auction, t }) {
+function ClosedView({ auction, t, fixedAssignments = [] }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <DPPageHeader title={t("auction.title")} subtitle={auction.title} />
+      {fixedAssignments.length > 0 && (
+        <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+          <FixedRanksDisplay assignments={fixedAssignments} />
+        </div>
+      )}
       <div className="dp-card-elevated" style={{ padding: 32, textAlign: "center", maxWidth: 520, margin: "0 auto", width: "100%" }}>
         <div style={{
           width: 56, height: 56, borderRadius: 14,

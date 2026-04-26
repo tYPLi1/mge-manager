@@ -111,20 +111,30 @@ Deno.serve(async (req) => {
       return 'First to bid';
     };
 
-    const resultsText = results.map((r, i) => {
-      let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
-      if (r.target_score) line += ` | Target: ${r.target_score.toLocaleString()}`;
-      if (r.hero_medals) line += ` | Medals: ${r.hero_medals}`;
-      if (r.is_friendly_zone) line += ` 🤝 _(Friendly Zone)_`;
-      if (r.tiebreaker_note) line += ` _(${r.tiebreaker_note})_`;
+    const isFixed = (r) => typeof r.tiebreaker_note === 'string' && r.tiebreaker_note.startsWith('Fixed:');
+
+    const resultsText = results.map((r) => {
+      let line = `${r.rank}. **${r.player_name}**`;
+      if (isFixed(r)) {
+        const reason = r.tiebreaker_note.replace(/^Fixed:\s*/, '');
+        line += ` 📌 _(Fix: ${reason})_`;
+      } else {
+        line += ` — ${r.dkp_bid} DKP`;
+        if (r.target_score) line += ` | Target: ${r.target_score.toLocaleString()}`;
+        if (r.hero_medals) line += ` | Medals: ${r.hero_medals}`;
+        if (r.is_friendly_zone) line += ` 🤝 _(Friendly Zone)_`;
+        if (r.tiebreaker_note) line += ` _(${r.tiebreaker_note})_`;
+      }
       return line;
     }).join('\n');
 
-    const hasTies = results.some((r, i) =>
-      (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
-      (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
+    const nonFixed = results.filter(r => !isFixed(r));
+    const hasTies = nonFixed.some((r, i) =>
+      (i > 0 && r.dkp_bid === nonFixed[i - 1].dkp_bid) ||
+      (i < nonFixed.length - 1 && r.dkp_bid === nonFixed[i + 1].dkp_bid)
     );
     const hasFzWinner = results.some(r => r.is_friendly_zone);
+    const hasFixed = results.some(r => isFixed(r));
 
     let tiebreakerNote = null;
     if (hasTies) {
@@ -138,6 +148,9 @@ Deno.serve(async (req) => {
       { name: `Winners (Top ${maxRanks})`, value: resultsText || 'No results', inline: false },
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
+    if (hasFixed) {
+      fields.push({ name: '📌 Fix vergebene Ränge', value: 'Diese Plätze wurden vor der Auktion fix vergeben (kein DKP-Abzug, normaler Cooldown).', inline: false });
+    }
     if (friendlyZoneEnabled && hasFzWinner) {
       fields.push({ name: '🤝 Friendly Zone', value: `Reserved slot for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP).`, inline: false });
     }

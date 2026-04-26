@@ -34,7 +34,7 @@ export default function Results() {
 
   const { data: results = [] } = useQuery({
     queryKey: ["results", selectedAuction?.id],
-    queryFn: () => selectedAuction ? base44.entities.AuctionResult.filter({ auction_id: selectedAuction.id }, "rank", 10) : [],
+    queryFn: () => selectedAuction ? base44.entities.AuctionResult.filter({ auction_id: selectedAuction.id }, "rank", 50) : [],
     enabled: !!selectedAuction,
   });
 
@@ -71,9 +71,10 @@ export default function Results() {
   const tiebreaker = settings.find((s) => s.key === "auction_tiebreaker")?.value || "fcfs";
   const tiebreakerFallback = settings.find((s) => s.key === "auction_tiebreaker_fallback")?.value || "fcfs";
 
-  const hasTies = results.some((r, i) =>
-    (i > 0 && r.dkp_bid === results[i - 1].dkp_bid) ||
-    (i < results.length - 1 && r.dkp_bid === results[i + 1].dkp_bid)
+  const nonFixedResults = results.filter(r => !(typeof r.tiebreaker_note === "string" && r.tiebreaker_note.startsWith("Fixed:")));
+  const hasTies = nonFixedResults.some((r, i) =>
+    (i > 0 && r.dkp_bid === nonFixedResults[i - 1].dkp_bid) ||
+    (i < nonFixedResults.length - 1 && r.dkp_bid === nonFixedResults[i + 1].dkp_bid)
   );
 
   const ruleLabel = (rule) => t(`results.tiebreakerRule.${rule}`) || t("results.tiebreakerRule.fcfs");
@@ -152,8 +153,10 @@ export default function Results() {
                 {results.map((r) => {
                   const tg = mgeTargets.find((m) => m.rank === r.rank);
                   const rankClass = r.rank === 1 ? "dp-rank-1" : r.rank === 2 ? "dp-rank-2" : r.rank === 3 ? "dp-rank-3" : "";
+                  const isFixed = typeof r.tiebreaker_note === "string" && r.tiebreaker_note.startsWith("Fixed:");
+                  const fixedReason = isFixed ? r.tiebreaker_note.replace(/^Fixed:\s*/, "") : null;
                   return (
-                    <tr key={r.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                    <tr key={r.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)", background: isFixed ? "rgba(212, 168, 89, 0.05)" : undefined }}>
                       <td style={{ padding: "12px 18px" }}>
                         <span className="dp-heading dp-mono" style={{
                           fontSize: 14, fontWeight: 600,
@@ -164,12 +167,15 @@ export default function Results() {
                       </td>
                       <td style={{ padding: "12px 18px", fontWeight: 500 }}>
                         {r.player_name}
+                        {isFixed && (
+                          <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-accent)" }}>· 📌 Fix</span>
+                        )}
                         {r.is_friendly_zone && (
                           <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-info)" }}>· FZ</span>
                         )}
                       </td>
                       <td className="dp-mono dp-accent-text" style={{ padding: "12px 18px", textAlign: "right", fontWeight: 600 }}>
-                        {r.dkp_bid}
+                        {isFixed ? <span style={{ color: "var(--dp-text-dim)" }}>—</span> : r.dkp_bid}
                       </td>
                       <td className="dp-mono" style={{ padding: "12px 18px", textAlign: "right", color: "var(--dp-text-muted)" }}>
                         {(r.target_score ?? tg?.target)?.toLocaleString("en-US") || "—"}
@@ -181,7 +187,7 @@ export default function Results() {
                         </span>
                       </td>
                       <td style={{ padding: "12px 18px", fontSize: 11.5, color: "var(--dp-text-dim)" }}>
-                        {r.tiebreaker_note ? `⚖ ${r.tiebreaker_note}` : "—"}
+                        {isFixed ? <span style={{ color: "var(--dp-accent)" }}>📌 {fixedReason}</span> : (r.tiebreaker_note ? `⚖ ${r.tiebreaker_note}` : "—")}
                       </td>
                     </tr>
                   );

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
+import FixedAssignmentsEditor from "@/components/dkp/FixedAssignmentsEditor";
 
 const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
@@ -133,6 +134,7 @@ export default function AdminAuctions() {
   const [scheduledOpen, setScheduledOpen] = useState("");
   const [scheduledClose, setScheduledClose] = useState("");
   const [password, setPassword] = useState("");
+  const [fixedAssignments, setFixedAssignments] = useState([]);
   const [viewBids, setViewBids] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [editBid, setEditBid] = useState(null);
@@ -213,6 +215,23 @@ export default function AdminAuctions() {
     } catch { return []; }
   }, [settings]);
 
+  const auctionMaxRanks = useMemo(() => {
+    const v = parseInt(settings.find((s) => s.key === "auction_max_ranks")?.value || "10", 10);
+    return Number.isFinite(v) && v > 0 ? v : 10;
+  }, [settings]);
+
+  // Parse fixed assignments for the currently viewed auction
+  const currentFixedAssignments = useMemo(() => {
+    if (!viewBids?.fixed_assignments) return [];
+    try {
+      const arr = JSON.parse(viewBids.fixed_assignments);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }, [viewBids]);
+
+  const fixedRanksSet = useMemo(() => new Set(currentFixedAssignments.map(a => Number(a.rank))), [currentFixedAssignments]);
+  const fixedPlayerIdsSet = useMemo(() => new Set(currentFixedAssignments.map(a => a.player_id)), [currentFixedAssignments]);
+
   // Activity score per player (same logic as Leaderboard)
   const activityScores = useMemo(() => {
     const activityKeys = new Set();
@@ -278,78 +297,123 @@ export default function AdminAuctions() {
 
   const previewRanking = useMemo(() => {
     if (!showPreview || !viewBids) return [];
-    const activeBids = bids.filter((b) => !b.is_deleted);
+    // Filter out bids from fixed-assigned players (they shouldn't bid; safety net)
+    const activeBids = bids.filter((b) => !b.is_deleted && !fixedPlayerIdsSet.has(b.player_id));
     const sorted = sortBids(activeBids);
 
-    let top10;
+    // Build a map: rank -> entry (fixed or bid)
+    const slots = {}; // 1..auctionMaxRanks
+    const fixedRanks = new Set(currentFixedAssignments.map(a => Number(a.rank)));
 
-    if (friendlyZoneEnabled) {
-      // Find FZ-eligible bids (sorted by DKP + tiebreaker, same order as sorted)
+    // 1) Place fixed assignments
+    currentFixedAssignments.forEach(a => {
+      slots[Number(a.rank)] = {
+        _fixed: true,
+        _fixedReason: a.reason,
+        player_id: a.player_id,
+        player_name: a.player_name,
+        dkp_bid: 0,
+        id: `fixed-${a.rank}`,
+      };
+    });
+
+    // 2) Determine free ranks
+    const freeRanks = [];
+    for (let r = 1; r <= auctionMaxRanks; r++) {
+      if (!fixedRanks.has(r)) freeRanks.push(r);
+    }
+
+    // 3) Fill free ranks with bids — apply FZ logic for the LAST free rank if FZ active
+    let bidsForRanks;
+    let fzWinnerId = null;
+    if (friendlyZoneEnabled && freeRanks.length > 0) {
+      const lastFreeRank = freeRanks[freeRanks.length - 1];
+      const earlierFreeRanks = freeRanks.slice(0, -1);
       const fzBids = sorted.filter(b => isFzEligible(b));
       const nonFzBids = sorted.filter(b => !isFzEligible(b));
 
       if (fzBids.length > 0) {
-        // Best FZ bidder gets Rank 10, rest of Top 9 filled by non-FZ bids
-        // If an FZ bidder also made it into Top 9 by pure ranking, they stay there and next FZ bidder gets Rank 10
-        const fzWinner = fzBids[0]; // best FZ bid (already sorted)
-        const top9 = nonFzBids.slice(0, 9);
-        // If less than 9 non-FZ bids, fill remaining spots from FZ bids (excluding the FZ winner)
-        if (top9.length < 9) {
+        const fzWinner = fzBids[0];
+        fzWinnerId = fzWinner.id;
+        const earlier = nonFzBids.slice(0, earlierFreeRanks.length);
+        if (earlier.length < earlierFreeRanks.length) {
           const remainingFz = fzBids.filter(b => b.id !== fzWinner.id);
-          top9.push(...remainingFz.slice(0, 9 - top9.length));
+          earlier.push(...remainingFz.slice(0, earlierFreeRanks.length - earlier.length));
         }
-        top10 = [...top9, { ...fzWinner, _friendlyZone: true }];
+        bidsForRanks = [...earlier, { ...fzWinner, _friendlyZone: true, _fzRank: lastFreeRank }];
       } else {
-        // No FZ bidders → all 10 ranks normal
-        top10 = sorted.slice(0, 10);
+        bidsForRanks = sorted.slice(0, freeRanks.length);
       }
     } else {
-      top10 = sorted.slice(0, 10);
+      bidsForRanks = sorted.slice(0, freeRanks.length);
     }
 
-    // Detect tiebreaker situations
+    // Map bids to free rank slots in order
+    bidsForRanks.forEach((b, idx) => {
+      const rank = freeRanks[idx];
+      if (rank) slots[rank] = b;
+    });
+
+    // 4) Build sorted output by rank, with tiebreaker detection within bid group
     const getRuleLabel = (rule, playerId) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
       return "Earlier bid";
     };
-    return top10.map((b, i) => {
-      let _tiebreaker = null;
-      // Only check tiebreakers within the same group (don't compare rank 9 vs rank 10 FZ)
-      if (!b._friendlyZone) {
-        const hasTie = (i > 0 && !top10[i - 1]._friendlyZone && top10[i].dkp_bid === top10[i - 1].dkp_bid) ||
-                       (i < top10.length - 1 && !top10[i + 1]?._friendlyZone && top10[i].dkp_bid === top10[i + 1]?.dkp_bid);
-        if (hasTie) {
-          const tiedGroup = top10.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
-          const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
-            const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
-                          tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
-            const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
-                               tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
-            return score === firstScore;
-          });
-          if (allPrimarySame && tiebreaker !== "fcfs") {
-            _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
-          } else {
-            _tiebreaker = getRuleLabel(tiebreaker, b.player_id);
+
+    const result = [];
+    for (let r = 1; r <= auctionMaxRanks; r++) {
+      const s = slots[r];
+      if (!s) continue;
+      if (s._fixed) {
+        result.push({
+          ...s,
+          rank: r,
+          target: mgeTargets[r - 1]?.target,
+          medals: mgeTargets[r - 1]?.medals,
+          _tiebreaker: null,
+        });
+      } else {
+        // Detect tiebreaker against neighboring NON-fixed, NON-FZ slots
+        let _tiebreaker = null;
+        if (!s._friendlyZone) {
+          const prev = slots[r - 1];
+          const next = slots[r + 1];
+          const hasTie = (prev && !prev._fixed && !prev._friendlyZone && prev.dkp_bid === s.dkp_bid) ||
+                         (next && !next._fixed && !next._friendlyZone && next.dkp_bid === s.dkp_bid);
+          if (hasTie) {
+            const tiedGroup = Object.values(slots).filter(t => !t._fixed && !t._friendlyZone && t.dkp_bid === s.dkp_bid);
+            const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
+              const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
+                            tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
+              const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
+                                 tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
+              return score === firstScore;
+            });
+            if (allPrimarySame && tiebreaker !== "fcfs") {
+              _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id)}`;
+            } else {
+              _tiebreaker = getRuleLabel(tiebreaker, s.player_id);
+            }
           }
         }
+        result.push({
+          ...s,
+          rank: r,
+          target: mgeTargets[r - 1]?.target,
+          medals: mgeTargets[r - 1]?.medals,
+          _tiebreaker,
+        });
       }
-      return {
-        ...b,
-        rank: i + 1,
-        target: mgeTargets[i]?.target,
-        medals: mgeTargets[i]?.medals,
-        _tiebreaker,
-      };
-    });
-  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores]);
+    }
+    return result;
+  }, [showPreview, bids, players, friendlyZoneEnabled, friendlyZoneThreshold, viewBids, mgeTargets, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores, auctionMaxRanks, currentFixedAssignments, fixedPlayerIdsSet]);
 
   const createMutation = useMutation({
     mutationFn: (data) => adminEntities.Auction.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auctions"] });
-      setTitle(""); setScheduledOpen(""); setScheduledClose(""); setPassword("");
+      setTitle(""); setScheduledOpen(""); setScheduledClose(""); setPassword(""); setFixedAssignments([]);
     },
   });
 
@@ -432,30 +496,34 @@ export default function AdminAuctions() {
         player_id: entry.player_id,
         player_name: entry.player_name,
         rank: entry.rank,
-        bid_id: entry.id,
-        dkp_bid: entry.dkp_bid,
+        bid_id: entry._fixed ? null : entry.id,
+        dkp_bid: entry._fixed ? 0 : entry.dkp_bid,
         target_score: entry.target,
         hero_medals: entry.medals,
-        tiebreaker_note: entry._tiebreaker || null,
+        tiebreaker_note: entry._fixed ? `Fixed: ${entry._fixedReason}` : (entry._tiebreaker || null),
         is_friendly_zone: !!entry._friendlyZone,
       });
 
-      await adminEntities.DKPTransaction.create({
-        player_id: entry.player_id,
-        player_name: entry.player_name,
-        amount: -entry.dkp_bid,
-        type: "bid",
-        source: "MGE",
-        event_date: today,
-        note: `${viewBids.title} — Rank ${entry.rank}`,
-      });
+      // No DKP transaction or dkp_spent update for fixed assignments — but cooldown applies
+      if (!entry._fixed) {
+        await adminEntities.DKPTransaction.create({
+          player_id: entry.player_id,
+          player_name: entry.player_name,
+          amount: -entry.dkp_bid,
+          type: "bid",
+          source: "MGE",
+          event_date: today,
+          note: `${viewBids.title} — Rank ${entry.rank}`,
+        });
+      }
 
       const player = players.find((p) => p.id === entry.player_id);
       if (player) {
-        await adminEntities.Player.update(entry.player_id, {
-          dkp_spent: (player.dkp_spent || 0) - entry.dkp_bid,
-          cooldown_until: cooldownDate,
-        });
+        const updates = { cooldown_until: cooldownDate };
+        if (!entry._fixed) {
+          updates.dkp_spent = (player.dkp_spent || 0) - entry.dkp_bid;
+        }
+        await adminEntities.Player.update(entry.player_id, updates);
       }
     }
 
@@ -470,12 +538,17 @@ export default function AdminAuctions() {
       if (!viewBids) return;
 
       if (resultsEnabled && discordConfigured && previewRanking.length > 0) {
-        const resultsText = previewRanking.map((r, i) => {
-          let line = `${i + 1}. **${r.player_name}** — ${r.dkp_bid} DKP`;
-          if (r.target) line += ` | Target: ${r.target.toLocaleString()}`;
-          if (r.medals) line += ` | Medals: ${r.medals}`;
-          if (r._friendlyZone) line += ` 🤝 _(Friendly Zone)_`;
-          if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
+        const resultsText = previewRanking.map((r) => {
+          let line = `${r.rank}. **${r.player_name}**`;
+          if (r._fixed) {
+            line += ` 📌 _(Fixed: ${r._fixedReason})_`;
+          } else {
+            line += ` — ${r.dkp_bid} DKP`;
+            if (r.target) line += ` | Target: ${r.target.toLocaleString()}`;
+            if (r.medals) line += ` | Medals: ${r.medals}`;
+            if (r._friendlyZone) line += ` 🤝 _(Friendly Zone)_`;
+            if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
+          }
           return line;
         }).join("\n");
 
@@ -586,12 +659,20 @@ export default function AdminAuctions() {
     if (password) {
       embed.fields.push({ name: "Password", value: `||${password}||`, inline: false });
     }
+    if (fixedAssignments.length > 0) {
+      const fixedText = fixedAssignments
+        .map(a => `**#${a.rank}** — ${a.player_name} _(${a.reason})_`)
+        .join("\n");
+      embed.fields.push({ name: "📌 Fix vergebene Ränge", value: fixedText, inline: false });
+    }
     embed.fields.push({ name: "🔗 Link", value: `[View Auction](${auctionUrl})`, inline: false });
     return embed;
   };
 
   const handleCreate = () => {
     if (!title) return;
+
+    const fixedJson = fixedAssignments.length > 0 ? JSON.stringify(fixedAssignments) : null;
 
     if (auctionEnabled && discordConfigured) {
       // Show preview modal — save embed + extra text on auction when confirmed
@@ -607,6 +688,7 @@ export default function AdminAuctions() {
             scheduled_close: scheduledClose || null,
             bid_password: password || null,
             has_password: !!password,
+            fixed_assignments: fixedJson,
             discord_embed: JSON.stringify(embed),
             discord_extra_text: extraText || "",
           });
@@ -620,6 +702,7 @@ export default function AdminAuctions() {
         scheduled_close: scheduledClose || null,
         bid_password: password || null,
         has_password: !!password,
+        fixed_assignments: fixedJson,
       });
     }
   };
@@ -752,6 +835,17 @@ export default function AdminAuctions() {
             Auction auto-opens on {formatUTCDate(scheduledOpen)}
           </p>
         )}
+
+        {/* Fixed assignments */}
+        <div className="mt-5 pt-5 border-t border-white/5">
+          <FixedAssignmentsEditor
+            value={fixedAssignments}
+            onChange={setFixedAssignments}
+            players={players}
+            maxRanks={auctionMaxRanks}
+          />
+        </div>
+
         <Button onClick={handleCreate} disabled={!title || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
           <Plus className="w-4 h-4 mr-1" /> Create Auction
         </Button>
@@ -823,6 +917,22 @@ export default function AdminAuctions() {
             {/* Bid Table */}
             {viewBids?.id === a.id && !showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
+                {currentFixedAssignments.length > 0 && (
+                  <div className="mb-3 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1">
+                      📌 Fix vergebene Ränge
+                    </p>
+                    <div className="space-y-1">
+                      {currentFixedAssignments.map(fa => (
+                        <div key={fa.rank} className="text-xs text-gray-300 flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 font-bold text-[10px]">#{fa.rank}</span>
+                          <span className="font-medium">{fa.player_name}</span>
+                          <span className="text-gray-500">— {fa.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                   <p className="text-xs text-gray-500">{activeBids.length} active bids{deletedBids.length > 0 ? ` · ${deletedBids.length} deleted` : ""}</p>
                   {friendlyZoneEnabled && (
@@ -950,7 +1060,7 @@ export default function AdminAuctions() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {previewRanking.map((entry) => (
-                      <tr key={entry.id} className={entry._friendlyZone ? "bg-emerald-500/5" : ""}>
+                      <tr key={entry.id} className={entry._fixed ? "bg-amber-500/5" : entry._friendlyZone ? "bg-emerald-500/5" : ""}>
                         <td className="px-2 py-1.5">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                             entry.rank <= 3 ? "bg-amber-500/20 text-amber-400" : "bg-gray-700/50 text-gray-400"
@@ -960,6 +1070,11 @@ export default function AdminAuctions() {
                         </td>
                         <td className="px-2 py-1.5 text-sm text-white">
                           {entry.player_name}
+                          {entry._fixed && (
+                            <span className="ml-2 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-1.5 py-0.5">
+                              📌 Fix: {entry._fixedReason}
+                            </span>
+                          )}
                           {entry._friendlyZone && <span className="ml-2 text-xs text-emerald-400">(Friendly Zone)</span>}
                           {entry._tiebreaker && (
                             <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
@@ -967,7 +1082,9 @@ export default function AdminAuctions() {
                             </span>
                           )}
                         </td>
-                        <td className="px-2 py-1.5"><DKPValue value={entry.dkp_bid} size="sm" /></td>
+                        <td className="px-2 py-1.5">
+                          {entry._fixed ? <span className="text-xs text-gray-500">—</span> : <DKPValue value={entry.dkp_bid} size="sm" />}
+                        </td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{entry.target?.toLocaleString()}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden md:table-cell">

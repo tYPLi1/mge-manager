@@ -36,6 +36,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Auction is not open for bidding' }, { status: 400 });
     }
 
+    // Check fixed assignments — players with a pre-assigned rank cannot bid
+    if (auction.fixed_assignments) {
+      try {
+        const fixed = JSON.parse(auction.fixed_assignments);
+        if (Array.isArray(fixed) && fixed.some(a => a.player_id === player_id)) {
+          return Response.json({ error: 'Du hast bereits einen fix vergebenen Rang in dieser Auktion und kannst nicht bieten.' }, { status: 400 });
+        }
+      } catch { /* ignore parse error */ }
+    }
+
     // Validate password if required
     if (auction.has_password) {
       if (!bid_password || bid_password !== auction.bid_password) {
