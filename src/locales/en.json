@@ -229,6 +229,62 @@
       "status": "Status",
       "closing": "closing\u2026"
     },
-    "panel": "Admin Panel"
+    "panel": "Admin Panel",
+    "common": {
+      "saveAll": "Save All",
+      "unsavedChanges": "{{count}} unsaved change",
+      "unsavedChangesPlural": "{{count}} unsaved changes",
+      "noChanges": "No changes to save.",
+      "savedToast": "Saved {{count}} setting",
+      "savedToastPlural": "Saved {{count}} settings"
+    },
+    "settings": {
+      "title": "Settings",
+      "movedNotice": "Auction-related settings (Friendly Zone, Tiebreaker, MGE Targets, Cooldown Table, Max Ranks) have moved to",
+      "auctionConfigLink": "Auction Config",
+      "eventToggles": "Event DKP Toggles",
+      "wonderDkp": "Wonder Contest DKP",
+      "dawnDkp": "Battle of Dawn DKP",
+      "rulesText": "Rules Text (Markdown)",
+      "rulesPlaceholder": "Enter guild rules in markdown format...",
+      "penaltyConfig": "Penalty Configuration",
+      "discordTitle": "Discord Bot — Server & Channels",
+      "discordDesc": "Configure multiple Discord servers. Per server you can decide which messages go to which channel. The bot sends with @everyone and a link to the app.",
+      "discordHint": "💡 Right-click on a channel → \"Copy ID\" (enable Developer Mode in Discord)"
+    },
+    "auctionConfig": {
+      "title": "Auction Configuration",
+      "subtitle": "All auction-related settings in one place",
+      "rankTable": "Rank Configuration",
+      "rankTableDesc": "Configure cooldown, medals, target score, and Friendly Zone status for each auction rank.",
+      "maxRanks": "Max Auction Ranks",
+      "maxRanksDesc": "Only this many ranks will be awarded in auctions.",
+      "fzColumnHint": "Tick the Friendly Zone column for any rank that should be reserved for Friendly Zone bidders.",
+      "cols": {
+        "rank": "Rank",
+        "cooldown": "Cooldown (days)",
+        "medals": "Medals",
+        "target": "Target Score",
+        "fz": "Friendly Zone"
+      },
+      "fzTitle": "Friendly Zone",
+      "fzEnabled": "Enabled",
+      "fzThreshold": "DKP Threshold",
+      "fzThresholdDesc": "Players with DKP at or below this threshold are eligible to opt in for Friendly Zone ranks.",
+      "tbTitle": "Auction Tiebreaker",
+      "tbDesc": "When two players bid the same DKP, who gets the higher rank?",
+      "tbFcfs": "⏱ First Come First Served",
+      "tbActivity": "📊 Activity Score",
+      "tbLastEvent": "🏅 Last Event DKP",
+      "tbExplainFcfs": "The player who bids first gets the higher rank when bids are equal.",
+      "tbExplainActivity": "The player with the higher Activity Score gets the higher rank when bids are equal.",
+      "tbExplainLastEvent": "The player who earned the most DKP in the last event (from selected sources) gets the higher rank.",
+      "fallbackTitle": "Fallback Tiebreaker",
+      "fallbackDesc": "If the primary tiebreaker is also equal (e.g. all 0), this rule decides.",
+      "sourcesTitle": "Which event sources count?",
+      "sourcesEmpty": "No active events found.",
+      "stagePrep": "Prep",
+      "stageWar": "War"
+    }
   }
 }

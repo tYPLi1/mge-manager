@@ -12,7 +12,9 @@ import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
 import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { useTranslation } from "@/lib/i18n";
 
 const SETTING_LABELS = {
   friendly_zone_enabled: "Friendly Zone Enabled",
@@ -30,6 +32,7 @@ const SETTING_LABELS = {
 };
 
 export default function AdminSettings() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({});
   const [savedSnapshot, setSavedSnapshot] = useState({});
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
@@ -126,10 +129,13 @@ export default function AdminSettings() {
 
       queryClient.invalidateQueries({ queryKey: ["settings"] });
       if (changedKeys.length === 0) {
-        toast.info("No changes to save.");
+        toast.info(t("admin.common.noChanges"));
       } else {
         const labels = changedKeys.map(k => SETTING_LABELS[k] || k);
-        toast.success(`Saved ${changedKeys.length} setting${changedKeys.length > 1 ? "s" : ""}`, {
+        const msg = changedKeys.length > 1
+          ? t("admin.common.savedToastPlural", { count: changedKeys.length })
+          : t("admin.common.savedToast", { count: changedKeys.length });
+        toast.success(msg, {
           description: labels.join(", "),
           duration: 5000,
         });
@@ -168,15 +174,17 @@ export default function AdminSettings() {
         showDialog={showUnsavedDialog}
         setShowDialog={setShowUnsavedDialog}
       />
-      <PageHeader title="Settings" icon={Settings}>
+      <PageHeader title={t("admin.settings.title")} icon={Settings}>
         <div className="flex items-center gap-3">
           {hasChanges && (
             <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-              {getChangedKeys().length} unsaved change{getChangedKeys().length > 1 ? "s" : ""}
+              {getChangedKeys().length > 1
+                ? t("admin.common.unsavedChangesPlural", { count: getChangedKeys().length })
+                : t("admin.common.unsavedChanges", { count: getChangedKeys().length })}
             </span>
           )}
           <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-            <Save className="w-4 h-4 mr-1" /> Save All
+            <Save className="w-4 h-4 mr-1" /> {t("admin.common.saveAll")}
           </Button>
         </div>
       </PageHeader>
@@ -185,21 +193,23 @@ export default function AdminSettings() {
         {/* Note about Auction Config */}
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
           <p className="text-xs text-amber-300">
-            ℹ️ Auction-related settings (Friendly Zone, Tiebreaker, MGE Targets, Cooldown Table, Max Ranks)
-            have moved to <span className="font-semibold">Auction Config</span>.
+            ℹ️ {t("admin.settings.movedNotice")}{" "}
+            <Link to={createPageUrl("AdminAuctionConfig")} className="font-semibold underline hover:text-amber-200">
+              {t("admin.settings.auctionConfigLink")}
+            </Link>.
           </p>
         </div>
 
         {/* Event Toggles */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Event DKP Toggles</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.eventToggles")}</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-gray-300">Wonder Contest DKP</Label>
+              <Label className="text-gray-300">{t("admin.settings.wonderDkp")}</Label>
               <Switch checked={getBool("wonder_dkp_enabled")} onCheckedChange={(v) => setBool("wonder_dkp_enabled", v)} />
             </div>
             <div className="flex items-center justify-between">
-              <Label className="text-gray-300">Battle of Dawn DKP</Label>
+              <Label className="text-gray-300">{t("admin.settings.dawnDkp")}</Label>
               <Switch checked={getBool("dawn_dkp_enabled")} onCheckedChange={(v) => setBool("dawn_dkp_enabled", v)} />
             </div>
           </div>
@@ -207,19 +217,19 @@ export default function AdminSettings() {
 
         {/* Rules Text */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Rules Text (Markdown)</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.rulesText")}</h3>
           <Textarea
             value={form.rules_text || ""}
             onChange={(e) => setForm({ ...form, rules_text: e.target.value })}
             rows={10}
-            placeholder="Enter guild rules in markdown format..."
+            placeholder={t("admin.settings.rulesPlaceholder")}
             className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
           />
         </div>
 
         {/* Penalty Config */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-5">Penalty Configuration</h3>
+          <h3 className="text-sm font-semibold text-white mb-5">{t("admin.settings.penaltyConfig")}</h3>
           <PenaltyConfigEditor
             value={form.penalty_config}
             onChange={(val) => setForm({ ...form, penalty_config: val })}
@@ -228,13 +238,9 @@ export default function AdminSettings() {
 
         {/* Discord Integration */}
          <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-           <h3 className="text-sm font-semibold text-white mb-4">Discord Bot — Server & Channels</h3>
-           <p className="text-xs text-gray-500 mb-4">
-             Konfiguriere mehrere Discord Server. Pro Server kannst du festlegen, welche Nachrichten in welchen Channel gesendet werden. Der Bot sendet mit @everyone und einem Link zur App.
-           </p>
-           <p className="text-xs text-gray-500 mb-4">
-             💡 Rechtsklick auf einen Channel → "ID kopieren" (Developer Mode in Discord aktivieren)
-           </p>
+           <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.discordTitle")}</h3>
+           <p className="text-xs text-gray-500 mb-4">{t("admin.settings.discordDesc")}</p>
+           <p className="text-xs text-gray-500 mb-4">{t("admin.settings.discordHint")}</p>
            <DiscordServerConfig
              value={form.discord_servers}
              onChange={(val) => setForm({ ...form, discord_servers: val })}

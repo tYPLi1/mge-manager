@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import en from "@/locales/en.json";
+import de from "@/locales/de.json";
 
-const LOCALES = { en };
+const LOCALES = { en, de };
+export const AVAILABLE_LOCALES = [
+  { code: "en", label: "EN" },
+  { code: "de", label: "DE" },
+];
 const DEFAULT_LOCALE = "en";
 
 const I18nContext = createContext({

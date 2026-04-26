@@ -5,7 +5,7 @@ import {
   Trophy, Gavel, ScrollText, History, AlertTriangle, BookOpen, BarChart3,
   Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users,
 } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation, AVAILABLE_LOCALES } from "@/lib/i18n";
 import AdminSessionGuard from "@/components/AdminSessionGuard";
 
 const publicNavConfig = [
@@ -31,7 +31,31 @@ const adminNavConfig = [
 ];
 
 export default function AppShell({ children, currentPageName }) {
-  const { t } = useTranslation();
+  const { t, locale, setLocale } = useTranslation();
+
+  const localeSwitcher = (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: 2, border: "1px solid var(--dp-border)", borderRadius: 8 }}>
+      {AVAILABLE_LOCALES.map((l) => (
+        <button
+          key={l.code}
+          onClick={() => setLocale(l.code)}
+          style={{
+            padding: "4px 8px",
+            borderRadius: 5,
+            background: locale === l.code ? "var(--dp-accent-soft)" : "transparent",
+            color: locale === l.code ? "var(--dp-accent)" : "var(--dp-text-muted)",
+            border: "none",
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: "pointer",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {l.label}
+        </button>
+      ))}
+    </div>
+  );
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
@@ -150,7 +174,8 @@ export default function AppShell({ children, currentPageName }) {
             {navButtons}
           </nav>
 
-          <div className="hide-mobile-nav" style={{ display: "flex" }}>
+          <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {localeSwitcher}
             {headerSecondary}
           </div>
 
@@ -193,6 +218,7 @@ export default function AppShell({ children, currentPageName }) {
               );
             })}
             <div style={{ height: 1, background: "var(--dp-border)", margin: "6px 0" }} />
+            <div style={{ padding: "4px 0" }}>{localeSwitcher}</div>
             {headerSecondary}
           </div>
         )}

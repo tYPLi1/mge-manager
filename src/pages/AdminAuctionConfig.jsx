@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/dkp/PageHeader";
 import RankConfigEditor from "@/components/dkp/RankConfigEditor";
 import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
+import { useTranslation } from "@/lib/i18n";
 
 const SETTING_LABELS = {
   friendly_zone_enabled: "Friendly Zone Enabled",
@@ -29,6 +30,7 @@ const SETTING_LABELS = {
 const MANAGED_KEYS = Object.keys(SETTING_LABELS);
 
 export default function AdminAuctionConfig() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({});
   const [savedSnapshot, setSavedSnapshot] = useState({});
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
@@ -135,10 +137,13 @@ export default function AdminAuctionConfig() {
       queryClient.invalidateQueries({ queryKey: ["settings"] });
 
       if (changedKeys.length === 0) {
-        toast.info("No changes to save.");
+        toast.info(t("admin.common.noChanges"));
       } else {
         const labels = changedKeys.map(k => SETTING_LABELS[k] || k);
-        toast.success(`Saved ${changedKeys.length} setting${changedKeys.length > 1 ? "s" : ""}`, {
+        const msg = changedKeys.length > 1
+          ? t("admin.common.savedToastPlural", { count: changedKeys.length })
+          : t("admin.common.savedToast", { count: changedKeys.length });
+        toast.success(msg, {
           description: labels.join(", "),
           duration: 5000,
         });
@@ -190,15 +195,17 @@ export default function AdminAuctionConfig() {
         showDialog={showUnsavedDialog}
         setShowDialog={setShowUnsavedDialog}
       />
-      <PageHeader title="Auction Configuration" subtitle="All auction-related settings in one place" icon={Gavel}>
+      <PageHeader title={t("admin.auctionConfig.title")} subtitle={t("admin.auctionConfig.subtitle")} icon={Gavel}>
         <div className="flex items-center gap-3">
           {hasChanges && (
             <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-              {changedKeys.length} unsaved change{changedKeys.length > 1 ? "s" : ""}
+              {changedKeys.length > 1
+                ? t("admin.common.unsavedChangesPlural", { count: changedKeys.length })
+                : t("admin.common.unsavedChanges", { count: changedKeys.length })}
             </span>
           )}
           <Button onClick={handleSave} disabled={!hasChanges || saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-            <Save className="w-4 h-4 mr-1" /> Save All
+            <Save className="w-4 h-4 mr-1" /> {t("admin.common.saveAll")}
           </Button>
         </div>
       </PageHeader>
@@ -206,49 +213,46 @@ export default function AdminAuctionConfig() {
       <div className="space-y-6">
         {/* Rank Configuration Table */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Rank Configuration</h3>
-          <p className="text-xs text-gray-500 mb-4">
-            Configure cooldown, medals, target score, and Friendly Zone status for each auction rank.
-          </p>
+          <h3 className="text-sm font-semibold text-white mb-1">{t("admin.auctionConfig.rankTable")}</h3>
+          <p className="text-xs text-gray-500 mb-4">{t("admin.auctionConfig.rankTableDesc")}</p>
           <RankConfigEditor
             maxRanks={form.auction_max_ranks || "10"}
             mgeTargetsJson={form.mge_targets || "[]"}
-            cooldownTableJson={form.cooldown_table || "[]"}
+            cooldownTableJson={form.cooldown_table || "{}"}
             friendlyZoneRanksJson={form.friendly_zone_ranks || "[]"}
             onChangeMaxRanks={(v) => setForm(f => ({ ...f, auction_max_ranks: v }))}
             onChangeMgeTargets={(v) => setForm(f => ({ ...f, mge_targets: v }))}
             onChangeCooldownTable={(v) => setForm(f => ({ ...f, cooldown_table: v }))}
             onChangeFriendlyZoneRanks={(v) => setForm(f => ({ ...f, friendly_zone_ranks: v }))}
+            t={t}
           />
         </div>
 
         {/* Friendly Zone */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Friendly Zone</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.auctionConfig.fzTitle")}</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-gray-300">Enabled</Label>
+              <Label className="text-gray-300">{t("admin.auctionConfig.fzEnabled")}</Label>
               <Switch checked={getBool("friendly_zone_enabled")} onCheckedChange={(v) => setBool("friendly_zone_enabled", v)} />
             </div>
             <div>
-              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">DKP Threshold</Label>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">{t("admin.auctionConfig.fzThreshold")}</Label>
               <Input
                 type="number"
                 value={form.friendly_zone_threshold || ""}
                 onChange={(e) => setForm({ ...form, friendly_zone_threshold: e.target.value })}
                 className="bg-white/5 border-white/10 text-white w-32"
               />
-              <p className="text-xs text-gray-500 mt-1.5">
-                Players with DKP at or below this threshold are eligible to opt in for Friendly Zone ranks.
-              </p>
+              <p className="text-xs text-gray-500 mt-1.5">{t("admin.auctionConfig.fzThresholdDesc")}</p>
             </div>
           </div>
         </div>
 
         {/* Auction Tiebreaker */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">Auction Tiebreaker</h3>
-          <p className="text-xs text-gray-500 mb-3">When two players bid the same DKP, who gets the higher rank?</p>
+          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.auctionConfig.tbTitle")}</h3>
+          <p className="text-xs text-gray-500 mb-3">{t("admin.auctionConfig.tbDesc")}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "fcfs" })}
@@ -258,7 +262,7 @@ export default function AdminAuctionConfig() {
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              ⏱ First Come First Served
+              {t("admin.auctionConfig.tbFcfs")}
             </button>
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "activity" })}
@@ -268,7 +272,7 @@ export default function AdminAuctionConfig() {
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              📊 Activity Score
+              {t("admin.auctionConfig.tbActivity")}
             </button>
             <button
               onClick={() => setForm({ ...form, auction_tiebreaker: "last_event_dkp" })}
@@ -278,27 +282,27 @@ export default function AdminAuctionConfig() {
                   : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
               }`}
             >
-              🏅 Last Event DKP
+              {t("admin.auctionConfig.tbLastEvent")}
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {(!form.auction_tiebreaker || form.auction_tiebreaker === "fcfs")
-              ? "The player who bids first gets the higher rank when bids are equal."
+              ? t("admin.auctionConfig.tbExplainFcfs")
               : form.auction_tiebreaker === "activity"
-              ? "The player with the higher Activity Score gets the higher rank when bids are equal."
-              : "The player who earned the most DKP in the last event (from selected sources) gets the higher rank."}
+              ? t("admin.auctionConfig.tbExplainActivity")
+              : t("admin.auctionConfig.tbExplainLastEvent")}
           </p>
 
           {/* Fallback Tiebreaker */}
           {form.auction_tiebreaker && form.auction_tiebreaker !== "fcfs" && (
             <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Fallback Tiebreaker</p>
-              <p className="text-xs text-gray-500 mb-3">If the primary tiebreaker is also equal (e.g. all 0), this rule decides.</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">{t("admin.auctionConfig.fallbackTitle")}</p>
+              <p className="text-xs text-gray-500 mb-3">{t("admin.auctionConfig.fallbackDesc")}</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {[
-                  { key: "fcfs", label: "⏱ First Come First Served" },
-                  { key: "activity", label: "📊 Activity Score" },
-                  { key: "last_event_dkp", label: "🏅 Last Event DKP" },
+                  { key: "fcfs", label: t("admin.auctionConfig.tbFcfs") },
+                  { key: "activity", label: t("admin.auctionConfig.tbActivity") },
+                  { key: "last_event_dkp", label: t("admin.auctionConfig.tbLastEvent") },
                 ].filter(opt => opt.key !== form.auction_tiebreaker).map(opt => (
                   <button
                     key={opt.key}
@@ -319,15 +323,15 @@ export default function AdminAuctionConfig() {
           {/* Last Event DKP source checkboxes */}
           {(form.auction_tiebreaker === "last_event_dkp" || form.auction_tiebreaker_fallback === "last_event_dkp") && (
             <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Which event sources count?</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">{t("admin.auctionConfig.sourcesTitle")}</p>
               {eventTypes.length === 0 && (
-                <p className="text-xs text-gray-500">No active events found.</p>
+                <p className="text-xs text-gray-500">{t("admin.auctionConfig.sourcesEmpty")}</p>
               )}
               <div className="space-y-2">
                 {eventTypes.map(et => {
                   const sources = [];
-                  if (et.has_prep_stage) sources.push({ key: `${et.key}_prep`, label: `${et.display_name} — Prep` });
-                  if (et.has_war_stage) sources.push({ key: `${et.key}_war`, label: `${et.display_name} — War` });
+                  if (et.has_prep_stage) sources.push({ key: `${et.key}_prep`, label: `${et.display_name} — ${t("admin.auctionConfig.stagePrep")}` });
+                  if (et.has_war_stage) sources.push({ key: `${et.key}_war`, label: `${et.display_name} — ${t("admin.auctionConfig.stageWar")}` });
                   if (!et.has_prep_stage && !et.has_war_stage) sources.push({ key: et.key, label: et.display_name });
                   const selected = getLastEventSources();
                   return sources.map(src => (

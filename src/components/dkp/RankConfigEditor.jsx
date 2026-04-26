@@ -23,7 +23,20 @@ export default function RankConfigEditor({
   onChangeMgeTargets,
   onChangeCooldownTable,
   onChangeFriendlyZoneRanks,
+  t,
 }) {
+  // Fallback labels if no `t` provided (component still works standalone)
+  const tr = t || ((_k, _v) => null);
+  const L = {
+    maxRanks: tr("admin.auctionConfig.maxRanks") || "Max Auction Ranks",
+    maxRanksDesc: tr("admin.auctionConfig.maxRanksDesc") || "Only this many ranks will be awarded in auctions.",
+    rank: tr("admin.auctionConfig.cols.rank") || "Rank",
+    cooldown: tr("admin.auctionConfig.cols.cooldown") || "Cooldown (days)",
+    medals: tr("admin.auctionConfig.cols.medals") || "Medals",
+    target: tr("admin.auctionConfig.cols.target") || "Target Score",
+    fz: tr("admin.auctionConfig.cols.fz") || "Friendly Zone",
+    fzHint: tr("admin.auctionConfig.fzColumnHint") || "Tick the Friendly Zone column for any rank that should be reserved for Friendly Zone bidders.",
+  };
   const numRanks = useMemo(() => {
     const n = parseInt(maxRanks, 10);
     return Number.isFinite(n) && n > 0 ? n : 10;
@@ -37,13 +50,13 @@ export default function RankConfigEditor({
     } catch { return []; }
   }, [mgeTargetsJson]);
 
-  // Parse cooldown table — accept array OR object form for backwards compat
+  // Parse cooldown table — accept object (canonical) OR array form (legacy) for backwards compat.
+  // Internally we use an array indexed by rank-1 for editing convenience.
   const cooldowns = useMemo(() => {
     try {
-      const parsed = JSON.parse(cooldownTableJson || "[]");
+      const parsed = JSON.parse(cooldownTableJson || "{}");
       if (Array.isArray(parsed)) return parsed;
       if (parsed && typeof parsed === "object") {
-        // object keyed by rank number
         const arr = [];
         for (let i = 1; i <= numRanks; i++) {
           arr[i - 1] = parsed[i] ?? parsed[String(i)] ?? 0;
@@ -88,11 +101,17 @@ export default function RankConfigEditor({
   };
 
   const updateCooldown = (rank, value) => {
-    const next = [...cooldowns];
-    // Pad array up to numRanks
-    while (next.length < numRanks) next.push(0);
-    next[rank - 1] = value === "" ? 0 : Number(value);
-    onChangeCooldownTable(JSON.stringify(next.slice(0, numRanks)));
+    // Save as object keyed by rank number — this is the format
+    // AdminAuctions and other consumers expect (cooldownTable[rank]).
+    const obj = {};
+    for (let i = 1; i <= numRanks; i++) {
+      if (i === rank) {
+        obj[i] = value === "" ? 0 : Number(value);
+      } else {
+        obj[i] = cooldowns[i - 1] ?? 0;
+      }
+    }
+    onChangeCooldownTable(JSON.stringify(obj));
   };
 
   const toggleFZ = (rank) => {
@@ -110,7 +129,7 @@ export default function RankConfigEditor({
     <div className="space-y-4">
       {/* Max Ranks control */}
       <div className="flex items-center gap-3">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Max Auction Ranks</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">{L.maxRanks}</label>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -135,9 +154,7 @@ export default function RankConfigEditor({
             <Plus className="w-3.5 h-3.5" />
           </button>
         </div>
-        <span className="text-xs text-gray-500">
-          Only this many ranks will be awarded in auctions.
-        </span>
+        <span className="text-xs text-gray-500">{L.maxRanksDesc}</span>
       </div>
 
       {/* Rank Table */}
@@ -145,11 +162,11 @@ export default function RankConfigEditor({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
-              <th className="px-3 py-2 text-left font-medium">Rank</th>
-              <th className="px-3 py-2 text-left font-medium">Cooldown (days)</th>
-              <th className="px-3 py-2 text-left font-medium">Medals</th>
-              <th className="px-3 py-2 text-left font-medium">Target Score</th>
-              <th className="px-3 py-2 text-center font-medium">Friendly Zone</th>
+              <th className="px-3 py-2 text-left font-medium">{L.rank}</th>
+              <th className="px-3 py-2 text-left font-medium">{L.cooldown}</th>
+              <th className="px-3 py-2 text-left font-medium">{L.medals}</th>
+              <th className="px-3 py-2 text-left font-medium">{L.target}</th>
+              <th className="px-3 py-2 text-center font-medium">{L.fz}</th>
             </tr>
           </thead>
           <tbody>
@@ -197,10 +214,7 @@ export default function RankConfigEditor({
         </table>
       </div>
 
-      <p className="text-xs text-gray-500">
-        Tick the <span className="text-emerald-400 font-medium">Friendly Zone</span> column for any
-        rank that should be reserved for Friendly Zone bidders.
-      </p>
+      <p className="text-xs text-gray-500">{L.fzHint}</p>
     </div>
   );
 }
