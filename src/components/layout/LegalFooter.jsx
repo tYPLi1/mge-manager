@@ -10,6 +10,10 @@ export default function LegalFooter() {
     textDecoration: "none",
     fontSize: 12,
     transition: "color 0.15s ease",
+    cursor: "pointer",
+    padding: "4px 2px",
+    position: "relative",
+    zIndex: 1,
   };
   return (
     <footer style={{
@@ -17,6 +21,8 @@ export default function LegalFooter() {
       background: "var(--dp-bg-elevated)",
       padding: "16px 24px",
       marginTop: 40,
+      position: "relative",
+      zIndex: 70,
     }}>
       <div style={{
         maxWidth: 1400, margin: "0 auto",
