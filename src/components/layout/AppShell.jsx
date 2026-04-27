@@ -145,12 +145,8 @@ export default function AppShell({ children, currentPageName }) {
         background: "var(--dp-bg-elevated)",
         backdropFilter: "blur(8px)",
       }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 10 }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
           {headerLogo}
-
-          <nav className="hide-mobile-nav" style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", flex: 1 }}>
-            {navButtons}
-          </nav>
 
           <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <LanguageSwitcher variant="header" />
@@ -168,6 +164,14 @@ export default function AppShell({ children, currentPageName }) {
             {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
+
+        <nav className="hide-mobile-nav" style={{
+          maxWidth: 1400, margin: "0 auto", padding: "0 16px 10px",
+          display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center",
+          borderTop: "1px solid var(--dp-border)", paddingTop: 10,
+        }}>
+          {navButtons}
+        </nav>
 
         {mobileNavOpen && (
           <div style={{
