@@ -672,13 +672,13 @@ export default function AdminPlayers() {
           <select
             value={allianceFilter}
             onChange={(e) => setAllianceFilter(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-white"
+            className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-2 text-sm text-white"
           >
-            <option value="all">{t("admin.alliances.filterAll")}</option>
+            <option value="all" className="bg-[#1f2937] text-white">{t("admin.alliances.filterAll")}</option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name}>{a.name}</option>
+              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">{a.name}</option>
             ))}
-            <option value="__none__">{t("admin.alliances.filterNone")}</option>
+            <option value="__none__" className="bg-[#1f2937] text-white">{t("admin.alliances.filterNone")}</option>
           </select>
         </div>
       </div>
@@ -713,11 +713,11 @@ export default function AdminPlayers() {
                       <select
                         value={editAlliance}
                         onChange={(e) => setEditAlliance(e.target.value)}
-                        className="h-7 text-xs bg-white/5 border border-white/20 rounded text-white px-2 w-32"
+                        className="h-7 text-xs bg-[#1f2937] border border-white/20 rounded text-white px-2 w-32"
                       >
-                        <option value="">—</option>
+                        <option value="" className="bg-[#1f2937] text-white">—</option>
                         {alliances.map(a => (
-                          <option key={a.name} value={a.name}>{a.name}</option>
+                          <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">{a.name}</option>
                         ))}
                       </select>
                     </td>
