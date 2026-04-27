@@ -543,13 +543,13 @@
     "invalidBackup": "Fichier de sauvegarde non valide",
     "backup": {
       "title": "Sauvegarder toutes les données",
-      "desc": "Télécharge un fichier JSON avec tous les joueurs, transactions, enchères, mises, résultats, sanctions, historique de puissance et rapports. Les paramètres, événements et comptes admin restent sur le serveur.",
+      "desc": "Télécharge un fichier JSON avec TOUTES les données : joueurs, transactions, enchères, mises, résultats, sanctions, historique de puissance, rapports — ainsi que les paramètres, règles, alliances, rangs et configurations d'événements. Seuls les comptes admin sont exclus.",
       "button": "Télécharger la sauvegarde"
     },
     "backupSuccess": "Sauvegarde téléchargée ({{count}} entrées)",
     "restore": {
       "title": "Restaurer depuis une sauvegarde",
-      "desc": "Remplace TOUTES les données actuelles par le contenu d'un fichier de sauvegarde. Les paramètres, événements et comptes admin ne sont PAS touchés.",
+      "desc": "Remplace TOUTES les données actuelles — y compris les paramètres, règles, alliances, rangs et configurations d'événements — par le contenu d'un fichier de sauvegarde. Seuls les comptes admin restent intacts.",
       "selectFile": "Sélectionner le fichier",
       "confirmTitle": "Confirmer la restauration",
       "confirmWarn": "Toutes les données actuelles seront supprimées et remplacées par la sauvegarde.",

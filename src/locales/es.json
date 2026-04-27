@@ -549,13 +549,13 @@
     "invalidBackup": "Archivo de copia de seguridad no válido",
     "backup": {
       "title": "Hacer copia de todos los datos",
-      "desc": "Descarga un archivo JSON con todos los jugadores, transacciones, subastas, pujas, resultados, penalizaciones, historial de poder e informes. Los ajustes, eventos y cuentas de administrador permanecen en el servidor.",
+      "desc": "Descarga un archivo JSON con TODOS los datos: jugadores, transacciones, subastas, pujas, resultados, penalizaciones, historial de poder, informes — además de ajustes, reglas, alianzas, rangos y configuraciones de eventos. Solo se excluyen las cuentas de administrador.",
       "button": "Descargar copia"
     },
     "backupSuccess": "Copia descargada ({{count}} registros)",
     "restore": {
       "title": "Restaurar desde copia",
-      "desc": "Reemplaza TODOS los datos actuales con el contenido de una copia de seguridad. Los ajustes, eventos y cuentas de administrador NO se tocan.",
+      "desc": "Reemplaza TODOS los datos actuales — incluidos ajustes, reglas, alianzas, rangos y configuraciones de eventos — con el contenido de una copia de seguridad. Solo las cuentas de administrador permanecen intactas.",
       "selectFile": "Seleccionar archivo",
       "confirmTitle": "Confirmar restauración",
       "confirmWarn": "Todos los datos actuales se eliminarán y se reemplazarán por la copia.",

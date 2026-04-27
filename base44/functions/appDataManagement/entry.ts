@@ -1,8 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Entities that hold OPERATIONAL DATA (will be wiped / backed up / restored).
-// NOT included: AppSettings, EventType, AdminUser (these are system config & accounts).
-const DATA_ENTITIES = [
+// Entities included in BACKUP and RESTORE.
+// AdminUser is intentionally excluded — admin accounts must never be overwritten by a backup.
+const BACKUP_ENTITIES = [
+  'Player',
+  'DKPTransaction',
+  'Bid',
+  'Auction',
+  'AuctionResult',
+  'Penalty',
+  'OffenseResetLog',
+  'PowerHistory',
+  'UserReport',
+  'AppSettings',
+  'EventType',
+];
+
+// Entities cleared by the WIPE action (operational data only — settings/events/admins are kept).
+const WIPE_ENTITIES = [
   'Player',
   'DKPTransaction',
   'Bid',
@@ -99,7 +114,7 @@ Deno.serve(async (req) => {
     if (action === 'backup') {
       const data = {};
       const counts = {};
-      for (const entity of DATA_ENTITIES) {
+      for (const entity of BACKUP_ENTITIES) {
         try {
           const records = await listAll(base44, entity);
           data[entity] = records;
@@ -113,9 +128,9 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true,
         backup: {
-          version: 1,
+          version: 2,
           created_at: new Date().toISOString(),
-          entities: DATA_ENTITIES,
+          entities: BACKUP_ENTITIES,
           data,
         },
         counts,
@@ -124,7 +139,7 @@ Deno.serve(async (req) => {
 
     if (action === 'wipe') {
       const counts = {};
-      for (const entity of DATA_ENTITIES) {
+      for (const entity of WIPE_ENTITIES) {
         try {
           counts[entity] = await deleteAll(base44, entity);
         } catch (e) {
@@ -140,8 +155,13 @@ Deno.serve(async (req) => {
         return Response.json({ success: false, error: 'Invalid backup data' }, { status: 400 });
       }
 
-      // Step 1: wipe existing data (so we have a clean slate)
-      for (const entity of DATA_ENTITIES) {
+      // Determine which entities the backup actually contains (supports v1 and v2 backups)
+      const entitiesToRestore = BACKUP_ENTITIES.filter(
+        (e) => Array.isArray(backupData.data[e])
+      );
+
+      // Step 1: wipe existing data (so we have a clean slate) — only for entities present in backup
+      for (const entity of entitiesToRestore) {
         try {
           await deleteAll(base44, entity);
         } catch (e) {
@@ -151,7 +171,7 @@ Deno.serve(async (req) => {
 
       // Step 2: insert from backup
       const counts = {};
-      for (const entity of DATA_ENTITIES) {
+      for (const entity of entitiesToRestore) {
         const records = backupData.data[entity] || [];
         if (records.length === 0) {
           counts[entity] = 0;

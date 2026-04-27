@@ -579,13 +579,13 @@
     "invalidBackup": "Ungültige Backup-Datei",
     "backup": {
       "title": "Alle Daten sichern",
-      "desc": "Lade eine JSON-Datei mit allen Spielern, Transaktionen, Auktionen, Geboten, Ergebnissen, Strafen, Power-Historie und Reports herunter. Einstellungen, Events und Admin-Konten bleiben auf dem Server.",
+      "desc": "Lade eine JSON-Datei mit ALLEN Daten herunter: Spieler, Transaktionen, Auktionen, Gebote, Ergebnisse, Strafen, Power-Historie, Reports — sowie Einstellungen, Regeln, Allianzen, Ränge und Event-Konfigurationen. Nur Admin-Konten bleiben außen vor.",
       "button": "Backup herunterladen"
     },
     "backupSuccess": "Backup heruntergeladen ({{count}} Datensätze)",
     "restore": {
       "title": "Aus Backup wiederherstellen",
-      "desc": "ALLE aktuellen Daten werden durch den Inhalt einer Backup-Datei ersetzt. Einstellungen, Events und Admin-Konten bleiben unangetastet.",
+      "desc": "ALLE aktuellen Daten — inklusive Einstellungen, Regeln, Allianzen, Ränge und Event-Konfigurationen — werden durch den Inhalt einer Backup-Datei ersetzt. Nur Admin-Konten bleiben unangetastet.",
       "selectFile": "Backup-Datei wählen",
       "confirmTitle": "Wiederherstellung bestätigen",
       "confirmWarn": "Alle aktuellen Daten werden gelöscht und durch das Backup ersetzt.",
