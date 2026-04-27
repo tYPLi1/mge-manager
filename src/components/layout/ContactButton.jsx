@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Mail, Bug } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import ReportModal from "@/components/reports/ReportModal";
 
@@ -7,8 +8,8 @@ import ReportModal from "@/components/reports/ReportModal";
  * Inline button used inside the legal footer.
  * Styled identically to the legal-footer-link <Link>s so it matches in size.
  * Variants:
- *   - "contact" → opens ReportModal with type="other"
- *   - "bug"     → opens ReportModal with type="bug"
+ *   - "contact" → Mail icon, opens ReportModal with type="other"
+ *   - "bug"     → Bug icon,  opens ReportModal with type="bug"
  */
 export default function ContactButton({ variant = "contact" }) {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function ContactButton({ variant = "contact" }) {
   const location = useLocation();
 
   const isBug = variant === "bug";
+  const Icon = isBug ? Bug : Mail;
   const label = isBug ? t("report.shortButton") : t("legal.contact.title");
   const initialType = isBug ? "bug" : "other";
 
@@ -30,8 +32,12 @@ export default function ContactButton({ variant = "contact" }) {
           border: "none",
           font: "inherit",
           cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
         }}
       >
+        <Icon size={12} />
         {label}
       </button>
 
