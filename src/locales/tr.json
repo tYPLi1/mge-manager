@@ -98,7 +98,7 @@
     "title": "Kullanıcı Raporları",
     "subtitle": "Kullanıcılardan gelen hata raporları ve çeviri geri bildirimleri",
     "emailConfigTitle": "Bildirim E-postası",
-    "emailConfigDesc": "Tüm yeni raporlar bu e-posta adresine iletilecek. E-postaları devre dışı bırakmak için boş bırak.",
+    "emailConfigDesc": "Hem hata raporları hem de iletişim formundan gelen mesajlar için kullanılır. Tüm gönderimler bu e-posta adresine iletilir. Devre dışı bırakmak için boş bırak.",
     "emailSaved": "E-posta adresi kaydedildi",
     "filterAll": "Tümü",
     "status": {

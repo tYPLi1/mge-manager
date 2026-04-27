@@ -94,7 +94,7 @@
     "title": "사용자 신고",
     "subtitle": "사용자의 버그 신고 및 번역 피드백",
     "emailConfigTitle": "알림 이메일",
-    "emailConfigDesc": "모든 새 신고가 이 이메일로 전달됩니다. 비워두면 비활성화됩니다.",
+    "emailConfigDesc": "버그 신고와 문의 양식 메시지 모두에 사용됩니다. 모든 제출 내용이 이 이메일로 전달됩니다. 비활성화하려면 비워두세요.",
     "emailSaved": "이메일 저장됨",
     "filterAll": "전체",
     "status": { "new": "신규", "in_progress": "진행 중", "resolved": "해결됨", "wont_fix": "수정 안 함" },

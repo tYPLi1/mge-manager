@@ -98,7 +98,7 @@
     "title": "User Reports",
     "subtitle": "Bug reports and translation feedback from users",
     "emailConfigTitle": "Notification Email",
-    "emailConfigDesc": "All new reports will be forwarded to this email address. Leave empty to disable email notifications.",
+    "emailConfigDesc": "Used for both bug reports and messages from the contact form. All submissions are forwarded to this email address. Leave empty to disable.",
     "emailSaved": "Email address saved",
     "filterAll": "All",
     "status": {

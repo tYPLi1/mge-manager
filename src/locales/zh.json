@@ -94,7 +94,7 @@
     "title": "用户报告",
     "subtitle": "用户的错误报告和翻译反馈",
     "emailConfigTitle": "通知邮箱",
-    "emailConfigDesc": "所有新报告将转发到此邮箱。留空则禁用邮件通知。",
+    "emailConfigDesc": "同时用于错误报告和联系表单消息。所有提交都会转发至此邮箱。留空则禁用。",
     "emailSaved": "邮箱已保存",
     "filterAll": "全部",
     "status": { "new": "新", "in_progress": "处理中", "resolved": "已解决", "wont_fix": "不修复" },

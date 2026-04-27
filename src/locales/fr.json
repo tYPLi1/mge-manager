@@ -94,7 +94,7 @@
     "title": "Rapports utilisateurs",
     "subtitle": "Rapports de bugs et retours de traduction des utilisateurs",
     "emailConfigTitle": "E-mail de notification",
-    "emailConfigDesc": "Tous les nouveaux rapports seront envoyés à cette adresse. Laisser vide pour désactiver les notifications.",
+    "emailConfigDesc": "Utilisée à la fois pour les rapports de bugs et pour les messages du formulaire de contact. Tous les envois sont transmis à cette adresse. Laisser vide pour désactiver.",
     "emailSaved": "Adresse e-mail enregistrée",
     "filterAll": "Tous",
     "status": { "new": "Nouveau", "in_progress": "En cours", "resolved": "Résolu", "wont_fix": "Ne sera pas corrigé" },

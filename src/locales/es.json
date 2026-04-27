@@ -94,7 +94,7 @@
     "title": "Reportes de usuarios",
     "subtitle": "Reportes de errores y comentarios de traducción de los usuarios",
     "emailConfigTitle": "Email de notificación",
-    "emailConfigDesc": "Todos los nuevos reportes se enviarán a esta dirección. Déjalo vacío para desactivar las notificaciones.",
+    "emailConfigDesc": "Se utiliza tanto para los reportes de errores como para los mensajes del formulario de contacto. Todos los envíos se redirigen a esta dirección. Déjalo vacío para desactivar.",
     "emailSaved": "Dirección de email guardada",
     "filterAll": "Todos",
     "status": { "new": "Nuevo", "in_progress": "En curso", "resolved": "Resuelto", "wont_fix": "No se corregirá" },
