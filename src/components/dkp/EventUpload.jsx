@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { rankToDkp } from "@/components/dkp/rankToDkp";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 
-export default function EventUpload({ players, eventTypes }) {
-  const [eventTypeId, setEventTypeId] = useState("");
+export default function EventUpload({ players = [], eventTypes = [] }) {
+  const [eventTypeId, setEventTypeId] = useState(undefined);
   const [stage, setStage] = useState("war");
   const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
   const [preview, setPreview] = useState(null);
@@ -418,7 +418,7 @@ export default function EventUpload({ players, eventTypes }) {
               <SelectValue placeholder="Select event..." />
             </SelectTrigger>
             <SelectContent>
-              {eventTypes.filter(e => e.active !== false).map(e => (
+              {eventTypes.filter(e => e && e.id && e.active !== false).map(e => (
                 <SelectItem key={e.id} value={e.id}>{e.display_name}</SelectItem>
               ))}
             </SelectContent>
