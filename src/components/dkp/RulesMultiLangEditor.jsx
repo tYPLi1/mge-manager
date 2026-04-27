@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { AVAILABLE_LOCALES } from "@/lib/i18n";
 import RulesEditorToolbar from "@/components/dkp/RulesEditorToolbar";
+import RulesSyntaxHelp from "@/components/dkp/RulesSyntaxHelp";
 
 /**
  * Multi-language Rules editor.
@@ -77,6 +78,8 @@ export default function RulesMultiLangEditor({ form, setForm, placeholder }) {
         Editing: <span className="text-gray-300">{AVAILABLE_LOCALES.find(l => l.code === activeLocale)?.name}</span>
         {" "}· Use the toolbar for <strong>bold</strong>, <em>italic</em>, <u>underline</u> and color. Languages without content fall back to English.
       </p>
+
+      <RulesSyntaxHelp />
     </div>
   );
 }
