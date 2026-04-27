@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
+import RulesMultiLangEditor from "@/components/dkp/RulesMultiLangEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
 import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
@@ -217,15 +218,13 @@ export default function AdminSettings() {
           </div>
         </div>
 
-        {/* Rules Text */}
+        {/* Rules Text — multi language */}
         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.rulesText")}</h3>
-          <Textarea
-            value={form.rules_text || ""}
-            onChange={(e) => setForm({ ...form, rules_text: e.target.value })}
-            rows={10}
+          <RulesMultiLangEditor
+            form={form}
+            setForm={setForm}
             placeholder={t("admin.settings.rulesPlaceholder")}
-            className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
           />
         </div>
 

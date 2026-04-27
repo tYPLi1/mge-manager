@@ -7,7 +7,7 @@ import PageHeader from "@/components/dkp/PageHeader";
 import { useTranslation } from "@/lib/i18n";
 
 export default function Rules() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { data: settings = [] } = useQuery({
     queryKey: ["public-settings"],
     queryFn: async () => {
@@ -16,7 +16,14 @@ export default function Rules() {
     },
   });
 
-  const rulesText = settings.find((s) => s.key === "rules_text")?.value || "";
+  const getSetting = (key) => settings.find((s) => s.key === key)?.value || "";
+
+  // Try current locale first, then English, then legacy `rules_text`.
+  const rulesText =
+    getSetting(`rules_text_${locale}`) ||
+    getSetting("rules_text_en") ||
+    getSetting("rules_text") ||
+    "";
 
   return (
     <div>

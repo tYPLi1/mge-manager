@@ -22,9 +22,9 @@ Deno.serve(async (req) => {
     const service = getServiceClient(req);
     const allSettings = await service.entities.AppSettings.list('-created_date', 500);
     
-    // Filter to only public keys
+    // Filter to only public keys (also include any per-locale rules_text_<lang>)
     const publicSettings = allSettings
-      .filter(s => PUBLIC_KEYS.includes(s.key))
+      .filter(s => PUBLIC_KEYS.includes(s.key) || (s.key && s.key.startsWith('rules_text_')))
       .map(s => ({ key: s.key, value: s.value }));
 
     return Response.json({ settings: publicSettings });
