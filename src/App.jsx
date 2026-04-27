@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import DesignPreview from '@/pages/DesignPreview';
+import AppleTest from '@/pages/AppleTest';
 import AppShell from '@/components/layout/AppShell';
 import { I18nProvider } from '@/lib/i18n';
 
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/DesignPreview" element={<DesignPreview />} />
+      <Route path="/AppleTest" element={<AppleTest />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
