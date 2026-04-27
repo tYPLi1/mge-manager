@@ -1,0 +1,59 @@
+{
+  "name": "Player",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Player name (unique, UTF-8)"
+    },
+    "total_dkp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total DKP earned"
+    },
+    "dkp_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total DKP spent on bids"
+    },
+    "cooldown_until": {
+      "type": "string",
+      "description": "Cooldown expiry date YYYY-MM-DD"
+    },
+    "power": {
+      "type": "number",
+      "default": 0,
+      "description": "Player power (Macht)"
+    },
+    "auction_ban_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of auction bans"
+    },
+    "alliance": {
+      "type": "string",
+      "description": "Alliance name the player belongs to (must match an entry in alliances setting)"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

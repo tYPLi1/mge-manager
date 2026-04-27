@@ -135,7 +135,8 @@
       "powerRank": "Rango",
       "status": "Estado",
       "activity30d": "30d",
-      "activity": "Actividad"
+      "activity": "Actividad",
+      "alliance": "Alianza"
     },
     "filters": {
       "powerGroup": "Grupo de poder",
@@ -145,7 +146,9 @@
       "outside": "Fuera del Top 20",
       "noPower": "Sin poder",
       "ready": "Listo",
-      "cooldown": "Enfriamiento"
+      "cooldown": "Enfriamiento",
+      "allAlliances": "Todas las alianzas",
+      "noAlliance": "Sin alianza"
     },
     "noPlayers": "No se encontraron jugadores"
   },
@@ -478,6 +481,18 @@
       "discordHint": "💡 Clic derecho en un canal → «Copiar ID» (activa Modo desarrollador en Discord)",
       "compensationDivisor": "Divisor de la fórmula de compensación",
       "compensationDivisorDesc": "Al otorgar compensaciones, la puja del jugador se divide por este valor para calcular el DKP devuelto."
+    },
+    "alliances": {
+      "title": "Alianzas",
+      "desc": "Define las alianzas a las que se pueden asignar jugadores. Cada alianza tiene un nombre y un color para mostrar en tablas y exportaciones.",
+      "empty": "Aún no hay alianzas configuradas.",
+      "namePlaceholder": "Nombre de la alianza (p. ej. ERA1)",
+      "colorTitle": "Elige un color para esta alianza",
+      "addButton": "Añadir alianza",
+      "remove": "Quitar",
+      "column": "Alianza",
+      "filterAll": "Todas las alianzas",
+      "filterNone": "Sin alianza"
     },
     "auctionConfig": {
       "title": "Configuración de subasta",

@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/dkp/PageHeader";
 import PenaltyConfigEditor from "@/components/dkp/PenaltyConfigEditor";
+import AllianceConfigEditor from "@/components/dkp/AllianceConfigEditor";
 import RulesMultiLangEditor from "@/components/dkp/RulesMultiLangEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
@@ -32,6 +33,7 @@ const SETTING_LABELS = {
   penalty_config: "Penalty Configuration",
   discord_servers: "Discord Server Config",
   compensation_formula_divisor: "Compensation Formula Divisor",
+  alliances: "Alliances",
 };
 
 export default function AdminSettings() {
@@ -225,6 +227,15 @@ export default function AdminSettings() {
             form={form}
             setForm={setForm}
             placeholder={t("admin.settings.rulesPlaceholder")}
+          />
+        </div>
+
+        {/* Alliances */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.alliances.title")}</h3>
+          <AllianceConfigEditor
+            value={form.alliances}
+            onChange={(val) => setForm({ ...form, alliances: val })}
           />
         </div>
 

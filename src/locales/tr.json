@@ -144,7 +144,8 @@
       "powerRank": "Sıra",
       "status": "Durum",
       "activity30d": "30g",
-      "activity": "Aktivite"
+      "activity": "Aktivite",
+      "alliance": "İttifak"
     },
     "filters": {
       "powerGroup": "Güç Grubu",
@@ -154,7 +155,9 @@
       "outside": "İlk 20 Dışı",
       "noPower": "Güç Yok",
       "ready": "Hazır",
-      "cooldown": "Bekleme"
+      "cooldown": "Bekleme",
+      "allAlliances": "Tüm İttifaklar",
+      "noAlliance": "İttifak yok"
     },
     "noPlayers": "Oyuncu bulunamadı"
   },
@@ -501,6 +504,18 @@
       "discordHint": "💡 Bir kanala sağ tıkla → „Kimliği Kopyala\" (Discord'da Developer Mode'u etkinleştir)",
       "compensationDivisor": "Tazminat Formül Bölücüsü",
       "compensationDivisorDesc": "Tazminat verilirken oyuncunun teklifi bu değere bölünerek iade edilen DKP hesaplanır."
+    },
+    "alliances": {
+      "title": "İttifaklar",
+      "desc": "Oyuncuların atanabileceği ittifakları tanımla. Her ittifağın bir adı ve tablo/dışa aktarımlarda gösterim için bir rengi vardır.",
+      "empty": "Henüz hiç ittifak tanımlanmadı.",
+      "namePlaceholder": "İttifak adı (örn. ERA1)",
+      "colorTitle": "Bu ittifak için renk seç",
+      "addButton": "İttifak ekle",
+      "remove": "Kaldır",
+      "column": "İttifak",
+      "filterAll": "Tüm ittifaklar",
+      "filterNone": "İttifak yok"
     },
     "auctionConfig": {
       "title": "Açık Artırma Yapılandırması",

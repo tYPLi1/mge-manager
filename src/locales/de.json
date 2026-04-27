@@ -141,6 +141,7 @@
       "earned": "Erhalten",
       "spent": "Ausgegeben",
       "power": "Macht",
+      "alliance": "Allianz",
       "powerRank": "Rang",
       "status": "Status",
       "activity30d": "30T",
@@ -154,7 +155,9 @@
       "outside": "Ausserhalb Top 20",
       "noPower": "Keine Macht",
       "ready": "Bereit",
-      "cooldown": "Cooldown"
+      "cooldown": "Cooldown",
+      "allAlliances": "Alle Allianzen",
+      "noAlliance": "Keine Allianz"
     },
     "noPlayers": "Keine Spieler gefunden"
   },
@@ -501,6 +504,18 @@
       "discordHint": "💡 Rechtsklick auf einen Channel → „ID kopieren\" (Developer Mode in Discord aktivieren)",
       "compensationDivisor": "Gutschrifts-Divisor",
       "compensationDivisorDesc": "Bei Gutschriften wird das Gebot des Spielers durch diesen Wert geteilt, um die zurückerstattete DKP-Menge zu berechnen."
+    },
+    "alliances": {
+      "title": "Allianzen",
+      "desc": "Definiere die Allianzen, denen Spieler zugeordnet werden können. Jede Allianz hat einen Namen und eine Farbe für die Anzeige in Tabellen und Exporten.",
+      "empty": "Noch keine Allianzen konfiguriert.",
+      "namePlaceholder": "Allianz-Name (z. B. ERA1)",
+      "colorTitle": "Farbe für diese Allianz wählen",
+      "addButton": "Allianz hinzufügen",
+      "remove": "Entfernen",
+      "column": "Allianz",
+      "filterAll": "Alle Allianzen",
+      "filterNone": "Keine Allianz"
     },
     "auctionConfig": {
       "title": "Auktions-Konfiguration",

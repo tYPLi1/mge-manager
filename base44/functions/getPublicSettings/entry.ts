@@ -16,6 +16,7 @@ const PUBLIC_KEYS = [
   'mge_targets',
   'rules_text',
   'reserve_next_mge_ranks',
+  'alliances',
 ];
 
 Deno.serve(async (req) => {

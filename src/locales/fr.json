@@ -135,7 +135,8 @@
       "powerRank": "Rang",
       "status": "Statut",
       "activity30d": "30j",
-      "activity": "Activité"
+      "activity": "Activité",
+      "alliance": "Alliance"
     },
     "filters": {
       "powerGroup": "Groupe de puissance",
@@ -145,7 +146,9 @@
       "outside": "Hors Top 20",
       "noPower": "Sans puissance",
       "ready": "Prêt",
-      "cooldown": "Cooldown"
+      "cooldown": "Cooldown",
+      "allAlliances": "Toutes les alliances",
+      "noAlliance": "Sans alliance"
     },
     "noPlayers": "Aucun joueur trouvé"
   },
@@ -472,6 +475,18 @@
       "discordHint": "💡 Clic droit sur un canal → « Copier l'ID » (active le mode développeur dans Discord)",
       "compensationDivisor": "Diviseur de la formule de compensation",
       "compensationDivisorDesc": "Lors des compensations, l'enchère du joueur est divisée par cette valeur pour calculer le DKP remboursé."
+    },
+    "alliances": {
+      "title": "Alliances",
+      "desc": "Définis les alliances auxquelles les joueurs peuvent être assignés. Chaque alliance a un nom et une couleur pour l'affichage dans les tableaux et exports.",
+      "empty": "Aucune alliance configurée pour l'instant.",
+      "namePlaceholder": "Nom de l'alliance (ex. ERA1)",
+      "colorTitle": "Choisis une couleur pour cette alliance",
+      "addButton": "Ajouter une alliance",
+      "remove": "Retirer",
+      "column": "Alliance",
+      "filterAll": "Toutes les alliances",
+      "filterNone": "Sans alliance"
     },
     "auctionConfig": {
       "title": "Configuration des enchères",

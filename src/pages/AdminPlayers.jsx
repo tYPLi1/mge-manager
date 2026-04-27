@@ -2,14 +2,27 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap, XCircle, Upload, Download } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, Zap, XCircle, Upload, Download, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
 import ImportPreview from "@/components/dkp/ImportPreview";
+import { useTranslation } from "@/lib/i18n";
 import * as XLSX from "xlsx";
+
+function parseAllianceList(json) {
+  if (!json) return [];
+  try {
+    const arr = JSON.parse(json);
+    if (!Array.isArray(arr)) return [];
+    return arr.filter(a => a && typeof a.name === "string" && a.name.trim()).map(a => ({
+      name: a.name,
+      color: typeof a.color === "string" ? a.color : "#f59e0b",
+    }));
+  } catch { return []; }
+}
 
 // Normalize date values from Excel (could be serial number, Date, or string)
 function normalizeDateValue(val) {
@@ -41,16 +54,34 @@ function normalizeCooldown(val) {
 }
 
 export default function AdminPlayers() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
+  const [allianceFilter, setAllianceFilter] = useState("all");
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editCooldown, setEditCooldown] = useState("");
   const [editPower, setEditPower] = useState("");
+  const [editAlliance, setEditAlliance] = useState("");
   const [importing, setImporting] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const fileRef = useRef();
   const queryClient = useQueryClient();
+
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => adminEntities.AppSettings.list(),
+  });
+
+  const alliances = useMemo(
+    () => parseAllianceList(settings.find(s => s.key === "alliances")?.value),
+    [settings]
+  );
+  const allianceColors = useMemo(() => {
+    const map = {};
+    alliances.forEach(a => { map[a.name] = a.color; });
+    return map;
+  }, [alliances]);
 
   const { data: players = [], isLoading } = useQuery({
     queryKey: ["players"],
@@ -108,6 +139,7 @@ export default function AdminPlayers() {
     setEditName(p.name || "");
     setEditCooldown(p.cooldown_until || "");
     setEditPower(String(p.power || 0));
+    setEditAlliance(p.alliance || "");
   };
 
   const saveEdit = async (p) => {
@@ -128,6 +160,7 @@ export default function AdminPlayers() {
         name: editName.trim() || p.name,
         cooldown_until: editCooldown || null,
         power: newPower,
+        alliance: editAlliance || null,
       },
     });
   };
@@ -137,9 +170,9 @@ export default function AdminPlayers() {
     
     // Players sheet
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
+      ["Name", "Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Penalties sheet
@@ -161,10 +194,22 @@ export default function AdminPlayers() {
 
   const downloadCurrent = () => {
     const wb = XLSX.utils.book_new();
-    
-    // Players sheet
-    const playerData = players.map(p => [
+
+    // Players sheet — sorted by alliance, then by current DKP (total + spent) desc
+    const sortedPlayers = [...players].sort((a, b) => {
+      const aAll = (a.alliance || "").toLowerCase();
+      const bAll = (b.alliance || "").toLowerCase();
+      // empty alliances go last
+      if (aAll === "" && bAll !== "") return 1;
+      if (bAll === "" && aAll !== "") return -1;
+      if (aAll !== bAll) return aAll.localeCompare(bAll);
+      const aDkp = (a.total_dkp || 0) + (a.dkp_spent || 0);
+      const bDkp = (b.total_dkp || 0) + (b.dkp_spent || 0);
+      return bDkp - aDkp;
+    });
+    const playerData = sortedPlayers.map(p => [
       p.name,
+      p.alliance || "",
       p.total_dkp || 0,
       p.dkp_spent || 0,
       p.cooldown_until || "",
@@ -172,10 +217,10 @@ export default function AdminPlayers() {
       p.updated_date || "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
+      ["Name", "Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Penalties sheet
@@ -260,6 +305,7 @@ export default function AdminPlayers() {
       const dkpSpentCol = col("dkp spent");
       const cooldownCol = headerRow.findIndex(h => h.includes("cooldown"));
       const powerCol = col("power");
+      const allianceCol = col("alliance");
       const updatedCol = headerRow.findIndex(h => h.includes("last updated") || h.includes("updated"));
 
       const rows = allRows.slice(1);
@@ -273,6 +319,7 @@ export default function AdminPlayers() {
         const hasDkpSpent = dkpSpentCol !== -1;
         const hasCooldown = cooldownCol !== -1;
         const hasPower = powerCol !== -1;
+        const hasAlliance = allianceCol !== -1;
         const hasUpdated = updatedCol !== -1;
 
         const dkpEarned = hasDkpEarned ? (Math.round(Number(row[dkpEarnedCol])) || 0) : null;
@@ -281,6 +328,7 @@ export default function AdminPlayers() {
         // Normalize cooldown: could be Date object, serial number, or string
         const cooldown = hasCooldown ? normalizeDateValue(rawCooldown) : null;
         const power = hasPower ? (row[powerCol] !== undefined && row[powerCol] !== null && row[powerCol] !== "" ? Math.round(Number(row[powerCol])) || 0 : null) : null;
+        const allianceVal = hasAlliance ? (row[allianceCol]?.toString().trim() || "") : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
         // Try exact match first, then normalized match
@@ -295,6 +343,7 @@ export default function AdminPlayers() {
             dkp_spent: dkpSpent ?? 0,
             cooldown_until: cooldown,
             power: power ?? 0,
+            alliance: allianceVal || null,
           });
         } else {
           if (fileUpdatedDate && existing.updated_date && fileUpdatedDate < existing.updated_date) {
@@ -307,6 +356,7 @@ export default function AdminPlayers() {
           if (hasDkpSpent && (existing.dkp_spent || 0) !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent || 0, new: dkpSpent };
           if (hasCooldown && normalizeCooldown(existing.cooldown_until) !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
           if (hasPower && (existing.power || 0) !== power) changes.power = { old: existing.power || 0, new: power };
+          if (hasAlliance && (existing.alliance || "") !== (allianceVal || "")) changes.alliance = { old: existing.alliance || "", new: allianceVal || "" };
 
           if (Object.keys(changes).length > 0) {
             preview.push({ type: "update", entity: "player", id: existing.id, name, changes });
@@ -523,10 +573,31 @@ export default function AdminPlayers() {
     }
   };
 
-  const filtered = useMemo(() =>
-    search ? players.filter(p => p.name?.toLowerCase().includes(search.toLowerCase())) : players,
-    [players, search]
-  );
+  const filtered = useMemo(() => {
+    let res = players;
+    if (search) {
+      const q = search.toLowerCase();
+      res = res.filter(p => p.name?.toLowerCase().includes(q));
+    }
+    if (allianceFilter !== "all") {
+      if (allianceFilter === "__none__") {
+        res = res.filter(p => !p.alliance);
+      } else {
+        res = res.filter(p => p.alliance === allianceFilter);
+      }
+    }
+    // Sort: alliance asc (empty last), then current DKP desc
+    return [...res].sort((a, b) => {
+      const aAll = a.alliance || "";
+      const bAll = b.alliance || "";
+      if (aAll === "" && bAll !== "") return 1;
+      if (bAll === "" && aAll !== "") return -1;
+      if (aAll !== bAll) return aAll.localeCompare(bAll);
+      const aDkp = (a.total_dkp || 0) + (a.dkp_spent || 0);
+      const bDkp = (b.total_dkp || 0) + (b.dkp_spent || 0);
+      return bDkp - aDkp;
+    });
+  }, [players, search, allianceFilter]);
 
   return (
     <div>
@@ -585,15 +656,31 @@ export default function AdminPlayers() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <Input
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 w-64"
-        />
+      {/* Search + Alliance Filter */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Input
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 w-64"
+          />
+        </div>
+        <div className="inline-flex items-center gap-2">
+          <Filter className="w-4 h-4 text-gray-500" />
+          <select
+            value={allianceFilter}
+            onChange={(e) => setAllianceFilter(e.target.value)}
+            className="bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-white"
+          >
+            <option value="all">{t("admin.alliances.filterAll")}</option>
+            {alliances.map(a => (
+              <option key={a.name} value={a.name}>{a.name}</option>
+            ))}
+            <option value="__none__">{t("admin.alliances.filterNone")}</option>
+          </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -603,6 +690,7 @@ export default function AdminPlayers() {
             <thead className="bg-[#0d1117] border-b border-white/5">
               <tr>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">Name</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("admin.alliances.column")}</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Cooldown</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Power</th>
@@ -620,6 +708,18 @@ export default function AdminPlayers() {
                         className="h-7 text-xs bg-white/5 border-white/20 text-white w-36"
                         placeholder="Name"
                       />
+                    </td>
+                    <td className="px-3 py-2">
+                      <select
+                        value={editAlliance}
+                        onChange={(e) => setEditAlliance(e.target.value)}
+                        className="h-7 text-xs bg-white/5 border border-white/20 rounded text-white px-2 w-32"
+                      >
+                        <option value="">—</option>
+                        {alliances.map(a => (
+                          <option key={a.name} value={a.name}>{a.name}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-3 py-2">
                       <DKPValue value={(p.total_dkp || 0) + (p.dkp_spent || 0)} size="sm" />
@@ -655,6 +755,22 @@ export default function AdminPlayers() {
                 ) : (
                   <tr key={p.id} className="hover:bg-white/[0.02]">
                     <td className="px-3 py-2.5 text-sm font-medium text-white">{p.name}</td>
+                    <td className="px-3 py-2.5">
+                      {p.alliance ? (
+                        <span
+                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border"
+                          style={{
+                            color: allianceColors[p.alliance] || "#f59e0b",
+                            borderColor: (allianceColors[p.alliance] || "#f59e0b") + "40",
+                            background: (allianceColors[p.alliance] || "#f59e0b") + "15",
+                          }}
+                        >
+                          {p.alliance}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600">—</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2.5"><DKPValue value={(p.total_dkp || 0) + (p.dkp_spent || 0)} size="sm" /></td>
                     <td className="px-3 py-2.5 hidden sm:table-cell">
                       <div className="flex items-center gap-2">

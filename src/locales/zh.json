@@ -135,7 +135,8 @@
       "powerRank": "排名",
       "status": "状态",
       "activity30d": "30天",
-      "activity": "活跃度"
+      "activity": "活跃度",
+      "alliance": "联盟"
     },
     "filters": {
       "powerGroup": "战力组",
@@ -145,7 +146,9 @@
       "outside": "前 20 之外",
       "noPower": "无战力",
       "ready": "就绪",
-      "cooldown": "冷却中"
+      "cooldown": "冷却中",
+      "allAlliances": "所有联盟",
+      "noAlliance": "无联盟"
     },
     "noPlayers": "未找到玩家"
   },
@@ -468,6 +471,18 @@
       "discordHint": "💡 右键点击频道 → 「复制 ID」（在 Discord 中启用开发者模式）",
       "compensationDivisor": "补偿公式除数",
       "compensationDivisorDesc": "发放补偿时，玩家的出价将除以此值以计算返还的 DKP。"
+    },
+    "alliances": {
+      "title": "联盟",
+      "desc": "定义可分配给玩家的联盟。每个联盟都有名称和用于在表格及导出中显示的颜色。",
+      "empty": "尚未配置任何联盟。",
+      "namePlaceholder": "联盟名称（例如 ERA1）",
+      "colorTitle": "为此联盟选择颜色",
+      "addButton": "添加联盟",
+      "remove": "移除",
+      "column": "联盟",
+      "filterAll": "所有联盟",
+      "filterNone": "无联盟"
     },
     "auctionConfig": {
       "title": "拍卖配置",

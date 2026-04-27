@@ -87,7 +87,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                   {item.type === "update" && item.changes && (
                     <div className="space-y-1 text-xs ml-2">
                       {Object.entries(item.changes).map(([key, { old, new: newVal }]) => {
-                        const labels = { total_dkp: "DKP Earned", dkp_spent: "DKP Spent", cooldown_until: "Cooldown", power: "Power" };
+                        const labels = { total_dkp: "DKP Earned", dkp_spent: "DKP Spent", cooldown_until: "Cooldown", power: "Power", alliance: "Alliance" };
                         return (
                           <div key={key} className="text-gray-400">
                             <span className="text-gray-500">{labels[key] || key}:</span>{" "}
@@ -102,7 +102,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
 
                   {item.type === "new" && item.entity === "player" && (
                     <div className="text-xs text-gray-400 ml-2">
-                      DKP Earned: {item.total_dkp || 0} | Power: {item.power || 0}
+                      DKP Earned: {item.total_dkp || 0} | Power: {item.power || 0}{item.alliance ? ` | Alliance: ${item.alliance}` : ""}
                     </div>
                   )}
 

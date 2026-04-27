@@ -144,7 +144,8 @@
       "powerRank": "Rank",
       "status": "Status",
       "activity30d": "30d",
-      "activity": "Activity"
+      "activity": "Activity",
+      "alliance": "Alliance"
     },
     "filters": {
       "powerGroup": "Power Group",
@@ -154,7 +155,9 @@
       "outside": "Outside Top 20",
       "noPower": "No Power",
       "ready": "Ready",
-      "cooldown": "Cooldown"
+      "cooldown": "Cooldown",
+      "allAlliances": "All Alliances",
+      "noAlliance": "No Alliance"
     },
     "noPlayers": "No players found"
   },
@@ -501,6 +504,18 @@
       "discordHint": "💡 Right-click on a channel → \"Copy ID\" (enable Developer Mode in Discord)",
       "compensationDivisor": "Compensation Formula Divisor",
       "compensationDivisorDesc": "When awarding compensations, the player's bid is divided by this value to calculate refunded DKP."
+    },
+    "alliances": {
+      "title": "Alliances",
+      "desc": "Define the alliances available for player assignment. Each alliance has a name and a color used for display in tables and exports.",
+      "empty": "No alliances configured yet.",
+      "namePlaceholder": "Alliance name (e.g. ERA1)",
+      "colorTitle": "Pick a color for this alliance",
+      "addButton": "Add alliance",
+      "remove": "Remove",
+      "column": "Alliance",
+      "filterAll": "All alliances",
+      "filterNone": "No alliance"
     },
     "auctionConfig": {
       "title": "Auction Configuration",

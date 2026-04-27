@@ -14,8 +14,38 @@ export default function Leaderboard() {
   const [sortDir, setSortDir] = useState("desc");
   const [powerGroup, setPowerGroup] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [allianceFilter, setAllianceFilter] = useState("all");
 
   const queryClient = useQueryClient();
+
+  const { data: publicSettings = [] } = useQuery({
+    queryKey: ["public-settings"],
+    queryFn: async () => {
+      try {
+        const res = await base44.functions.invoke("getPublicSettings", {});
+        return res?.data?.settings || [];
+      } catch { return []; }
+    },
+  });
+
+  const alliances = useMemo(() => {
+    const raw = publicSettings.find(s => s.key === "alliances")?.value;
+    if (!raw) return [];
+    try {
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(a => a && typeof a.name === "string" && a.name.trim()).map(a => ({
+        name: a.name,
+        color: typeof a.color === "string" ? a.color : "#f59e0b",
+      }));
+    } catch { return []; }
+  }, [publicSettings]);
+
+  const allianceColors = useMemo(() => {
+    const m = {};
+    alliances.forEach(a => { m[a.name] = a.color; });
+    return m;
+  }, [alliances]);
 
   const { data: players = [], isLoading: pLoading } = useQuery({
     queryKey: ["players"],
@@ -118,6 +148,11 @@ export default function Leaderboard() {
     if (statusFilter === "ready") result = result.filter(p => !p.cooldown_until || new Date(p.cooldown_until) <= new Date());
     else if (statusFilter === "cooldown") result = result.filter(p => p.cooldown_until && new Date(p.cooldown_until) > new Date());
 
+    if (allianceFilter !== "all") {
+      if (allianceFilter === "__none__") result = result.filter(p => !p.alliance);
+      else result = result.filter(p => p.alliance === allianceFilter);
+    }
+
     return result.sort((a, b) => {
       let av, bv;
       if (sortField.startsWith("evt_")) {
@@ -128,6 +163,14 @@ export default function Leaderboard() {
         av = a.name?.toLowerCase() || "";
         bv = b.name?.toLowerCase() || "";
         return sortDir === "desc" ? bv.localeCompare(av) : av.localeCompare(bv);
+      } else if (sortField === "alliance") {
+        // Sort by alliance asc/desc, secondary by current_dkp desc (within alliance: highest DKP on top)
+        const aAll = (a.alliance || "").toLowerCase();
+        const bAll = (b.alliance || "").toLowerCase();
+        if (aAll === "" && bAll !== "") return 1;
+        if (bAll === "" && aAll !== "") return -1;
+        if (aAll !== bAll) return sortDir === "desc" ? bAll.localeCompare(aAll) : aAll.localeCompare(bAll);
+        return (b.current_dkp || 0) - (a.current_dkp || 0);
       } else if (sortField === "cooldown_until") {
         av = a.cooldown_until ? new Date(a.cooldown_until).getTime() : 0;
         bv = b.cooldown_until ? new Date(b.cooldown_until).getTime() : 0;
@@ -137,14 +180,14 @@ export default function Leaderboard() {
       }
       return sortDir === "desc" ? bv - av : av - bv;
     });
-  }, [enrichedPlayers, search, powerGroup, statusFilter, sortField, sortDir]);
+  }, [enrichedPlayers, search, powerGroup, statusFilter, allianceFilter, sortField, sortDir]);
 
   const toggleSort = (field) => {
     if (sortField === field) setSortDir(d => d === "desc" ? "asc" : "desc");
     else { setSortField(field); setSortDir("desc"); }
   };
 
-  const hasActiveFilters = search || powerGroup !== "all" || statusFilter !== "all";
+  const hasActiveFilters = search || powerGroup !== "all" || statusFilter !== "all" || allianceFilter !== "all";
 
   // Stats
   const totalDkp = enrichedPlayers.reduce((s, p) => s + (p.current_dkp || 0), 0);
@@ -179,8 +222,11 @@ export default function Leaderboard() {
         setPowerGroup={setPowerGroup}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        allianceFilter={allianceFilter}
+        setAllianceFilter={setAllianceFilter}
+        alliances={alliances}
         hasActiveFilters={hasActiveFilters}
-        onClearFilters={() => { setSearch(""); setPowerGroup("all"); setStatusFilter("all"); }}
+        onClearFilters={() => { setSearch(""); setPowerGroup("all"); setStatusFilter("all"); setAllianceFilter("all"); }}
       />
 
       <DPLeaderboardTable
@@ -190,6 +236,7 @@ export default function Leaderboard() {
         sortDir={sortDir}
         onSort={toggleSort}
         eventColumns={eventColumns}
+        allianceColors={allianceColors}
       />
     </div>
   );

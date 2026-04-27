@@ -61,7 +61,7 @@ function StatusBadge({ cooldownUntil }) {
   );
 }
 
-export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir, onSort, eventColumns = [] }) {
+export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir, onSort, eventColumns = [], allianceColors = {} }) {
   const { t } = useTranslation();
   const c = (k) => t(`leaderboard.columns.${k}`);
 
@@ -73,6 +73,7 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
             <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)", position: "sticky", top: 0, zIndex: 5 }}>
               <th style={{ ...thBase, textAlign: "left", width: 56 }}>#</th>
               <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort}>{c("name")}</SortHeader>
+              <SortHeader field="alliance" sortField={sortField} sortDir={sortDir} onSort={onSort}>{c("alliance")}</SortHeader>
               <SortHeader field="current_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("dkp")}</SortHeader>
               <SortHeader field="total_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("earned")}</SortHeader>
               <SortHeader field="dkp_spent" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("spent")}</SortHeader>
@@ -92,7 +93,7 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
             {isLoading ? (
               Array(10).fill(0).map((_, i) => (
                 <tr key={i} style={{ borderBottom: "1px solid var(--dp-border)" }}>
-                  {Array(9 + eventColumns.length).fill(0).map((_, j) => (
+                  {Array(10 + eventColumns.length).fill(0).map((_, j) => (
                     <td key={j} style={{ padding: "12px 14px" }}>
                       <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
                     </td>
@@ -116,6 +117,24 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
                       <Link to={createPageUrl(`PlayerDetail?id=${p.id}`)} style={{ color: "var(--dp-text)", textDecoration: "none" }}>
                         {p.name}
                       </Link>
+                    </td>
+                    <td style={{ padding: "12px 14px" }}>
+                      {p.alliance ? (
+                        <span style={{
+                          display: "inline-flex",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          fontSize: 11.5,
+                          fontWeight: 500,
+                          color: allianceColors[p.alliance] || "var(--dp-accent)",
+                          border: `1px solid ${(allianceColors[p.alliance] || "#f59e0b")}40`,
+                          background: `${(allianceColors[p.alliance] || "#f59e0b")}15`,
+                        }}>
+                          {p.alliance}
+                        </span>
+                      ) : (
+                        <span style={{ color: "var(--dp-text-dim)", fontSize: 12 }}>—</span>
+                      )}
                     </td>
                     <td className="dp-mono dp-accent-text" style={{ padding: "12px 14px", textAlign: "right", fontWeight: 600 }}>
                       {(p.current_dkp || 0).toLocaleString("en-US")}

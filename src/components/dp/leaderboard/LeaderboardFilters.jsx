@@ -4,7 +4,8 @@ import { useTranslation } from "@/lib/i18n";
 
 export default function DPLeaderboardFilters({
   search, setSearch, powerGroup, setPowerGroup,
-  statusFilter, setStatusFilter, hasActiveFilters, onClearFilters,
+  statusFilter, setStatusFilter, allianceFilter, setAllianceFilter, alliances = [],
+  hasActiveFilters, onClearFilters,
 }) {
   const { t } = useTranslation();
 
@@ -46,6 +47,15 @@ export default function DPLeaderboardFilters({
           <option value="ready">{t("leaderboard.filters.ready")}</option>
           <option value="cooldown">{t("leaderboard.filters.cooldown")}</option>
         </select>
+        {alliances.length > 0 && setAllianceFilter && (
+          <select value={allianceFilter} onChange={(e) => setAllianceFilter(e.target.value)} style={selectStyle}>
+            <option value="all">{t("leaderboard.filters.allAlliances")}</option>
+            {alliances.map(a => (
+              <option key={a.name} value={a.name}>{a.name}</option>
+            ))}
+            <option value="__none__">{t("leaderboard.filters.noAlliance")}</option>
+          </select>
+        )}
         {hasActiveFilters && (
           <button className="dp-btn-ghost" onClick={onClearFilters} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
             <X size={13} /> {t("common.reset")}
