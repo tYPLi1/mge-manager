@@ -38,7 +38,7 @@ async function proxyCall(params) {
 }
 
 // Entities that require admin proxy for ALL operations (including read)
-const ADMIN_ONLY_ENTITIES = ["AdminUser", "AppSettings", "Auction"];
+const ADMIN_ONLY_ENTITIES = ["AdminUser", "AppSettings", "Auction", "UserReport"];
 
 function createEntityProxy(entityName) {
   const isAdminOnly = ADMIN_ONLY_ENTITIES.includes(entityName);
