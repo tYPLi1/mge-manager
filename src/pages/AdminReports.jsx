@@ -196,7 +196,11 @@ export default function AdminReports({ embedded = false }) {
               report={report}
               onUpdate={(data) => updateMutation.mutate({ id: report.id, data })}
               onDelete={() => {
-                if (confirm(t("adminReports.deleteConfirm"))) {
+                const msg = t("adminReports.deleteConfirm") +
+                  (report.screenshot_url
+                    ? "\n\nℹ️ Note: The report entry will be removed and the screenshot link will no longer be accessible from the app. The image file itself remains in the Base44 file library (no storage limit) and can be manually deleted from the dashboard if needed."
+                    : "");
+                if (confirm(msg)) {
                   deleteMutation.mutate(report.id);
                 }
               }}
