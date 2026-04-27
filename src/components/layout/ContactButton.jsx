@@ -17,7 +17,7 @@ export default function ContactButton({ variant = "contact" }) {
 
   const isBug = variant === "bug";
   const Icon = isBug ? Bug : Mail;
-  const label = isBug ? t("report.openButton") : t("legal.contact.title");
+  const label = isBug ? t("report.button") : t("legal.contact.title");
   const initialType = isBug ? "bug" : "other";
 
   return (
