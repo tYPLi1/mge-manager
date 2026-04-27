@@ -2,12 +2,14 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 import en from "@/locales/en.json";
 import de from "@/locales/de.json";
 import tr from "@/locales/tr.json";
+import es from "@/locales/es.json";
 
-const LOCALES = { en, de, tr };
+const LOCALES = { en, de, tr, es };
 export const AVAILABLE_LOCALES = [
   { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
   { code: "de", label: "DE", name: "Deutsch", flag: "🇩🇪" },
   { code: "tr", label: "TR", name: "Türkçe", flag: "🇹🇷" },
+  { code: "es", label: "ES", name: "Español", flag: "🇪🇸" },
 ];
 const DEFAULT_LOCALE = "en";
 
