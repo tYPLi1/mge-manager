@@ -42,7 +42,11 @@ Deno.serve(async (req) => {
     const isPenalty = data.type === 'penalty';
     if (!isCompensation && !isPenalty) return Response.json({ success: true });
 
-    const punishmentsUrl = 'https://mge002.base44.app/Leaderboard';
+    // Compensations link to Leaderboard (DKP balances), Penalties link to Punishments (offense list)
+    const linkUrl = isCompensation
+      ? 'https://mge.era003.com/Leaderboard'
+      : 'https://mge.era003.com/Punishments';
+    const linkLabel = isCompensation ? 'View Leaderboard' : 'View Punishments';
 
     const title = isCompensation ? '💰 DKP Compensation' : '⚠️ DKP Penalty';
     const color = isCompensation ? 65280 : 16711680;
@@ -56,7 +60,7 @@ Deno.serve(async (req) => {
           { name: 'Amount', value: `${data.amount > 0 ? '+' : ''}${data.amount} DKP`, inline: true },
           { name: 'Reason', value: sourceText, inline: true },
           { name: 'Details', value: data.note || 'No note', inline: false },
-          { name: '🔗 Link', value: `[View Leaderboard](${punishmentsUrl})`, inline: false },
+          { name: '🔗 Link', value: `[${linkLabel}](${linkUrl})`, inline: false },
         ],
         color,
         timestamp: new Date().toISOString(),

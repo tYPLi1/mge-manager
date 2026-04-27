@@ -70,7 +70,19 @@ Deno.serve(async (req) => {
     }
     if (channels.length === 0) return Response.json({ error: 'No channels configured' }, { status: 400 });
 
-    const linkUrl = 'https://mge002.base44.app/Leaderboard';
+    // Map notification type to the most relevant public page
+    const linkMap = {
+      auction: { url: 'https://mge.era003.com/Auction', label: 'View Auction' },
+      results: { url: 'https://mge.era003.com/Results', label: 'View Results' },
+      reminder: { url: 'https://mge.era003.com/Auction', label: 'View Auction' },
+      events: { url: 'https://mge.era003.com/Leaderboard', label: 'View Leaderboard' },
+      event_upload: { url: 'https://mge.era003.com/Leaderboard', label: 'View Leaderboard' },
+      penalties: { url: 'https://mge.era003.com/Punishments', label: 'View Punishments' },
+      manual: { url: 'https://mge.era003.com/Leaderboard', label: 'View Leaderboard' },
+    };
+    const linkInfo = linkMap[type] || linkMap.manual;
+    const linkUrl = linkInfo.url;
+    const linkLabel = linkInfo.label;
 
     // Handle both single embed and multiple embeds
     const embedsToProcess = Array.isArray(embed) ? embed : [embed];
@@ -90,7 +102,7 @@ Deno.serve(async (req) => {
       lastEmbed.fields = lastEmbed.fields || [];
       const hasLink = lastEmbed.fields.some(f => f.name === '🔗 Link');
       if (!hasLink) {
-        lastEmbed.fields.push({ name: '🔗 Link', value: `[View Leaderboard](${linkUrl})`, inline: false });
+        lastEmbed.fields.push({ name: '🔗 Link', value: `[${linkLabel}](${linkUrl})`, inline: false });
       }
       if (!lastEmbed.footer) {
         lastEmbed.footer = { text: 'DKP System' };

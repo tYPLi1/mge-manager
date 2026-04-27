@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
             description: `Bot integration works! Server: **${server.name || 'Unnamed'}**`,
             color: 16776960,
             fields: [
-              { name: '🔗 App Link', value: '[Open App](https://mge002.base44.app)', inline: false },
+              { name: '🔗 App Link', value: '[Open App](https://mge.era003.com)', inline: false },
             ],
             timestamp: new Date().toISOString(),
           }],

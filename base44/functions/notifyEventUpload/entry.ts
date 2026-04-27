@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     const channels = getTargetChannels(settings, 'events');
     if (channels.length === 0) return Response.json({ status: 'no_channels' });
 
-    const leaderboardUrl = 'https://mge002.base44.app/Leaderboard';
+    const leaderboardUrl = 'https://mge.era003.com/Leaderboard';
 
     const rankingsText = rankings && rankings.length > 0
       ? rankings.slice(0, 5).map((r, i) => `${i + 1}. **${r.player_name}** - Rank ${r.rank} (+${r.dkp} DKP)`).join('\n')

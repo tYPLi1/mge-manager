@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       return Response.json({ skipped: true, reason: "No reminder channels configured" });
     }
 
-    const auctionUrl = 'https://mge002.base44.app/Auction';
+    const auctionUrl = 'https://mge.era003.com/Auction';
     let remindersSent = 0;
 
     for (const auction of openAuctions) {

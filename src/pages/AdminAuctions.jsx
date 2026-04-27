@@ -610,14 +610,14 @@ export default function AdminAuctions() {
         }
         fields.push({ name: "⚖ Tiebreaker Rules", value: tiebreakerNote, inline: false });
 
-        const auctionPageUrl = "https://mge002.base44.app/Auction";
-        fields.push({ name: "🔗 Link", value: `[View Auction](${auctionPageUrl})`, inline: false });
+        const resultsPageUrl = "https://mge.era003.com/Results";
+        fields.push({ name: "🔗 Link", value: `[View Results](${resultsPageUrl})`, inline: false });
 
         const embed = {
           title: "🏆 Auction Results Ready",
           description: viewBids.title,
           color: 0x10b981,
-          url: auctionPageUrl,
+          url: resultsPageUrl,
           fields,
           footer: { text: "DKP System" },
         };
@@ -677,7 +677,7 @@ export default function AdminAuctions() {
   };
 
   const buildAuctionEmbed = () => {
-    const auctionUrl = "https://mge002.base44.app/Auction";
+    const auctionUrl = "https://mge.era003.com/Auction";
     const embed = {
       title: "🔔 New Auction Opened!",
       description: title,

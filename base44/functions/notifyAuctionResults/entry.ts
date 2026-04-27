@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
     const tiebreakerFallback = settings.find(s => s.key === 'auction_tiebreaker_fallback')?.value || 'fcfs';
     const friendlyZoneEnabled = settings.find(s => s.key === 'friendly_zone_enabled')?.value === 'true';
     const friendlyZoneThreshold = parseInt(settings.find(s => s.key === 'friendly_zone_threshold')?.value || '50', 10);
-    const resultsUrl = 'https://mge002.base44.app/Results';
+    const resultsUrl = 'https://mge.era003.com/Results';
 
     const ruleLabel = (rule) => {
       if (rule === 'activity') return 'Higher Activity Score';

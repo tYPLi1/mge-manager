@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
             description: leaderboardText,
             color: 16776960,
             timestamp: new Date().toISOString(),
-            fields: [{ name: '🔗 Link', value: '[View Leaderboard](https://mge002.base44.app/Leaderboard)', inline: false }],
+            fields: [{ name: '🔗 Link', value: '[View Leaderboard](https://mge.era003.com/Leaderboard)', inline: false }],
           }],
         }),
       });
