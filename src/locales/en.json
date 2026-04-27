@@ -84,23 +84,35 @@
       "new": "New",
       "in_progress": "In Progress",
       "resolved": "Resolved",
-      "wont_fix": "Won't fix"
+      "wont_fix": "Won’t fix"
     },
     "empty": "No reports yet.",
     "delete": "Delete report",
     "deleted": "Report deleted",
     "deleteConfirm": "Delete this report permanently?",
+    "deleteConfirmTitle": "Delete this report?",
+    "deleteConfirmScreenshot": "The screenshot link will no longer be accessible from the app. The image file remains in the file library.",
+    "deleteAction": "Delete report",
     "reporter": "Reporter",
     "page": "Page",
     "screenshot": "View screenshot",
     "adminNote": "Internal note",
-    "adminNotePlaceholder": "Add a note for other admins…"
+    "adminNotePlaceholder": "Add a note for other admins…",
+    "saveNote": "Save note",
+    "saveEmail": "Save email",
+    "savingNote": "Saving…",
+    "noteSaved": "Note saved"
   },
   "leaderboard": {
     "title": "Leaderboard",
     "subtitle": "Current DKP ranking of all active players",
     "searchPlaceholder": "Search player\u2026",
     "playersCount": "{{count}} Players",
+    "stats": {
+      "players": "Players",
+      "avgDkp": "Avg DKP",
+      "totalPower": "Total Power"
+    },
     "columns": {
       "rank": "#",
       "name": "Name",

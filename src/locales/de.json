@@ -90,17 +90,29 @@
     "delete": "Report löschen",
     "deleted": "Report gelöscht",
     "deleteConfirm": "Diesen Report dauerhaft löschen?",
+    "deleteConfirmTitle": "Diesen Report löschen?",
+    "deleteConfirmScreenshot": "Der Screenshot-Link ist danach in der App nicht mehr erreichbar. Die Datei selbst bleibt in der Datei-Bibliothek erhalten.",
+    "deleteAction": "Report löschen",
     "reporter": "Meldender",
     "page": "Seite",
     "screenshot": "Screenshot anzeigen",
     "adminNote": "Interne Notiz",
-    "adminNotePlaceholder": "Notiz für andere Admins hinzufügen…"
+    "adminNotePlaceholder": "Notiz für andere Admins hinzufügen…",
+    "saveNote": "Notiz speichern",
+    "saveEmail": "E-Mail speichern",
+    "savingNote": "Wird gespeichert…",
+    "noteSaved": "Notiz gespeichert"
   },
   "leaderboard": {
     "title": "Bestenliste",
     "subtitle": "Aktuelle DKP-Rangliste aller aktiven Spieler",
     "searchPlaceholder": "Spieler suchen…",
     "playersCount": "{{count}} Spieler",
+    "stats": {
+      "players": "Spieler",
+      "avgDkp": "Ø DKP",
+      "totalPower": "Gesamt-Macht"
+    },
     "columns": {
       "rank": "#",
       "name": "Name",

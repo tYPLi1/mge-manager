@@ -81,17 +81,29 @@
     "delete": "删除报告",
     "deleted": "报告已删除",
     "deleteConfirm": "永久删除此报告？",
+    "deleteConfirmTitle": "删除此报告？",
+    "deleteConfirmScreenshot": "截图链接将无法再从应用访问。文件保留在文件库中。",
+    "deleteAction": "删除报告",
     "reporter": "报告人",
     "page": "页面",
     "screenshot": "查看截图",
     "adminNote": "内部备注",
-    "adminNotePlaceholder": "为其他管理员添加备注…"
+    "adminNotePlaceholder": "为其他管理员添加备注…",
+    "saveNote": "保存备注",
+    "saveEmail": "保存邮箱",
+    "savingNote": "保存中…",
+    "noteSaved": "备注已保存"
   },
   "leaderboard": {
     "title": "排行榜",
     "subtitle": "所有活跃玩家的当前 DKP 排名",
     "searchPlaceholder": "搜索玩家…",
     "playersCount": "{{count}} 名玩家",
+    "stats": {
+      "players": "玩家",
+      "avgDkp": "平均 DKP",
+      "totalPower": "总战力"
+    },
     "columns": {
       "rank": "#",
       "name": "姓名",

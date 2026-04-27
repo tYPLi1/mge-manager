@@ -277,10 +277,11 @@ export default function Auction() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <label style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                <label htmlFor="auction-player-select" style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
                   {t("auction.selectName")}
                 </label>
                 <select
+                  id="auction-player-select"
                   className="dp-input"
                   value={selectedPlayer}
                   onChange={(e) => setSelectedPlayer(e.target.value)}
@@ -314,10 +315,11 @@ export default function Auction() {
               )}
 
               <div>
-                <label style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                <label htmlFor="auction-bid-amount" style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
                   {t("auction.dkpBidAmount")}
                 </label>
                 <input
+                  id="auction-bid-amount"
                   type="number"
                   min="0"
                   max={currentDkp > 0 ? currentDkp : 0}
@@ -329,9 +331,11 @@ export default function Auction() {
                     if (val && parseInt(val) > currentDkp) setBidAmount(String(currentDkp));
                     else setBidAmount(val);
                   }}
+                  aria-invalid={bidTooHigh}
+                  aria-describedby={bidTooHigh ? "bid-error" : undefined}
                 />
                 {bidTooHigh && (
-                  <p style={{ fontSize: 11.5, color: "var(--dp-danger)", marginTop: 4 }}>
+                  <p id="bid-error" role="alert" style={{ fontSize: 11.5, color: "var(--dp-danger)", marginTop: 4 }}>
                     {t("auction.bidExceeds", { amount: currentDkp })}
                   </p>
                 )}
@@ -357,17 +361,19 @@ export default function Auction() {
 
               {currentAuction.has_password && (
                 <div>
-                  <label style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                  <label htmlFor="auction-password" style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
                     {t("auction.auctionPassword")}
                   </label>
                   <input
+                    id="auction-password"
                     type="password"
                     className="dp-input"
                     placeholder={t("auction.passwordPlaceholder")}
                     value={bidPassword}
                     onChange={(e) => setBidPassword(e.target.value)}
+                    aria-describedby="auction-password-hint"
                   />
-                  <p style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginTop: 6 }}>{t("auction.passwordHint")}</p>
+                  <p id="auction-password-hint" style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginTop: 6 }}>{t("auction.passwordHint")}</p>
                 </div>
               )}
 

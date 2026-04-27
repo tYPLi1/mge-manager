@@ -81,17 +81,29 @@
     "delete": "신고 삭제",
     "deleted": "신고 삭제됨",
     "deleteConfirm": "이 신고를 영구적으로 삭제하시겠습니까?",
+    "deleteConfirmTitle": "이 신고를 삭제하시겠습니까?",
+    "deleteConfirmScreenshot": "스크린샷 링크는 앱에서 더 이상 접근할 수 없습니다. 파일은 라이브러리에 남아 있습니다.",
+    "deleteAction": "신고 삭제",
     "reporter": "신고자",
     "page": "페이지",
     "screenshot": "스크린샷 보기",
     "adminNote": "내부 메모",
-    "adminNotePlaceholder": "다른 관리자를 위한 메모 추가…"
+    "adminNotePlaceholder": "다른 관리자를 위한 메모 추가…",
+    "saveNote": "메모 저장",
+    "saveEmail": "이메일 저장",
+    "savingNote": "저장 중…",
+    "noteSaved": "메모 저장됨"
   },
   "leaderboard": {
     "title": "순위표",
     "subtitle": "활성 플레이어의 현재 DKP 순위",
     "searchPlaceholder": "플레이어 검색…",
     "playersCount": "{{count}}명의 플레이어",
+    "stats": {
+      "players": "플레이어",
+      "avgDkp": "평균 DKP",
+      "totalPower": "총 전투력"
+    },
     "columns": {
       "rank": "#",
       "name": "이름",

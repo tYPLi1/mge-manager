@@ -166,10 +166,10 @@ export default function Leaderboard() {
       />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-        <StatCard label="Players" value={enrichedPlayers.length} sub={t("leaderboard.playersCount", { count: enrichedPlayers.length })} />
-        <StatCard label="Avg DKP" value={avgDkp.toLocaleString("en-US")} />
+        <StatCard label={t("leaderboard.stats.players")} value={enrichedPlayers.length} sub={t("leaderboard.playersCount", { count: enrichedPlayers.length })} />
+        <StatCard label={t("leaderboard.stats.avgDkp")} value={avgDkp.toLocaleString("en-US")} />
         <StatCard label={t("leaderboard.filters.cooldown")} value={onCooldownCount} />
-        <StatCard label={t("leaderboard.columns.power")} value={formatPower(totalPower)} />
+        <StatCard label={t("leaderboard.stats.totalPower")} value={formatPower(totalPower)} />
       </div>
 
       <DPLeaderboardFilters

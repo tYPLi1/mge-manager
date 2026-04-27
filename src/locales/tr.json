@@ -90,17 +90,29 @@
     "delete": "Raporu sil",
     "deleted": "Rapor silindi",
     "deleteConfirm": "Bu raporu kalıcı olarak silmek istiyor musun?",
+    "deleteConfirmTitle": "Bu raporu silmek istiyor musun?",
+    "deleteConfirmScreenshot": "Ekran görüntüsü bağlantısı bundan sonra uygulamadan erişilemez. Dosya kütüphanede kalır.",
+    "deleteAction": "Raporu sil",
     "reporter": "Bildiren",
     "page": "Sayfa",
     "screenshot": "Ekran görüntüsünü görüntüle",
     "adminNote": "Dahili not",
-    "adminNotePlaceholder": "Diğer yöneticiler için not ekle…"
+    "adminNotePlaceholder": "Diğer yöneticiler için not ekle…",
+    "saveNote": "Notu kaydet",
+    "saveEmail": "E-postayı kaydet",
+    "savingNote": "Kaydediliyor…",
+    "noteSaved": "Not kaydedildi"
   },
   "leaderboard": {
     "title": "Sıralama",
     "subtitle": "Tüm aktif oyuncuların güncel DKP sıralaması",
     "searchPlaceholder": "Oyuncu ara…",
     "playersCount": "{{count}} Oyuncu",
+    "stats": {
+      "players": "Oyuncular",
+      "avgDkp": "Ort. DKP",
+      "totalPower": "Toplam Güç"
+    },
     "columns": {
       "rank": "#",
       "name": "İsim",

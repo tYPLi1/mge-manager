@@ -99,8 +99,10 @@ export default function Transactions() {
 
       <div className="dp-card" style={{ padding: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
         <div style={{ position: "relative", flex: "1 1 240px", maxWidth: 360 }}>
-          <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--dp-text-dim)" }} />
+          <label htmlFor="tx-search" className="dp-sr-only">{t("transactions.searchPlaceholder")}</label>
+          <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--dp-text-dim)", pointerEvents: "none" }} aria-hidden="true" />
           <input
+            id="tx-search"
             className="dp-input"
             placeholder={t("transactions.searchPlaceholder")}
             style={{ paddingLeft: 34 }}

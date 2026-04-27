@@ -9,14 +9,20 @@
   --dp-border: #2a2f3c;
   --dp-border-strong: #353b4a;
   --dp-text: #e8eaed;
-  --dp-text-muted: #9ba1ac;
-  --dp-text-dim: #6b7280;
+  --dp-text-muted: #b8bdc7;        /* lifted from #9ba1ac for WCAG AA */
+  --dp-text-dim: #8a909c;          /* lifted from #6b7280 for WCAG AA */
   --dp-accent: #d4a859;
   --dp-accent-soft: rgba(212, 168, 89, 0.12);
   --dp-accent-border: rgba(212, 168, 89, 0.25);
   --dp-success: #6db989;
   --dp-danger: #c96565;
   --dp-info: #6b93c9;
+  /* Standardized z-index scale */
+  --dp-z-dropdown: 10;
+  --dp-z-sticky: 20;
+  --dp-z-modal: 30;
+  --dp-z-popover: 40;
+  --dp-z-toast: 50;
 }
 
 html, body, #root {
@@ -144,3 +150,63 @@ body {
 ::-webkit-scrollbar-track { background: var(--dp-bg); }
 ::-webkit-scrollbar-thumb { background: var(--dp-border-strong); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--dp-text-dim); }
+
+/* ==== Accessibility: Focus-visible rings (keyboard navigation) ==== */
+:where(button, a, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--dp-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.dp-input:focus-visible,
+.dp-btn-primary:focus-visible,
+.dp-btn-ghost:focus-visible {
+  outline: 2px solid var(--dp-accent);
+  outline-offset: 2px;
+}
+
+/* ==== iOS zoom-on-focus fix: ensure inputs >= 16px on mobile ==== */
+@media (max-width: 640px) {
+  input, select, textarea, .dp-input { font-size: 16px !important; }
+}
+
+/* ==== Reduced motion ==== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==== Skeleton loading shimmer ==== */
+@keyframes dp-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.dp-skeleton {
+  background: linear-gradient(90deg, var(--dp-border) 25%, var(--dp-bg-hover) 50%, var(--dp-border) 75%);
+  background-size: 200% 100%;
+  animation: dp-shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+/* ==== Touch target helper for icon-only buttons on mobile ==== */
+@media (max-width: 640px) {
+  .dp-touch-target { min-width: 44px; min-height: 44px; }
+}
+
+/* ==== Tabular numerals for stat values ==== */
+.dp-tabular { font-variant-numeric: tabular-nums; }
+
+/* ==== Text balance for headings ==== */
+.dp-heading { text-wrap: balance; }
+
+/* ==== Screen-reader-only utility ==== */
+.dp-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}

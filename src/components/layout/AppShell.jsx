@@ -179,13 +179,15 @@ export default function AppShell({ children, currentPageName }) {
 
               <button
                 onClick={() => setMobileNavOpen(v => !v)}
-                className="show-mobile-nav"
+                className="show-mobile-nav dp-touch-target"
+                aria-label={mobileNavOpen ? t("common.hideMenu") : t("common.showMenu")}
+                aria-expanded={mobileNavOpen}
                 style={{
                   padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
                   borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
                 }}
               >
-                {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+                {mobileNavOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
               </button>
             </div>
 
@@ -213,13 +215,15 @@ export default function AppShell({ children, currentPageName }) {
 
             <button
               onClick={() => setMobileNavOpen(v => !v)}
-              className="show-mobile-nav"
+              className="show-mobile-nav dp-touch-target"
+              aria-label={mobileNavOpen ? t("common.hideMenu") : t("common.showMenu")}
+              aria-expanded={mobileNavOpen}
               style={{
                 padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
                 borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
               }}
             >
-              {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileNavOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
             </button>
           </div>
         )}

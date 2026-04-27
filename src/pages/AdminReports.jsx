@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminEntities } from "@/components/adminApi";
-import { Bug, Languages, MessageSquare, Trash2, ExternalLink, Mail } from "lucide-react";
+import { Bug, Languages, MessageSquare, Trash2, ExternalLink, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import PageHeader from "@/components/dkp/PageHeader";
+import DeleteReportDialog from "@/components/admin/DeleteReportDialog";
 import { useTranslation } from "@/lib/i18n";
 
 const TYPE_ICONS = { bug: Bug, translation: Languages, other: MessageSquare };
@@ -35,6 +36,7 @@ export default function AdminReports({ embedded = false }) {
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [emailDraft, setEmailDraft] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["userReports"],
@@ -101,12 +103,14 @@ export default function AdminReports({ embedded = false }) {
 
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <Mail size={16} className="text-amber-400" />
+          <Mail size={16} className="text-amber-400" aria-hidden="true" />
           <h3 className="text-sm font-semibold text-white">{t("adminReports.emailConfigTitle")}</h3>
         </div>
-        <p className="text-xs text-gray-500 mb-3">{t("adminReports.emailConfigDesc")}</p>
+        <p className="text-xs text-gray-400 mb-3">{t("adminReports.emailConfigDesc")}</p>
         <div className="flex gap-2">
+          <Label htmlFor="report-email" className="dp-sr-only">{t("adminReports.emailConfigTitle")}</Label>
           <Input
+            id="report-email"
             type="email"
             value={emailDraft || ""}
             onChange={(e) => setEmailDraft(e.target.value)}
@@ -118,15 +122,17 @@ export default function AdminReports({ embedded = false }) {
             disabled={saveEmailMutation.isPending}
             className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
           >
-            {t("common.save")}
+            {saveEmailMutation.isPending && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" aria-hidden="true" />}
+            {t("adminReports.saveEmail")}
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-white/5">
+      <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-white/5" role="group" aria-label={t("report.typeLabel")}>
         <button
           onClick={() => setTypeFilter("all")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
+          aria-pressed={typeFilter === "all"}
+          className={`px-3 py-2 rounded-lg text-xs font-medium border min-h-[36px] ${
             typeFilter === "all"
               ? "bg-white/10 border-white/20 text-white"
               : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
@@ -140,23 +146,25 @@ export default function AdminReports({ embedded = false }) {
             <button
               key={type}
               onClick={() => setTypeFilter(type)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border inline-flex items-center gap-1.5 ${
+              aria-pressed={typeFilter === type}
+              className={`px-3 py-2 rounded-lg text-xs font-medium border inline-flex items-center gap-1.5 min-h-[36px] ${
                 typeFilter === type
                   ? TYPE_COLORS[type]
                   : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
               }`}
             >
-              <Icon size={12} />
+              <Icon size={12} aria-hidden="true" />
               {t(`report.types.${type}`)} ({typeCounts[type]})
             </button>
           );
         })}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-5">
+      <div className="flex flex-wrap gap-2 mb-5" role="group" aria-label="Status">
         <button
           onClick={() => setFilter("all")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
+          aria-pressed={filter === "all"}
+          className={`px-3 py-2 rounded-lg text-xs font-medium border min-h-[36px] ${
             filter === "all"
               ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
               : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
@@ -168,7 +176,8 @@ export default function AdminReports({ embedded = false }) {
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
+            aria-pressed={filter === s}
+            className={`px-3 py-2 rounded-lg text-xs font-medium border min-h-[36px] ${
               filter === s
                 ? STATUS_COLORS[s]
                 : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
@@ -180,9 +189,17 @@ export default function AdminReports({ embedded = false }) {
       </div>
 
       {isLoading ? (
-        <div className="text-center text-sm text-gray-500 py-12">{t("common.loading")}</div>
+        <div className="space-y-3">
+          {Array(3).fill(0).map((_, i) => (
+            <div key={i} className="bg-[#111827] rounded-xl border border-white/5 p-5">
+              <div className="dp-skeleton h-4 w-1/3 mb-3" />
+              <div className="dp-skeleton h-3 w-full mb-2" />
+              <div className="dp-skeleton h-3 w-2/3" />
+            </div>
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center text-sm text-gray-500 py-12 bg-white/[0.02] border border-white/5 rounded-xl">
+        <div className="text-center text-sm text-gray-400 py-12 bg-white/[0.02] border border-white/5 rounded-xl">
           {t("adminReports.empty")}
         </div>
       ) : (
@@ -192,20 +209,22 @@ export default function AdminReports({ embedded = false }) {
               key={report.id}
               report={report}
               onUpdate={(data) => updateMutation.mutate({ id: report.id, data })}
-              onDelete={() => {
-                const msg = t("adminReports.deleteConfirm") +
-                  (report.screenshot_url
-                    ? "\n\nℹ️ Note: The report entry will be removed and the screenshot link will no longer be accessible from the app. The image file itself remains in the Base44 file library (no storage limit) and can be manually deleted from the dashboard if needed."
-                    : "");
-                if (confirm(msg)) {
-                  deleteMutation.mutate(report.id);
-                }
-              }}
+              onDelete={() => setDeleteTarget(report)}
               t={t}
             />
           ))}
         </div>
       )}
+
+      <DeleteReportDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        hasScreenshot={!!deleteTarget?.screenshot_url}
+        onConfirm={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
+          setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 }
@@ -214,26 +233,40 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
   const Icon = TYPE_ICONS[report.type] || MessageSquare;
   const [adminNote, setAdminNote] = useState(report.admin_note || "");
   const [noteDirty, setNoteDirty] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
+  const noteId = `note-${report.id}`;
+  const statusId = `status-${report.id}`;
+
+  const handleSaveNote = async () => {
+    setSavingNote(true);
+    try {
+      await onUpdate({ admin_note: adminNote });
+      toast.success(t("adminReports.noteSaved"));
+      setNoteDirty(false);
+    } finally {
+      setSavingNote(false);
+    }
+  };
 
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
       <div className="flex items-start gap-3 mb-3">
         <div className={`p-2 rounded-lg ${STATUS_COLORS[report.status] || STATUS_COLORS.new} border`}>
-          <Icon size={16} />
+          <Icon size={16} aria-hidden="true" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-300">
               {t(`report.types.${report.type}`)}
             </span>
-            <span className="text-xs text-gray-600">·</span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-500" aria-hidden="true">·</span>
+            <time className="text-xs text-gray-400" dateTime={report.created_date}>
               {format(new Date(report.created_date), "yyyy-MM-dd HH:mm")}
-            </span>
+            </time>
             {report.locale && (
               <>
-                <span className="text-xs text-gray-600">·</span>
-                <span className="text-xs text-gray-500 uppercase">{report.locale}</span>
+                <span className="text-xs text-gray-500" aria-hidden="true">·</span>
+                <span className="text-xs text-gray-400 uppercase">{report.locale}</span>
               </>
             )}
           </div>
@@ -242,10 +275,12 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Label htmlFor={statusId} className="dp-sr-only">Status</Label>
           <select
+            id={statusId}
             value={report.status}
             onChange={(e) => onUpdate({ status: e.target.value })}
-            className="w-36 bg-[#1a2333] border border-white/10 text-white text-xs h-8 rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="w-36 bg-[#1a2333] border border-white/10 text-white text-xs h-9 rounded-md px-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500"
             style={{ colorScheme: "dark" }}
           >
             {STATUSES.map((s) => (
@@ -256,29 +291,30 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
           </select>
           <button
             onClick={onDelete}
-            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-md"
+            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-md min-w-[36px] min-h-[36px] flex items-center justify-center"
+            aria-label={t("adminReports.delete")}
             title={t("adminReports.delete")}
           >
-            <Trash2 size={14} />
+            <Trash2 size={14} aria-hidden="true" />
           </button>
         </div>
       </div>
 
       <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 mb-3">
-        <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">{report.message}</p>
+        <p className="text-sm text-gray-200 whitespace-pre-wrap break-words">{report.message}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-3">
         {report.reporter_name && (
           <div>
-            <span className="text-gray-500">{t("adminReports.reporter")}:</span>{" "}
-            <span className="text-gray-300">{report.reporter_name}</span>
+            <span className="text-gray-400">{t("adminReports.reporter")}:</span>{" "}
+            <span className="text-gray-200">{report.reporter_name}</span>
           </div>
         )}
         {report.page && (
           <div>
-            <span className="text-gray-500">{t("adminReports.page")}:</span>{" "}
-            <span className="text-gray-300 font-mono">{report.page}</span>
+            <span className="text-gray-400">{t("adminReports.page")}:</span>{" "}
+            <span className="text-gray-200 font-mono">{report.page}</span>
           </div>
         )}
         {report.screenshot_url && (
@@ -286,18 +322,20 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
             href={report.screenshot_url}
             target="_blank"
             rel="noreferrer"
-            className="text-amber-400 hover:underline inline-flex items-center gap-1"
+            className="text-amber-400 hover:underline inline-flex items-center gap-1 min-h-[36px]"
+            aria-label={`${t("adminReports.screenshot")} (opens in new tab)`}
           >
-            <ExternalLink size={11} /> {t("adminReports.screenshot")}
+            <ExternalLink size={11} aria-hidden="true" /> {t("adminReports.screenshot")}
           </a>
         )}
       </div>
 
       <div>
-        <Label className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 block">
+        <Label htmlFor={noteId} className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 block">
           {t("adminReports.adminNote")}
         </Label>
         <Textarea
+          id={noteId}
           value={adminNote}
           onChange={(e) => { setAdminNote(e.target.value); setNoteDirty(true); }}
           rows={2}
@@ -308,10 +346,16 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
           <div className="flex justify-end mt-2">
             <Button
               size="sm"
-              onClick={() => { onUpdate({ admin_note: adminNote }); setNoteDirty(false); }}
-              className="bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30 h-7 text-xs"
+              onClick={handleSaveNote}
+              disabled={savingNote}
+              className="bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30 h-8 text-xs"
             >
-              {t("common.save")}
+              {savingNote ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" aria-hidden="true" />
+                  {t("adminReports.savingNote")}
+                </>
+              ) : t("adminReports.saveNote")}
             </Button>
           </div>
         )}

@@ -81,17 +81,29 @@
     "delete": "Supprimer le rapport",
     "deleted": "Rapport supprimé",
     "deleteConfirm": "Supprimer ce rapport définitivement ?",
+    "deleteConfirmTitle": "Supprimer ce rapport ?",
+    "deleteConfirmScreenshot": "Le lien de la capture ne sera plus accessible depuis l'app. Le fichier reste dans la bibliothèque.",
+    "deleteAction": "Supprimer le rapport",
     "reporter": "Auteur",
     "page": "Page",
     "screenshot": "Voir capture",
     "adminNote": "Note interne",
-    "adminNotePlaceholder": "Ajouter une note pour les autres admins…"
+    "adminNotePlaceholder": "Ajouter une note pour les autres admins…",
+    "saveNote": "Enregistrer la note",
+    "saveEmail": "Enregistrer l'e-mail",
+    "savingNote": "Enregistrement…",
+    "noteSaved": "Note enregistrée"
   },
   "leaderboard": {
     "title": "Classement",
     "subtitle": "Classement DKP actuel de tous les joueurs actifs",
     "searchPlaceholder": "Rechercher un joueur…",
     "playersCount": "{{count}} joueurs",
+    "stats": {
+      "players": "Joueurs",
+      "avgDkp": "DKP moyen",
+      "totalPower": "Puissance totale"
+    },
     "columns": {
       "rank": "#",
       "name": "Nom",
