@@ -200,9 +200,36 @@ export default function CompensationModal({ auction, bids, results, mgeTargets, 
             usedPlayers.add(r.bid.player_id);
           }
           existing.sort((a, b) => Number(a.rank) - Number(b.rank));
-          await adminEntities.Auction.update(target.id, {
-            fixed_assignments: JSON.stringify(existing),
-          });
+
+          // Rebuild the saved Discord embed (if any) so the auction-open
+          // notification reflects the updated fixed-rank list in English,
+          // replacing any older German "Fix vergebene Ränge" entry.
+          const updates = { fixed_assignments: JSON.stringify(existing) };
+          if (fresh.discord_embed) {
+            try {
+              const embed = typeof fresh.discord_embed === "string"
+                ? JSON.parse(fresh.discord_embed)
+                : fresh.discord_embed;
+              embed.fields = (embed.fields || []).filter(f =>
+                f.name !== "📌 Fixed Ranks" && f.name !== "📌 Fix vergebene Ränge"
+              );
+              const fixedText = existing
+                .map(a => `**#${a.rank}** — ${a.player_name} _(${a.reason})_`)
+                .join("\n");
+              if (fixedText) {
+                // Insert before the Link field if present, otherwise append
+                const linkIdx = embed.fields.findIndex(f => f.name === "🔗 Link");
+                const fixedField = { name: "📌 Fixed Ranks", value: fixedText, inline: false };
+                if (linkIdx >= 0) {
+                  embed.fields.splice(linkIdx, 0, fixedField);
+                } else {
+                  embed.fields.push(fixedField);
+                }
+              }
+              updates.discord_embed = JSON.stringify(embed);
+            } catch { /* leave embed untouched on parse error */ }
+          }
+          await adminEntities.Auction.update(target.id, updates);
           if (skipped.length > 0) {
             toast.warning(t("compensation.reservationSkipped", { names: skipped.join(", ") }));
           }
