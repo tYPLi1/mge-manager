@@ -696,7 +696,7 @@ export default function AdminAuctions() {
       const fixedText = fixedAssignments
         .map(a => `**#${a.rank}** — ${a.player_name} _(${a.reason})_`)
         .join("\n");
-      embed.fields.push({ name: "📌 Fix vergebene Ränge", value: fixedText, inline: false });
+      embed.fields.push({ name: "📌 Fixed Ranks", value: fixedText, inline: false });
     }
     embed.fields.push({ name: "🔗 Link", value: `[View Auction](${auctionUrl})`, inline: false });
     return embed;

@@ -126,6 +126,17 @@ Deno.serve(async (req) => {
       if (auction.has_password) {
         embed.fields.push({ name: 'Password', value: `||${auction.bid_password}||`, inline: false });
       }
+      if (auction.fixed_assignments) {
+        try {
+          const fixed = JSON.parse(auction.fixed_assignments);
+          if (Array.isArray(fixed) && fixed.length > 0) {
+            const fixedText = fixed
+              .map(a => `**#${a.rank}** — ${a.player_name} _(${a.reason})_`)
+              .join('\n');
+            embed.fields.push({ name: '📌 Fixed Ranks', value: fixedText, inline: false });
+          }
+        } catch { /* ignore */ }
+      }
     }
 
     embed.fields = embed.fields || [];

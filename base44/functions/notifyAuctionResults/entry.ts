@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
       { name: 'Total Participants', value: String(results.length), inline: true },
     ];
     if (hasFixed) {
-      fields.push({ name: '📌 Fix vergebene Ränge', value: 'Diese Plätze wurden vor der Auktion fix vergeben (kein DKP-Abzug, normaler Cooldown).', inline: false });
+      fields.push({ name: '📌 Fixed Ranks', value: 'These slots were pre-assigned before the auction (no DKP deducted, normal cooldown applies).', inline: false });
     }
     if (friendlyZoneEnabled && hasFzWinner) {
       fields.push({ name: '🤝 Friendly Zone', value: `Reserved slot for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP).`, inline: false });
