@@ -241,3 +241,25 @@ tr.dp-hover-row:hover { background: rgba(212, 168, 89, 0.06); }
   overflow: hidden; clip: rect(0, 0, 0, 0);
   white-space: nowrap; border: 0;
 }
+
+/* ==== Radix portal overlays: ensure they render above sticky header (z-index 50) ==== */
+[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+}
+[data-radix-select-content],
+[data-radix-popover-content],
+[data-radix-dropdown-menu-content],
+[data-radix-hover-card-content],
+[data-radix-menubar-content],
+[data-radix-context-menu-content],
+[data-radix-tooltip-content] {
+  z-index: 100 !important;
+}
+[data-radix-dialog-overlay],
+[data-radix-alert-dialog-overlay] {
+  z-index: 90 !important;
+}
+[data-radix-dialog-content],
+[data-radix-alert-dialog-content] {
+  z-index: 95 !important;
+}
