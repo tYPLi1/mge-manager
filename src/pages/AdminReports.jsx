@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -245,18 +242,18 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Select value={report.status} onValueChange={(val) => onUpdate({ status: val })}>
-            <SelectTrigger className="w-36 bg-white/5 border-white/10 text-white text-xs h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[100] bg-[#1a2333] border-white/10 text-white">
-              {STATUSES.map((s) => (
-                <SelectItem key={s} value={s} className="text-white focus:bg-white/10 focus:text-white">
-                  {t(`adminReports.status.${s}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select
+            value={report.status}
+            onChange={(e) => onUpdate({ status: e.target.value })}
+            className="w-36 bg-[#1a2333] border border-white/10 text-white text-xs h-8 rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
+            style={{ colorScheme: "dark" }}
+          >
+            {STATUSES.map((s) => (
+              <option key={s} value={s} className="bg-[#1a2333] text-white">
+                {t(`adminReports.status.${s}`)}
+              </option>
+            ))}
+          </select>
           <button
             onClick={onDelete}
             className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-md"
