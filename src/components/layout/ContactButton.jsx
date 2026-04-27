@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Mail, Bug } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import ReportModal from "@/components/reports/ReportModal";
 
 /**
- * Inline "Contact" button used inside the legal footer.
- * Opens the same ReportModal as the floating ReportButton, so users have
- * an obvious way to reach the operator from the legal pages.
+ * Inline button used inside the legal footer.
+ * Variants:
+ *   - "contact" → Mail icon, opens ReportModal with type="other"
+ *   - "bug"     → Bug icon,  opens ReportModal with type="bug"
  */
-export default function ContactButton() {
+export default function ContactButton({ variant = "contact" }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const location = useLocation();
+
+  const isBug = variant === "bug";
+  const Icon = isBug ? Bug : Mail;
+  const label = isBug ? t("report.openButton") : t("legal.contact.title");
+  const initialType = isBug ? "bug" : "other";
 
   return (
     <>
@@ -29,14 +35,15 @@ export default function ContactButton() {
           gap: 6,
         }}
       >
-        <Mail size={12} />
-        {t("legal.contact.title")}
+        <Icon size={12} />
+        {label}
       </button>
 
       {open && (
         <ReportModal
           onClose={() => setOpen(false)}
           page={location.pathname}
+          initialType={initialType}
         />
       )}
     </>

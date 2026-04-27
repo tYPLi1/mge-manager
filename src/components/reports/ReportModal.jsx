@@ -14,9 +14,9 @@ const TYPE_OPTIONS = [
   { value: "other", icon: MessageSquare },
 ];
 
-export default function ReportModal({ onClose, page }) {
+export default function ReportModal({ onClose, page, initialType = "bug" }) {
   const { t, locale } = useTranslation();
-  const [type, setType] = useState("bug");
+  const [type, setType] = useState(initialType);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [reporterName, setReporterName] = useState("");

@@ -3,12 +3,11 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Trophy, Gavel, ScrollText, History, AlertTriangle, BookOpen, BarChart3,
-  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users, Bug,
+  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import AdminSessionGuard from "@/components/AdminSessionGuard";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
-import ReportButton from "@/components/reports/ReportButton";
 import LegalFooter from "@/components/layout/LegalFooter";
 
 const publicNavConfig = [
@@ -278,7 +277,6 @@ export default function AppShell({ children, currentPageName }) {
       </main>
 
       {!isAdmin && !isAdminLogin && <LegalFooter />}
-      {!isAdminLogin && <ReportButton />}
     </div>
   );
 }

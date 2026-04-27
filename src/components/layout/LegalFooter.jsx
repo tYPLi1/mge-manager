@@ -56,10 +56,10 @@ export default function LegalFooter() {
           flexWrap: "wrap",
           gap: 12,
         }}>
-          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginRight: 16 }}>
+          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", lineHeight: 1, padding: "10px 0", marginRight: 16 }}>
             © {new Date().getFullYear()} AOEM Server #ERA003
           </div>
-          <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", margin: -10 }}>
+          <nav style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
             {LINKS.map(({ key, page }) => (
               <Link
                 key={key}
@@ -69,7 +69,8 @@ export default function LegalFooter() {
                 {t(`legal.${key}.title`)}
               </Link>
             ))}
-            <ContactButton />
+            <ContactButton variant="contact" />
+            <ContactButton variant="bug" />
           </nav>
         </div>
       </footer>
