@@ -535,6 +535,56 @@
       "stageWar": "Guerra"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "Accesos",
+      "reports": "Informes",
+      "data": "Datos"
+    },
+    "masterPassword": "Contraseña maestra",
+    "masterPasswordPlaceholder": "Introduce la contraseña maestra",
+    "masterPasswordHint": "Vuelve a introducir la contraseña maestra para autorizar cada operación.",
+    "passwordRequired": "Se requiere la contraseña maestra",
+    "cancel": "Cancelar",
+    "invalidBackup": "Archivo de copia de seguridad no válido",
+    "backup": {
+      "title": "Hacer copia de todos los datos",
+      "desc": "Descarga un archivo JSON con todos los jugadores, transacciones, subastas, pujas, resultados, penalizaciones, historial de poder e informes. Los ajustes, eventos y cuentas de administrador permanecen en el servidor.",
+      "button": "Descargar copia"
+    },
+    "backupSuccess": "Copia descargada ({{count}} registros)",
+    "restore": {
+      "title": "Restaurar desde copia",
+      "desc": "Reemplaza TODOS los datos actuales con el contenido de una copia de seguridad. Los ajustes, eventos y cuentas de administrador NO se tocan.",
+      "selectFile": "Seleccionar archivo",
+      "confirmTitle": "Confirmar restauración",
+      "confirmWarn": "Todos los datos actuales se eliminarán y se reemplazarán por la copia.",
+      "fileInfo": "Copia del {{date}} · {{count}} registros",
+      "confirmButton": "Reemplazar todos los datos"
+    },
+    "restoreSuccess": "Restauración completa ({{count}} registros)",
+    "wipe": {
+      "title": "Borrar todos los datos",
+      "desc": "Elimina permanentemente todos los datos operativos. Los ajustes, eventos y cuentas de administrador se conservan.",
+      "startButton": "Iniciar borrado",
+      "warnTitle": "Esto no se puede deshacer",
+      "warnLine1": "Los siguientes datos se ELIMINARÁN PERMANENTEMENTE:",
+      "warnPlayers": "Todos los jugadores",
+      "warnTransactions": "Todas las transacciones DKP",
+      "warnAuctions": "Todas las subastas, pujas y resultados",
+      "warnPenalties": "Todas las penalizaciones y registros de reinicio",
+      "warnPower": "Todo el historial de poder e informes",
+      "kept": "✓ Se conservan los ajustes, eventos, alianzas y accesos de administrador.",
+      "continueButton": "Entiendo, continuar",
+      "finalTitle": "Confirmación final",
+      "finalDesc": "Escribe WIPE en mayúsculas para confirmar.",
+      "typeLabel": "Escribe WIPE para confirmar",
+      "confirmButton": "Borrar todos los datos permanentemente",
+      "typeWrong": "Debes escribir exactamente WIPE"
+    },
+    "wipeTypeWrong": "Debes escribir exactamente WIPE",
+    "wipeSuccess": "Borrado completo ({{count}} registros eliminados)"
+  },
   "legal": {
     "contact": {
       "title": "Contacto"

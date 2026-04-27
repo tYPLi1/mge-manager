@@ -525,6 +525,56 @@
       "stageWar": "전쟁"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "로그인",
+      "reports": "보고서",
+      "data": "데이터"
+    },
+    "masterPassword": "마스터 비밀번호",
+    "masterPasswordPlaceholder": "마스터 비밀번호 입력",
+    "masterPasswordHint": "각 작업을 승인하려면 마스터 비밀번호를 다시 입력하세요.",
+    "passwordRequired": "마스터 비밀번호가 필요합니다",
+    "cancel": "취소",
+    "invalidBackup": "잘못된 백업 파일",
+    "backup": {
+      "title": "모든 데이터 백업",
+      "desc": "모든 플레이어, 거래, 경매, 입찰, 결과, 페널티, 파워 기록 및 보고서가 포함된 JSON 파일을 다운로드합니다. 설정, 이벤트, 관리자 계정은 서버에 유지됩니다.",
+      "button": "백업 다운로드"
+    },
+    "backupSuccess": "백업 다운로드 완료 ({{count}}개 레코드)",
+    "restore": {
+      "title": "백업에서 복원",
+      "desc": "현재 모든 데이터를 백업 파일의 내용으로 교체합니다. 설정, 이벤트, 관리자 계정은 변경되지 않습니다.",
+      "selectFile": "백업 파일 선택",
+      "confirmTitle": "복원 확인",
+      "confirmWarn": "현재 모든 데이터가 삭제되고 백업 내용으로 교체됩니다.",
+      "fileInfo": "{{date}} 백업 · {{count}}개 레코드",
+      "confirmButton": "모든 데이터를 백업으로 교체"
+    },
+    "restoreSuccess": "복원 완료 ({{count}}개 레코드)",
+    "wipe": {
+      "title": "모든 데이터 삭제",
+      "desc": "모든 운영 데이터를 영구 삭제합니다. 설정, 이벤트, 관리자 계정은 유지됩니다.",
+      "startButton": "삭제 시작",
+      "warnTitle": "되돌릴 수 없습니다",
+      "warnLine1": "다음 데이터가 영구적으로 삭제됩니다:",
+      "warnPlayers": "모든 플레이어",
+      "warnTransactions": "모든 DKP 거래",
+      "warnAuctions": "모든 경매, 입찰 및 결과",
+      "warnPenalties": "모든 페널티 및 재설정 로그",
+      "warnPower": "모든 파워 기록 및 사용자 보고서",
+      "kept": "✓ 설정, 이벤트, 동맹, 관리자 로그인은 유지됩니다.",
+      "continueButton": "이해했습니다, 계속",
+      "finalTitle": "최종 확인",
+      "finalDesc": "확인하려면 대문자로 WIPE를 입력하세요.",
+      "typeLabel": "확인하려면 WIPE 입력",
+      "confirmButton": "모든 데이터 영구 삭제",
+      "typeWrong": "정확히 WIPE를 입력해야 합니다"
+    },
+    "wipeTypeWrong": "정확히 WIPE를 입력해야 합니다",
+    "wipeSuccess": "삭제 완료 ({{count}}개 레코드 삭제됨)"
+  },
   "legal": {
     "contact": {
       "title": "문의"

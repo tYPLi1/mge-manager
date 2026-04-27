@@ -525,6 +525,56 @@
       "stageWar": "战争"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "登录",
+      "reports": "报告",
+      "data": "数据"
+    },
+    "masterPassword": "主密码",
+    "masterPasswordPlaceholder": "输入主密码",
+    "masterPasswordHint": "重新输入主密码以授权每项操作。",
+    "passwordRequired": "需要主密码",
+    "cancel": "取消",
+    "invalidBackup": "无效的备份文件",
+    "backup": {
+      "title": "备份所有数据",
+      "desc": "下载包含所有玩家、交易、拍卖、出价、结果、处罚、战力历史和报告的 JSON 文件。设置、事件和管理员账户保留在服务器上。",
+      "button": "下载备份"
+    },
+    "backupSuccess": "已下载备份({{count}} 条记录)",
+    "restore": {
+      "title": "从备份恢复",
+      "desc": "将当前所有数据替换为备份文件的内容。设置、事件和管理员账户不会被触动。",
+      "selectFile": "选择备份文件",
+      "confirmTitle": "确认恢复",
+      "confirmWarn": "所有当前数据将被删除并替换为备份内容。",
+      "fileInfo": "{{date}} 的备份 · {{count}} 条记录",
+      "confirmButton": "用备份替换所有数据"
+    },
+    "restoreSuccess": "恢复完成({{count}} 条记录)",
+    "wipe": {
+      "title": "清除所有数据",
+      "desc": "永久删除所有运营数据。设置、事件和管理员账户将被保留。",
+      "startButton": "开始清除",
+      "warnTitle": "此操作无法撤销",
+      "warnLine1": "以下数据将被永久删除:",
+      "warnPlayers": "所有玩家",
+      "warnTransactions": "所有 DKP 交易",
+      "warnAuctions": "所有拍卖、出价和结果",
+      "warnPenalties": "所有处罚和重置日志",
+      "warnPower": "所有战力历史和用户报告",
+      "kept": "✓ 设置、事件、联盟和管理员登录将被保留。",
+      "continueButton": "我明白,继续",
+      "finalTitle": "最终确认",
+      "finalDesc": "输入大写 WIPE 以确认。",
+      "typeLabel": "输入 WIPE 以确认",
+      "confirmButton": "永久清除所有数据",
+      "typeWrong": "你必须准确输入 WIPE"
+    },
+    "wipeTypeWrong": "你必须准确输入 WIPE",
+    "wipeSuccess": "清除完成(已删除 {{count}} 条记录)"
+  },
   "legal": {
     "contact": {
       "title": "联系"

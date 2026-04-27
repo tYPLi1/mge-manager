@@ -1,24 +1,28 @@
 import React, { useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Shield, Lock, Eye, EyeOff, Loader2, KeyRound, Bug } from "lucide-react";
+import { Shield, Lock, Eye, EyeOff, Loader2, KeyRound, Bug, Database } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
 import AdminLoginsPanel from "@/components/admin/AdminLoginsPanel";
 import AdminReports from "@/pages/AdminReports";
-
-const TABS = [
-  { id: "logins", label: "Logins", icon: KeyRound },
-  { id: "reports", label: "Reports", icon: Bug },
-];
+import AppDataPanel from "@/components/admin/AppDataPanel";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AdminAppManagement() {
+  const { t } = useTranslation();
   const [masterPassword, setMasterPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("logins");
+
+  const TABS = [
+    { id: "logins", label: t("appData.tabs.logins"), icon: KeyRound },
+    { id: "reports", label: t("appData.tabs.reports"), icon: Bug },
+    { id: "data", label: t("appData.tabs.data"), icon: Database },
+  ];
 
   const getSession = () => {
     try {
@@ -126,6 +130,7 @@ export default function AdminAppManagement() {
 
       {activeTab === "logins" && <AdminLoginsPanel invoke={invoke} />}
       {activeTab === "reports" && <AdminReports embedded />}
+      {activeTab === "data" && <AppDataPanel />}
     </div>
   );
 }

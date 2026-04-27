@@ -565,6 +565,56 @@
       "stageWar": "Savaş"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "Girişler",
+      "reports": "Raporlar",
+      "data": "Veri"
+    },
+    "masterPassword": "Ana Şifre",
+    "masterPasswordPlaceholder": "Ana şifreyi gir",
+    "masterPasswordHint": "Her işlemi yetkilendirmek için ana şifreyi tekrar gir.",
+    "passwordRequired": "Ana şifre gerekli",
+    "cancel": "İptal",
+    "invalidBackup": "Geçersiz yedek dosyası",
+    "backup": {
+      "title": "Tüm verileri yedekle",
+      "desc": "Tüm oyuncular, işlemler, açık artırmalar, teklifler, sonuçlar, cezalar, güç geçmişi ve raporları içeren bir JSON dosyası indir. Ayarlar, etkinlikler ve yönetici hesapları sunucuda kalır.",
+      "button": "Yedeği indir"
+    },
+    "backupSuccess": "Yedek indirildi ({{count}} kayıt)",
+    "restore": {
+      "title": "Yedekten geri yükle",
+      "desc": "MEVCUT TÜM verileri bir yedek dosyasının içeriğiyle değiştir. Ayarlar, etkinlikler ve yönetici hesaplarına dokunulmaz.",
+      "selectFile": "Yedek dosyasını seç",
+      "confirmTitle": "Geri yüklemeyi onayla",
+      "confirmWarn": "Mevcut tüm veriler silinecek ve yedeğin içeriğiyle değiştirilecek.",
+      "fileInfo": "{{date}} tarihli yedek · {{count}} kayıt",
+      "confirmButton": "Tüm verileri yedekle değiştir"
+    },
+    "restoreSuccess": "Geri yükleme tamamlandı ({{count}} kayıt)",
+    "wipe": {
+      "title": "Tüm verileri sil",
+      "desc": "Tüm operasyonel veriler kalıcı olarak silinir. Ayarlar, etkinlikler ve yönetici hesapları korunur.",
+      "startButton": "Silme işlemini başlat",
+      "warnTitle": "Bu geri alınamaz",
+      "warnLine1": "Aşağıdaki veriler KALICI OLARAK SİLİNECEK:",
+      "warnPlayers": "Tüm oyuncular",
+      "warnTransactions": "Tüm DKP işlemleri",
+      "warnAuctions": "Tüm açık artırmalar, teklifler ve sonuçlar",
+      "warnPenalties": "Tüm cezalar ve sıfırlama günlükleri",
+      "warnPower": "Tüm güç geçmişi ve kullanıcı raporları",
+      "kept": "✓ Ayarlar, etkinlikler, ittifaklar ve yönetici girişleri korunur.",
+      "continueButton": "Anladım, devam et",
+      "finalTitle": "Son onay",
+      "finalDesc": "Onaylamak için büyük harflerle WIPE yaz.",
+      "typeLabel": "Onaylamak için WIPE yaz",
+      "confirmButton": "Tüm verileri kalıcı olarak sil",
+      "typeWrong": "Onay için tam olarak WIPE yazmalısın"
+    },
+    "wipeTypeWrong": "Onay için tam olarak WIPE yazmalısın",
+    "wipeSuccess": "Silme tamamlandı ({{count}} kayıt silindi)"
+  },
   "legal": {
     "contact": {
       "title": "İletişim"

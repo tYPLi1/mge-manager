@@ -565,6 +565,56 @@
       "stageWar": "War"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "Logins",
+      "reports": "Reports",
+      "data": "Data"
+    },
+    "masterPassword": "Master Password",
+    "masterPasswordPlaceholder": "Enter master password",
+    "masterPasswordHint": "Re-enter the master password to authorize each operation.",
+    "passwordRequired": "Master password required",
+    "cancel": "Cancel",
+    "invalidBackup": "Invalid backup file",
+    "backup": {
+      "title": "Backup all data",
+      "desc": "Download a JSON file with all players, transactions, auctions, bids, results, penalties, power history, and reports. Settings, events, and admin accounts are kept on the server.",
+      "button": "Download backup"
+    },
+    "backupSuccess": "Backup downloaded ({{count}} records)",
+    "restore": {
+      "title": "Restore from backup",
+      "desc": "Replace ALL current data with the contents of a backup file. Settings, events, and admin accounts are NOT touched.",
+      "selectFile": "Select backup file",
+      "confirmTitle": "Confirm restore",
+      "confirmWarn": "All current data will be deleted and replaced with the backup contents.",
+      "fileInfo": "Backup from {{date}} · {{count}} records",
+      "confirmButton": "Replace all data with backup"
+    },
+    "restoreSuccess": "Restore complete ({{count}} records)",
+    "wipe": {
+      "title": "Wipe all data",
+      "desc": "Permanently delete all operational data. Settings, events, and admin accounts will be kept.",
+      "startButton": "Start wipe",
+      "warnTitle": "This cannot be undone",
+      "warnLine1": "The following data will be PERMANENTLY DELETED:",
+      "warnPlayers": "All players",
+      "warnTransactions": "All DKP transactions",
+      "warnAuctions": "All auctions, bids, and results",
+      "warnPenalties": "All penalties and reset logs",
+      "warnPower": "All power history and user reports",
+      "kept": "✓ Settings, events, alliances, and admin logins are kept.",
+      "continueButton": "I understand, continue",
+      "finalTitle": "Final confirmation",
+      "finalDesc": "Type WIPE in capital letters to confirm.",
+      "typeLabel": "Type WIPE to confirm",
+      "confirmButton": "Wipe all data permanently",
+      "typeWrong": "You must type WIPE exactly to confirm"
+    },
+    "wipeTypeWrong": "You must type WIPE exactly to confirm",
+    "wipeSuccess": "Wipe complete ({{count}} records deleted)"
+  },
   "legal": {
     "lastUpdated": "Last updated",
     "contact": {

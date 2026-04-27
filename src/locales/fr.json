@@ -529,6 +529,56 @@
       "stageWar": "Guerre"
     }
   },
+  "appData": {
+    "tabs": {
+      "logins": "Connexions",
+      "reports": "Rapports",
+      "data": "Données"
+    },
+    "masterPassword": "Mot de passe maître",
+    "masterPasswordPlaceholder": "Saisir le mot de passe maître",
+    "masterPasswordHint": "Saisis à nouveau le mot de passe maître pour autoriser chaque opération.",
+    "passwordRequired": "Mot de passe maître requis",
+    "cancel": "Annuler",
+    "invalidBackup": "Fichier de sauvegarde non valide",
+    "backup": {
+      "title": "Sauvegarder toutes les données",
+      "desc": "Télécharge un fichier JSON avec tous les joueurs, transactions, enchères, mises, résultats, sanctions, historique de puissance et rapports. Les paramètres, événements et comptes admin restent sur le serveur.",
+      "button": "Télécharger la sauvegarde"
+    },
+    "backupSuccess": "Sauvegarde téléchargée ({{count}} entrées)",
+    "restore": {
+      "title": "Restaurer depuis une sauvegarde",
+      "desc": "Remplace TOUTES les données actuelles par le contenu d'un fichier de sauvegarde. Les paramètres, événements et comptes admin ne sont PAS touchés.",
+      "selectFile": "Sélectionner le fichier",
+      "confirmTitle": "Confirmer la restauration",
+      "confirmWarn": "Toutes les données actuelles seront supprimées et remplacées par la sauvegarde.",
+      "fileInfo": "Sauvegarde du {{date}} · {{count}} entrées",
+      "confirmButton": "Remplacer toutes les données"
+    },
+    "restoreSuccess": "Restauration terminée ({{count}} entrées)",
+    "wipe": {
+      "title": "Effacer toutes les données",
+      "desc": "Supprime définitivement toutes les données opérationnelles. Les paramètres, événements et comptes admin sont conservés.",
+      "startButton": "Démarrer l'effacement",
+      "warnTitle": "Action irréversible",
+      "warnLine1": "Les données suivantes seront SUPPRIMÉES DÉFINITIVEMENT :",
+      "warnPlayers": "Tous les joueurs",
+      "warnTransactions": "Toutes les transactions DKP",
+      "warnAuctions": "Toutes les enchères, mises et résultats",
+      "warnPenalties": "Toutes les sanctions et journaux de réinitialisation",
+      "warnPower": "Tout l'historique de puissance et les rapports",
+      "kept": "✓ Les paramètres, événements, alliances et connexions admin sont conservés.",
+      "continueButton": "J'ai compris, continuer",
+      "finalTitle": "Confirmation finale",
+      "finalDesc": "Tape WIPE en majuscules pour confirmer.",
+      "typeLabel": "Tape WIPE pour confirmer",
+      "confirmButton": "Tout effacer définitivement",
+      "typeWrong": "Tu dois taper exactement WIPE"
+    },
+    "wipeTypeWrong": "Tu dois taper exactement WIPE",
+    "wipeSuccess": "Effacement terminé ({{count}} entrées supprimées)"
+  },
   "legal": {
     "contact": {
       "title": "Contact"
