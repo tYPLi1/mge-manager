@@ -44,6 +44,26 @@
     "settings": "Ajustes",
     "appManagement": "Gestión de la app"
   },
+  "contact": {
+    "title": "Contactar",
+    "subtitle": "Envíanos un mensaje. Por favor incluye tu correo para poder responderte.",
+    "emailLabel": "Tu correo",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "emailHint": "Necesario para poder responderte.",
+    "emailRequired": "Se requiere un correo válido.",
+    "nameLabel": "Tu nombre",
+    "namePlaceholder": "Opcional",
+    "subjectLabel": "Asunto",
+    "subjectPlaceholder": "Resumen breve (opcional)",
+    "messageLabel": "Mensaje",
+    "messagePlaceholder": "¿En qué podemos ayudarte?",
+    "messageRequired": "Por favor escribe un mensaje.",
+    "submit": "Enviar mensaje",
+    "submitting": "Enviando…",
+    "submitFailed": "Error al enviar el mensaje",
+    "thankYouTitle": "¡Mensaje enviado!",
+    "thankYouDesc": "Gracias. Te responderemos por correo."
+  },
   "report": {
     "button": "Reportar un error o problema de traducción",
     "shortButton": "Reportar error",
@@ -503,8 +523,8 @@
           "Ubicación: Suiza"
         ] },
         { "heading": "Contacto", "list": [
-          "Discord: tYPLi1",
-          "Alternativa: función „Reportar error/comentario“ en la app"
+          "Botón „Contacto“ al pie de cada página — el mensaje llega al operador por correo electrónico.",
+          "Discord: tYPLi1"
         ] },
         { "heading": "Sobre la hermandad", "body": "„AOEM Server #ERA003“ se refiere a una comunidad de jugadores del juego Age of Empires Mobile. Este sitio no está afiliado a Tencent, Timi Studio Group, Microsoft, World's Edge ni otros titulares de derechos." },
         { "heading": "Descargo", "body": "El contenido se elabora con el máximo cuidado. No se ofrece garantía de exactitud, integridad o actualidad. Como herramienta privada y gratuita, no existe derecho a disponibilidad." },
@@ -539,7 +559,7 @@
           "Derecho de supresión de tu registro.",
           "Derecho de oposición — retirar el consentimiento."
         ] },
-        { "heading": "9. Contacto", "body": "Para solicitudes de privacidad, contacta al administrador de la hermandad por Discord o usa la función de informe en la app." }
+        { "heading": "9. Contacto", "body": "Para solicitudes de privacidad, usa el botón „Contacto“ al pie de cada página (envía un correo al operador) o contacta al administrador por Discord." }
       ]
     },
     "terms": {
@@ -559,7 +579,7 @@
         { "heading": "6. Descargo", "body": "Servicio „tal cual“. No garantizamos disponibilidad, exactitud o idoneidad. No somos responsables de pérdidas derivadas del uso." },
         { "heading": "7. Cambios", "body": "Podemos actualizar estos Términos en cualquier momento. El uso continuado implica aceptación." },
         { "heading": "8. Ley aplicable", "body": "Estos Términos se rigen por la ley aplicable a la sede principal de la hermandad. Las disputas se resolverán amigablemente o ante los tribunales competentes." },
-        { "heading": "9. Contacto", "body": "Preguntas sobre estos Términos al administrador de la hermandad." }
+        { "heading": "9. Contacto", "body": "Preguntas sobre estos Términos a través del botón „Contacto“ al pie de cada página o al administrador por Discord." }
       ]
     },
     "kvkk": {
@@ -584,7 +604,7 @@
           "Oponerte a resultados desfavorables de análisis automatizado.",
           "Solicitar indemnización por tratamiento ilícito."
         ] },
-        { "heading": "6. Cómo ejercer tus derechos", "body": "Envía tu solicitud al administrador por Discord o mediante la función de informe en la app. Responderemos en 30 días según KVKK." },
+        { "heading": "6. Cómo ejercer tus derechos", "body": "Envía tu solicitud mediante el botón „Contacto“ al pie de cada página (envía un correo al operador) o al administrador por Discord. Responderemos en 30 días según KVKK." },
         { "heading": "7. Plazo de conservación", "body": "Los datos se conservan mientras seas miembro activo. A petición o al salir de la hermandad, tus datos se eliminarán o anonimizarán." },
         { "heading": "8. Medidas de seguridad", "body": "Aplicamos medidas técnicas y organizativas adecuadas: alojamiento seguro, control de acceso, hash de contraseñas y minimización de datos." }
       ]

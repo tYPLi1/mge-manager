@@ -44,6 +44,26 @@
     "settings": "Einstellungen",
     "appManagement": "App Management"
   },
+  "contact": {
+    "title": "Kontakt aufnehmen",
+    "subtitle": "Schick uns eine Nachricht. Bitte gib deine E-Mail an, damit wir antworten können.",
+    "emailLabel": "Deine E-Mail",
+    "emailPlaceholder": "du@beispiel.com",
+    "emailHint": "Erforderlich, damit wir dir antworten können.",
+    "emailRequired": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "nameLabel": "Dein Name",
+    "namePlaceholder": "Optional",
+    "subjectLabel": "Betreff",
+    "subjectPlaceholder": "Kurze Zusammenfassung (optional)",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Wie können wir helfen?",
+    "messageRequired": "Bitte gib eine Nachricht ein.",
+    "submit": "Nachricht senden",
+    "submitting": "Wird gesendet…",
+    "submitFailed": "Senden fehlgeschlagen",
+    "thankYouTitle": "Nachricht gesendet!",
+    "thankYouDesc": "Danke! Wir antworten dir per E-Mail."
+  },
   "report": {
     "button": "Bug oder Übersetzungsfehler melden",
     "shortButton": "Bug melden",
@@ -532,8 +552,8 @@
           "Standort: Schweiz"
         ] },
         { "heading": "Kontakt", "list": [
-          "Discord: tYPLi1",
-          "Alternativ: In-App-Funktion „Bug/Feedback melden“"
+          "Über den „Kontakt“-Button am unteren Rand jeder Seite — die Nachricht erreicht den Betreiber per E-Mail.",
+          "Discord: tYPLi1"
         ] },
         { "heading": "Hinweis zur Gilde", "body": "„AOEM Server #ERA003“ bezeichnet eine Spielergemeinschaft im Spiel Age of Empires Mobile. Diese Website steht in keiner Verbindung zu Tencent, Timi Studio Group, Microsoft, World's Edge oder anderen Rechteinhabern. Alle Spielnamen, Logos und Markenrechte gehören ihren jeweiligen Inhabern." },
         { "heading": "Haftungsausschluss", "body": "Die Inhalte werden mit größter Sorgfalt erstellt. Für Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird keine Gewähr übernommen. Da das Tool privat und kostenlos betrieben wird, besteht kein Anspruch auf Verfügbarkeit." },
@@ -569,7 +589,7 @@
           "Recht auf Löschung deines Spielerdatensatzes.",
           "Widerspruchsrecht — Einwilligung jederzeit widerrufen."
         ] },
-        { "heading": "9. Kontakt", "body": "Datenschutzanfragen an tYPLi1 via Discord oder über die In-App-Report-Funktion. Antwort i.d.R. innerhalb von 30 Tagen." }
+        { "heading": "9. Kontakt", "body": "Datenschutzanfragen über den „Kontakt“-Button am unteren Rand jeder Seite (geht per E-Mail an den Betreiber) oder an tYPLi1 via Discord. Antwort i.d.R. innerhalb von 30 Tagen." }
       ]
     },
     "terms": {
@@ -589,7 +609,7 @@
         { "heading": "6. Haftungsausschluss", "body": "Bereitgestellt „wie besehen“. Keine Garantie für Verfügbarkeit, Korrektheit oder Eignung. Keine Haftung für Schäden aus der Nutzung." },
         { "heading": "7. Änderungen", "body": "Wir können diese Bedingungen jederzeit aktualisieren. Weitere Nutzung gilt als Zustimmung." },
         { "heading": "8. Anwendbares Recht", "body": "Es gilt schweizerisches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist der Wohnsitz des Betreibers in der Schweiz, soweit gesetzlich zulässig." },
-        { "heading": "9. Kontakt", "body": "Fragen zu diesen Bedingungen an tYPLi1 via Discord." }
+        { "heading": "9. Kontakt", "body": "Fragen zu diesen Bedingungen über den „Kontakt“-Button am unteren Rand jeder Seite oder an tYPLi1 via Discord." }
       ]
     },
     "kvkk": {
@@ -614,7 +634,7 @@
           "Widerspruch gegen automatisierte Auswertung.",
           "Schadensersatz bei rechtswidriger Verarbeitung."
         ] },
-        { "heading": "6. Rechte ausüben", "body": "Anfragen an den Gilden-Admin via Discord oder über die In-App-Report-Funktion. Wir antworten gemäß KVKK innerhalb von 30 Tagen." },
+        { "heading": "6. Rechte ausüben", "body": "Anfragen über den „Kontakt“-Button am unteren Rand jeder Seite (geht per E-Mail an den Betreiber) oder an den Gilden-Admin via Discord. Wir antworten gemäß KVKK innerhalb von 30 Tagen." },
         { "heading": "7. Speicherdauer", "body": "Speicherung solange du aktives Gildenmitglied bist. Bei Anfrage oder Austritt werden Daten gelöscht oder anonymisiert." },
         { "heading": "8. Sicherheitsmaßnahmen", "body": "Technische/organisatorische Maßnahmen: sicheres Hosting, Zugangskontrolle, Passwort-Hashing, Datensparsamkeit." }
       ]

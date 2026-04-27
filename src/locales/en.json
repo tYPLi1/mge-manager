@@ -44,6 +44,26 @@
     "settings": "Settings",
     "appManagement": "App Management"
   },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Send us a message. Please provide your email so we can reply.",
+    "emailLabel": "Your email",
+    "emailPlaceholder": "you@example.com",
+    "emailHint": "Required so we can reply to you.",
+    "emailRequired": "A valid email address is required.",
+    "nameLabel": "Your name",
+    "namePlaceholder": "Optional",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Brief summary (optional)",
+    "messageLabel": "Message",
+    "messagePlaceholder": "How can we help?",
+    "messageRequired": "Please enter a message.",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "submitFailed": "Failed to send message",
+    "thankYouTitle": "Message sent!",
+    "thankYouDesc": "Thanks for reaching out. We'll get back to you by email."
+  },
   "report": {
     "button": "Report a Bug or Translation Issue",
     "shortButton": "Report bug",
@@ -532,8 +552,8 @@
           "Location: Switzerland"
         ] },
         { "heading": "Contact", "list": [
-          "Discord: tYPLi1",
-          "Alternatively: in-app „Report bug/feedback“ function"
+          "Use the „Contact“ button at the bottom of every page — your message reaches the operator by email.",
+          "Discord: tYPLi1"
         ] },
         { "heading": "About the guild", "body": "„AOEM Server #ERA003“ refers to a player community in the game Age of Empires Mobile. This website is not affiliated with Tencent, Timi Studio Group, Microsoft, World's Edge or other rights holders. All game names, logos and trademarks belong to their respective owners." },
         { "heading": "Disclaimer", "body": "Content is created with great care. No warranty is given for accuracy, completeness or timeliness. As the tool is operated privately and free of charge, there is no claim to availability." },
@@ -569,7 +589,7 @@
           "Right to erasure — ask us to delete your player record.",
           "Right to object — withdraw consent and stop using the service."
         ] },
-        { "heading": "9. Contact", "body": "For any privacy request, contact tYPLi1 via Discord or use the in-app report function. Response usually within 30 days." }
+        { "heading": "9. Contact", "body": "For any privacy request, use the „Contact“ button at the bottom of every page (sends an email to the operator) or contact tYPLi1 via Discord. Response usually within 30 days." }
       ]
     },
     "terms": {
@@ -589,7 +609,7 @@
         { "heading": "6. Disclaimer", "body": "The service is provided “as is”. We do not guarantee uptime, accuracy, or fitness for any particular purpose. We are not liable for any loss arising from use of the service." },
         { "heading": "7. Changes", "body": "We may update these Terms at any time. Continued use after changes means you accept the updated Terms." },
         { "heading": "8. Governing law", "body": "Swiss law applies, excluding the UN Convention on Contracts for the International Sale of Goods. Place of jurisdiction is the operator's domicile in Switzerland, to the extent legally permitted." },
-        { "heading": "9. Contact", "body": "Questions about these Terms can be sent to tYPLi1 via Discord." }
+        { "heading": "9. Contact", "body": "Questions about these Terms can be sent via the „Contact“ button at the bottom of every page or to tYPLi1 via Discord." }
       ]
     },
     "kvkk": {
@@ -614,7 +634,7 @@
           "Object to results unfavorable to you arising from automated analysis.",
           "Request compensation for damage suffered due to unlawful processing."
         ] },
-        { "heading": "6. How to exercise your rights", "body": "Submit your request to your guild admin via Discord or through the in-app report function. We will respond within 30 days as required by KVKK." },
+        { "heading": "6. How to exercise your rights", "body": "Submit your request via the „Contact“ button at the bottom of every page (delivered to the operator by email) or to your guild admin via Discord. We will respond within 30 days as required by KVKK." },
         { "heading": "7. Storage period", "body": "Data is stored as long as you are an active guild member. Upon request or upon leaving the guild, your personal data will be deleted or anonymized." },
         { "heading": "8. Security measures", "body": "We apply technical and organizational measures appropriate to the nature of the data: secure hosting, access control, password hashing, and minimal data collection." }
       ]

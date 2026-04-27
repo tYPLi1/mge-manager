@@ -44,6 +44,26 @@
     "settings": "设置",
     "appManagement": "应用管理"
   },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "给我们发消息。请提供你的邮箱以便回复。",
+    "emailLabel": "你的邮箱",
+    "emailPlaceholder": "you@example.com",
+    "emailHint": "需要邮箱才能回复你。",
+    "emailRequired": "需要有效的邮箱地址。",
+    "nameLabel": "你的名字",
+    "namePlaceholder": "可选",
+    "subjectLabel": "主题",
+    "subjectPlaceholder": "简短摘要（可选）",
+    "messageLabel": "消息",
+    "messagePlaceholder": "我们能帮你什么？",
+    "messageRequired": "请输入消息。",
+    "submit": "发送消息",
+    "submitting": "发送中…",
+    "submitFailed": "消息发送失败",
+    "thankYouTitle": "消息已发送！",
+    "thankYouDesc": "谢谢！我们会通过邮件回复你。"
+  },
   "report": {
     "button": "报告错误或翻译问题",
     "shortButton": "报告错误",
@@ -493,8 +513,8 @@
           "所在地：瑞士"
         ] },
         { "heading": "联系方式", "list": [
-          "Discord：tYPLi1",
-          "或使用应用内「报告错误/反馈」功能"
+          "每个页面底部的「联系」按钮 — 消息将通过电子邮件发送给运营者。",
+          "Discord：tYPLi1"
         ] },
         { "heading": "关于公会", "body": "「AOEM Server #ERA003」指 Age of Empires Mobile 游戏中的玩家社区。本网站与 Tencent、Timi Studio Group、Microsoft、World's Edge 或其他权利人无关。" },
         { "heading": "免责声明", "body": "内容经精心制作。不保证准确性、完整性或时效性。作为私人免费工具，不保证可用性。" },
@@ -529,7 +549,7 @@
           "删除权 — 要求删除您的玩家记录。",
           "反对权 — 撤回同意并停止使用服务。"
         ] },
-        { "heading": "9. 联系方式", "body": "如有隐私请求，请通过 Discord 联系您的公会管理员，或使用应用内报告功能。" }
+        { "heading": "9. 联系方式", "body": "如有隐私请求，请使用每个页面底部的「联系」按钮（通过邮件发送给运营者）或通过 Discord 联系公会管理员。" }
       ]
     },
     "terms": {
@@ -549,7 +569,7 @@
         { "heading": "6. 免责声明", "body": "服务按「现状」提供。我们不保证可用性、准确性或适用性。对因使用本服务造成的损失不承担责任。" },
         { "heading": "7. 变更", "body": "我们可随时更新本条款。继续使用即视为接受更新。" },
         { "heading": "8. 适用法律", "body": "本条款受公会主要所在地法律管辖。争议应友好解决或交由有管辖权的法院处理。" },
-        { "heading": "9. 联系方式", "body": "有关本条款的问题可发送给公会管理员。" }
+        { "heading": "9. 联系方式", "body": "有关本条款的问题可通过每个页面底部的「联系」按钮或通过 Discord 发送给公会管理员。" }
       ]
     },
     "kvkk": {
@@ -574,7 +594,7 @@
           "对自动化分析产生的不利结果提出异议。",
           "对非法处理造成的损害请求赔偿。"
         ] },
-        { "heading": "6. 如何行使您的权利", "body": "请通过 Discord 向公会管理员提交申请，或通过应用内报告功能。我们将依 KVKK 在 30 天内回复。" },
+        { "heading": "6. 如何行使您的权利", "body": "请通过每个页面底部的「联系」按钮（通过邮件发送给运营者）或通过 Discord 向公会管理员提交申请。我们将依 KVKK 在 30 天内回复。" },
         { "heading": "7. 存储期限", "body": "您是活跃公会成员期间数据将被存储。根据请求或退出公会时，您的个人数据将被删除或匿名化。" },
         { "heading": "8. 安全措施", "body": "我们采取与数据性质相适应的技术和组织措施：安全托管、访问控制、密码哈希和最少数据收集。" }
       ]

@@ -44,6 +44,26 @@
     "settings": "Paramètres",
     "appManagement": "Gestion de l'app"
   },
+  "contact": {
+    "title": "Nous contacter",
+    "subtitle": "Envoie-nous un message. Indique ton e-mail pour qu'on puisse te répondre.",
+    "emailLabel": "Ton e-mail",
+    "emailPlaceholder": "toi@exemple.com",
+    "emailHint": "Nécessaire pour qu'on puisse te répondre.",
+    "emailRequired": "Une adresse e-mail valide est requise.",
+    "nameLabel": "Ton nom",
+    "namePlaceholder": "Facultatif",
+    "subjectLabel": "Sujet",
+    "subjectPlaceholder": "Bref résumé (facultatif)",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Comment pouvons-nous t'aider ?",
+    "messageRequired": "Veuillez saisir un message.",
+    "submit": "Envoyer le message",
+    "submitting": "Envoi…",
+    "submitFailed": "Échec de l'envoi du message",
+    "thankYouTitle": "Message envoyé !",
+    "thankYouDesc": "Merci ! Nous te répondrons par e-mail."
+  },
   "report": {
     "button": "Signaler un bug ou un problème de traduction",
     "shortButton": "Signaler un bug",
@@ -497,8 +517,8 @@
           "Lieu : Suisse"
         ] },
         { "heading": "Contact", "list": [
-          "Discord : tYPLi1",
-          "Alternative : fonction « Signaler bug/retour » dans l'app"
+          "Bouton « Contact » en bas de chaque page — le message arrive à l'exploitant par e-mail.",
+          "Discord : tYPLi1"
         ] },
         { "heading": "À propos de la guilde", "body": "„AOEM Server #ERA003“ désigne une communauté de joueurs du jeu Age of Empires Mobile. Ce site n'est affilié ni à Tencent, Timi Studio Group, Microsoft, World's Edge ni à d'autres ayants droit." },
         { "heading": "Avertissement", "body": "Le contenu est créé avec le plus grand soin. Aucune garantie n'est donnée quant à l'exactitude, l'exhaustivité ou l'actualité. L'outil étant privé et gratuit, aucune disponibilité n'est garantie." },
@@ -533,7 +553,7 @@
           "Droit à l'effacement.",
           "Droit d'opposition — retirer le consentement."
         ] },
-        { "heading": "9. Contact", "body": "Pour toute demande, contactez l'administrateur de la guilde via Discord ou utilisez la fonction de rapport intégrée." }
+        { "heading": "9. Contact", "body": "Pour toute demande de confidentialité, utilisez le bouton « Contact » en bas de chaque page (envoie un e-mail à l'exploitant) ou contactez l'administrateur via Discord." }
       ]
     },
     "terms": {
@@ -553,7 +573,7 @@
         { "heading": "6. Avertissement", "body": "Service « en l'état ». Aucune garantie de disponibilité, d'exactitude ou d'adéquation. Aucune responsabilité pour pertes liées à l'usage." },
         { "heading": "7. Modifications", "body": "Nous pouvons mettre à jour ces conditions à tout moment. L'usage continu vaut acceptation." },
         { "heading": "8. Loi applicable", "body": "Soumis à la loi du lieu principal de la guilde. Les litiges sont résolus à l'amiable ou devant les tribunaux compétents." },
-        { "heading": "9. Contact", "body": "Questions à l'administrateur de la guilde." }
+        { "heading": "9. Contact", "body": "Questions sur ces conditions via le bouton « Contact » en bas de chaque page ou à l'administrateur via Discord." }
       ]
     },
     "kvkk": {
@@ -578,7 +598,7 @@
           "Vous opposer aux résultats défavorables d'analyses automatisées.",
           "Demander réparation pour traitement illicite."
         ] },
-        { "heading": "6. Comment exercer vos droits", "body": "Envoyez votre demande à l'administrateur via Discord ou via la fonction de rapport. Réponse sous 30 jours selon KVKK." },
+        { "heading": "6. Comment exercer vos droits", "body": "Envoyez votre demande via le bouton « Contact » en bas de chaque page (envoie un e-mail à l'exploitant) ou à l'administrateur via Discord. Réponse sous 30 jours selon KVKK." },
         { "heading": "7. Durée de conservation", "body": "Données conservées tant que vous êtes membre actif. À votre demande ou départ, suppression ou anonymisation." },
         { "heading": "8. Mesures de sécurité", "body": "Mesures techniques et organisationnelles adaptées : hébergement sécurisé, contrôle d'accès, hash des mots de passe, minimisation des données." }
       ]

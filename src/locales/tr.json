@@ -44,6 +44,26 @@
     "settings": "Ayarlar",
     "appManagement": "Uygulama Yönetimi"
   },
+  "contact": {
+    "title": "İletişime geç",
+    "subtitle": "Bize bir mesaj gönder. Yanıt verebilmemiz için lütfen e-posta adresini bırak.",
+    "emailLabel": "E-postan",
+    "emailPlaceholder": "sen@ornek.com",
+    "emailHint": "Sana yanıt verebilmemiz için gereklidir.",
+    "emailRequired": "Geçerli bir e-posta adresi gerekli.",
+    "nameLabel": "Adın",
+    "namePlaceholder": "Opsiyonel",
+    "subjectLabel": "Konu",
+    "subjectPlaceholder": "Kısa özet (opsiyonel)",
+    "messageLabel": "Mesaj",
+    "messagePlaceholder": "Nasıl yardımcı olabiliriz?",
+    "messageRequired": "Lütfen bir mesaj gir.",
+    "submit": "Mesaj gönder",
+    "submitting": "Gönderiliyor…",
+    "submitFailed": "Mesaj gönderilemedi",
+    "thankYouTitle": "Mesaj gönderildi!",
+    "thankYouDesc": "Teşekkürler! E-posta ile sana yanıt vereceğiz."
+  },
   "report": {
     "button": "Hata veya çeviri sorunu bildir",
     "shortButton": "Hata bildir",
@@ -532,8 +552,8 @@
           "Konum: İsviçre"
         ] },
         { "heading": "İletişim", "list": [
-          "Discord: tYPLi1",
-          "Alternatif: uygulama içi „Hata/Geri Bildirim Bildir“ fonksiyonu"
+          "Her sayfanın altındaki „İletişim“ düğmesi — mesaj operatöre e-posta ile ulaşır.",
+          "Discord: tYPLi1"
         ] },
         { "heading": "Lonca hakkında", "body": "„AOEM Server #ERA003“ Age of Empires Mobile oyunundaki bir oyuncu topluluğunu ifade eder. Bu site Tencent, Timi Studio Group, Microsoft, World's Edge veya diğer hak sahipleriyle ilişkili değildir." },
         { "heading": "Sorumluluk reddi", "body": "İçerik özenle hazırlanır. Doğruluk, eksiksizlik ve güncellik için garanti verilmez. Araç özel ve ücretsiz işletildiği için kullanılabilirlik talebi yoktur." },
@@ -568,7 +588,7 @@
           "Silme hakkı — oyuncu kaydınızın silinmesini talep etme.",
           "İtiraz hakkı — rıza geri çekme ve hizmeti bırakma."
         ] },
-        { "heading": "9. İletişim", "body": "Gizlilik talepleri için Discord üzerinden lonca yöneticinize ulaşın veya uygulama içi rapor işlevini kullanın." }
+        { "heading": "9. İletişim", "body": "Gizlilik talepleri için her sayfanın altındaki „İletişim“ düğmesini kullanın (operatöre e-posta gönderir) veya Discord üzerinden lonca yöneticinize ulaşın." }
       ]
     },
     "terms": {
@@ -588,7 +608,7 @@
         { "heading": "6. Sorumluluk reddi", "body": "Hizmet „olduğu gibi“ sağlanır. Çalışma süresi, doğruluk veya belirli bir amaca uygunluk garanti edilmez. Kullanımdan doğan zararlardan sorumlu değiliz." },
         { "heading": "7. Değişiklikler", "body": "Bu Şartları her zaman güncelleyebiliriz. Değişiklikten sonra kullanmaya devam etmek güncel Şartları kabul ettiğiniz anlamına gelir." },
         { "heading": "8. Geçerli hukuk", "body": "Bu Şartlar, loncanın birincil konumunda geçerli olan yasalara tabidir. Anlaşmazlıklar dostane veya yetkili mahkemelerde çözülür." },
-        { "heading": "9. İletişim", "body": "Bu Şartlar hakkında sorular lonca yöneticinize gönderilebilir." }
+        { "heading": "9. İletişim", "body": "Bu Şartlar hakkında sorular her sayfanın altındaki „İletişim“ düğmesi üzerinden veya Discord aracılığıyla lonca yöneticinize gönderilebilir." }
       ]
     },
     "kvkk": {
@@ -613,7 +633,7 @@
           "Otomatik analizden çıkan aleyhe sonuçlara itiraz etme.",
           "Hukuka aykırı işlemeden doğan zararın giderilmesini talep etme."
         ] },
-        { "heading": "6. Haklarınızı kullanma", "body": "Talebinizi Discord üzerinden lonca yöneticisine veya uygulama içi rapor işleviyle iletin. KVKK gereği 30 gün içinde yanıt vereceğiz." },
+        { "heading": "6. Haklarınızı kullanma", "body": "Talebinizi her sayfanın altındaki „İletişim“ düğmesi (operatöre e-posta gönderir) veya Discord üzerinden lonca yöneticisine iletin. KVKK gereği 30 gün içinde yanıt vereceğiz." },
         { "heading": "7. Saklama süresi", "body": "Veriler aktif lonca üyesi olduğunuz sürece saklanır. Talep üzerine veya loncadan ayrıldığınızda kişisel verileriniz silinir veya anonimleştirilir." },
         { "heading": "8. Güvenlik tedbirleri", "body": "Verinin niteliğine uygun teknik ve idari tedbirler uygularız: güvenli barındırma, erişim kontrolü, parola hash'leme ve veri minimizasyonu." }
       ]
