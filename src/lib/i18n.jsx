@@ -4,14 +4,16 @@ import de from "@/locales/de.json";
 import tr from "@/locales/tr.json";
 import es from "@/locales/es.json";
 import fr from "@/locales/fr.json";
+import zh from "@/locales/zh.json";
 
-const LOCALES = { en, de, tr, es, fr };
+const LOCALES = { en, de, tr, es, fr, zh };
 export const AVAILABLE_LOCALES = [
   { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
   { code: "de", label: "DE", name: "Deutsch", flag: "🇩🇪" },
   { code: "tr", label: "TR", name: "Türkçe", flag: "🇹🇷" },
   { code: "es", label: "ES", name: "Español", flag: "🇪🇸" },
   { code: "fr", label: "FR", name: "Français", flag: "🇫🇷" },
+  { code: "zh", label: "ZH", name: "中文", flag: "🇨🇳" },
 ];
 const DEFAULT_LOCALE = "en";
 
