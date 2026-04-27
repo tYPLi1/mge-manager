@@ -46,6 +46,7 @@
   },
   "report": {
     "button": "报告错误或翻译问题",
+    "shortButton": "报告错误",
     "title": "报告错误或问题",
     "subtitle": "帮助我们改进！报告错误、翻译问题或其他问题。",
     "typeLabel": "类型",

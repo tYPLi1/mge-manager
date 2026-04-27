@@ -46,6 +46,7 @@
   },
   "report": {
     "button": "Report a Bug or Translation Issue",
+    "shortButton": "Report bug",
     "title": "Report a Bug or Issue",
     "subtitle": "Help us improve! Report bugs, translation errors, or other issues.",
     "typeLabel": "Type",

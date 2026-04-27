@@ -46,6 +46,7 @@
   },
   "report": {
     "button": "Reportar un error o problema de traducción",
+    "shortButton": "Reportar error",
     "title": "Reportar un error o problema",
     "subtitle": "¡Ayúdanos a mejorar! Reporta errores, problemas de traducción u otros temas.",
     "typeLabel": "Tipo",

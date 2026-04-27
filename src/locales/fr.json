@@ -46,6 +46,7 @@
   },
   "report": {
     "button": "Signaler un bug ou un problème de traduction",
+    "shortButton": "Signaler un bug",
     "title": "Signaler un bug ou un problème",
     "subtitle": "Aidez-nous à améliorer ! Signalez bugs, erreurs de traduction ou autres problèmes.",
     "typeLabel": "Type",

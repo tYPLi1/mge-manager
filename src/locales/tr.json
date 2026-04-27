@@ -46,6 +46,7 @@
   },
   "report": {
     "button": "Hata veya çeviri sorunu bildir",
+    "shortButton": "Hata bildir",
     "title": "Hata veya Sorun Bildir",
     "subtitle": "Geliştirmemize yardım et! Hataları, çeviri yanlışlarını veya diğer sorunları bildir.",
     "typeLabel": "Tür",
