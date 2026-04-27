@@ -482,6 +482,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "Contact"
+    },
     "lastUpdated": "Dernière mise à jour",
     "imprint": {
       "title": "Mentions légales",

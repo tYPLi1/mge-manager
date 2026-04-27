@@ -488,6 +488,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "Contacto"
+    },
     "lastUpdated": "Última actualización",
     "imprint": {
       "title": "Aviso legal",

@@ -478,6 +478,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "联系"
+    },
     "lastUpdated": "最后更新",
     "imprint": {
       "title": "网站说明",

@@ -517,6 +517,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "Kontakt"
+    },
     "lastUpdated": "Zuletzt aktualisiert",
     "imprint": {
       "title": "Impressum",

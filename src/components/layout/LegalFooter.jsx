@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useTranslation } from "@/lib/i18n";
+import ContactButton from "./ContactButton";
 
 const LINKS = [
   { key: "imprint", page: "Imprint" },
@@ -68,6 +69,7 @@ export default function LegalFooter() {
                 {t(`legal.${key}.title`)}
               </Link>
             ))}
+            <ContactButton />
           </nav>
         </div>
       </footer>

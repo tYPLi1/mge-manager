@@ -22,9 +22,9 @@ export default function ReportButton() {
         aria-label={t("report.button")}
         style={{
           position: "fixed",
-          bottom: 20,
+          bottom: 88,
           right: 20,
-          zIndex: 60,
+          zIndex: 80,
           height: 48,
           width: 48,
           borderRadius: 24,

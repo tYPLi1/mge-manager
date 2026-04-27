@@ -478,6 +478,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "문의"
+    },
     "lastUpdated": "최종 업데이트",
     "imprint": {
       "title": "사이트 정보",

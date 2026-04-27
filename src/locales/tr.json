@@ -517,6 +517,9 @@
     }
   },
   "legal": {
+    "contact": {
+      "title": "İletişim"
+    },
     "lastUpdated": "Son güncelleme",
     "imprint": {
       "title": "Künye",

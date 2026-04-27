@@ -518,6 +518,9 @@
   },
   "legal": {
     "lastUpdated": "Last updated",
+    "contact": {
+      "title": "Contact"
+    },
     "imprint": {
       "title": "Imprint",
       "subtitle": "Information about the operator of this website",
