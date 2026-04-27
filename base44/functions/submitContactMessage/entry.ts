@@ -70,6 +70,31 @@ Deno.serve(async (req) => {
       body: html,
     });
 
+    // Send a confirmation copy to the sender (without exposing the admin email)
+    const confirmationHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px;">
+        <h2 style="color:#d4a859;margin:0 0 12px 0;">📬 We received your message</h2>
+        <p>Hi${safeName ? ` ${escapeHtml(safeName)}` : ''},</p>
+        <p>Thanks for reaching out. This is a copy of the message you sent us. We'll get back to you by email as soon as possible.</p>
+        <hr style="border:none;border-top:1px solid #ddd;margin:16px 0;" />
+        <p><strong>Subject:</strong> ${escapeHtml(safeSubject)}</p>
+        <p><strong>Your message:</strong></p>
+        <div style="background:#f4f4f4;padding:12px;border-radius:8px;white-space:pre-wrap;">${escapeHtml(safeMessage)}</div>
+        <p style="font-size:12px;color:#666;margin-top:16px;">— DKP System</p>
+      </div>
+    `;
+    try {
+      await service.integrations.Core.SendEmail({
+        from_name: 'DKP System',
+        to: email,
+        subject: `Copy of your message: ${safeSubject}`,
+        body: confirmationHtml,
+      });
+    } catch (e) {
+      console.error('confirmation email failed:', e);
+      // do not fail the whole request if the confirmation can't be sent
+    }
+
     return Response.json({ success: true });
   } catch (error) {
     console.error('submitContactMessage error:', error);
