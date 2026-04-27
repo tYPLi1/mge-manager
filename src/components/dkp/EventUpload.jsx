@@ -475,12 +475,12 @@ export default function EventUpload({ players, eventTypes }) {
                 <Label className="text-yellow-400/80 text-[11px] uppercase tracking-wider mb-1 block">
                   Assign alliance to new players
                 </Label>
-                <Select value={newPlayerAlliance} onValueChange={setNewPlayerAlliance}>
+                <Select value={newPlayerAlliance || "__none__"} onValueChange={(v) => setNewPlayerAlliance(v === "__none__" ? "" : v)}>
                   <SelectTrigger className="bg-white/5 border-yellow-500/30 text-white text-xs h-8">
                     <SelectValue placeholder="No alliance (assign later)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={null}>No alliance (assign later)</SelectItem>
+                    <SelectItem value="__none__">No alliance (assign later)</SelectItem>
                     {alliances.map(name => (
                       <SelectItem key={name} value={name}>{name}</SelectItem>
                     ))}
