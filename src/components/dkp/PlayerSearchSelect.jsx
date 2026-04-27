@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search } from "lucide-react";
 import AllianceBadge from "@/components/dkp/AllianceBadge";
 import { useTranslation } from "@/lib/i18n";
@@ -7,7 +8,9 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const containerRef = useRef(null);
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+  const triggerRef = useRef(null);
+  const popoverRef = useRef(null);
   const inputRef = useRef(null);
 
   const effectivePlaceholder = placeholder || t("playerSearch.placeholder");
@@ -18,16 +21,40 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
     p.name.toLowerCase().includes(query.toLowerCase())
   );
 
+  // Position the portal popover under the trigger
+  useLayoutEffect(() => {
+    if (!open || !triggerRef.current) return;
+    const update = () => {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [open]);
+
+  // Outside click — check both trigger AND popover
   useEffect(() => {
+    if (!open) return;
     const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      const inTrigger = triggerRef.current?.contains(e.target);
+      const inPopover = popoverRef.current?.contains(e.target);
+      if (!inTrigger && !inPopover) {
         setOpen(false);
         setQuery("");
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [open]);
 
   const handleSelect = (player) => {
     onValueChange(player.id);
@@ -41,8 +68,9 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={handleOpen}
         className="w-full flex items-center justify-between gap-2 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-left hover:bg-white/10 transition-colors"
@@ -56,8 +84,18 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
         <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
       </button>
 
-      {open && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a2234] border border-white/10 rounded-lg shadow-xl overflow-hidden">
+      {open && createPortal(
+        <div
+          ref={popoverRef}
+          style={{
+            position: "fixed",
+            top: pos.top,
+            left: pos.left,
+            width: pos.width,
+            zIndex: 200,
+          }}
+          className="bg-[#1a2234] border border-white/10 rounded-lg shadow-xl overflow-hidden"
+        >
           <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10">
             <Search className="w-3.5 h-3.5 text-gray-500 shrink-0" />
             <input
@@ -89,7 +127,8 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
               </button>
             ))}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
