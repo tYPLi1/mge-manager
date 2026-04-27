@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import PageHeader from "@/components/dkp/PageHeader";
 import { useTranslation } from "@/lib/i18n";
 
@@ -32,7 +33,7 @@ export default function Rules() {
       <div className="bg-[#111827] rounded-xl border border-white/5 p-6 sm:p-8">
         {rulesText ? (
           <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-amber-400 prose-a:text-amber-400">
-            <ReactMarkdown>{rulesText}</ReactMarkdown>
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{rulesText}</ReactMarkdown>
           </div>
         ) : (
           <div className="text-center py-12">

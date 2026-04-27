@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { AVAILABLE_LOCALES } from "@/lib/i18n";
+import RulesEditorToolbar from "@/components/dkp/RulesEditorToolbar";
 
 /**
  * Multi-language Rules editor.
  * Reads/writes form fields named `rules_text_<locale>` (e.g. rules_text_en, rules_text_de).
  * Also keeps legacy `rules_text` in sync with the English version for backwards compatibility.
+ * Supports Markdown + inline HTML (bold, italic, underline, color via toolbar).
  */
 export default function RulesMultiLangEditor({ form, setForm, placeholder }) {
   const [activeLocale, setActiveLocale] = useState("en");
+  const textareaRefs = useRef({});
 
   const fieldKey = (loc) => `rules_text_${loc}`;
 
@@ -26,6 +29,9 @@ export default function RulesMultiLangEditor({ form, setForm, placeholder }) {
     if (loc === "en" && form.rules_text) return form.rules_text;
     return "";
   };
+
+  const currentValue = valueFor(activeLocale);
+  const taRef = (el) => { textareaRefs.current[activeLocale] = el; };
 
   return (
     <div>
@@ -52,17 +58,24 @@ export default function RulesMultiLangEditor({ form, setForm, placeholder }) {
         })}
       </div>
 
+      <RulesEditorToolbar
+        textareaRef={{ current: textareaRefs.current[activeLocale] }}
+        value={currentValue}
+        onChange={(v) => handleChange(activeLocale, v)}
+      />
+
       <Textarea
-        value={valueFor(activeLocale)}
+        ref={taRef}
+        value={currentValue}
         onChange={(e) => handleChange(activeLocale, e.target.value)}
-        rows={12}
+        rows={14}
         placeholder={placeholder}
         className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono text-sm"
       />
 
       <p className="text-xs text-gray-500 mt-2">
         Editing: <span className="text-gray-300">{AVAILABLE_LOCALES.find(l => l.code === activeLocale)?.name}</span>
-        {" "}· Languages without content will fall back to English on the public Rules page.
+        {" "}· Use the toolbar for <strong>bold</strong>, <em>italic</em>, <u>underline</u> and color. Languages without content fall back to English.
       </p>
     </div>
   );
