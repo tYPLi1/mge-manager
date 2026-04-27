@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { rankToDkp } from "@/components/dkp/rankToDkp";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
-import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
+import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable.jsx";
 
 function parseAlliances(json) {
   if (!json) return [];
