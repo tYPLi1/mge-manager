@@ -515,5 +515,86 @@
       "stagePrep": "Prep",
       "stageWar": "War"
     }
+  },
+  "legal": {
+    "lastUpdated": "Last updated",
+    "footerNote": "This is a private fan-made guild management tool. Not affiliated with any game publisher.",
+    "privacy": {
+      "title": "Privacy Policy",
+      "subtitle": "How we handle your data",
+      "sections": [
+        { "heading": "1. Introduction", "body": "This DKP System is a private, non-commercial guild management tool. We respect your privacy and only process the minimal data needed to operate the service. This policy explains what we collect, why, and your rights." },
+        { "heading": "2. Data we collect", "list": [
+          "In-game player name (manually entered by guild admins).",
+          "DKP balance, transaction history, auction bids, and penalty records related to gameplay.",
+          "Optional: power values, event participation entered by admins.",
+          "Optional: name and message you enter when submitting a bug/feedback report.",
+          "Technical data: browser user-agent and the page path when you submit a report."
+        ] },
+        { "heading": "3. What we do NOT collect", "list": [
+          "No real names, addresses, phone numbers, or government IDs.",
+          "No payment data — the service is free.",
+          "No tracking cookies, no advertising, no third-party analytics profiling."
+        ] },
+        { "heading": "4. Legal basis (GDPR / KVKK)", "body": "We process your data based on your consent (joining the guild and using the system) and our legitimate interest in operating the guild. The data is strictly limited to what is necessary." },
+        { "heading": "5. Data storage & security", "body": "Data is hosted on the Base44 platform with industry-standard security. Servers may be located outside Turkey/EU. By using this service you acknowledge that your data may be transferred internationally." },
+        { "heading": "6. Sharing", "body": "We do not sell, rent, or share your data with advertisers. DKP balances and rankings are visible publicly to all visitors of this guild site (this is the purpose of the tool). Discord notifications may include your in-game name and ranking." },
+        { "heading": "7. Retention", "body": "Player and DKP data is kept as long as the guild operates the system. Bug reports are kept until resolved. You can request deletion at any time (see contact)." },
+        { "heading": "8. Your rights", "list": [
+          "Right of access — request what data we hold about you.",
+          "Right to rectification — ask us to correct inaccurate data.",
+          "Right to erasure — ask us to delete your player record.",
+          "Right to object — withdraw consent and stop using the service."
+        ] },
+        { "heading": "9. Contact", "body": "For any privacy request, contact your guild admin via Discord or use the in-app report function." }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "subtitle": "Rules for using this service",
+      "sections": [
+        { "heading": "1. Acceptance", "body": "By accessing this DKP System, you agree to these Terms. If you do not agree, please do not use the service." },
+        { "heading": "2. Nature of the service", "body": "This is a free, private, non-commercial tool used by a gaming guild to track DKP (Dragon Kill Points), auctions, and penalties. It is provided “as is” without warranty of any kind." },
+        { "heading": "3. Acceptable use", "list": [
+          "Do not attempt to disrupt, hack, or overload the service.",
+          "Do not submit false, harassing, or unlawful content via reports.",
+          "Do not use the service for any commercial purpose.",
+          "Respect other guild members."
+        ] },
+        { "heading": "4. Accounts & access", "body": "Admin access is granted by the guild leadership. Public visitors can view leaderboards and results without an account. Misuse of admin credentials may result in revocation." },
+        { "heading": "5. Intellectual property", "body": "The DKP System code, design, and content (excluding game data and user-submitted information) belong to the guild operators. You may not copy or redistribute the system without permission." },
+        { "heading": "6. Disclaimer", "body": "The service is provided “as is”. We do not guarantee uptime, accuracy, or fitness for any particular purpose. We are not liable for any loss arising from use of the service." },
+        { "heading": "7. Changes", "body": "We may update these Terms at any time. Continued use after changes means you accept the updated Terms." },
+        { "heading": "8. Governing law", "body": "These Terms are governed by the laws applicable to the guild's primary location. Disputes shall be resolved amicably or in the competent courts." },
+        { "heading": "9. Contact", "body": "Questions about these Terms can be sent to your guild admin." }
+      ]
+    },
+    "kvkk": {
+      "title": "KVKK Notice",
+      "subtitle": "Information notice under Turkish Personal Data Protection Law (KVKK No. 6698)",
+      "sections": [
+        { "heading": "1. Data Controller", "body": "The guild administration operates this DKP System as the data controller (“veri sorumlusu”). For inquiries, contact your guild admin via Discord." },
+        { "heading": "2. Personal data processed", "list": [
+          "In-game player name (a pseudonym, not necessarily a real name).",
+          "DKP, auction bid history, penalties, power values.",
+          "Optional contact name and message via the bug report form."
+        ] },
+        { "heading": "3. Purpose of processing (Article 5)", "body": "Data is processed solely for managing guild membership, fairly distributing DKP and auction slots, and improving the service. Processing is based on the explicit consent of the data subject and the legitimate interest of the guild." },
+        { "heading": "4. International transfer (Article 9)", "body": "The service is hosted on infrastructure that may be located outside the Republic of Turkey. By using this service you give your explicit consent (“açık rıza”) to the transfer of your data abroad for the purposes described above." },
+        { "heading": "5. Your rights (Article 11)", "list": [
+          "Learn whether your personal data is processed.",
+          "Request information about the processing.",
+          "Learn the purpose and whether data is used in accordance with that purpose.",
+          "Know third parties to whom data is transferred (we do not transfer to advertisers).",
+          "Request correction of incomplete or inaccurate data.",
+          "Request deletion of your data within the framework of Article 7.",
+          "Object to results unfavorable to you arising from automated analysis.",
+          "Request compensation for damage suffered due to unlawful processing."
+        ] },
+        { "heading": "6. How to exercise your rights", "body": "Submit your request to your guild admin via Discord or through the in-app report function. We will respond within 30 days as required by KVKK." },
+        { "heading": "7. Storage period", "body": "Data is stored as long as you are an active guild member. Upon request or upon leaving the guild, your personal data will be deleted or anonymized." },
+        { "heading": "8. Security measures", "body": "We apply technical and organizational measures appropriate to the nature of the data: secure hosting, access control, password hashing, and minimal data collection." }
+      ]
+    }
   }
 }

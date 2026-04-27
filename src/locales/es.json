@@ -486,5 +486,86 @@
       "stagePrep": "Preparación",
       "stageWar": "Guerra"
     }
+  },
+  "legal": {
+    "lastUpdated": "Última actualización",
+    "footerNote": "Herramienta privada de gestión de hermandad creada por fans. Sin afiliación con ningún editor de juegos.",
+    "privacy": {
+      "title": "Política de Privacidad",
+      "subtitle": "Cómo manejamos tus datos",
+      "sections": [
+        { "heading": "1. Introducción", "body": "Este Sistema DKP es una herramienta privada y no comercial de gestión de hermandad. Respetamos tu privacidad y solo procesamos los datos mínimos necesarios para operar el servicio." },
+        { "heading": "2. Datos que recopilamos", "list": [
+          "Nombre del jugador en el juego (introducido manualmente por los administradores).",
+          "Saldo DKP, historial de transacciones, pujas en subastas y registros de sanciones.",
+          "Opcional: valores de poder, participación en eventos.",
+          "Opcional: nombre y mensaje al enviar un informe de error.",
+          "Datos técnicos: user-agent del navegador y ruta de página al enviar un informe."
+        ] },
+        { "heading": "3. Lo que NO recopilamos", "list": [
+          "Sin nombres reales, direcciones, teléfonos o documentos oficiales.",
+          "Sin datos de pago — el servicio es gratuito.",
+          "Sin cookies de seguimiento, sin publicidad, sin perfiles de terceros."
+        ] },
+        { "heading": "4. Base legal (RGPD / KVKK)", "body": "Procesamos tus datos basándonos en tu consentimiento y en el interés legítimo de operar la hermandad. Los datos se limitan estrictamente a lo necesario." },
+        { "heading": "5. Almacenamiento y seguridad", "body": "Los datos se alojan en la plataforma Base44 con seguridad estándar. Los servidores pueden estar fuera de la UE/Turquía. Al usar este servicio reconoces que tus datos pueden transferirse internacionalmente." },
+        { "heading": "6. Compartir", "body": "No vendemos ni alquilamos tus datos. Saldos DKP y rankings son públicos en el sitio de la hermandad (es el propósito de la herramienta). Las notificaciones de Discord pueden incluir tu nombre y ranking." },
+        { "heading": "7. Retención", "body": "Los datos se conservan mientras la hermandad use el sistema. Los informes de errores se conservan hasta su resolución. Puedes solicitar la eliminación en cualquier momento." },
+        { "heading": "8. Tus derechos", "list": [
+          "Derecho de acceso a los datos almacenados.",
+          "Derecho de rectificación de datos inexactos.",
+          "Derecho de supresión de tu registro.",
+          "Derecho de oposición — retirar el consentimiento."
+        ] },
+        { "heading": "9. Contacto", "body": "Para solicitudes de privacidad, contacta al administrador de la hermandad por Discord o usa la función de informe en la app." }
+      ]
+    },
+    "terms": {
+      "title": "Términos de Uso",
+      "subtitle": "Reglas para usar este servicio",
+      "sections": [
+        { "heading": "1. Aceptación", "body": "Al acceder a este Sistema DKP aceptas estos Términos. Si no estás de acuerdo, no uses el servicio." },
+        { "heading": "2. Naturaleza del servicio", "body": "Herramienta gratuita, privada y no comercial usada por una hermandad para rastrear DKP, subastas y sanciones. Se proporciona „tal cual“ sin garantía." },
+        { "heading": "3. Uso aceptable", "list": [
+          "No intentes alterar, hackear o sobrecargar el servicio.",
+          "No envíes contenido falso, hostigador o ilegal en informes.",
+          "No uses el servicio con fines comerciales.",
+          "Respeta a los demás miembros."
+        ] },
+        { "heading": "4. Cuentas y acceso", "body": "El acceso administrador es otorgado por el liderazgo de la hermandad. Los visitantes públicos pueden ver rankings sin cuenta. El uso indebido puede revocar credenciales." },
+        { "heading": "5. Propiedad intelectual", "body": "Código, diseño y contenido (excluyendo datos del juego y aportaciones de usuarios) pertenecen a los operadores de la hermandad. Prohibida la copia sin permiso." },
+        { "heading": "6. Descargo", "body": "Servicio „tal cual“. No garantizamos disponibilidad, exactitud o idoneidad. No somos responsables de pérdidas derivadas del uso." },
+        { "heading": "7. Cambios", "body": "Podemos actualizar estos Términos en cualquier momento. El uso continuado implica aceptación." },
+        { "heading": "8. Ley aplicable", "body": "Estos Términos se rigen por la ley aplicable a la sede principal de la hermandad. Las disputas se resolverán amigablemente o ante los tribunales competentes." },
+        { "heading": "9. Contacto", "body": "Preguntas sobre estos Términos al administrador de la hermandad." }
+      ]
+    },
+    "kvkk": {
+      "title": "Aviso KVKK",
+      "subtitle": "Aviso conforme a la Ley Turca de Protección de Datos Personales (KVKK Nº 6698)",
+      "sections": [
+        { "heading": "1. Responsable del tratamiento", "body": "La administración de la hermandad opera este Sistema DKP como „veri sorumlusu“. Para consultas, contacta al administrador por Discord." },
+        { "heading": "2. Datos personales tratados", "list": [
+          "Nombre del jugador (seudónimo, no necesariamente nombre real).",
+          "DKP, historial de pujas, sanciones, valores de poder.",
+          "Opcional: nombre de contacto y mensaje en informes."
+        ] },
+        { "heading": "3. Finalidad (Art. 5)", "body": "Los datos se procesan únicamente para gestionar la pertenencia a la hermandad, distribuir DKP de forma justa y mejorar el servicio. Basado en consentimiento explícito e interés legítimo." },
+        { "heading": "4. Transferencia internacional (Art. 9)", "body": "El servicio se aloja en infraestructura que puede estar fuera de Turquía. Al usar el servicio das tu consentimiento explícito („açık rıza“) a la transferencia al extranjero." },
+        { "heading": "5. Tus derechos (Art. 11)", "list": [
+          "Saber si tus datos son tratados.",
+          "Solicitar información sobre el tratamiento.",
+          "Conocer la finalidad y si se usa conforme a ella.",
+          "Conocer terceros destinatarios (no transferimos a anunciantes).",
+          "Solicitar corrección de datos incompletos o inexactos.",
+          "Solicitar borrado conforme al Art. 7.",
+          "Oponerte a resultados desfavorables de análisis automatizado.",
+          "Solicitar indemnización por tratamiento ilícito."
+        ] },
+        { "heading": "6. Cómo ejercer tus derechos", "body": "Envía tu solicitud al administrador por Discord o mediante la función de informe en la app. Responderemos en 30 días según KVKK." },
+        { "heading": "7. Plazo de conservación", "body": "Los datos se conservan mientras seas miembro activo. A petición o al salir de la hermandad, tus datos se eliminarán o anonimizarán." },
+        { "heading": "8. Medidas de seguridad", "body": "Aplicamos medidas técnicas y organizativas adecuadas: alojamiento seguro, control de acceso, hash de contraseñas y minimización de datos." }
+      ]
+    }
   }
 }

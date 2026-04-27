@@ -480,5 +480,86 @@
       "stagePrep": "Prépa",
       "stageWar": "Guerre"
     }
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour",
+    "footerNote": "Outil privé de gestion de guilde créé par des fans. Aucune affiliation avec un éditeur de jeu.",
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "subtitle": "Comment nous traitons vos données",
+      "sections": [
+        { "heading": "1. Introduction", "body": "Ce système DKP est un outil privé et non commercial de gestion de guilde. Nous respectons votre vie privée et ne traitons que les données minimales nécessaires." },
+        { "heading": "2. Données collectées", "list": [
+          "Nom du joueur en jeu (saisi par les administrateurs).",
+          "Solde DKP, historique des transactions, enchères, sanctions.",
+          "Optionnel : valeurs de puissance, participation aux événements.",
+          "Optionnel : nom et message lors d'un rapport de bug.",
+          "Données techniques : user-agent et chemin de page lors d'un rapport."
+        ] },
+        { "heading": "3. Ce que nous ne collectons PAS", "list": [
+          "Pas de vrais noms, adresses, téléphones, papiers d'identité.",
+          "Pas de données de paiement — le service est gratuit.",
+          "Pas de cookies de pistage, pas de publicité, pas de profilage tiers."
+        ] },
+        { "heading": "4. Base légale (RGPD / KVKK)", "body": "Traitement basé sur votre consentement et l'intérêt légitime de la guilde. Données strictement limitées au nécessaire." },
+        { "heading": "5. Stockage et sécurité", "body": "Hébergé sur la plateforme Base44 avec sécurité standard. Les serveurs peuvent être hors UE/Turquie. En utilisant le service vous reconnaissez que vos données peuvent être transférées à l'international." },
+        { "heading": "6. Partage", "body": "Nous ne vendons ni ne louons vos données. Les soldes DKP et classements sont publics sur le site de la guilde (c'est l'objet de l'outil). Les notifications Discord peuvent inclure votre nom et classement." },
+        { "heading": "7. Conservation", "body": "Données joueur conservées tant que la guilde utilise le système. Rapports de bug conservés jusqu'à résolution. Demande de suppression possible à tout moment." },
+        { "heading": "8. Vos droits", "list": [
+          "Droit d'accès aux données.",
+          "Droit de rectification.",
+          "Droit à l'effacement.",
+          "Droit d'opposition — retirer le consentement."
+        ] },
+        { "heading": "9. Contact", "body": "Pour toute demande, contactez l'administrateur de la guilde via Discord ou utilisez la fonction de rapport intégrée." }
+      ]
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "subtitle": "Règles d'utilisation du service",
+      "sections": [
+        { "heading": "1. Acceptation", "body": "En accédant à ce système DKP vous acceptez ces conditions. Sinon, n'utilisez pas le service." },
+        { "heading": "2. Nature du service", "body": "Outil gratuit, privé, non commercial utilisé par une guilde pour suivre DKP, enchères et sanctions. Fourni « en l'état » sans garantie." },
+        { "heading": "3. Utilisation acceptable", "list": [
+          "Ne pas perturber, pirater ou surcharger le service.",
+          "Ne pas envoyer de contenu faux, harcelant ou illégal.",
+          "Pas d'usage commercial.",
+          "Respecter les autres membres."
+        ] },
+        { "heading": "4. Comptes et accès", "body": "L'accès administrateur est attribué par la direction de la guilde. Les visiteurs publics voient les classements sans compte. Tout abus entraîne révocation." },
+        { "heading": "5. Propriété intellectuelle", "body": "Code, design et contenu (hors données de jeu et contributions utilisateurs) appartiennent aux opérateurs de la guilde. Pas de copie sans autorisation." },
+        { "heading": "6. Avertissement", "body": "Service « en l'état ». Aucune garantie de disponibilité, d'exactitude ou d'adéquation. Aucune responsabilité pour pertes liées à l'usage." },
+        { "heading": "7. Modifications", "body": "Nous pouvons mettre à jour ces conditions à tout moment. L'usage continu vaut acceptation." },
+        { "heading": "8. Loi applicable", "body": "Soumis à la loi du lieu principal de la guilde. Les litiges sont résolus à l'amiable ou devant les tribunaux compétents." },
+        { "heading": "9. Contact", "body": "Questions à l'administrateur de la guilde." }
+      ]
+    },
+    "kvkk": {
+      "title": "Mention KVKK",
+      "subtitle": "Information selon la loi turque sur la protection des données personnelles (KVKK n° 6698)",
+      "sections": [
+        { "heading": "1. Responsable du traitement", "body": "L'administration de la guilde exploite ce système DKP en tant que « veri sorumlusu ». Contact via Discord." },
+        { "heading": "2. Données traitées", "list": [
+          "Nom du joueur (pseudonyme, pas nécessairement nom réel).",
+          "DKP, historique des enchères, sanctions, valeurs de puissance.",
+          "Optionnel : nom et message dans le formulaire de rapport."
+        ] },
+        { "heading": "3. Finalité (art. 5)", "body": "Données traitées uniquement pour gérer l'adhésion, répartir équitablement les DKP et améliorer le service. Basé sur consentement explicite et intérêt légitime." },
+        { "heading": "4. Transfert international (art. 9)", "body": "Service hébergé sur infrastructure pouvant être hors Turquie. En utilisant le service vous donnez votre consentement explicite (« açık rıza ») au transfert à l'étranger." },
+        { "heading": "5. Vos droits (art. 11)", "list": [
+          "Savoir si vos données sont traitées.",
+          "Demander des informations sur le traitement.",
+          "Connaître la finalité et son respect.",
+          "Connaître les destinataires tiers (aucun annonceur).",
+          "Demander rectification de données incomplètes/inexactes.",
+          "Demander suppression selon l'art. 7.",
+          "Vous opposer aux résultats défavorables d'analyses automatisées.",
+          "Demander réparation pour traitement illicite."
+        ] },
+        { "heading": "6. Comment exercer vos droits", "body": "Envoyez votre demande à l'administrateur via Discord ou via la fonction de rapport. Réponse sous 30 jours selon KVKK." },
+        { "heading": "7. Durée de conservation", "body": "Données conservées tant que vous êtes membre actif. À votre demande ou départ, suppression ou anonymisation." },
+        { "heading": "8. Mesures de sécurité", "body": "Mesures techniques et organisationnelles adaptées : hébergement sécurisé, contrôle d'accès, hash des mots de passe, minimisation des données." }
+      ]
+    }
   }
 }

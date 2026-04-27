@@ -61,12 +61,15 @@ import AdminReports from './pages/AdminReports';
 import AdminSettings from './pages/AdminSettings';
 import Auction from './pages/Auction';
 import Charts from './pages/Charts';
+import KVKK from './pages/KVKK';
 import Leaderboard from './pages/Leaderboard';
 import PlayerDetail from './pages/PlayerDetail';
 import Power from './pages/Power';
+import Privacy from './pages/Privacy';
 import Punishments from './pages/Punishments';
 import Results from './pages/Results';
 import Rules from './pages/Rules';
+import Terms from './pages/Terms';
 import Transactions from './pages/Transactions';
 
 
@@ -85,12 +88,15 @@ export const PAGES = {
     "AdminSettings": AdminSettings,
     "Auction": Auction,
     "Charts": Charts,
+    "KVKK": KVKK,
     "Leaderboard": Leaderboard,
     "PlayerDetail": PlayerDetail,
     "Power": Power,
+    "Privacy": Privacy,
     "Punishments": Punishments,
     "Results": Results,
     "Rules": Rules,
+    "Terms": Terms,
     "Transactions": Transactions,
 }
 

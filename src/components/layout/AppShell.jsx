@@ -9,6 +9,7 @@ import { useTranslation } from "@/lib/i18n";
 import AdminSessionGuard from "@/components/AdminSessionGuard";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import ReportButton from "@/components/reports/ReportButton";
+import LegalFooter from "@/components/layout/LegalFooter";
 
 const publicNavConfig = [
   { name: "leaderboard", page: "Leaderboard", icon: Trophy },
@@ -276,6 +277,7 @@ export default function AppShell({ children, currentPageName }) {
         ) : children}
       </main>
 
+      {!isAdmin && !isAdminLogin && <LegalFooter />}
       {!isAdminLogin && <ReportButton />}
     </div>
   );

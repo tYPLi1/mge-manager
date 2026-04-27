@@ -515,5 +515,86 @@
       "stagePrep": "Hazırlık",
       "stageWar": "Savaş"
     }
+  },
+  "legal": {
+    "lastUpdated": "Son güncelleme",
+    "footerNote": "Bu özel bir hayran yapımı lonca yönetim aracıdır. Herhangi bir oyun yayıncısıyla bağlantılı değildir.",
+    "privacy": {
+      "title": "Gizlilik Politikası",
+      "subtitle": "Verilerinizi nasıl işliyoruz",
+      "sections": [
+        { "heading": "1. Giriş", "body": "Bu DKP Sistemi özel, ticari olmayan bir lonca yönetim aracıdır. Gizliliğinize saygı duyuyor ve hizmeti çalıştırmak için yalnızca gerekli minimum veriyi işliyoruz." },
+        { "heading": "2. İşlenen veriler", "list": [
+          "Oyun içi oyuncu adı (lonca yöneticileri tarafından elle girilir).",
+          "DKP bakiyesi, işlem geçmişi, açık artırma teklifleri, ceza kayıtları.",
+          "Opsiyonel: yöneticiler tarafından girilen güç değerleri, etkinlik katılımı.",
+          "Opsiyonel: hata bildirimi gönderirken girdiğiniz isim ve mesaj.",
+          "Teknik: rapor gönderirken tarayıcı user-agent ve sayfa yolu."
+        ] },
+        { "heading": "3. Toplamadığımız veriler", "list": [
+          "Gerçek ad, adres, telefon numarası veya kimlik bilgisi yok.",
+          "Ödeme bilgisi yok — hizmet ücretsizdir.",
+          "Takip çerezi, reklam veya üçüncü taraf analiz profili yok."
+        ] },
+        { "heading": "4. Hukuki dayanak (KVKK / GDPR)", "body": "Verilerinizi açık rızanıza (loncaya katılım ve sistemi kullanım) ve loncayı yönetme meşru menfaatimize dayanarak işliyoruz. Veri yalnızca gerekli olanla sınırlıdır." },
+        { "heading": "5. Veri saklama ve güvenlik", "body": "Veriler endüstri standardı güvenlikle Base44 platformunda barındırılır. Sunucular Türkiye/AB dışında olabilir. Bu hizmeti kullanarak verilerinizin uluslararası aktarılabileceğini kabul etmiş olursunuz." },
+        { "heading": "6. Paylaşım", "body": "Verilerinizi reklamcılarla satmaz, kiralamaz veya paylaşmayız. DKP bakiyeleri ve sıralamalar lonca sitesinin tüm ziyaretçilerine açıktır (aracın amacı budur). Discord bildirimleri oyuncu adınızı ve sıralamanızı içerebilir." },
+        { "heading": "7. Saklama süresi", "body": "Oyuncu ve DKP verileri lonca sistemi çalıştığı sürece saklanır. Hata raporları çözüme kadar tutulur. Silme talebi her zaman yapılabilir." },
+        { "heading": "8. Haklarınız", "list": [
+          "Erişim hakkı — hangi verileri tuttuğumuzu öğrenme.",
+          "Düzeltme hakkı — yanlış verileri düzelttirme.",
+          "Silme hakkı — oyuncu kaydınızın silinmesini talep etme.",
+          "İtiraz hakkı — rıza geri çekme ve hizmeti bırakma."
+        ] },
+        { "heading": "9. İletişim", "body": "Gizlilik talepleri için Discord üzerinden lonca yöneticinize ulaşın veya uygulama içi rapor işlevini kullanın." }
+      ]
+    },
+    "terms": {
+      "title": "Kullanım Şartları",
+      "subtitle": "Bu hizmeti kullanma kuralları",
+      "sections": [
+        { "heading": "1. Kabul", "body": "Bu DKP Sistemine erişerek bu Şartları kabul etmiş olursunuz. Kabul etmiyorsanız hizmeti kullanmayın." },
+        { "heading": "2. Hizmetin niteliği", "body": "Bu, bir oyun loncasının DKP, açık artırma ve cezaları takip etmek için kullandığı ücretsiz, özel, ticari olmayan bir araçtır. „Olduğu gibi“ sağlanır, hiçbir garanti yoktur." },
+        { "heading": "3. Kabul edilebilir kullanım", "list": [
+          "Hizmeti bozma, hackleme veya aşırı yükleme girişiminde bulunmayın.",
+          "Yanlış, taciz edici veya hukuka aykırı içerik göndermeyin.",
+          "Hizmeti ticari amaçla kullanmayın.",
+          "Diğer lonca üyelerine saygı gösterin."
+        ] },
+        { "heading": "4. Hesaplar ve erişim", "body": "Yönetici erişimi lonca liderliği tarafından verilir. Genel ziyaretçiler hesap açmadan sıralama ve sonuçları görebilir. Yönetici bilgilerinin kötüye kullanımı erişimin iptaliyle sonuçlanabilir." },
+        { "heading": "5. Fikri mülkiyet", "body": "DKP Sistemi kodu, tasarımı ve içeriği (oyun verileri ve kullanıcı gönderimleri hariç) lonca operatörlerine aittir. İzinsiz kopyalama veya yeniden dağıtma yasaktır." },
+        { "heading": "6. Sorumluluk reddi", "body": "Hizmet „olduğu gibi“ sağlanır. Çalışma süresi, doğruluk veya belirli bir amaca uygunluk garanti edilmez. Kullanımdan doğan zararlardan sorumlu değiliz." },
+        { "heading": "7. Değişiklikler", "body": "Bu Şartları her zaman güncelleyebiliriz. Değişiklikten sonra kullanmaya devam etmek güncel Şartları kabul ettiğiniz anlamına gelir." },
+        { "heading": "8. Geçerli hukuk", "body": "Bu Şartlar, loncanın birincil konumunda geçerli olan yasalara tabidir. Anlaşmazlıklar dostane veya yetkili mahkemelerde çözülür." },
+        { "heading": "9. İletişim", "body": "Bu Şartlar hakkında sorular lonca yöneticinize gönderilebilir." }
+      ]
+    },
+    "kvkk": {
+      "title": "KVKK Aydınlatma Metni",
+      "subtitle": "6698 Sayılı Kişisel Verilerin Korunması Kanunu kapsamında bilgilendirme",
+      "sections": [
+        { "heading": "1. Veri Sorumlusu", "body": "Lonca yönetimi bu DKP Sistemini „veri sorumlusu“ olarak işletmektedir. Sorularınız için Discord üzerinden lonca yöneticinize ulaşın." },
+        { "heading": "2. İşlenen kişisel veriler", "list": [
+          "Oyun içi oyuncu adı (zorunlu olarak gerçek ad değil, takma addır).",
+          "DKP, açık artırma teklif geçmişi, cezalar, güç değerleri.",
+          "Opsiyonel: hata bildirim formundaki iletişim adı ve mesaj."
+        ] },
+        { "heading": "3. İşleme amacı (Madde 5)", "body": "Veriler yalnızca lonca üyeliğinin yönetimi, DKP ve açık artırma yerlerinin adil dağıtımı ve hizmetin geliştirilmesi amacıyla işlenir. İşleme veri sahibinin açık rızasına ve loncanın meşru menfaatine dayanır." },
+        { "heading": "4. Yurt dışı aktarım (Madde 9)", "body": "Hizmet, Türkiye Cumhuriyeti dışında bulunabilen altyapıda barındırılmaktadır. Bu hizmeti kullanarak, verilerinizin yukarıda belirtilen amaçlarla yurt dışına aktarılmasına açık rıza vermiş olursunuz." },
+        { "heading": "5. Haklarınız (Madde 11)", "list": [
+          "Kişisel verilerinizin işlenip işlenmediğini öğrenme.",
+          "İşleme hakkında bilgi talep etme.",
+          "İşleme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme.",
+          "Aktarıldığı üçüncü kişileri öğrenme (reklam ağlarına aktarmıyoruz).",
+          "Eksik veya yanlış işlenmiş verilerin düzeltilmesini isteme.",
+          "Madde 7 çerçevesinde silinmesini veya yok edilmesini isteme.",
+          "Otomatik analizden çıkan aleyhe sonuçlara itiraz etme.",
+          "Hukuka aykırı işlemeden doğan zararın giderilmesini talep etme."
+        ] },
+        { "heading": "6. Haklarınızı kullanma", "body": "Talebinizi Discord üzerinden lonca yöneticisine veya uygulama içi rapor işleviyle iletin. KVKK gereği 30 gün içinde yanıt vereceğiz." },
+        { "heading": "7. Saklama süresi", "body": "Veriler aktif lonca üyesi olduğunuz sürece saklanır. Talep üzerine veya loncadan ayrıldığınızda kişisel verileriniz silinir veya anonimleştirilir." },
+        { "heading": "8. Güvenlik tedbirleri", "body": "Verinin niteliğine uygun teknik ve idari tedbirler uygularız: güvenli barındırma, erişim kontrolü, parola hash'leme ve veri minimizasyonu." }
+      ]
+    }
   }
 }
