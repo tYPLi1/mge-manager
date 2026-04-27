@@ -17,6 +17,8 @@ export default function LegalFooter() {
     <>
       <style>{`
         .legal-footer-link {
+          position: relative;
+          z-index: 1;
           color: var(--dp-text-dim);
           text-decoration: none;
           font-size: 12px;
@@ -46,12 +48,14 @@ export default function LegalFooter() {
         zIndex: 70,
       }}>
         <div style={{
-          maxWidth: 1400, margin: "0 auto",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          flexWrap: "wrap", gap: 12,
-          paddingRight: 80,
+          maxWidth: 1400,
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
         }}>
-          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
+          <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)", marginRight: 16 }}>
             © {new Date().getFullYear()} AOEM Server #ERA003
           </div>
           <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", margin: -10 }}>
