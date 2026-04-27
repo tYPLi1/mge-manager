@@ -35,7 +35,16 @@ const adminNavConfig = [
 export default function AppShell({ children, currentPageName }) {
   const { t } = useTranslation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [adminNavOpen, setAdminNavOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const saved = localStorage.getItem("adminNavOpen");
+    return saved === null ? true : saved === "true";
+  });
   const [sessionChecked, setSessionChecked] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("adminNavOpen", String(adminNavOpen));
+  }, [adminNavOpen]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -145,36 +154,75 @@ export default function AppShell({ children, currentPageName }) {
         background: "var(--dp-bg-elevated)",
         backdropFilter: "blur(8px)",
       }}>
-        <div style={{
-          maxWidth: 1400, margin: "0 auto", padding: "10px 16px",
-          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-          borderBottom: "1px solid var(--dp-border)",
-        }}>
-          {headerLogo}
+        {isAdmin ? (
+          <>
+            <div style={{
+              maxWidth: 1400, margin: "0 auto", padding: "10px 16px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+              borderBottom: adminNavOpen ? "1px solid var(--dp-border)" : "none",
+            }}>
+              {headerLogo}
 
-          <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            <LanguageSwitcher variant="header" />
-            {headerSecondary}
+              <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <button
+                  onClick={() => setAdminNavOpen(v => !v)}
+                  className="dp-btn-ghost"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                  title={adminNavOpen ? t("common.hideMenu") || "Hide menu" : t("common.showMenu") || "Show menu"}
+                >
+                  {adminNavOpen ? <X size={14} /> : <Menu size={14} />}
+                  {t("common.menu") || "Menu"}
+                </button>
+                <LanguageSwitcher variant="header" />
+                {headerSecondary}
+              </div>
+
+              <button
+                onClick={() => setMobileNavOpen(v => !v)}
+                className="show-mobile-nav"
+                style={{
+                  padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
+                  borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
+                }}
+              >
+                {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
+
+            {adminNavOpen && (
+              <nav className="hide-mobile-nav" style={{
+                maxWidth: 1400, margin: "0 auto", padding: "10px 16px",
+                display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center",
+              }}>
+                {navButtons}
+              </nav>
+            )}
+          </>
+        ) : (
+          <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 12 }}>
+            {headerLogo}
+
+            <nav className="hide-mobile-nav" style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none" }}>
+              {navButtons}
+            </nav>
+
+            <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <LanguageSwitcher variant="header" />
+              {headerSecondary}
+            </div>
+
+            <button
+              onClick={() => setMobileNavOpen(v => !v)}
+              className="show-mobile-nav"
+              style={{
+                padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
+                borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
+              }}
+            >
+              {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
-
-          <button
-            onClick={() => setMobileNavOpen(v => !v)}
-            className="show-mobile-nav"
-            style={{
-              padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
-              borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
-            }}
-          >
-            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-
-        <nav className="hide-mobile-nav" style={{
-          maxWidth: 1400, margin: "0 auto", padding: "10px 16px",
-          display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center",
-        }}>
-          {navButtons}
-        </nav>
+        )}
 
         {mobileNavOpen && (
           <div style={{
