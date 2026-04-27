@@ -252,6 +252,11 @@
     "subtitle": "Règles et directives du système DKP",
     "noRules": "Aucune règle publiée pour le moment."
   },
+  "playerSearch": {
+    "placeholder": "Rechercher un joueur…",
+    "searchInputPlaceholder": "Saisir un nom…",
+    "noResults": "Aucun joueur trouvé"
+  },
   "playerDetail": {
     "backToLeaderboard": "Retour au classement",
     "playerProfile": "Profil du joueur",

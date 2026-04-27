@@ -1,11 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, Search } from "lucide-react";
+import AllianceBadge from "@/components/dkp/AllianceBadge";
+import { useTranslation } from "@/lib/i18n";
 
-export default function PlayerSearchSelect({ players, value, onValueChange, placeholder = "Spieler suchen..." }) {
+export default function PlayerSearchSelect({ players, value, onValueChange, placeholder }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef(null);
   const inputRef = useRef(null);
+
+  const effectivePlaceholder = placeholder || t("playerSearch.placeholder");
 
   const selected = players.find((p) => p.id === value);
 
@@ -42,8 +47,11 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
         onClick={handleOpen}
         className="w-full flex items-center justify-between gap-2 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-left hover:bg-white/10 transition-colors"
       >
-        <span className={selected ? "text-white" : "text-gray-500"}>
-          {selected ? selected.name : placeholder}
+        <span className="flex items-center gap-2 min-w-0">
+          <span className={`truncate ${selected ? "text-white" : "text-gray-500"}`}>
+            {selected ? selected.name : effectivePlaceholder}
+          </span>
+          {selected?.alliance && <AllianceBadge alliance={selected.alliance} />}
         </span>
         <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
       </button>
@@ -57,24 +65,27 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Name eingeben..."
+              placeholder={t("playerSearch.searchInputPlaceholder")}
               className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-600 focus:outline-none"
             />
           </div>
           <div className="max-h-52 overflow-y-auto">
             {filtered.length === 0 && (
-              <div className="px-3 py-3 text-xs text-gray-500 text-center">Kein Spieler gefunden</div>
+              <div className="px-3 py-3 text-xs text-gray-500 text-center">
+                {t("playerSearch.noResults")}
+              </div>
             )}
             {filtered.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => handleSelect(p)}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-white/10 transition-colors ${
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-white/10 transition-colors flex items-center justify-between gap-2 ${
                   p.id === value ? "text-amber-400 bg-amber-500/10" : "text-white"
                 }`}
               >
-                {p.name}
+                <span className="truncate">{p.name}</span>
+                {p.alliance && <AllianceBadge alliance={p.alliance} />}
               </button>
             ))}
           </div>

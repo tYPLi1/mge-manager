@@ -45,10 +45,13 @@ export default function AdminDKP() {
         player_name: player?.name,
       });
       // Update player DKP
+      // Convention: dkp_spent is stored as a NEGATIVE value (e.g. -660),
+      // so currentDkp = total_dkp + dkp_spent. When recording a bid here,
+      // we subtract |amt| from the existing (negative) dkp_spent.
       const amt = parseInt(data.amount);
       if (data.type === "bid") {
         await adminEntities.Player.update(data.player_id, {
-          dkp_spent: (player?.dkp_spent || 0) + Math.abs(amt),
+          dkp_spent: (player?.dkp_spent || 0) - Math.abs(amt),
         });
       } else {
         await adminEntities.Player.update(data.player_id, {

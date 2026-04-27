@@ -252,6 +252,11 @@
     "subtitle": "DKP 系统规则与指引",
     "noRules": "尚未发布任何规则。"
   },
+  "playerSearch": {
+    "placeholder": "搜索玩家…",
+    "searchInputPlaceholder": "输入名称…",
+    "noResults": "未找到玩家"
+  },
   "playerDetail": {
     "backToLeaderboard": "返回排行榜",
     "playerProfile": "玩家档案",

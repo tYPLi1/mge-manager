@@ -9,6 +9,7 @@ import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
 import PlayerDKPChart from "@/components/dkp/PlayerDKPChart";
 import PlayerPowerChart from "@/components/dkp/PlayerPowerChart";
+import AllianceBadge from "@/components/dkp/AllianceBadge";
 import { useTranslation } from "@/lib/i18n";
 
 export default function PlayerDetail() {
@@ -66,7 +67,13 @@ export default function PlayerDetail() {
         </Link>
       </div>
 
-      <PageHeader title={player.name} subtitle={t("playerDetail.playerProfile")} icon={Trophy} />
+      <PageHeader
+        title={player.name}
+        subtitle={t("playerDetail.playerProfile")}
+        icon={Trophy}
+      >
+        <AllianceBadge alliance={player.alliance} size="md" />
+      </PageHeader>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -125,12 +132,12 @@ export default function PlayerDetail() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {transactions.map(t => (
-                <tr key={t.id} className="hover:bg-white/[0.02]">
-                  <td className="px-3 py-2 text-xs text-gray-400">{t.event_date}</td>
-                  <td className="px-3 py-2 text-sm text-white">{t.source}{t.source_stage ? ` (${t.source_stage})` : ""}</td>
-                  <td className="px-3 py-2 text-xs text-gray-500 hidden sm:table-cell">{t.type}</td>
-                  <td className="px-3 py-2"><DKPValue value={t.amount} size="sm" showSign /></td>
+              {transactions.map(tx => (
+                <tr key={tx.id} className="hover:bg-white/[0.02]">
+                  <td className="px-3 py-2 text-xs text-gray-400">{tx.event_date}</td>
+                  <td className="px-3 py-2 text-sm text-white">{tx.source}{tx.source_stage ? ` (${tx.source_stage})` : ""}</td>
+                  <td className="px-3 py-2 text-xs text-gray-500 hidden sm:table-cell">{tx.type}</td>
+                  <td className="px-3 py-2"><DKPValue value={tx.amount} size="sm" showSign /></td>
                 </tr>
               ))}
             </tbody>

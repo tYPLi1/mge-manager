@@ -261,6 +261,11 @@
     "subtitle": "DKP sistemi kuralları ve yönergeleri",
     "noRules": "Henüz yayınlanmış bir kural yok."
   },
+  "playerSearch": {
+    "placeholder": "Oyuncu ara…",
+    "searchInputPlaceholder": "İsim gir…",
+    "noResults": "Oyuncu bulunamadı"
+  },
   "playerDetail": {
     "backToLeaderboard": "Sıralamaya Dön",
     "playerProfile": "Oyuncu Profili",

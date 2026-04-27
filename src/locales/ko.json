@@ -252,6 +252,11 @@
     "subtitle": "DKP 시스템 규칙 및 가이드라인",
     "noRules": "아직 게시된 규칙이 없습니다."
   },
+  "playerSearch": {
+    "placeholder": "플레이어 검색…",
+    "searchInputPlaceholder": "이름 입력…",
+    "noResults": "플레이어를 찾을 수 없습니다"
+  },
   "playerDetail": {
     "backToLeaderboard": "순위표로 돌아가기",
     "playerProfile": "플레이어 프로필",

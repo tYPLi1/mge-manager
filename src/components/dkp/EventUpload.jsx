@@ -32,6 +32,17 @@ export default function EventUpload({ players, eventTypes }) {
   const eventsEnabled = settings.find(s => s.key === "discord_events_enabled")?.value === "true";
   const channelId = settings.find(s => s.key === "discord_auction_channel")?.value;
 
+  // Parse alliances for Auto-Create dropdown
+  const alliances = (() => {
+    const json = settings.find(s => s.key === "alliances")?.value;
+    if (!json) return [];
+    try {
+      const arr = JSON.parse(json);
+      return Array.isArray(arr) ? arr.filter(a => a && typeof a.name === "string").map(a => a.name) : [];
+    } catch { return []; }
+  })();
+  const [newPlayerAlliance, setNewPlayerAlliance] = useState("");
+
   const selectedEventType = eventTypes.find(e => e.id === eventTypeId);
   const isYN = selectedEventType?.participation_type === "yn";
   const hasMultipleStages = selectedEventType?.has_prep_stage && selectedEventType?.has_war_stage;
@@ -216,7 +227,10 @@ export default function EventUpload({ players, eventTypes }) {
 
   const createMissingPlayers = async () => {
     setCreatingPlayers(true);
-    await adminEntities.Player.bulkCreate(unknownNames.map(name => ({ name, total_dkp: 0, dkp_spent: 0 })));
+    const allianceField = newPlayerAlliance ? { alliance: newPlayerAlliance } : {};
+    await adminEntities.Player.bulkCreate(
+      unknownNames.map(name => ({ name, total_dkp: 0, dkp_spent: 0, ...allianceField }))
+    );
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setCreatingPlayers(false);
     setUnknownNames([]);
@@ -456,6 +470,24 @@ export default function EventUpload({ players, eventTypes }) {
              <p className="text-xs text-yellow-300/80 font-mono">{unknownNames.join(", ")}</p>
             </div>
             </div>
+            {alliances.length > 0 && (
+              <div className="mt-2 mb-2">
+                <Label className="text-yellow-400/80 text-[11px] uppercase tracking-wider mb-1 block">
+                  Assign alliance to new players
+                </Label>
+                <Select value={newPlayerAlliance} onValueChange={setNewPlayerAlliance}>
+                  <SelectTrigger className="bg-white/5 border-yellow-500/30 text-white text-xs h-8">
+                    <SelectValue placeholder="No alliance (assign later)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>No alliance (assign later)</SelectItem>
+                    {alliances.map(name => (
+                      <SelectItem key={name} value={name}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button
             size="sm"
             onClick={createMissingPlayersGuarded}
@@ -463,7 +495,7 @@ export default function EventUpload({ players, eventTypes }) {
             className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/30 text-xs mt-1"
             >
             <UserPlus className="w-3.5 h-3.5 mr-1" />
-            {creatingPlayers ? "Creating..." : `Create ${unknownNames.length} players & reload`}
+            {creatingPlayers ? "Creating..." : `Create ${unknownNames.length} players${newPlayerAlliance ? ` in [${newPlayerAlliance}]` : ""} & reload`}
           </Button>
         </div>
       )}

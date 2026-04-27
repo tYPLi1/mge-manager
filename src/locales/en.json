@@ -261,6 +261,11 @@
     "subtitle": "DKP system rules and guidelines",
     "noRules": "No rules have been published yet."
   },
+  "playerSearch": {
+    "placeholder": "Search player…",
+    "searchInputPlaceholder": "Type a name…",
+    "noResults": "No player found"
+  },
   "playerDetail": {
     "backToLeaderboard": "Back to Leaderboard",
     "playerProfile": "Player Profile",
