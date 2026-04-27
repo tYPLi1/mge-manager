@@ -146,7 +146,7 @@ export default function AppShell({ children, currentPageName }) {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--dp-bg)", color: "var(--dp-text)", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "var(--dp-bg)", color: "var(--dp-text)", position: "relative", display: "flex", flexDirection: "column" }}>
       <div className="dp-bg-grain" />
 
       <header style={{
@@ -271,7 +271,7 @@ export default function AppShell({ children, currentPageName }) {
         `}</style>
       </header>
 
-      <main style={{ position: "relative", maxWidth: 1400, margin: "0 auto", padding: "28px 24px", zIndex: 1 }}>
+      <main style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "0 auto", padding: "28px 24px", zIndex: 1, flex: 1 }}>
         {isAdmin && currentPageName !== "AdminAppManagement" ? (
           <AdminSessionGuard>{children}</AdminSessionGuard>
         ) : children}
