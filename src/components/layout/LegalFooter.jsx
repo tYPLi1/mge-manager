@@ -11,7 +11,9 @@ export default function LegalFooter() {
     fontSize: 12,
     transition: "color 0.15s ease",
     cursor: "pointer",
-    padding: "4px 2px",
+    padding: "8px 10px",
+    display: "inline-block",
+    lineHeight: 1,
     position: "relative",
     zIndex: 1,
   };
@@ -33,7 +35,7 @@ export default function LegalFooter() {
         <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
           © {new Date().getFullYear()} AOEM Server #ERA003
         </div>
-        <nav style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
+        <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", margin: -8 }}>
           <Link to={createPageUrl("Imprint")} style={linkStyle}>{t("legal.imprint.title")}</Link>
           <Link to={createPageUrl("Privacy")} style={linkStyle}>{t("legal.privacy.title")}</Link>
           <Link to={createPageUrl("Terms")} style={linkStyle}>{t("legal.terms.title")}</Link>
