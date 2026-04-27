@@ -7,6 +7,7 @@ import PageHeader from "@/components/dkp/PageHeader";
 import PlayerDKPChart from "@/components/dkp/PlayerDKPChart";
 import PlayerPowerChart from "@/components/dkp/PlayerPowerChart";
 import PlayerDKPCumulativeChart from "@/components/dkp/PlayerDKPCumulativeChart";
+import EmptyState from "@/components/dp/EmptyState";
 import { useTranslation } from "@/lib/i18n";
 
 export default function Charts() {
@@ -96,10 +97,11 @@ export default function Charts() {
           <PlayerPowerChart powerHistory={powerHistory} currentPower={selectedPlayer?.power} />
         </div>
       ) : (
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-12 text-center">
-          <BarChart3 className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">{t("charts.selectPrompt")}</p>
-        </div>
+        <EmptyState
+          icon={BarChart3}
+          title={t("charts.selectPlayer")}
+          description={t("charts.selectPrompt")}
+        />
       )}
     </div>
   );

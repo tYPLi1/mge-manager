@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trophy, Calendar, Award, ChevronRight, ScrollText } from "lucide-react";
 import DPPageHeader from "@/components/dp/PageHeader";
+import EmptyState from "@/components/dp/EmptyState";
 import { useTranslation } from "@/lib/i18n";
 
 const DEFAULT_MGE_TARGETS = [
@@ -18,9 +19,12 @@ const DEFAULT_MGE_TARGETS = [
   { rank: 10, medals: 10, target: 12000000 },
 ];
 
+const PAGE_SIZE = 8;
+
 export default function Results() {
   const { t } = useTranslation();
   const [selectedAuction, setSelectedAuction] = useState(null);
+  const [pastPage, setPastPage] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: auctions = [], isLoading } = useQuery({
@@ -269,45 +273,79 @@ export default function Results() {
           <div style={{ width: 32, height: 32, border: "3px solid var(--dp-border)", borderTopColor: "var(--dp-accent)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
         </div>
       ) : auctions.length === 0 ? (
-        <div className="dp-card-elevated" style={{ padding: 48, textAlign: "center" }}>
-          <ScrollText size={36} style={{ color: "var(--dp-text-dim)", margin: "0 auto 12px" }} />
-          <p style={{ fontSize: 13, color: "var(--dp-text-muted)", margin: 0 }}>{t("results.noConfirmed")}</p>
-        </div>
+        <EmptyState
+          icon={ScrollText}
+          title={t("results.noConfirmed")}
+          description={t("results.subtitle")}
+        />
       ) : null}
 
-      {auctions.length > 1 && (
-        <div>
-          <h2 className="dp-heading" style={{ fontSize: 16, fontWeight: 600, margin: "0 0 12px" }}>
-            {t("results.pastAuctions")}
-          </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {auctions.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setSelectedAuction(a)}
-                className="dp-card dp-hover-row"
-                style={{
-                  padding: "14px 18px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  cursor: "pointer", gap: 12, flexWrap: "wrap",
-                  background: selectedAuction?.id === a.id ? "var(--dp-accent-soft)" : "var(--dp-bg-card)",
-                  borderColor: selectedAuction?.id === a.id ? "var(--dp-accent-border)" : "var(--dp-border)",
-                  textAlign: "left", color: "var(--dp-text)", fontFamily: "inherit",
-                  width: "100%",
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 4 }}>{a.title}</div>
-                  <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
-                    {a.confirmed_at ? new Date(a.confirmed_at).toLocaleDateString("en-US", { timeZone: "UTC" }) : ""}
-                  </div>
+      {auctions.length > 1 && (() => {
+        const totalPages = Math.ceil(auctions.length / PAGE_SIZE);
+        const safePage = Math.min(pastPage, totalPages - 1);
+        const slice = auctions.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+        return (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+              <h2 className="dp-heading" style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>
+                {t("results.pastAuctions")} <span style={{ color: "var(--dp-text-dim)", fontWeight: 400 }}>({auctions.length})</span>
+              </h2>
+              {totalPages > 1 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    className="dp-btn-ghost dp-touch-target"
+                    onClick={() => setPastPage(p => Math.max(0, p - 1))}
+                    disabled={safePage === 0}
+                    style={{ opacity: safePage === 0 ? 0.4 : 1, padding: "6px 10px" }}
+                    aria-label={t("common.previous")}
+                  >
+                    {t("common.previous")}
+                  </button>
+                  <span style={{ fontSize: 12, color: "var(--dp-text-dim)" }}>
+                    {safePage + 1} / {totalPages}
+                  </span>
+                  <button
+                    className="dp-btn-ghost dp-touch-target"
+                    onClick={() => setPastPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={safePage >= totalPages - 1}
+                    style={{ opacity: safePage >= totalPages - 1 ? 0.4 : 1, padding: "6px 10px" }}
+                    aria-label={t("common.next")}
+                  >
+                    {t("common.next")}
+                  </button>
                 </div>
-                <ChevronRight size={16} style={{ color: selectedAuction?.id === a.id ? "var(--dp-accent)" : "var(--dp-text-dim)" }} />
-              </button>
-            ))}
+              )}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {slice.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => setSelectedAuction(a)}
+                  className="dp-card dp-hover-row"
+                  aria-pressed={selectedAuction?.id === a.id}
+                  style={{
+                    padding: "14px 18px",
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    cursor: "pointer", gap: 12, flexWrap: "wrap",
+                    background: selectedAuction?.id === a.id ? "var(--dp-accent-soft)" : "var(--dp-bg-card)",
+                    borderColor: selectedAuction?.id === a.id ? "var(--dp-accent-border)" : "var(--dp-border)",
+                    textAlign: "left", color: "var(--dp-text)", fontFamily: "inherit",
+                    width: "100%", minHeight: 44,
+                  }}
+                >
+                  <div className="dp-truncate" style={{ flex: 1 }}>
+                    <div className="dp-truncate" style={{ fontWeight: 500, fontSize: 14, marginBottom: 4 }} title={a.title}>{a.title}</div>
+                    <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
+                      {a.confirmed_at ? new Date(a.confirmed_at).toLocaleDateString("en-US", { timeZone: "UTC" }) : ""}
+                    </div>
+                  </div>
+                  <ChevronRight size={16} style={{ color: selectedAuction?.id === a.id ? "var(--dp-accent)" : "var(--dp-text-dim)" }} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

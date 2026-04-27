@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Shield, AlertTriangle, CheckCircle2, Clock, Filter } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Clock, Filter, ShieldCheck } from "lucide-react";
 import DPPageHeader from "@/components/dp/PageHeader";
+import EmptyState from "@/components/dp/EmptyState";
 import { useTranslation } from "@/lib/i18n";
 
 const levelStyle = (level) => {
@@ -106,7 +107,7 @@ export default function Punishments() {
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                     <div style={{ minWidth: 0, flex: "1 1 200px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
-                        <span style={{ fontWeight: 600, fontSize: 15 }}>{p.player_name}</span>
+                        <span className="dp-truncate" style={{ fontWeight: 600, fontSize: 15, maxWidth: 240 }} title={p.player_name}>{p.player_name}</span>
                         <span className="dp-badge" style={{ background: ls.bg, color: ls.color, border: `1px solid ${ls.border}` }}>
                           <Shield size={11} /> {t("punishments.level", { n: p.level })}
                         </span>
@@ -185,9 +186,11 @@ export default function Punishments() {
       )}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="dp-card-elevated" style={{ padding: 40, textAlign: "center", color: "var(--dp-text-dim)", fontSize: 13 }}>
-          {t("punishments.noPenalties")}
-        </div>
+        <EmptyState
+          icon={ShieldCheck}
+          title={t("punishments.noPenalties")}
+          description={t("punishments.subtitle")}
+        />
       )}
     </div>
   );

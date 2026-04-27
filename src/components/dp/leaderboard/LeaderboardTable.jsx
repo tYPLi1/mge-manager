@@ -68,7 +68,7 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
   return (
     <div className="dp-card-elevated" style={{ overflow: "hidden" }}>
       <div style={{ overflowX: "auto", maxHeight: "calc(100vh - 280px)" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
+        <table className="dp-table-sticky-first" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
           <thead>
             <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)", position: "sticky", top: 0, zIndex: 5 }}>
               <th style={{ ...thBase, textAlign: "left", width: 56 }}>#</th>

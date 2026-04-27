@@ -130,8 +130,39 @@ body {
   background: linear-gradient(90deg, transparent, var(--dp-border), transparent);
 }
 
-.dp-hover-row { transition: background 0.15s ease; }
+.dp-hover-row { transition: background 0.15s ease, transform 0.15s ease; }
 .dp-hover-row:hover { background: var(--dp-bg-hover); }
+tr.dp-hover-row:hover { background: rgba(212, 168, 89, 0.06); }
+
+/* Sticky first column for leaderboard table on horizontal scroll */
+.dp-table-sticky-first td:first-child,
+.dp-table-sticky-first th:first-child,
+.dp-table-sticky-first td:nth-child(2),
+.dp-table-sticky-first th:nth-child(2) {
+  position: sticky;
+  background: var(--dp-bg-card);
+  z-index: var(--dp-z-sticky);
+}
+.dp-table-sticky-first th:first-child,
+.dp-table-sticky-first td:first-child { left: 0; }
+.dp-table-sticky-first th:nth-child(2),
+.dp-table-sticky-first td:nth-child(2) { left: 56px; }
+.dp-table-sticky-first thead th { background: var(--dp-bg-elevated); }
+.dp-table-sticky-first tr.dp-rank-1 td:first-child,
+.dp-table-sticky-first tr.dp-rank-1 td:nth-child(2),
+.dp-table-sticky-first tr.dp-rank-2 td:first-child,
+.dp-table-sticky-first tr.dp-rank-2 td:nth-child(2),
+.dp-table-sticky-first tr.dp-rank-3 td:first-child,
+.dp-table-sticky-first tr.dp-rank-3 td:nth-child(2) {
+  background: var(--dp-bg-card);
+}
+.dp-table-sticky-first tr.dp-hover-row:hover td:first-child,
+.dp-table-sticky-first tr.dp-hover-row:hover td:nth-child(2) {
+  background: rgba(38, 42, 53, 1);
+}
+
+/* Text truncation helper for long names */
+.dp-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 .dp-rank-1 { background: linear-gradient(135deg, rgba(212, 168, 89, 0.18), rgba(212, 168, 89, 0.04)); border-left: 2px solid var(--dp-accent); }
 .dp-rank-2 { background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), transparent); border-left: 2px solid #c0c0c0; }

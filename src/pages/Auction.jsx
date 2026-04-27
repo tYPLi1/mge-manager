@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Lock, Users, Gavel, CheckCircle2, AlertTriangle, Ban, Clock, CalendarClock } from "lucide-react";
+import { Lock, Users, Gavel, CheckCircle2, AlertTriangle, Ban, Clock, CalendarClock, ScrollText } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 import DPPageHeader from "@/components/dp/PageHeader";
+import EmptyState from "@/components/dp/EmptyState";
 import { useTranslation } from "@/lib/i18n";
 
 function ensureUTC(dateStr) {
@@ -123,11 +127,10 @@ export default function Auction() {
   const currentAuction = rawAuction ? { ...rawAuction, _effectiveStatus: effectiveStatus } : null;
 
   useEffect(() => {
+    // Subscriptions handle real-time updates; light 60s safety poll for auctions only (no bid/player streaming).
     const interval = setInterval(() => {
       queryClient.invalidateQueries({ queryKey: ["auctions"] });
-      queryClient.invalidateQueries({ queryKey: ["bids-public"] });
-      queryClient.invalidateQueries({ queryKey: ["players"] });
-    }, 10000);
+    }, 60000);
     const unsub1 = base44.entities.Bid.subscribe(() => queryClient.invalidateQueries({ queryKey: ["bids-public"] }));
     const unsub2 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
     return () => { clearInterval(interval); unsub1(); unsub2(); };
@@ -188,8 +191,9 @@ export default function Auction() {
       });
       if (res.data?.error) { setBidError(res.data.error); setSubmitting(false); return; }
       setSubmitted(true);
+      toast.success(t("auction.bidSubmitted"), { description: t("auction.bidSubmittedDesc") });
     } catch (err) {
-      setBidError(err?.response?.data?.error || err?.message || "Bid submission failed");
+      setBidError(err?.response?.data?.error || err?.message || t("auction.errors.GENERIC"));
     }
     setSubmitting(false);
   };
@@ -209,11 +213,16 @@ export default function Auction() {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <DPPageHeader title={t("auction.title")} />
-        <div className="dp-card-elevated" style={{ padding: 48, textAlign: "center" }}>
-          <Gavel size={40} style={{ color: "var(--dp-text-dim)", margin: "0 auto 16px" }} />
-          <h2 className="dp-heading" style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{t("auction.noActive")}</h2>
-          <p style={{ color: "var(--dp-text-muted)", fontSize: 13.5, margin: 0 }}>{t("auction.noActiveDesc")}</p>
-        </div>
+        <EmptyState
+          icon={Gavel}
+          title={t("auction.noActive")}
+          description={t("auction.noActiveDesc")}
+          action={
+            <Link to={createPageUrl("Results")} className="dp-btn-ghost" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+              <ScrollText size={14} aria-hidden="true" /> {t("results.pastAuctions")}
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -591,7 +600,14 @@ function ClosedView({ auction, t, fixedAssignments = [] }) {
         <p style={{ fontSize: 13.5, color: "var(--dp-text-muted)", margin: 0, marginBottom: 8 }}>
           {t("auction.biddingClosedDesc", { title: auction.title })}
         </p>
-        <p style={{ fontSize: 12, color: "var(--dp-text-dim)" }}>{t("auction.resultsSoon")}</p>
+        <p style={{ fontSize: 12, color: "var(--dp-text-dim)", marginBottom: 18 }}>{t("auction.resultsSoon")}</p>
+        <Link
+          to={createPageUrl("Results")}
+          className="dp-btn-primary"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}
+        >
+          <ScrollText size={14} aria-hidden="true" /> {t("results.pastAuctions")}
+        </Link>
       </div>
     </div>
   );
