@@ -518,6 +518,24 @@
   },
   "legal": {
     "lastUpdated": "Son güncelleme",
+    "imprint": {
+      "title": "Künye",
+      "subtitle": "Bu web sitesinin işletmecisi hakkında bilgi",
+      "sections": [
+        { "heading": "İşletmeci", "body": "Bu uygulama „AOEM Server #ERA003“ (Age of Empires Mobile) lonca topluluğu için özel ve ticari olmayan amaçla işletilmektedir. DKP, açık artırma ve lonca istatistiklerinin dahili yönetimi için bir hayran aracıdır." },
+        { "heading": "Sorumlu kişi", "list": [
+          "İsviçre DSG Md. 3 lit. j uyarınca sorumlu: tYPLi1",
+          "Konum: İsviçre"
+        ] },
+        { "heading": "İletişim", "list": [
+          "Discord: tYPLi1",
+          "Alternatif: uygulama içi „Hata/Geri Bildirim Bildir“ fonksiyonu"
+        ] },
+        { "heading": "Lonca hakkında", "body": "„AOEM Server #ERA003“ Age of Empires Mobile oyunundaki bir oyuncu topluluğunu ifade eder. Bu site Tencent, Timi Studio Group, Microsoft, World's Edge veya diğer hak sahipleriyle ilişkili değildir." },
+        { "heading": "Sorumluluk reddi", "body": "İçerik özenle hazırlanır. Doğruluk, eksiksizlik ve güncellik için garanti verilmez. Araç özel ve ücretsiz işletildiği için kullanılabilirlik talebi yoktur." },
+        { "heading": "Telif hakkı", "body": "Kod, tasarım ve oluşturulan içerik İsviçre Telif Hakkı Yasasına (URG) tabidir. Yalnızca işletmecinin onayıyla kopyalanabilir." }
+      ]
+    },
     "footerNote": "Bu özel bir hayran yapımı lonca yönetim aracıdır. Herhangi bir oyun yayıncısıyla bağlantılı değildir.",
     "privacy": {
       "title": "Gizlilik Politikası",

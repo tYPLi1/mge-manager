@@ -479,6 +479,24 @@
   },
   "legal": {
     "lastUpdated": "최종 업데이트",
+    "imprint": {
+      "title": "사이트 정보",
+      "subtitle": "본 웹사이트 운영자에 관한 정보",
+      "sections": [
+        { "heading": "운영자", "body": "본 웹 애플리케이션은 「AOEM Server #ERA003」(Age of Empires Mobile) 길드를 위해 비상업적, 사적으로 운영됩니다. DKP, 경매 및 길드 통계의 내부 관리를 위한 팬 제작 도구입니다." },
+        { "heading": "책임자", "list": [
+          "스위스 연방 데이터보호법 제3조 j항에 따른 책임자: tYPLi1",
+          "위치: 스위스"
+        ] },
+        { "heading": "연락처", "list": [
+          "Discord: tYPLi1",
+          "또는 앱 내 「버그/피드백 보고」 기능"
+        ] },
+        { "heading": "길드 정보", "body": "「AOEM Server #ERA003」은 Age of Empires Mobile 게임의 플레이어 커뮤니티를 가리킵니다. 본 사이트는 Tencent, Timi Studio Group, Microsoft, World's Edge 또는 기타 권리자와 관련이 없습니다." },
+        { "heading": "면책조항", "body": "콘텐츠는 세심하게 작성됩니다. 정확성, 완전성 또는 최신성에 대해 보증하지 않습니다. 사적이고 무료로 운영되므로 가용성을 보장하지 않습니다." },
+        { "heading": "저작권", "body": "코드, 디자인 및 자체 제작 콘텐츠는 스위스 저작권법(URG)의 보호를 받습니다. 운영자의 동의 없이 복제할 수 없습니다." }
+      ]
+    },
     "footerNote": "팬이 만든 비공개 길드 관리 도구입니다. 어떤 게임 퍼블리셔와도 관련이 없습니다.",
     "privacy": {
       "title": "개인정보 처리방침",

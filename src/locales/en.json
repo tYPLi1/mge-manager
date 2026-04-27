@@ -518,6 +518,25 @@
   },
   "legal": {
     "lastUpdated": "Last updated",
+    "imprint": {
+      "title": "Imprint",
+      "subtitle": "Information about the operator of this website",
+      "sections": [
+        { "heading": "Operator", "body": "This web application is operated privately and non-commercially for the gaming guild „AOEM Server #ERA003“ (Age of Empires Mobile). It is a fan-made tool for internal management of DKP, auctions and guild statistics." },
+        { "heading": "Responsible person", "list": [
+          "Responsible under Art. 3 lit. j Swiss FADP and § 5 TMG (Germany, where applicable): tYPLi1",
+          "Location: Switzerland"
+        ] },
+        { "heading": "Contact", "list": [
+          "Discord: tYPLi1",
+          "Alternatively: in-app „Report bug/feedback“ function"
+        ] },
+        { "heading": "About the guild", "body": "„AOEM Server #ERA003“ refers to a player community in the game Age of Empires Mobile. This website is not affiliated with Tencent, Timi Studio Group, Microsoft, World's Edge or other rights holders. All game names, logos and trademarks belong to their respective owners." },
+        { "heading": "Disclaimer", "body": "Content is created with great care. No warranty is given for accuracy, completeness or timeliness. As the tool is operated privately and free of charge, there is no claim to availability." },
+        { "heading": "External links", "body": "External links (e.g. Discord, game publishers) are the sole responsibility of their operators. At the time of linking, no illegal content was identifiable." },
+        { "heading": "Copyright", "body": "Code, design and self-created content are subject to Swiss copyright law (URG). Reproduction or reuse only with the operator's consent." }
+      ]
+    },
     "footerNote": "This is a private fan-made guild management tool. Not affiliated with any game publisher.",
     "privacy": {
       "title": "Privacy Policy",
@@ -536,7 +555,7 @@
           "No payment data — the service is free.",
           "No tracking cookies, no advertising, no third-party analytics profiling."
         ] },
-        { "heading": "4. Legal basis (GDPR / KVKK)", "body": "We process your data based on your consent (joining the guild and using the system) and our legitimate interest in operating the guild. The data is strictly limited to what is necessary." },
+        { "heading": "4. Legal basis (Swiss FADP / GDPR / KVKK)", "body": "Data controller: tYPLi1 (Switzerland), operator of the AOEM Server #ERA003 tool. We process data based on your consent (Art. 6 Swiss FADP) and the legitimate interest of operating the guild. For EU users the GDPR additionally applies. Swiss supervisory authority: Federal Data Protection and Information Commissioner (FDPIC), www.edoeb.admin.ch. Data is strictly limited to what is necessary." },
         { "heading": "5. Data storage & security", "body": "Data is hosted on the Base44 platform with industry-standard security. Servers may be located outside Turkey/EU. By using this service you acknowledge that your data may be transferred internationally." },
         { "heading": "6. Sharing", "body": "We do not sell, rent, or share your data with advertisers. DKP balances and rankings are visible publicly to all visitors of this guild site (this is the purpose of the tool). Discord notifications may include your in-game name and ranking." },
         { "heading": "7. Retention", "body": "Player and DKP data is kept as long as the guild operates the system. Bug reports are kept until resolved. You can request deletion at any time (see contact)." },
@@ -546,7 +565,7 @@
           "Right to erasure — ask us to delete your player record.",
           "Right to object — withdraw consent and stop using the service."
         ] },
-        { "heading": "9. Contact", "body": "For any privacy request, contact your guild admin via Discord or use the in-app report function." }
+        { "heading": "9. Contact", "body": "For any privacy request, contact tYPLi1 via Discord or use the in-app report function. Response usually within 30 days." }
       ]
     },
     "terms": {
@@ -565,8 +584,8 @@
         { "heading": "5. Intellectual property", "body": "The DKP System code, design, and content (excluding game data and user-submitted information) belong to the guild operators. You may not copy or redistribute the system without permission." },
         { "heading": "6. Disclaimer", "body": "The service is provided “as is”. We do not guarantee uptime, accuracy, or fitness for any particular purpose. We are not liable for any loss arising from use of the service." },
         { "heading": "7. Changes", "body": "We may update these Terms at any time. Continued use after changes means you accept the updated Terms." },
-        { "heading": "8. Governing law", "body": "These Terms are governed by the laws applicable to the guild's primary location. Disputes shall be resolved amicably or in the competent courts." },
-        { "heading": "9. Contact", "body": "Questions about these Terms can be sent to your guild admin." }
+        { "heading": "8. Governing law", "body": "Swiss law applies, excluding the UN Convention on Contracts for the International Sale of Goods. Place of jurisdiction is the operator's domicile in Switzerland, to the extent legally permitted." },
+        { "heading": "9. Contact", "body": "Questions about these Terms can be sent to tYPLi1 via Discord." }
       ]
     },
     "kvkk": {

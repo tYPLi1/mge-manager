@@ -483,6 +483,24 @@
   },
   "legal": {
     "lastUpdated": "Dernière mise à jour",
+    "imprint": {
+      "title": "Mentions légales",
+      "subtitle": "Informations sur l'exploitant de ce site",
+      "sections": [
+        { "heading": "Exploitant", "body": "Cette application web est exploitée de manière privée et non commerciale pour la guilde „AOEM Server #ERA003“ (Age of Empires Mobile). C'est un outil créé par des fans pour la gestion interne des DKP, enchères et statistiques." },
+        { "heading": "Personne responsable", "list": [
+          "Responsable au sens de l'art. 3 let. j LPD (Suisse) : tYPLi1",
+          "Lieu : Suisse"
+        ] },
+        { "heading": "Contact", "list": [
+          "Discord : tYPLi1",
+          "Alternative : fonction « Signaler bug/retour » dans l'app"
+        ] },
+        { "heading": "À propos de la guilde", "body": "„AOEM Server #ERA003“ désigne une communauté de joueurs du jeu Age of Empires Mobile. Ce site n'est affilié ni à Tencent, Timi Studio Group, Microsoft, World's Edge ni à d'autres ayants droit." },
+        { "heading": "Avertissement", "body": "Le contenu est créé avec le plus grand soin. Aucune garantie n'est donnée quant à l'exactitude, l'exhaustivité ou l'actualité. L'outil étant privé et gratuit, aucune disponibilité n'est garantie." },
+        { "heading": "Droits d'auteur", "body": "Le code, le design et le contenu créé sont soumis à la loi suisse sur le droit d'auteur (URG). Reproduction uniquement avec accord de l'exploitant." }
+      ]
+    },
     "footerNote": "Outil privé de gestion de guilde créé par des fans. Aucune affiliation avec un éditeur de jeu.",
     "privacy": {
       "title": "Politique de confidentialité",

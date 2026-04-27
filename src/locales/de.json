@@ -518,6 +518,25 @@
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",
+    "imprint": {
+      "title": "Impressum",
+      "subtitle": "Verantwortlich für den Inhalt dieser Website",
+      "sections": [
+        { "heading": "Betreiber", "body": "Diese Webanwendung wird privat und nicht-kommerziell für die Gilde „AOEM Server #ERA003“ (Age of Empires Mobile) betrieben. Es handelt sich um ein reines Fan-Tool zur internen Verwaltung von DKP-Punkten, Auktionen und Gildenstatistiken." },
+        { "heading": "Verantwortliche Person", "list": [
+          "Verantwortlich i.S.v. Art. 3 Bst. j DSG (Schweiz) und § 5 TMG (Deutschland, sofern anwendbar): tYPLi1",
+          "Standort: Schweiz"
+        ] },
+        { "heading": "Kontakt", "list": [
+          "Discord: tYPLi1",
+          "Alternativ: In-App-Funktion „Bug/Feedback melden“"
+        ] },
+        { "heading": "Hinweis zur Gilde", "body": "„AOEM Server #ERA003“ bezeichnet eine Spielergemeinschaft im Spiel Age of Empires Mobile. Diese Website steht in keiner Verbindung zu Tencent, Timi Studio Group, Microsoft, World's Edge oder anderen Rechteinhabern. Alle Spielnamen, Logos und Markenrechte gehören ihren jeweiligen Inhabern." },
+        { "heading": "Haftungsausschluss", "body": "Die Inhalte werden mit größter Sorgfalt erstellt. Für Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird keine Gewähr übernommen. Da das Tool privat und kostenlos betrieben wird, besteht kein Anspruch auf Verfügbarkeit." },
+        { "heading": "Externe Links", "body": "Für externe Links (z. B. Discord, Spielanbieter) sind ausschließlich deren Betreiber verantwortlich. Zum Zeitpunkt der Verlinkung waren keine rechtswidrigen Inhalte erkennbar." },
+        { "heading": "Urheberrecht", "body": "Code, Design und selbst erstellte Inhalte unterliegen dem Schweizer Urheberrechtsgesetz (URG). Vervielfältigung oder Wiederverwendung nur mit Zustimmung des Betreibers." }
+      ]
+    },
     "footerNote": "Privates Fan-Tool zur Gildenverwaltung. Nicht mit einem Spielehersteller verbunden.",
     "privacy": {
       "title": "Datenschutzerklärung",
@@ -536,7 +555,7 @@
           "Keine Zahlungsdaten — der Dienst ist kostenlos.",
           "Keine Tracking-Cookies, keine Werbung, keine Drittanbieter-Profilbildung."
         ] },
-        { "heading": "4. Rechtsgrundlage (DSGVO / KVKK)", "body": "Wir verarbeiten Daten auf Grundlage deiner Einwilligung und des berechtigten Interesses der Gilde. Die Daten beschränken sich strikt auf das Notwendige." },
+        { "heading": "4. Rechtsgrundlage (Schweizer DSG / DSGVO / KVKK)", "body": "Verantwortliche Stelle: tYPLi1 (Schweiz), Betreiber des AOEM Server #ERA003 Tools. Wir verarbeiten Daten auf Grundlage deiner Einwilligung (Art. 6 DSG) und des berechtigten Interesses der Gilde. Für Nutzer aus der EU gilt zusätzlich die DSGVO. Aufsichtsbehörde Schweiz: Eidgenössischer Datenschutz- und Öffentlichkeitsbeauftragter (EDÖB), www.edoeb.admin.ch. Die Datenverarbeitung beschränkt sich strikt auf das Notwendige." },
         { "heading": "5. Speicherung & Sicherheit", "body": "Die Daten werden auf der Base44-Plattform mit branchenüblicher Sicherheit gespeichert. Server können außerhalb der EU/Türkei stehen. Mit der Nutzung erkennst du an, dass Daten international übertragen werden können." },
         { "heading": "6. Weitergabe", "body": "Wir verkaufen oder vermieten deine Daten nicht. DKP-Salden und Rankings sind öffentlich auf der Gildenseite sichtbar (das ist der Zweck des Tools). Discord-Benachrichtigungen können Spielername und Ranking enthalten." },
         { "heading": "7. Speicherdauer", "body": "Spieler- und DKP-Daten werden gespeichert, solange die Gilde das System betreibt. Bug-Reports werden bis zur Lösung aufbewahrt. Löschanträge sind jederzeit möglich." },
@@ -546,7 +565,7 @@
           "Recht auf Löschung deines Spielerdatensatzes.",
           "Widerspruchsrecht — Einwilligung jederzeit widerrufen."
         ] },
-        { "heading": "9. Kontakt", "body": "Datenschutzanfragen über deinen Gilden-Admin via Discord oder die In-App-Report-Funktion." }
+        { "heading": "9. Kontakt", "body": "Datenschutzanfragen an tYPLi1 via Discord oder über die In-App-Report-Funktion. Antwort i.d.R. innerhalb von 30 Tagen." }
       ]
     },
     "terms": {
@@ -565,8 +584,8 @@
         { "heading": "5. Geistiges Eigentum", "body": "Code, Design und Inhalte des DKP-Systems (außer Spieldaten und Nutzereingaben) gehören den Gildenbetreibern. Kein Kopieren ohne Erlaubnis." },
         { "heading": "6. Haftungsausschluss", "body": "Bereitgestellt „wie besehen“. Keine Garantie für Verfügbarkeit, Korrektheit oder Eignung. Keine Haftung für Schäden aus der Nutzung." },
         { "heading": "7. Änderungen", "body": "Wir können diese Bedingungen jederzeit aktualisieren. Weitere Nutzung gilt als Zustimmung." },
-        { "heading": "8. Anwendbares Recht", "body": "Diese Bedingungen unterliegen den am Gildensitz geltenden Gesetzen. Streitigkeiten werden einvernehmlich oder vor zuständigem Gericht geklärt." },
-        { "heading": "9. Kontakt", "body": "Fragen zu diesen Bedingungen an den Gilden-Admin." }
+        { "heading": "8. Anwendbares Recht", "body": "Es gilt schweizerisches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist der Wohnsitz des Betreibers in der Schweiz, soweit gesetzlich zulässig." },
+        { "heading": "9. Kontakt", "body": "Fragen zu diesen Bedingungen an tYPLi1 via Discord." }
       ]
     },
     "kvkk": {

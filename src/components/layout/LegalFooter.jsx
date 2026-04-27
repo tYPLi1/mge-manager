@@ -22,11 +22,13 @@ export default function LegalFooter() {
         maxWidth: 1400, margin: "0 auto",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         flexWrap: "wrap", gap: 12,
+        paddingRight: 80,
       }}>
         <div style={{ fontSize: 11.5, color: "var(--dp-text-dim)" }}>
-          © {new Date().getFullYear()} DKP System
+          © {new Date().getFullYear()} AOEM Server #ERA003
         </div>
         <nav style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
+          <Link to={createPageUrl("Imprint")} style={linkStyle}>{t("legal.imprint.title")}</Link>
           <Link to={createPageUrl("Privacy")} style={linkStyle}>{t("legal.privacy.title")}</Link>
           <Link to={createPageUrl("Terms")} style={linkStyle}>{t("legal.terms.title")}</Link>
           <Link to={createPageUrl("KVKK")} style={linkStyle}>{t("legal.kvkk.title")}</Link>

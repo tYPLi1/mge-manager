@@ -61,6 +61,7 @@ import AdminReports from './pages/AdminReports';
 import AdminSettings from './pages/AdminSettings';
 import Auction from './pages/Auction';
 import Charts from './pages/Charts';
+import Imprint from './pages/Imprint';
 import KVKK from './pages/KVKK';
 import Leaderboard from './pages/Leaderboard';
 import PlayerDetail from './pages/PlayerDetail';
@@ -88,6 +89,7 @@ export const PAGES = {
     "AdminSettings": AdminSettings,
     "Auction": Auction,
     "Charts": Charts,
+    "Imprint": Imprint,
     "KVKK": KVKK,
     "Leaderboard": Leaderboard,
     "PlayerDetail": PlayerDetail,

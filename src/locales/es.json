@@ -489,6 +489,24 @@
   },
   "legal": {
     "lastUpdated": "Última actualización",
+    "imprint": {
+      "title": "Aviso legal",
+      "subtitle": "Información sobre el operador de este sitio web",
+      "sections": [
+        { "heading": "Operador", "body": "Esta aplicación web es operada de forma privada y sin fines comerciales para la hermandad „AOEM Server #ERA003“ (Age of Empires Mobile). Es una herramienta de fans para la gestión interna de DKP, subastas y estadísticas." },
+        { "heading": "Persona responsable", "list": [
+          "Responsable según el Art. 3 lit. j LPD (Suiza): tYPLi1",
+          "Ubicación: Suiza"
+        ] },
+        { "heading": "Contacto", "list": [
+          "Discord: tYPLi1",
+          "Alternativa: función „Reportar error/comentario“ en la app"
+        ] },
+        { "heading": "Sobre la hermandad", "body": "„AOEM Server #ERA003“ se refiere a una comunidad de jugadores del juego Age of Empires Mobile. Este sitio no está afiliado a Tencent, Timi Studio Group, Microsoft, World's Edge ni otros titulares de derechos." },
+        { "heading": "Descargo", "body": "El contenido se elabora con el máximo cuidado. No se ofrece garantía de exactitud, integridad o actualidad. Como herramienta privada y gratuita, no existe derecho a disponibilidad." },
+        { "heading": "Derechos de autor", "body": "Código, diseño y contenido creado están sujetos a la ley suiza de derechos de autor (URG). Reproducción solo con consentimiento del operador." }
+      ]
+    },
     "footerNote": "Herramienta privada de gestión de hermandad creada por fans. Sin afiliación con ningún editor de juegos.",
     "privacy": {
       "title": "Política de Privacidad",

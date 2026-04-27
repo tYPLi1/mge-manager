@@ -479,6 +479,24 @@
   },
   "legal": {
     "lastUpdated": "最后更新",
+    "imprint": {
+      "title": "网站说明",
+      "subtitle": "关于本网站运营者的信息",
+      "sections": [
+        { "heading": "运营者", "body": "本网络应用为「AOEM Server #ERA003」（Age of Empires Mobile）公会私下、非商业性运营。这是粉丝制作的工具，用于内部管理 DKP、拍卖和公会统计。" },
+        { "heading": "责任人", "list": [
+          "依瑞士联邦数据保护法第3条 lit. j 负责：tYPLi1",
+          "所在地：瑞士"
+        ] },
+        { "heading": "联系方式", "list": [
+          "Discord：tYPLi1",
+          "或使用应用内「报告错误/反馈」功能"
+        ] },
+        { "heading": "关于公会", "body": "「AOEM Server #ERA003」指 Age of Empires Mobile 游戏中的玩家社区。本网站与 Tencent、Timi Studio Group、Microsoft、World's Edge 或其他权利人无关。" },
+        { "heading": "免责声明", "body": "内容经精心制作。不保证准确性、完整性或时效性。作为私人免费工具，不保证可用性。" },
+        { "heading": "版权", "body": "代码、设计和原创内容受瑞士版权法（URG）保护。未经运营者同意不得复制。" }
+      ]
+    },
     "footerNote": "这是一个粉丝制作的私人公会管理工具，与任何游戏发行商无关。",
     "privacy": {
       "title": "隐私政策",
