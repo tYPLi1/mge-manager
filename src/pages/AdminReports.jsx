@@ -24,11 +24,19 @@ const STATUS_COLORS = {
 };
 
 const STATUSES = ["new", "in_progress", "resolved", "wont_fix"];
+const TYPES = ["bug", "translation", "other"];
+
+const TYPE_COLORS = {
+  bug: "bg-red-500/15 text-red-400 border-red-500/30",
+  translation: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  other: "bg-sky-500/15 text-sky-400 border-sky-500/30",
+};
 
 export default function AdminReports({ embedded = false }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [emailDraft, setEmailDraft] = useState(null);
 
   const { data: reports = [], isLoading } = useQuery({
@@ -77,9 +85,14 @@ export default function AdminReports({ embedded = false }) {
     },
   });
 
-  const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
+  const byType = typeFilter === "all" ? reports : reports.filter((r) => r.type === typeFilter);
+  const filtered = filter === "all" ? byType : byType.filter((r) => r.status === filter);
   const counts = STATUSES.reduce((acc, s) => {
-    acc[s] = reports.filter((r) => r.status === s).length;
+    acc[s] = byType.filter((r) => r.status === s).length;
+    return acc;
+  }, {});
+  const typeCounts = TYPES.reduce((acc, type) => {
+    acc[type] = reports.filter((r) => r.type === type).length;
     return acc;
   }, {});
 
@@ -113,6 +126,36 @@ export default function AdminReports({ embedded = false }) {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-white/5">
+        <button
+          onClick={() => setTypeFilter("all")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
+            typeFilter === "all"
+              ? "bg-white/10 border-white/20 text-white"
+              : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
+          }`}
+        >
+          {t("adminReports.filterAll")} ({reports.length})
+        </button>
+        {TYPES.map((type) => {
+          const Icon = TYPE_ICONS[type];
+          return (
+            <button
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border inline-flex items-center gap-1.5 ${
+                typeFilter === type
+                  ? TYPE_COLORS[type]
+                  : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
+              }`}
+            >
+              <Icon size={12} />
+              {t(`report.types.${type}`)} ({typeCounts[type]})
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-wrap gap-2 mb-5">
         <button
           onClick={() => setFilter("all")}
@@ -122,7 +165,7 @@ export default function AdminReports({ embedded = false }) {
               : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/5"
           }`}
         >
-          {t("adminReports.filterAll")} ({reports.length})
+          {t("adminReports.filterAll")} ({byType.length})
         </button>
         {STATUSES.map((s) => (
           <button
