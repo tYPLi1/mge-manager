@@ -5,8 +5,9 @@ import tr from "@/locales/tr.json";
 import es from "@/locales/es.json";
 import fr from "@/locales/fr.json";
 import zh from "@/locales/zh.json";
+import ko from "@/locales/ko.json";
 
-const LOCALES = { en, de, tr, es, fr, zh };
+const LOCALES = { en, de, tr, es, fr, zh, ko };
 export const AVAILABLE_LOCALES = [
   { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
   { code: "de", label: "DE", name: "Deutsch", flag: "🇩🇪" },
@@ -14,6 +15,7 @@ export const AVAILABLE_LOCALES = [
   { code: "es", label: "ES", name: "Español", flag: "🇪🇸" },
   { code: "fr", label: "FR", name: "Français", flag: "🇫🇷" },
   { code: "zh", label: "ZH", name: "中文", flag: "🇨🇳" },
+  { code: "ko", label: "KO", name: "한국어", flag: "🇰🇷" },
 ];
 const DEFAULT_LOCALE = "en";
 
