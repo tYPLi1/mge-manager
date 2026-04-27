@@ -515,8 +515,16 @@
         "cooldown": "Bekleme (gün)",
         "medals": "Madalya",
         "target": "Hedef Skor",
-        "fz": "Friendly Zone"
+        "fz": "Friendly Zone",
+        "reserveNext": "Sonraki MGE'yi Rezerve Et"
       },
+      "reserveNextHint": "Bu sırayı bir SONRAKİ açık artırmadaki kazanan için rezerve etmek üzere işaretle (ücretsiz, DKP gerektirmez). Sonuçlar onaylandığında kazanan, sonraki açık artırmaya sabit atama olarak otomatik eklenir.",
+      "reserveNextBlockedTitle": "Sonuçlar henüz yayınlanamaz",
+      "reserveNextBlockedMessage": "Bu açık artırmada bir sonraki MGE için rezerve edilmiş sıralar var. Lütfen önce bir sonraki açık artırmayı oluştur, ardından sonuçları yayınla; böylece rezervasyonlar aktarılabilir.",
+      "reserveNextTransferred": "{{count}} rezerve sıra bir sonraki açık artırmaya aktarıldı",
+      "reserveNextConflict": "Rezerve sıra #{{rank}} zaten doluydu — sonraki boş sıra #{{newRank}}'e atandı",
+      "reserveNextDiscordTitle": "🔄 Sonraki MGE için rezerve edildi",
+      "reserveNextDiscordLine": "**#{{rank}}** — {{player}} _(sonraki açık artırma için rezerve, ücretsiz)_",
       "fzTitle": "Friendly Zone",
       "fzEnabled": "Etkin",
       "fzThreshold": "DKP Eşiği",

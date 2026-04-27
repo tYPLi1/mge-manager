@@ -173,9 +173,18 @@ export default function Results() {
                   const tg = mgeTargets.find((m) => m.rank === r.rank);
                   const rankClass = r.rank === 1 ? "dp-rank-1" : r.rank === 2 ? "dp-rank-2" : r.rank === 3 ? "dp-rank-3" : "";
                   const isFixed = typeof r.tiebreaker_note === "string" && r.tiebreaker_note.startsWith("Fixed:");
+                  const isReservedNext = typeof r.tiebreaker_note === "string" && r.tiebreaker_note.startsWith("ReservedNext:");
                   const fixedReason = isFixed ? r.tiebreaker_note.replace(/^Fixed:\s*/, "") : null;
+                  const tbNote = isReservedNext
+                    ? r.tiebreaker_note.replace(/^ReservedNext:\s*/, "").trim()
+                    : (r.tiebreaker_note || "");
+                  const rowBg = isFixed
+                    ? "rgba(212, 168, 89, 0.05)"
+                    : isReservedNext
+                      ? "rgba(107, 147, 201, 0.06)"
+                      : undefined;
                   return (
-                    <tr key={r.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)", background: isFixed ? "rgba(212, 168, 89, 0.05)" : undefined }}>
+                    <tr key={r.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)", background: rowBg }}>
                       <td style={{ padding: "12px 18px" }}>
                         <span className="dp-heading dp-mono" style={{
                           fontSize: 14, fontWeight: 600,
@@ -188,6 +197,9 @@ export default function Results() {
                         {r.player_name}
                         {isFixed && (
                           <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-accent)" }}>· 📌 {t("fixedRanks.fixBadge")}</span>
+                        )}
+                        {isReservedNext && (
+                          <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-info)" }} title={t("admin.auctionConfig.reserveNextHint")}>· 🔄 {t("admin.auctionConfig.cols.reserveNext")}</span>
                         )}
                         {r.is_friendly_zone && (
                           <span style={{ marginLeft: 8, fontSize: 10.5, color: "var(--dp-info)" }}>· FZ</span>
@@ -206,7 +218,11 @@ export default function Results() {
                         </span>
                       </td>
                       <td style={{ padding: "12px 18px", fontSize: 11.5, color: "var(--dp-text-dim)" }}>
-                        {isFixed ? <span style={{ color: "var(--dp-accent)" }}>📌 {fixedReason}</span> : (r.tiebreaker_note ? `⚖ ${r.tiebreaker_note}` : "—")}
+                        {isFixed
+                          ? <span style={{ color: "var(--dp-accent)" }}>📌 {fixedReason}</span>
+                          : isReservedNext
+                            ? <span style={{ color: "var(--dp-info)" }}>🔄 {t("admin.auctionConfig.reserveNextHint")}{tbNote ? ` · ⚖ ${tbNote}` : ""}</span>
+                            : (r.tiebreaker_note ? `⚖ ${r.tiebreaker_note}` : "—")}
                       </td>
                     </tr>
                   );

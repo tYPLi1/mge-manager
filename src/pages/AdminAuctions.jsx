@@ -225,6 +225,15 @@ export default function AdminAuctions() {
     return Number.isFinite(v) && v > 0 ? v : 10;
   }, [settings]);
 
+  // Ranks reserved for next MGE (auto-transfer to next auction on confirm)
+  const reserveNextRanks = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "reserve_next_mge_ranks")?.value;
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map(Number) : [];
+    } catch { return []; }
+  }, [settings]);
+
   const compensationFormula = useMemo(() => {
     // Read from penalty_config.compensation_formula (managed in PenaltyConfigEditor)
     // Backwards compat: if only legacy compensation_divisor exists, build "bid / N"
@@ -494,6 +503,33 @@ export default function AdminAuctions() {
 
   const [confirming, setConfirming] = useState(false);
 
+  // Find the next auction (draft or open) that is NOT this one — used for "Reserve next MGE"
+  const findNextAuction = (currentId) => {
+    const candidates = auctions
+      .filter(a => a.id !== currentId && (a.status === "draft" || a.status === "open"))
+      .sort((a, b) => {
+        // Prefer auctions with the earliest scheduled_open
+        const ao = a.scheduled_open ? new Date(ensureUTC(a.scheduled_open)).getTime() : Infinity;
+        const bo = b.scheduled_open ? new Date(ensureUTC(b.scheduled_open)).getTime() : Infinity;
+        if (ao !== bo) return ao - bo;
+        // Fallback: newest created first
+        return new Date(b.created_date) - new Date(a.created_date);
+      });
+    return candidates[0] || null;
+  };
+
+  // Compute reserved ranks that were actually awarded in this auction (i.e. not fixed, and rank is in reserveNextRanks)
+  const getReservedWinners = () => {
+    if (!reserveNextRanks.length) return [];
+    return previewRanking
+      .filter(e => !e._fixed && reserveNextRanks.includes(Number(e.rank)))
+      .map(e => ({
+        rank: Number(e.rank),
+        player_id: e.player_id,
+        player_name: e.player_name,
+      }));
+  };
+
   const doConfirm = async () => {
     if (!viewBids) return;
 
@@ -520,9 +556,12 @@ export default function AdminAuctions() {
       confirmed_at: new Date().toISOString(),
     });
 
+    const reservedWinners = getReservedWinners();
+
     for (const entry of previewRanking) {
       const cooldownDays = cooldownTable[entry.rank] || 7;
       const cooldownDate = addDays(today, cooldownDays);
+      const isReservedRank = !entry._fixed && reserveNextRanks.includes(Number(entry.rank));
 
       await adminEntities.AuctionResult.create({
         auction_id: viewBids.id,
@@ -533,7 +572,11 @@ export default function AdminAuctions() {
         dkp_bid: entry._fixed ? 0 : entry.dkp_bid,
         target_score: entry.target,
         hero_medals: entry.medals,
-        tiebreaker_note: entry._fixed ? `Fixed: ${entry._fixedReason}` : (entry._tiebreaker || null),
+        tiebreaker_note: entry._fixed
+          ? `Fixed: ${entry._fixedReason}`
+          : isReservedRank
+            ? `ReservedNext: ${entry._tiebreaker || ""}`.trim()
+            : (entry._tiebreaker || null),
         is_friendly_zone: !!entry._friendlyZone,
       });
 
@@ -560,6 +603,54 @@ export default function AdminAuctions() {
       }
     }
 
+    // Transfer reserved ranks to the next auction as fixed assignments
+    if (reservedWinners.length > 0) {
+      const nextAuction = findNextAuction(viewBids.id);
+      if (nextAuction) {
+        // Parse existing fixed_assignments
+        let existing = [];
+        try {
+          existing = nextAuction.fixed_assignments ? JSON.parse(nextAuction.fixed_assignments) : [];
+          if (!Array.isArray(existing)) existing = [];
+        } catch { existing = []; }
+
+        const usedRanks = new Set(existing.map(a => Number(a.rank)));
+        const usedPlayers = new Set(existing.map(a => a.player_id));
+        const conflicts = [];
+
+        for (const w of reservedWinners) {
+          if (usedPlayers.has(w.player_id)) continue; // skip if same player already fixed
+          let targetRank = w.rank;
+          if (usedRanks.has(targetRank)) {
+            // Find next free rank
+            let nr = 1;
+            while (nr <= auctionMaxRanks && usedRanks.has(nr)) nr++;
+            if (nr > auctionMaxRanks) continue; // no slot available, skip
+            conflicts.push({ original: w.rank, newRank: nr });
+            targetRank = nr;
+          }
+          existing.push({
+            rank: targetRank,
+            player_id: w.player_id,
+            player_name: w.player_name,
+            reason: `Reserved from ${viewBids.title} (rank #${w.rank})`,
+          });
+          usedRanks.add(targetRank);
+          usedPlayers.add(w.player_id);
+        }
+
+        existing.sort((a, b) => Number(a.rank) - Number(b.rank));
+        await adminEntities.Auction.update(nextAuction.id, {
+          fixed_assignments: JSON.stringify(existing),
+        });
+
+        toast.success(t("admin.auctionConfig.reserveNextTransferred", { count: reservedWinners.length }));
+        conflicts.forEach(c => {
+          toast.warning(t("admin.auctionConfig.reserveNextConflict", { rank: c.original, newRank: c.newRank }));
+        });
+      }
+    }
+
     queryClient.invalidateQueries();
     setShowPreview(false);
     setViewBids(null);
@@ -570,8 +661,22 @@ export default function AdminAuctions() {
     mutationFn: async () => {
       if (!viewBids) return;
 
+      // Pre-check: if there are reserved-next ranks awarded, ensure a next auction exists
+      const reservedWinners = getReservedWinners();
+      if (reservedWinners.length > 0) {
+        const nextAuction = findNextAuction(viewBids.id);
+        if (!nextAuction) {
+          toast.error(t("admin.auctionConfig.reserveNextBlockedTitle"), {
+            description: t("admin.auctionConfig.reserveNextBlockedMessage"),
+            duration: 8000,
+          });
+          return;
+        }
+      }
+
       if (resultsEnabled && discordConfigured && previewRanking.length > 0) {
         const resultsText = previewRanking.map((r) => {
+          const isReservedRank = !r._fixed && reserveNextRanks.includes(Number(r.rank));
           let line = `${r.rank}. **${r.player_name}**`;
           if (r._fixed) {
             line += ` 📌 _(Fixed: ${r._fixedReason})_`;
@@ -580,10 +685,17 @@ export default function AdminAuctions() {
             if (r.target) line += ` | Target: ${r.target.toLocaleString()}`;
             if (r.medals) line += ` | Medals: ${r.medals}`;
             if (r._friendlyZone) line += ` 🤝 _(Friendly Zone)_`;
+            if (isReservedRank) line += ` 🔄 _(Reserved for next MGE)_`;
             if (r._tiebreaker) line += ` _(${r._tiebreaker})_`;
           }
           return line;
         }).join("\n");
+
+        // Build "Reserved for next MGE" field
+        const reservedLines = previewRanking
+          .filter(r => !r._fixed && reserveNextRanks.includes(Number(r.rank)))
+          .map(r => `**#${r.rank}** — ${r.player_name} _(reserved for next auction, free)_`)
+          .join("\n");
 
         const hasTiebreakers = previewRanking.some(r => r._tiebreaker);
         const hasFzWinner = previewRanking.some(r => r._friendlyZone);
@@ -607,6 +719,13 @@ export default function AdminAuctions() {
         ];
         if (hasFzWinner) {
           fields.push({ name: "🤝 Friendly Zone", value: `Rank 10 reserved for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP). Highest FZ bid wins.`, inline: false });
+        }
+        if (reservedLines) {
+          fields.push({
+            name: "🔄 Reserved for next MGE",
+            value: `${reservedLines}\n\n_These players will receive their rank as a fixed assignment in the next auction — free of charge, without bidding._`,
+            inline: false,
+          });
         }
         fields.push({ name: "⚖ Tiebreaker Rules", value: tiebreakerNote, inline: false });
 
@@ -1110,8 +1229,10 @@ export default function AdminAuctions() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {previewRanking.map((entry) => (
-                      <tr key={entry.id} className={entry._fixed ? "bg-amber-500/5" : entry._friendlyZone ? "bg-emerald-500/5" : ""}>
+                    {previewRanking.map((entry) => {
+                      const isReservedRank = !entry._fixed && reserveNextRanks.includes(Number(entry.rank));
+                      return (
+                      <tr key={entry.id} className={entry._fixed ? "bg-amber-500/5" : isReservedRank ? "bg-blue-500/5" : entry._friendlyZone ? "bg-emerald-500/5" : ""}>
                         <td className="px-2 py-1.5">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                             entry.rank <= 3 ? "bg-amber-500/20 text-amber-400" : "bg-gray-700/50 text-gray-400"
@@ -1124,6 +1245,11 @@ export default function AdminAuctions() {
                           {entry._fixed && (
                             <span className="ml-2 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-1.5 py-0.5">
                               📌 Fix: {entry._fixedReason}
+                            </span>
+                          )}
+                          {isReservedRank && (
+                            <span className="ml-2 text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/30 rounded px-1.5 py-0.5">
+                              🔄 Reserved for next MGE
                             </span>
                           )}
                           {entry._friendlyZone && <span className="ml-2 text-xs text-emerald-400">(Friendly Zone)</span>}
@@ -1142,7 +1268,8 @@ export default function AdminAuctions() {
                           +{cooldownTable[entry.rank] || 7} days
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
                 <Button

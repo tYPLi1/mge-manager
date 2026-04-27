@@ -515,8 +515,16 @@
         "cooldown": "Cooldown (days)",
         "medals": "Medals",
         "target": "Target Score",
-        "fz": "Friendly Zone"
+        "fz": "Friendly Zone",
+        "reserveNext": "Reserve Next MGE"
       },
+      "reserveNextHint": "Tick to reserve this rank for the winner in the NEXT auction (free, no DKP cost). The winner is auto-added as a fixed assignment when results are confirmed.",
+      "reserveNextBlockedTitle": "Cannot publish results yet",
+      "reserveNextBlockedMessage": "This auction has reserved ranks for the next MGE. Please create the next auction first, then publish the results so the reservations can be transferred.",
+      "reserveNextTransferred": "{{count}} reserved rank(s) transferred to next auction",
+      "reserveNextConflict": "Reserved rank #{{rank}} was already taken — assigned to next free rank #{{newRank}}",
+      "reserveNextDiscordTitle": "🔄 Reserved for next MGE",
+      "reserveNextDiscordLine": "**#{{rank}}** — {{player}} _(reserved for next auction, free)_",
       "fzTitle": "Friendly Zone",
       "fzEnabled": "Enabled",
       "fzThreshold": "DKP Threshold",

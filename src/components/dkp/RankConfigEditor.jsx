@@ -19,10 +19,12 @@ export default function RankConfigEditor({
   mgeTargetsJson,
   cooldownTableJson,
   friendlyZoneRanksJson,
+  reserveNextRanksJson,
   onChangeMaxRanks,
   onChangeMgeTargets,
   onChangeCooldownTable,
   onChangeFriendlyZoneRanks,
+  onChangeReserveNextRanks,
   t,
 }) {
   // Fallback labels if no `t` provided (component still works standalone)
@@ -36,6 +38,8 @@ export default function RankConfigEditor({
     target: tr("admin.auctionConfig.cols.target") || "Target Score",
     fz: tr("admin.auctionConfig.cols.fz") || "Friendly Zone",
     fzHint: tr("admin.auctionConfig.fzColumnHint") || "Tick the Friendly Zone column for any rank that should be reserved for Friendly Zone bidders.",
+    reserveNext: tr("admin.auctionConfig.cols.reserveNext") || "Reserve Next MGE",
+    reserveNextHint: tr("admin.auctionConfig.reserveNextHint") || "Tick to reserve this rank for the winner in the NEXT auction (for free, no DKP cost). The winner will be auto-added as a fixed assignment when results are confirmed.",
   };
   const numRanks = useMemo(() => {
     const n = parseInt(maxRanks, 10);
@@ -73,6 +77,13 @@ export default function RankConfigEditor({
       return Array.isArray(arr) ? arr.map(Number) : [];
     } catch { return []; }
   }, [friendlyZoneRanksJson]);
+
+  const reserveNextRanks = useMemo(() => {
+    try {
+      const arr = JSON.parse(reserveNextRanksJson || "[]");
+      return Array.isArray(arr) ? arr.map(Number) : [];
+    } catch { return []; }
+  }, [reserveNextRanksJson]);
 
   // Helpers to read row values
   const getMedals = (rank) => {
@@ -118,6 +129,14 @@ export default function RankConfigEditor({
     const next = isFZ(rank) ? fzRanks.filter(r => r !== rank) : [...fzRanks, rank];
     next.sort((a, b) => a - b);
     onChangeFriendlyZoneRanks(JSON.stringify(next));
+  };
+
+  const isReserveNext = (rank) => reserveNextRanks.includes(rank);
+  const toggleReserveNext = (rank) => {
+    if (!onChangeReserveNextRanks) return;
+    const next = isReserveNext(rank) ? reserveNextRanks.filter(r => r !== rank) : [...reserveNextRanks, rank];
+    next.sort((a, b) => a - b);
+    onChangeReserveNextRanks(JSON.stringify(next));
   };
 
   const incrementMaxRanks = (delta) => {
@@ -167,6 +186,7 @@ export default function RankConfigEditor({
               <th className="px-3 py-2 text-left font-medium">{L.medals}</th>
               <th className="px-3 py-2 text-left font-medium">{L.target}</th>
               <th className="px-3 py-2 text-center font-medium">{L.fz}</th>
+              <th className="px-3 py-2 text-center font-medium">{L.reserveNext}</th>
             </tr>
           </thead>
           <tbody>
@@ -209,6 +229,13 @@ export default function RankConfigEditor({
                     className="border-gray-500 bg-white/5 hover:border-emerald-400 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 data-[state=checked]:text-white"
                   />
                 </td>
+                <td className="px-3 py-2 text-center">
+                  <Checkbox
+                    checked={isReserveNext(rank)}
+                    onCheckedChange={() => toggleReserveNext(rank)}
+                    className="border-gray-500 bg-white/5 hover:border-blue-400 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 data-[state=checked]:text-white"
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -216,6 +243,7 @@ export default function RankConfigEditor({
       </div>
 
       <p className="text-xs text-gray-500">{L.fzHint}</p>
+      <p className="text-xs text-blue-400/80">🔄 {L.reserveNextHint}</p>
     </div>
   );
 }

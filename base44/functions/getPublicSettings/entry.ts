@@ -15,6 +15,7 @@ const PUBLIC_KEYS = [
   'auction_tiebreaker_fallback',
   'mge_targets',
   'rules_text',
+  'reserve_next_mge_ranks',
 ];
 
 Deno.serve(async (req) => {

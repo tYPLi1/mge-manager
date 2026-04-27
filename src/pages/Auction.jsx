@@ -139,6 +139,14 @@ export default function Auction() {
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
 
+  const reserveNextRanks = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "reserve_next_mge_ranks")?.value;
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map(Number) : [];
+    } catch { return []; }
+  }, [settings]);
+
   const fixedAssignments = useMemo(() => {
     if (!currentAuction?.fixed_assignments) return [];
     try {
@@ -243,6 +251,12 @@ export default function Auction() {
       {fixedAssignments.length > 0 && (
         <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
           <FixedRanksDisplay assignments={fixedAssignments} t={t} />
+        </div>
+      )}
+
+      {reserveNextRanks.length > 0 && (
+        <div style={{ maxWidth: 520, margin: "0 auto", width: "100%" }}>
+          <ReservedRanksDisplay ranks={reserveNextRanks} t={t} />
         </div>
       )}
 
@@ -420,6 +434,25 @@ function Alert({ color, icon: Icon, children }) {
     }}>
       {Icon && <Icon size={14} />}
       <span>{children}</span>
+    </div>
+  );
+}
+
+function ReservedRanksDisplay({ ranks, t }) {
+  const sorted = [...ranks].sort((a, b) => a - b);
+  return (
+    <div className="dp-card" style={{ padding: 14, border: "1px solid rgba(107, 147, 201, 0.25)", background: "rgba(107, 147, 201, 0.06)" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+        <span style={{ fontSize: 16 }}>🔄</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="dp-heading" style={{ fontSize: 13, fontWeight: 600, color: "var(--dp-info)", marginBottom: 4 }}>
+            {t("admin.auctionConfig.cols.reserveNext")}: {sorted.map(r => `#${r}`).join(", ")}
+          </div>
+          <div style={{ fontSize: 11.5, color: "var(--dp-text-muted)" }}>
+            {t("admin.auctionConfig.reserveNextHint")}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

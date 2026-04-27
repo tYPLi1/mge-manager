@@ -24,6 +24,7 @@ const SETTING_LABELS = {
   mge_targets: "MGE Targets",
   cooldown_table: "Cooldown Table",
   auction_max_ranks: "Max Auction Ranks",
+  reserve_next_mge_ranks: "Reserve Next MGE Ranks",
 };
 
 // Only the keys this page manages — used to scope dirty detection / save.
@@ -220,10 +221,12 @@ export default function AdminAuctionConfig() {
             mgeTargetsJson={form.mge_targets || "[]"}
             cooldownTableJson={form.cooldown_table || "{}"}
             friendlyZoneRanksJson={form.friendly_zone_ranks || "[]"}
+            reserveNextRanksJson={form.reserve_next_mge_ranks || "[]"}
             onChangeMaxRanks={(v) => setForm(f => ({ ...f, auction_max_ranks: v }))}
             onChangeMgeTargets={(v) => setForm(f => ({ ...f, mge_targets: v }))}
             onChangeCooldownTable={(v) => setForm(f => ({ ...f, cooldown_table: v }))}
             onChangeFriendlyZoneRanks={(v) => setForm(f => ({ ...f, friendly_zone_ranks: v }))}
+            onChangeReserveNextRanks={(v) => setForm(f => ({ ...f, reserve_next_mge_ranks: v }))}
             t={t}
           />
         </div>
