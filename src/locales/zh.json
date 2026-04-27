@@ -20,7 +20,10 @@
     "logout": "退出",
     "publicSite": "公开站点",
     "showing": "显示",
-    "guildManagement": "公会管理"
+    "guildManagement": "公会管理",
+    "menu": "菜单",
+    "showMenu": "显示菜单",
+    "hideMenu": "隐藏菜单"
   },
   "navigation": {
     "leaderboard": "排行榜",

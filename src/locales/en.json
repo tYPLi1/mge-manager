@@ -20,7 +20,10 @@
     "logout": "Logout",
     "publicSite": "Public Site",
     "showing": "Showing",
-    "guildManagement": "Guild Management"
+    "guildManagement": "Guild Management",
+    "menu": "Menu",
+    "showMenu": "Show menu",
+    "hideMenu": "Hide menu"
   },
   "navigation": {
     "leaderboard": "Leaderboard",

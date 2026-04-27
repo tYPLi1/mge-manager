@@ -20,7 +20,10 @@
     "logout": "로그아웃",
     "publicSite": "공개 사이트",
     "showing": "표시 중",
-    "guildManagement": "길드 관리"
+    "guildManagement": "길드 관리",
+    "menu": "메뉴",
+    "showMenu": "메뉴 표시",
+    "hideMenu": "메뉴 숨기기"
   },
   "navigation": {
     "leaderboard": "순위표",

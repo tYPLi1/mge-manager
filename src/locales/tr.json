@@ -20,7 +20,10 @@
     "logout": "Çıkış",
     "publicSite": "Genel Site",
     "showing": "Gösteriliyor",
-    "guildManagement": "Lonca Yönetimi"
+    "guildManagement": "Lonca Yönetimi",
+    "menu": "Menü",
+    "showMenu": "Menüyü göster",
+    "hideMenu": "Menüyü gizle"
   },
   "navigation": {
     "leaderboard": "Sıralama",

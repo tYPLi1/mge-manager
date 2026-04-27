@@ -20,7 +20,10 @@
     "logout": "Déconnexion",
     "publicSite": "Site public",
     "showing": "Affichage",
-    "guildManagement": "Gestion de guilde"
+    "guildManagement": "Gestion de guilde",
+    "menu": "Menu",
+    "showMenu": "Afficher le menu",
+    "hideMenu": "Masquer le menu"
   },
   "navigation": {
     "leaderboard": "Classement",

@@ -20,7 +20,10 @@
     "logout": "Cerrar sesión",
     "publicSite": "Sitio público",
     "showing": "Mostrando",
-    "guildManagement": "Gestión del gremio"
+    "guildManagement": "Gestión del gremio",
+    "menu": "Menú",
+    "showMenu": "Mostrar menú",
+    "hideMenu": "Ocultar menú"
   },
   "navigation": {
     "leaderboard": "Clasificación",

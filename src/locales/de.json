@@ -20,7 +20,10 @@
     "logout": "Abmelden",
     "publicSite": "Öffentliche Seite",
     "showing": "Anzeige",
-    "guildManagement": "Gilden-Verwaltung"
+    "guildManagement": "Gilden-Verwaltung",
+    "menu": "Menü",
+    "showMenu": "Menü einblenden",
+    "hideMenu": "Menü ausblenden"
   },
   "navigation": {
     "leaderboard": "Bestenliste",
