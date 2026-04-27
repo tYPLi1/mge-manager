@@ -249,7 +249,7 @@ function ReportCard({ report, onUpdate, onDelete, t }) {
             <SelectTrigger className="w-36 bg-white/5 border-white/10 text-white text-xs h-8">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[100]">
               {STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>{t(`adminReports.status.${s}`)}</SelectItem>
               ))}
