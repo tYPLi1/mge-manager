@@ -183,8 +183,11 @@ export default function AppShell({ children, currentPageName }) {
                 aria-label={mobileNavOpen ? t("common.hideMenu") : t("common.showMenu")}
                 aria-expanded={mobileNavOpen}
                 style={{
-                  padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
-                  borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
+                  width: 40, height: 40, padding: 0,
+                  background: "transparent", border: "1px solid var(--dp-border)",
+                  borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer",
+                  display: "none", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
                 {mobileNavOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
@@ -219,8 +222,11 @@ export default function AppShell({ children, currentPageName }) {
               aria-label={mobileNavOpen ? t("common.hideMenu") : t("common.showMenu")}
               aria-expanded={mobileNavOpen}
               style={{
-                padding: 8, background: "transparent", border: "1px solid var(--dp-border)",
-                borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer", display: "none",
+                width: 40, height: 40, padding: 0,
+                background: "transparent", border: "1px solid var(--dp-border)",
+                borderRadius: 8, color: "var(--dp-text-muted)", cursor: "pointer",
+                display: "none", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
               }}
             >
               {mobileNavOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
