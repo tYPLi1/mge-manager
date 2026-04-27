@@ -78,8 +78,8 @@ export default function AppShell({ children, currentPageName }) {
         key={item.page}
         to={createPageUrl(item.page)}
         style={{
-          display: "inline-flex", alignItems: "center", gap: 7,
-          padding: "8px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "7px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 500,
           background: active ? "var(--dp-accent-soft)" : "transparent",
           color: active ? "var(--dp-accent)" : "var(--dp-text-muted)",
           border: active ? "1px solid var(--dp-accent-border)" : "1px solid transparent",
@@ -145,14 +145,14 @@ export default function AppShell({ children, currentPageName }) {
         background: "var(--dp-bg-elevated)",
         backdropFilter: "blur(8px)",
       }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 12 }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 10 }}>
           {headerLogo}
 
-          <nav className="hide-mobile-nav" style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none" }}>
+          <nav className="hide-mobile-nav" style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", flex: 1 }}>
             {navButtons}
           </nav>
 
-          <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="hide-mobile-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <LanguageSwitcher variant="header" />
             {headerSecondary}
           </div>
@@ -204,7 +204,7 @@ export default function AppShell({ children, currentPageName }) {
         )}
 
         <style>{`
-          @media (max-width: 900px) {
+          @media (max-width: 1100px) {
             .hide-mobile-nav { display: none !important; }
             .show-mobile-nav { display: inline-flex !important; }
           }
