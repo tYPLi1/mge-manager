@@ -7,11 +7,13 @@
     <link rel="manifest" href="/manifest.json" />
     <title>Base44 APP</title>
     <style>
-      html, body { background: #0a0e1a; margin: 0; padding: 0; }
+      html, body { background: #0a0e1a; margin: 0; padding: 0; color: #0a0e1a; }
+      body > *:not(#root):not(script):not(#initial-splash) { display: none !important; }
       #initial-splash {
-        position: fixed; inset: 0; z-index: 9999;
+        position: fixed; inset: 0; z-index: 2147483647;
         background: #0a0e1a;
         display: flex; align-items: center; justify-content: center;
+        color: #f59e0b;
       }
       #initial-splash .spinner {
         width: 32px; height: 32px;
@@ -21,12 +23,25 @@
         animation: spin 0.8s linear infinite;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
-      #root:not(:empty) ~ #initial-splash { display: none; }
+      body.app-ready #initial-splash { display: none; }
     </style>
   </head>
   <body>
-    <div id="root"></div>
     <div id="initial-splash"><div class="spinner"></div></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      (function() {
+        var root = document.getElementById('root');
+        if (!root) return;
+        var observer = new MutationObserver(function() {
+          if (root.children.length > 0) {
+            document.body.classList.add('app-ready');
+            observer.disconnect();
+          }
+        });
+        observer.observe(root, { childList: true });
+      })();
+    </script>
   </body>
 </html>
