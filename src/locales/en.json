@@ -602,6 +602,11 @@
       "selectAll": "Select all",
       "deselectAll": "Clear selection",
       "noneSelected": "Please select at least one data type to wipe.",
+      "progressTitle": "Deleting data…",
+      "deletedCount": "{{count}} deleted",
+      "errorShort": "Error",
+      "closeButton": "Close",
+      "partialError": "Some entities failed to wipe. See list for details.",
       "entities": {
         "Player": "Players",
         "DKPTransaction": "DKP transactions",

@@ -602,6 +602,11 @@
       "selectAll": "Alle auswählen",
       "deselectAll": "Auswahl aufheben",
       "noneSelected": "Bitte mindestens einen Datentyp zum Löschen auswählen.",
+      "progressTitle": "Lösche Daten…",
+      "deletedCount": "{{count}} gelöscht",
+      "errorShort": "Fehler",
+      "closeButton": "Schließen",
+      "partialError": "Beim Löschen sind Fehler aufgetreten. Details siehe Liste.",
       "entities": {
         "Player": "Spieler",
         "DKPTransaction": "DKP-Transaktionen",

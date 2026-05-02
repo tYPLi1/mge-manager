@@ -572,6 +572,11 @@
       "selectAll": "Seleccionar todo",
       "deselectAll": "Quitar selección",
       "noneSelected": "Selecciona al menos un tipo de datos para borrar.",
+      "progressTitle": "Borrando datos…",
+      "deletedCount": "{{count}} eliminado(s)",
+      "errorShort": "Error",
+      "closeButton": "Cerrar",
+      "partialError": "Se produjeron errores durante el borrado. Consulta la lista.",
       "entities": {
         "Player": "Jugadores",
         "DKPTransaction": "Transacciones DKP",

@@ -563,6 +563,11 @@
       "selectAll": "全选",
       "deselectAll": "取消全选",
       "noneSelected": "请至少选择一种要清除的数据类型。",
+      "progressTitle": "正在删除数据…",
+      "deletedCount": "已删除 {{count}} 条",
+      "errorShort": "错误",
+      "closeButton": "关闭",
+      "partialError": "删除过程中出现错误。请查看列表。",
       "entities": {
         "Player": "玩家",
         "DKPTransaction": "DKP 交易",

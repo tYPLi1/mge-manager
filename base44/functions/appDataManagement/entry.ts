@@ -186,6 +186,39 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, counts });
     }
 
+    // Wipe a SINGLE entity — used by the frontend to give live progress feedback
+    // and to avoid backend timeouts on large datasets. The frontend loops through
+    // the selected entities in SAFE order and calls this once per entity.
+    if (action === 'wipe-entity') {
+      const { entityName } = body || {};
+      if (!entityName || !WIPE_ENTITIES.includes(entityName)) {
+        return Response.json({ success: false, error: 'Invalid entity' }, { status: 400 });
+      }
+      try {
+        const deleted = await deleteAll(base44, entityName);
+        return Response.json({ success: true, entity: entityName, deleted });
+      } catch (e) {
+        console.error(`Wipe failed for ${entityName}: ${e.message}`);
+        return Response.json({ success: false, error: e.message }, { status: 500 });
+      }
+    }
+
+    // Returns the safe deletion order filtered for the caller's selection.
+    // The frontend uses this to know in WHICH ORDER to call wipe-entity.
+    if (action === 'wipe-plan') {
+      const { selectedEntities } = body || {};
+      if (!Array.isArray(selectedEntities) || selectedEntities.length === 0) {
+        return Response.json({ success: false, error: 'No entities selected' }, { status: 400 });
+      }
+      const plan = SAFE_WIPE_ORDER.filter(
+        (e) => selectedEntities.includes(e) && WIPE_ENTITIES.includes(e)
+      );
+      if (plan.length === 0) {
+        return Response.json({ success: false, error: 'No valid entities selected' }, { status: 400 });
+      }
+      return Response.json({ success: true, plan });
+    }
+
     if (action === 'restore') {
       if (!backupData || !backupData.data) {
         return Response.json({ success: false, error: 'Invalid backup data' }, { status: 400 });

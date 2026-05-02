@@ -602,6 +602,11 @@
       "selectAll": "Tümünü seç",
       "deselectAll": "Seçimi temizle",
       "noneSelected": "Silinecek en az bir veri türü seç.",
+      "progressTitle": "Veriler siliniyor…",
+      "deletedCount": "{{count}} silindi",
+      "errorShort": "Hata",
+      "closeButton": "Kapat",
+      "partialError": "Silme sırasında hatalar oluştu. Listeye bakın.",
       "entities": {
         "Player": "Oyuncular",
         "DKPTransaction": "DKP işlemleri",

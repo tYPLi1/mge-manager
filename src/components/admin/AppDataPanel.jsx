@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Download, Upload, Trash2, AlertTriangle, Loader2, Lock, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Download, Upload, Trash2, AlertTriangle, Loader2, Lock, Eye, EyeOff, ShieldAlert, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,9 +37,11 @@ export default function AppDataPanel() {
   const [busy, setBusy] = useState(null); // 'backup' | 'restore' | 'wipe' | null
 
   // Wipe confirmation flow
-  const [wipeStep, setWipeStep] = useState(0); // 0=hidden, 1=select, 2=warn, 3=type-confirm
+  const [wipeStep, setWipeStep] = useState(0); // 0=hidden, 1=select, 2=warn, 3=type-confirm, 4=progress
   const [wipeConfirmText, setWipeConfirmText] = useState("");
   const [selectedWipeEntities, setSelectedWipeEntities] = useState([]);
+  // Live progress state for the wipe operation
+  const [wipeProgress, setWipeProgress] = useState({}); // { entityName: { status: 'pending'|'running'|'done'|'error', deleted?, error? } }
 
   const toggleWipeEntity = (entity) => {
     setSelectedWipeEntities((prev) =>
@@ -55,6 +57,7 @@ export default function AppDataPanel() {
     setWipeStep(0);
     setWipeConfirmText("");
     setSelectedWipeEntities([]);
+    setWipeProgress({});
   };
 
   // Restore flow
@@ -155,16 +158,53 @@ export default function AppDataPanel() {
       toast.error(t("appData.wipe.noneSelected"));
       return;
     }
+
     setBusy("wipe");
+
+    // 1) Get the safe deletion plan from backend (server filters & orders our selection)
+    let plan;
     try {
-      const data = await callApi("wipe", { selectedEntities: selectedWipeEntities });
-      const total = Object.values(data.counts).reduce((s, n) => s + (n > 0 ? n : 0), 0);
-      toast.success(t("appData.wipeSuccess", { count: total }));
-      resetWipeFlow();
+      const planRes = await callApi("wipe-plan", { selectedEntities: selectedWipeEntities });
+      plan = planRes.plan || [];
     } catch (err) {
       toast.error(err.message);
-    } finally {
       setBusy(null);
+      return;
+    }
+
+    if (plan.length === 0) {
+      toast.error(t("appData.wipe.noneSelected"));
+      setBusy(null);
+      return;
+    }
+
+    // Switch to progress view and initialize all entities as 'pending'
+    const initialProgress = {};
+    plan.forEach((e) => { initialProgress[e] = { status: "pending" }; });
+    setWipeProgress(initialProgress);
+    setWipeStep(4);
+
+    // 2) Delete each selected entity one by one with live feedback
+    let totalDeleted = 0;
+    let hadError = false;
+    for (const entity of plan) {
+      setWipeProgress((prev) => ({ ...prev, [entity]: { status: "running" } }));
+      try {
+        const res = await callApi("wipe-entity", { entityName: entity });
+        const deleted = res.deleted || 0;
+        totalDeleted += deleted;
+        setWipeProgress((prev) => ({ ...prev, [entity]: { status: "done", deleted } }));
+      } catch (err) {
+        hadError = true;
+        setWipeProgress((prev) => ({ ...prev, [entity]: { status: "error", error: err.message } }));
+      }
+    }
+
+    setBusy(null);
+    if (hadError) {
+      toast.error(t("appData.wipe.partialError"));
+    } else {
+      toast.success(t("appData.wipeSuccess", { count: totalDeleted }));
     }
   };
 
@@ -406,6 +446,51 @@ export default function AppDataPanel() {
                 {t("appData.cancel")}
               </Button>
             </div>
+          </div>
+        )}
+
+        {wipeStep === 4 && (
+          <div className="rounded-lg border border-red-500/40 bg-red-500/5 p-4">
+            <p className="text-sm font-bold text-red-300 mb-3">{t("appData.wipe.progressTitle")}</p>
+            <div className="space-y-1.5 mb-3">
+              {Object.entries(wipeProgress).map(([entity, info]) => (
+                <div
+                  key={entity}
+                  className="flex items-center justify-between gap-2 px-3 py-2 rounded-md bg-white/5 border border-white/5"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {info.status === "pending" && <Clock className="w-4 h-4 text-gray-500 shrink-0" />}
+                    {info.status === "running" && <Loader2 className="w-4 h-4 text-amber-400 animate-spin shrink-0" />}
+                    {info.status === "done" && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                    {info.status === "error" && <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
+                    <span className="text-sm text-gray-200 truncate">
+                      {t(`appData.wipe.entities.${entity}`)}
+                    </span>
+                  </div>
+                  <div className="text-xs font-mono shrink-0">
+                    {info.status === "pending" && <span className="text-gray-500">—</span>}
+                    {info.status === "running" && <span className="text-amber-400">…</span>}
+                    {info.status === "done" && (
+                      <span className="text-emerald-400">
+                        {t("appData.wipe.deletedCount", { count: info.deleted ?? 0 })}
+                      </span>
+                    )}
+                    {info.status === "error" && (
+                      <span className="text-red-400" title={info.error}>{t("appData.wipe.errorShort")}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {busy !== "wipe" && (
+              <Button
+                onClick={resetWipeFlow}
+                variant="outline"
+                className="border-white/10 text-gray-300 hover:bg-white/5"
+              >
+                {t("appData.wipe.closeButton")}
+              </Button>
+            )}
           </div>
         )}
 

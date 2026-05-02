@@ -563,6 +563,11 @@
       "selectAll": "전체 선택",
       "deselectAll": "선택 해제",
       "noneSelected": "삭제할 데이터 유형을 하나 이상 선택하세요.",
+      "progressTitle": "데이터 삭제 중…",
+      "deletedCount": "{{count}}개 삭제됨",
+      "errorShort": "오류",
+      "closeButton": "닫기",
+      "partialError": "삭제 중 오류가 발생했습니다. 목록을 확인하세요.",
       "entities": {
         "Player": "플레이어",
         "DKPTransaction": "DKP 거래",
