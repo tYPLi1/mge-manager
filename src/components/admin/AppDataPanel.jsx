@@ -4,8 +4,23 @@ import { Download, Upload, Trash2, AlertTriangle, Loader2, Lock, Eye, EyeOff, Sh
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n";
+
+// Whitelist — must match WIPE_ENTITIES in functions/appDataManagement.js.
+// Order shown in the UI (independent of backend safe-delete order).
+const WIPE_ENTITY_OPTIONS = [
+  "Player",
+  "DKPTransaction",
+  "Bid",
+  "Auction",
+  "AuctionResult",
+  "Penalty",
+  "OffenseResetLog",
+  "PowerHistory",
+  "UserReport",
+];
 
 const getSession = () => {
   try {
@@ -22,8 +37,25 @@ export default function AppDataPanel() {
   const [busy, setBusy] = useState(null); // 'backup' | 'restore' | 'wipe' | null
 
   // Wipe confirmation flow
-  const [wipeStep, setWipeStep] = useState(0); // 0=hidden, 1=warn, 2=type-confirm
+  const [wipeStep, setWipeStep] = useState(0); // 0=hidden, 1=select, 2=warn, 3=type-confirm
   const [wipeConfirmText, setWipeConfirmText] = useState("");
+  const [selectedWipeEntities, setSelectedWipeEntities] = useState([]);
+
+  const toggleWipeEntity = (entity) => {
+    setSelectedWipeEntities((prev) =>
+      prev.includes(entity) ? prev.filter((e) => e !== entity) : [...prev, entity]
+    );
+  };
+  const toggleAllWipeEntities = () => {
+    setSelectedWipeEntities((prev) =>
+      prev.length === WIPE_ENTITY_OPTIONS.length ? [] : [...WIPE_ENTITY_OPTIONS]
+    );
+  };
+  const resetWipeFlow = () => {
+    setWipeStep(0);
+    setWipeConfirmText("");
+    setSelectedWipeEntities([]);
+  };
 
   // Restore flow
   const [restoreFile, setRestoreFile] = useState(null);
@@ -119,13 +151,16 @@ export default function AppDataPanel() {
       toast.error(t("appData.wipeTypeWrong"));
       return;
     }
+    if (selectedWipeEntities.length === 0) {
+      toast.error(t("appData.wipe.noneSelected"));
+      return;
+    }
     setBusy("wipe");
     try {
-      const data = await callApi("wipe");
+      const data = await callApi("wipe", { selectedEntities: selectedWipeEntities });
       const total = Object.values(data.counts).reduce((s, n) => s + (n > 0 ? n : 0), 0);
       toast.success(t("appData.wipeSuccess", { count: total }));
-      setWipeStep(0);
-      setWipeConfirmText("");
+      resetWipeFlow();
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -279,32 +314,51 @@ export default function AppDataPanel() {
         )}
 
         {wipeStep === 1 && (
-          <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4">
-            <div className="flex items-start gap-2 mb-3">
-              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-sm font-bold text-red-300 mb-1">{t("appData.wipe.warnTitle")}</p>
-                <p className="text-xs text-red-200/90 mb-2">{t("appData.wipe.warnLine1")}</p>
-                <ul className="text-xs text-red-200/80 list-disc list-inside space-y-0.5 mb-2">
-                  <li>{t("appData.wipe.warnPlayers")}</li>
-                  <li>{t("appData.wipe.warnTransactions")}</li>
-                  <li>{t("appData.wipe.warnAuctions")}</li>
-                  <li>{t("appData.wipe.warnPenalties")}</li>
-                  <li>{t("appData.wipe.warnPower")}</li>
-                </ul>
-                <p className="text-xs text-emerald-300">{t("appData.wipe.kept")}</p>
-              </div>
+          <div className="rounded-lg border border-red-500/40 bg-red-500/5 p-4">
+            <p className="text-sm font-bold text-red-300 mb-1">{t("appData.wipe.selectTitle")}</p>
+            <p className="text-xs text-red-200/80 mb-3">{t("appData.wipe.selectDesc")}</p>
+
+            <button
+              type="button"
+              onClick={toggleAllWipeEntities}
+              className="text-xs text-amber-400 hover:text-amber-300 underline mb-3"
+            >
+              {selectedWipeEntities.length === WIPE_ENTITY_OPTIONS.length
+                ? t("appData.wipe.deselectAll")
+                : t("appData.wipe.selectAll")}
+            </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              {WIPE_ENTITY_OPTIONS.map((entity) => (
+                <label
+                  key={entity}
+                  className="flex items-center gap-2 p-2 rounded-md bg-white/5 hover:bg-white/10 cursor-pointer border border-white/5"
+                >
+                  <Checkbox
+                    checked={selectedWipeEntities.includes(entity)}
+                    onCheckedChange={() => toggleWipeEntity(entity)}
+                    className="border-red-500/40 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                  />
+                  <span className="text-sm text-gray-200">
+                    {t(`appData.wipe.entities.${entity}`)}
+                  </span>
+                </label>
+              ))}
             </div>
+
+            <p className="text-xs text-emerald-300/90 mb-3">{t("appData.wipe.kept")}</p>
+
             <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={() => setWipeStep(2)}
+                disabled={selectedWipeEntities.length === 0}
                 variant="outline"
-                className="border-red-500/40 text-red-400 hover:bg-red-500/20"
+                className="border-red-500/40 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
               >
                 {t("appData.wipe.continueButton")}
               </Button>
               <Button
-                onClick={() => { setWipeStep(0); setWipeConfirmText(""); }}
+                onClick={resetWipeFlow}
                 variant="outline"
                 className="border-white/10 text-gray-400 hover:bg-white/5"
               >
@@ -315,6 +369,47 @@ export default function AppDataPanel() {
         )}
 
         {wipeStep === 2 && (
+          <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4">
+            <div className="flex items-start gap-2 mb-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-red-300 mb-1">{t("appData.wipe.warnTitle")}</p>
+                <p className="text-xs text-red-200/90 mb-2">{t("appData.wipe.warnLine1")}</p>
+                <ul className="text-xs text-red-200/80 list-disc list-inside space-y-0.5 mb-2">
+                  {selectedWipeEntities.map((entity) => (
+                    <li key={entity}>{t(`appData.wipe.entities.${entity}`)}</li>
+                  ))}
+                </ul>
+                <p className="text-xs text-emerald-300">{t("appData.wipe.kept")}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={() => setWipeStep(3)}
+                variant="outline"
+                className="border-red-500/40 text-red-400 hover:bg-red-500/20"
+              >
+                {t("appData.wipe.continueButton")}
+              </Button>
+              <Button
+                onClick={() => setWipeStep(1)}
+                variant="outline"
+                className="border-white/10 text-gray-400 hover:bg-white/5"
+              >
+                {t("common.back")}
+              </Button>
+              <Button
+                onClick={resetWipeFlow}
+                variant="outline"
+                className="border-white/10 text-gray-400 hover:bg-white/5"
+              >
+                {t("appData.cancel")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {wipeStep === 3 && (
           <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4">
             <p className="text-sm font-bold text-red-300 mb-2">{t("appData.wipe.finalTitle")}</p>
             <p className="text-xs text-red-200/90 mb-3">{t("appData.wipe.finalDesc")}</p>
@@ -338,7 +433,7 @@ export default function AppDataPanel() {
                 {t("appData.wipe.confirmButton")}
               </Button>
               <Button
-                onClick={() => { setWipeStep(0); setWipeConfirmText(""); }}
+                onClick={resetWipeFlow}
                 disabled={busy !== null}
                 variant="outline"
                 className="border-white/10 text-gray-400 hover:bg-white/5"

@@ -17,6 +17,7 @@ const BACKUP_ENTITIES = [
 ];
 
 // Entities cleared by the WIPE action (operational data only — settings/events/admins are kept).
+// This is the WHITELIST — only entities in this list may be selected for wiping.
 const WIPE_ENTITIES = [
   'Player',
   'DKPTransaction',
@@ -27,6 +28,21 @@ const WIPE_ENTITIES = [
   'OffenseResetLog',
   'PowerHistory',
   'UserReport',
+];
+
+// Safe deletion order — child/dependent entities are deleted BEFORE parents.
+// Player is deleted last because Bid/AuctionResult/DKPTransaction/Penalty/OffenseResetLog/PowerHistory reference it.
+// Auction is deleted after Bid/AuctionResult because they reference Auction.
+const SAFE_WIPE_ORDER = [
+  'Bid',
+  'AuctionResult',
+  'DKPTransaction',
+  'Penalty',
+  'OffenseResetLog',
+  'PowerHistory',
+  'Auction',
+  'UserReport',
+  'Player',
 ];
 
 // Helper: validate admin session via stored token
@@ -138,8 +154,25 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'wipe') {
+      // Caller must provide the list of entities to wipe.
+      const { selectedEntities } = body || {};
+      if (!Array.isArray(selectedEntities) || selectedEntities.length === 0) {
+        return Response.json({ success: false, error: 'No entities selected' }, { status: 400 });
+      }
+
+      // Build the actual wipe list:
+      //  - filter against the whitelist (WIPE_ENTITIES) for safety
+      //  - reorder according to SAFE_WIPE_ORDER to respect dependencies
+      const actualEntitiesToWipe = SAFE_WIPE_ORDER.filter(
+        (e) => selectedEntities.includes(e) && WIPE_ENTITIES.includes(e)
+      );
+
+      if (actualEntitiesToWipe.length === 0) {
+        return Response.json({ success: false, error: 'No valid entities selected' }, { status: 400 });
+      }
+
       const counts = {};
-      for (const entity of WIPE_ENTITIES) {
+      for (const entity of actualEntitiesToWipe) {
         try {
           counts[entity] = await deleteAll(base44, entity);
         } catch (e) {
