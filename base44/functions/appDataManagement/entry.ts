@@ -82,23 +82,26 @@ async function listAll(base44, entityName) {
 
 async function deleteAll(base44, entityName) {
   let total = 0;
-  // Loop until no records remain
+  // Loop until no records remain. Delete in parallel batches for speed.
+  const BATCH_SIZE = 200;
+  const PARALLEL = 25; // delete this many concurrently
   while (true) {
-    const records = await base44.asServiceRole.entities[entityName].list(null, 500);
+    const records = await base44.asServiceRole.entities[entityName].list(null, BATCH_SIZE);
     if (!records || records.length === 0) break;
-    for (const r of records) {
-      try {
-        await base44.asServiceRole.entities[entityName].delete(r.id);
-        total++;
-      } catch (e) {
-        console.warn(`Failed to delete ${entityName}/${r.id}: ${e.message}`);
+
+    // Process deletes in parallel chunks
+    for (let i = 0; i < records.length; i += PARALLEL) {
+      const chunk = records.slice(i, i + PARALLEL);
+      const results = await Promise.allSettled(
+        chunk.map((r) => base44.asServiceRole.entities[entityName].delete(r.id))
+      );
+      for (const res of results) {
+        if (res.status === 'fulfilled') total++;
+        else console.warn(`Failed to delete in ${entityName}: ${res.reason?.message || res.reason}`);
       }
     }
-    if (records.length < 500) {
-      // last batch — re-check once more in case of race
-      const remaining = await base44.asServiceRole.entities[entityName].list(null, 1);
-      if (!remaining || remaining.length === 0) break;
-    }
+
+    if (records.length < BATCH_SIZE) break;
   }
   return total;
 }
