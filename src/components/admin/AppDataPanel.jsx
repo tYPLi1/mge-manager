@@ -11,7 +11,7 @@ import { useTranslation } from "@/lib/i18n";
 // Whitelist — must match WIPE_ENTITIES in functions/appDataManagement.js.
 // Order shown in the UI (independent of backend safe-delete order).
 const WIPE_ENTITY_OPTIONS = [
-  "Player",
+  "PlayerDKPReset",
   "DKPTransaction",
   "Bid",
   "Auction",
@@ -20,6 +20,7 @@ const WIPE_ENTITY_OPTIONS = [
   "OffenseResetLog",
   "PowerHistory",
   "UserReport",
+  "Player",
 ];
 
 const getSession = () => {

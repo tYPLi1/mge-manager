@@ -616,7 +616,8 @@
       "closeButton": "Close",
       "partialError": "Some entities failed to wipe. See list for details.",
       "entities": {
-        "Player": "Players",
+        "PlayerDKPReset": "Reset player DKP (to 0)",
+        "Player": "Players (delete completely)",
         "DKPTransaction": "DKP transactions",
         "Bid": "Bids",
         "Auction": "Auctions",

@@ -577,7 +577,8 @@
       "closeButton": "关闭",
       "partialError": "删除过程中出现错误。请查看列表。",
       "entities": {
-        "Player": "玩家",
+        "PlayerDKPReset": "重置玩家 DKP (归零)",
+        "Player": "玩家 (完全删除)",
         "DKPTransaction": "DKP 交易",
         "Bid": "出价",
         "Auction": "拍卖",

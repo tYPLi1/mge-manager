@@ -577,7 +577,8 @@
       "closeButton": "닫기",
       "partialError": "삭제 중 오류가 발생했습니다. 목록을 확인하세요.",
       "entities": {
-        "Player": "플레이어",
+        "PlayerDKPReset": "플레이어 DKP 재설정 (0으로)",
+        "Player": "플레이어 (완전 삭제)",
         "DKPTransaction": "DKP 거래",
         "Bid": "입찰",
         "Auction": "경매",

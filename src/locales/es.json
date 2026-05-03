@@ -586,7 +586,8 @@
       "closeButton": "Cerrar",
       "partialError": "Se produjeron errores durante el borrado. Consulta la lista.",
       "entities": {
-        "Player": "Jugadores",
+        "PlayerDKPReset": "Restablecer DKP de jugadores (a 0)",
+        "Player": "Jugadores (eliminar completamente)",
         "DKPTransaction": "Transacciones DKP",
         "Bid": "Pujas",
         "Auction": "Subastas",

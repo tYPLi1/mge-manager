@@ -580,7 +580,8 @@
       "closeButton": "Fermer",
       "partialError": "Des erreurs sont survenues lors de la suppression. Voir la liste.",
       "entities": {
-        "Player": "Joueurs",
+        "PlayerDKPReset": "Réinitialiser DKP des joueurs (à 0)",
+        "Player": "Joueurs (supprimer entièrement)",
         "DKPTransaction": "Transactions DKP",
         "Bid": "Mises",
         "Auction": "Enchères",

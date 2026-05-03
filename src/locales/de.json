@@ -616,7 +616,8 @@
       "closeButton": "Schließen",
       "partialError": "Beim Löschen sind Fehler aufgetreten. Details siehe Liste.",
       "entities": {
-        "Player": "Spieler",
+        "PlayerDKPReset": "Spieler-DKP zurücksetzen (auf 0)",
+        "Player": "Spieler (komplett löschen)",
         "DKPTransaction": "DKP-Transaktionen",
         "Bid": "Gebote",
         "Auction": "Auktionen",

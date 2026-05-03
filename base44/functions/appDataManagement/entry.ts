@@ -18,8 +18,10 @@ const BACKUP_ENTITIES = [
 
 // Entities cleared by the WIPE action (operational data only — settings/events/admins are kept).
 // This is the WHITELIST — only entities in this list may be selected for wiping.
+// Special pseudo-entity: 'PlayerDKPReset' — does NOT delete players, only resets their DKP fields to 0.
 const WIPE_ENTITIES = [
   'Player',
+  'PlayerDKPReset',
   'DKPTransaction',
   'Bid',
   'Auction',
@@ -42,6 +44,7 @@ const SAFE_WIPE_ORDER = [
   'PowerHistory',
   'Auction',
   'UserReport',
+  'PlayerDKPReset', // run BEFORE Player delete so it's a no-op if Player is also selected
   'Player',
 ];
 
@@ -219,6 +222,34 @@ Deno.serve(async (req) => {
       if (!entityName || !WIPE_ENTITIES.includes(entityName)) {
         return Response.json({ success: false, error: 'Invalid entity' }, { status: 400 });
       }
+
+      // Special pseudo-entity: reset all players' DKP fields to 0 instead of deleting players.
+      if (entityName === 'PlayerDKPReset') {
+        try {
+          const players = await listAll(base44, 'Player');
+          let updated = 0;
+          const PARALLEL = 5;
+          for (let i = 0; i < players.length; i += PARALLEL) {
+            const chunk = players.slice(i, i + PARALLEL);
+            const results = await Promise.allSettled(
+              chunk.map((p) =>
+                base44.asServiceRole.entities.Player.update(p.id, {
+                  total_dkp: 0,
+                  dkp_spent: 0,
+                  auction_ban_count: 0,
+                  cooldown_until: null,
+                })
+              )
+            );
+            results.forEach((r) => { if (r.status === 'fulfilled') updated++; });
+          }
+          return Response.json({ success: true, entity: entityName, deleted: updated });
+        } catch (e) {
+          console.error(`Player DKP reset failed: ${e.message}`);
+          return Response.json({ success: false, error: e.message }, { status: 500 });
+        }
+      }
+
       try {
         const deleted = await deleteAll(base44, entityName);
         return Response.json({ success: true, entity: entityName, deleted });

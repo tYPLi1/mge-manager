@@ -616,7 +616,8 @@
       "closeButton": "Kapat",
       "partialError": "Silme sırasında hatalar oluştu. Listeye bakın.",
       "entities": {
-        "Player": "Oyuncular",
+        "PlayerDKPReset": "Oyuncu DKP'sini sıfırla (0'a)",
+        "Player": "Oyuncular (tamamen sil)",
         "DKPTransaction": "DKP işlemleri",
         "Bid": "Teklifler",
         "Auction": "Açık artırmalar",
