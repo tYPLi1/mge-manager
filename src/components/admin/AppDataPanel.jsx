@@ -62,8 +62,27 @@ export default function AppDataPanel() {
 
   // Restore flow
   const [restoreFile, setRestoreFile] = useState(null);
-  const [restoreStep, setRestoreStep] = useState(0); // 0=hidden, 1=confirm
+  const [restoreStep, setRestoreStep] = useState(0); // 0=hidden, 1=select, 2=confirm, 3=progress
   const [restorePreview, setRestorePreview] = useState(null);
+  const [selectedRestoreEntities, setSelectedRestoreEntities] = useState([]);
+  const [restoreProgress, setRestoreProgress] = useState({}); // { entity: { status, inserted?, error? } }
+
+  const toggleRestoreEntity = (entity) => {
+    setSelectedRestoreEntities((prev) =>
+      prev.includes(entity) ? prev.filter((e) => e !== entity) : [...prev, entity]
+    );
+  };
+  const toggleAllRestoreEntities = () => {
+    const all = restorePreview ? Object.keys(restorePreview.counts) : [];
+    setSelectedRestoreEntities((prev) => (prev.length === all.length ? [] : all));
+  };
+  const resetRestoreFlow = () => {
+    setRestoreStep(0);
+    setRestoreFile(null);
+    setRestorePreview(null);
+    setSelectedRestoreEntities([]);
+    setRestoreProgress({});
+  };
 
   const callApi = async (action, extra = {}) => {
     const session = getSession();
@@ -123,6 +142,8 @@ export default function AppDataPanel() {
       }
       setRestoreFile(parsed);
       setRestorePreview({ counts, total, createdAt: parsed.created_at });
+      // Pre-select all entities present in the backup
+      setSelectedRestoreEntities(Object.keys(counts).filter((k) => counts[k] > 0));
       setRestoreStep(1);
     } catch (err) {
       toast.error(t("appData.invalidBackup"));
@@ -133,18 +154,74 @@ export default function AppDataPanel() {
   const handleRestoreConfirm = async () => {
     if (!masterPassword) { toast.error(t("appData.passwordRequired")); return; }
     if (!restoreFile) return;
+    if (selectedRestoreEntities.length === 0) {
+      toast.error(t("appData.restore.noneSelected"));
+      return;
+    }
+
     setBusy("restore");
+
+    // 1) Get the safe restore plan from backend
+    let plan;
     try {
-      const data = await callApi("restore", { backupData: restoreFile });
-      const total = Object.values(data.counts).reduce((s, n) => s + n, 0);
-      toast.success(t("appData.restoreSuccess", { count: total }));
-      setRestoreStep(0);
-      setRestoreFile(null);
-      setRestorePreview(null);
+      const planRes = await callApi("restore-plan", {
+        selectedEntities: selectedRestoreEntities,
+        backupData: { data: { } }, // server only needs to know which keys exist; send minimal
+      });
+      plan = planRes.plan || [];
     } catch (err) {
-      toast.error(err.message);
-    } finally {
+      // Fallback: rebuild minimal data map for plan
+      try {
+        const dataKeys = {};
+        for (const ent of selectedRestoreEntities) {
+          dataKeys[ent] = restoreFile.data[ent] || [];
+        }
+        const planRes = await callApi("restore-plan", {
+          selectedEntities: selectedRestoreEntities,
+          backupData: { data: dataKeys },
+        });
+        plan = planRes.plan || [];
+      } catch (err2) {
+        toast.error(err2.message);
+        setBusy(null);
+        return;
+      }
+    }
+
+    if (plan.length === 0) {
+      toast.error(t("appData.restore.noneSelected"));
       setBusy(null);
+      return;
+    }
+
+    // Switch to progress view
+    const initialProgress = {};
+    plan.forEach((e) => { initialProgress[e] = { status: "pending" }; });
+    setRestoreProgress(initialProgress);
+    setRestoreStep(3);
+
+    // 2) Restore each entity one by one
+    let totalInserted = 0;
+    let hadError = false;
+    for (const entity of plan) {
+      setRestoreProgress((prev) => ({ ...prev, [entity]: { status: "running" } }));
+      try {
+        const records = restoreFile.data[entity] || [];
+        const res = await callApi("restore-entity", { entityName: entity, records });
+        const inserted = res.inserted || 0;
+        totalInserted += inserted;
+        setRestoreProgress((prev) => ({ ...prev, [entity]: { status: "done", inserted } }));
+      } catch (err) {
+        hadError = true;
+        setRestoreProgress((prev) => ({ ...prev, [entity]: { status: "error", error: err.message } }));
+      }
+    }
+
+    setBusy(null);
+    if (hadError) {
+      toast.error(t("appData.restore.partialError"));
+    } else {
+      toast.success(t("appData.restoreSuccess", { count: totalInserted }));
     }
   };
 
@@ -288,24 +365,82 @@ export default function AppDataPanel() {
 
         {restoreStep === 1 && restorePreview && (
           <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
+            <p className="text-sm font-bold text-blue-300 mb-1">{t("appData.restore.selectTitle")}</p>
+            <p className="text-xs text-blue-200/80 mb-2">{t("appData.restore.selectDesc")}</p>
+            <p className="text-xs text-gray-400 mb-3">
+              {t("appData.restore.fileInfo", {
+                date: restorePreview.createdAt ? new Date(restorePreview.createdAt).toLocaleString() : "—",
+                count: restorePreview.total,
+              })}
+            </p>
+
+            <button
+              type="button"
+              onClick={toggleAllRestoreEntities}
+              className="text-xs text-amber-400 hover:text-amber-300 underline mb-3"
+            >
+              {selectedRestoreEntities.length === Object.keys(restorePreview.counts).length
+                ? t("appData.restore.deselectAll")
+                : t("appData.restore.selectAll")}
+            </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              {Object.entries(restorePreview.counts).map(([ent, n]) => (
+                <label
+                  key={ent}
+                  className={`flex items-center gap-2 p-2 rounded-md border ${
+                    n === 0 ? "bg-white/2 border-white/5 opacity-50" : "bg-white/5 hover:bg-white/10 border-white/5 cursor-pointer"
+                  }`}
+                >
+                  <Checkbox
+                    checked={selectedRestoreEntities.includes(ent)}
+                    onCheckedChange={() => toggleRestoreEntity(ent)}
+                    disabled={n === 0}
+                    className="border-blue-500/40 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+                  <span className="text-sm text-gray-200 flex-1 truncate">
+                    {t(`appData.wipe.entities.${ent}`, { defaultValue: ent })}
+                  </span>
+                  <span className="text-xs font-mono text-blue-300/80">{n}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={() => setRestoreStep(2)}
+                disabled={selectedRestoreEntities.length === 0}
+                variant="outline"
+                className="border-blue-500/40 text-blue-300 hover:bg-blue-500/20 disabled:opacity-40"
+              >
+                {t("appData.wipe.continueButton")}
+              </Button>
+              <Button
+                onClick={resetRestoreFlow}
+                variant="outline"
+                className="border-white/10 text-gray-400 hover:bg-white/5"
+              >
+                {t("appData.cancel")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {restoreStep === 2 && restorePreview && (
+          <div className="rounded-lg border border-blue-500/40 bg-blue-500/10 p-4">
             <div className="flex items-start gap-2 mb-3">
-              <AlertTriangle className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-blue-300 mb-1">{t("appData.restore.confirmTitle")}</p>
-                <p className="text-xs text-blue-200/80 mb-2">{t("appData.restore.confirmWarn")}</p>
-                <p className="text-xs text-gray-400 mb-2">
-                  {t("appData.restore.fileInfo", {
-                    date: restorePreview.createdAt ? new Date(restorePreview.createdAt).toLocaleString() : "—",
-                    count: restorePreview.total,
-                  })}
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 mb-3">
-                  {Object.entries(restorePreview.counts).map(([ent, n]) => (
-                    <div key={ent} className="text-xs text-gray-400 font-mono bg-white/5 rounded px-2 py-1">
-                      {ent}: <span className="text-blue-300">{n}</span>
-                    </div>
+                <p className="text-sm font-bold text-blue-300 mb-1">{t("appData.restore.confirmTitle")}</p>
+                <p className="text-xs text-blue-200/90 mb-2">{t("appData.restore.confirmWarn")}</p>
+                <ul className="text-xs text-blue-200/80 list-disc list-inside space-y-0.5 mb-2">
+                  {selectedRestoreEntities.map((ent) => (
+                    <li key={ent}>
+                      {t(`appData.wipe.entities.${ent}`, { defaultValue: ent })}{" "}
+                      <span className="font-mono text-blue-300/80">({restorePreview.counts[ent] || 0})</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -318,7 +453,15 @@ export default function AppDataPanel() {
                 {t("appData.restore.confirmButton")}
               </Button>
               <Button
-                onClick={() => { setRestoreStep(0); setRestoreFile(null); setRestorePreview(null); }}
+                onClick={() => setRestoreStep(1)}
+                disabled={busy !== null}
+                variant="outline"
+                className="border-white/10 text-gray-400 hover:bg-white/5"
+              >
+                {t("common.back")}
+              </Button>
+              <Button
+                onClick={resetRestoreFlow}
                 disabled={busy !== null}
                 variant="outline"
                 className="border-white/10 text-gray-400 hover:bg-white/5"
@@ -326,6 +469,51 @@ export default function AppDataPanel() {
                 {t("appData.cancel")}
               </Button>
             </div>
+          </div>
+        )}
+
+        {restoreStep === 3 && (
+          <div className="rounded-lg border border-blue-500/40 bg-blue-500/5 p-4">
+            <p className="text-sm font-bold text-blue-300 mb-3">{t("appData.restore.progressTitle")}</p>
+            <div className="space-y-1.5 mb-3">
+              {Object.entries(restoreProgress).map(([entity, info]) => (
+                <div
+                  key={entity}
+                  className="flex items-center justify-between gap-2 px-3 py-2 rounded-md bg-white/5 border border-white/5"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {info.status === "pending" && <Clock className="w-4 h-4 text-gray-500 shrink-0" />}
+                    {info.status === "running" && <Loader2 className="w-4 h-4 text-amber-400 animate-spin shrink-0" />}
+                    {info.status === "done" && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                    {info.status === "error" && <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
+                    <span className="text-sm text-gray-200 truncate">
+                      {t(`appData.wipe.entities.${entity}`, { defaultValue: entity })}
+                    </span>
+                  </div>
+                  <div className="text-xs font-mono shrink-0">
+                    {info.status === "pending" && <span className="text-gray-500">—</span>}
+                    {info.status === "running" && <span className="text-amber-400">…</span>}
+                    {info.status === "done" && (
+                      <span className="text-emerald-400">
+                        {t("appData.restore.insertedCount", { count: info.inserted ?? 0 })}
+                      </span>
+                    )}
+                    {info.status === "error" && (
+                      <span className="text-red-400" title={info.error}>{t("appData.wipe.errorShort")}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {busy !== "restore" && (
+              <Button
+                onClick={resetRestoreFlow}
+                variant="outline"
+                className="border-white/10 text-gray-300 hover:bg-white/5"
+              >
+                {t("appData.wipe.closeButton")}
+              </Button>
+            )}
           </div>
         )}
       </div>

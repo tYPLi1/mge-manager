@@ -545,12 +545,20 @@
     "backupSuccess": "已下载备份({{count}} 条记录)",
     "restore": {
       "title": "从备份恢复",
-      "desc": "将当前所有数据 — 包括设置、规则、联盟、排名和事件配置 — 替换为备份文件的内容。仅管理员账户保持不变。",
+      "desc": "选择性地选择从备份文件恢复哪些数据类型。所选数据类型将先被删除,然后用备份内容替换。未选择的类型保持不变。管理员账户始终保持不变。",
       "selectFile": "选择备份文件",
+      "selectTitle": "选择要恢复的数据",
+      "selectDesc": "精确选择要从备份恢复的数据类型。至少需要选择一项。",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "noneSelected": "请至少选择一种要恢复的数据类型。",
       "confirmTitle": "确认恢复",
-      "confirmWarn": "所有当前数据将被删除并替换为备份内容。",
+      "confirmWarn": "所选数据类型将被删除并替换为备份内容。未选择的类型保持不变。",
       "fileInfo": "{{date}} 的备份 · {{count}} 条记录",
-      "confirmButton": "用备份替换所有数据"
+      "confirmButton": "恢复所选数据",
+      "progressTitle": "正在恢复数据…",
+      "insertedCount": "已恢复 {{count}} 条",
+      "partialError": "恢复过程中出现错误。请查看列表。"
     },
     "restoreSuccess": "恢复完成({{count}} 条记录)",
     "wipe": {

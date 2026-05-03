@@ -555,12 +555,20 @@
     "backupSuccess": "Copia descargada ({{count}} registros)",
     "restore": {
       "title": "Restaurar desde copia",
-      "desc": "Reemplaza TODOS los datos actuales — incluidos ajustes, reglas, alianzas, rangos y configuraciones de eventos — con el contenido de una copia de seguridad. Solo las cuentas de administrador permanecen intactas.",
+      "desc": "Selecciona específicamente qué tipos de datos restaurar desde un archivo de copia. Los tipos seleccionados se borran primero y luego se reemplazan con el contenido de la copia. Los tipos no seleccionados permanecen sin cambios. Las cuentas de administrador siempre permanecen intactas.",
       "selectFile": "Seleccionar archivo",
+      "selectTitle": "Selecciona los datos a restaurar",
+      "selectDesc": "Elige exactamente qué tipos de datos restaurar desde la copia. Debes seleccionar al menos uno.",
+      "selectAll": "Seleccionar todo",
+      "deselectAll": "Quitar selección",
+      "noneSelected": "Selecciona al menos un tipo de datos para restaurar.",
       "confirmTitle": "Confirmar restauración",
-      "confirmWarn": "Todos los datos actuales se eliminarán y se reemplazarán por la copia.",
+      "confirmWarn": "Los tipos seleccionados se eliminarán y se reemplazarán por el contenido de la copia. Los tipos no seleccionados permanecen sin cambios.",
       "fileInfo": "Copia del {{date}} · {{count}} registros",
-      "confirmButton": "Reemplazar todos los datos"
+      "confirmButton": "Restaurar datos seleccionados",
+      "progressTitle": "Restaurando datos…",
+      "insertedCount": "{{count}} restaurado(s)",
+      "partialError": "Se produjeron errores durante la restauración. Consulta la lista."
     },
     "restoreSuccess": "Restauración completa ({{count}} registros)",
     "wipe": {

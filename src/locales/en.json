@@ -585,12 +585,20 @@
     "backupSuccess": "Backup downloaded ({{count}} records)",
     "restore": {
       "title": "Restore from backup",
-      "desc": "Replaces ALL current data — including settings, rules, alliances, ranks and event configurations — with the contents of a backup file. Only admin accounts are kept untouched.",
+      "desc": "Selectively choose which data types to restore from a backup file. Selected data types are wiped first and then replaced with the backup contents. Unselected types remain unchanged. Admin accounts are always kept untouched.",
       "selectFile": "Select backup file",
+      "selectTitle": "Select data to restore",
+      "selectDesc": "Choose exactly which data types should be restored from the backup. At least one must be selected.",
+      "selectAll": "Select all",
+      "deselectAll": "Clear selection",
+      "noneSelected": "Please select at least one data type to restore.",
       "confirmTitle": "Confirm restore",
-      "confirmWarn": "All current data will be deleted and replaced with the backup contents.",
+      "confirmWarn": "The selected data types will be deleted and replaced with the backup contents. Unselected types remain unchanged.",
       "fileInfo": "Backup from {{date}} · {{count}} records",
-      "confirmButton": "Replace all data with backup"
+      "confirmButton": "Restore selected data",
+      "progressTitle": "Restoring data…",
+      "insertedCount": "{{count}} restored",
+      "partialError": "Some entities failed to restore. See list for details."
     },
     "restoreSuccess": "Restore complete ({{count}} records)",
     "wipe": {

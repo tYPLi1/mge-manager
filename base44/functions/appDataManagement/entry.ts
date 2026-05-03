@@ -219,14 +219,97 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, plan });
     }
 
+    // Returns the safe restore order for the selected entities that exist in the backup.
+    // Restore order = REVERSE of safe wipe order (parents first, children last) for entities
+    // that have dependencies, except Player which must come FIRST since it's referenced by others.
+    // Actually we use this order: AppSettings, EventType, Player, Auction, then dependents.
+    if (action === 'restore-plan') {
+      const { selectedEntities, backupData: bd } = body || {};
+      if (!bd || !bd.data) {
+        return Response.json({ success: false, error: 'Invalid backup data' }, { status: 400 });
+      }
+      if (!Array.isArray(selectedEntities) || selectedEntities.length === 0) {
+        return Response.json({ success: false, error: 'No entities selected' }, { status: 400 });
+      }
+      const RESTORE_ORDER = [
+        'AppSettings',
+        'EventType',
+        'Player',
+        'Auction',
+        'Bid',
+        'AuctionResult',
+        'DKPTransaction',
+        'Penalty',
+        'OffenseResetLog',
+        'PowerHistory',
+        'UserReport',
+      ];
+      const plan = RESTORE_ORDER.filter(
+        (e) =>
+          selectedEntities.includes(e) &&
+          BACKUP_ENTITIES.includes(e) &&
+          Array.isArray(bd.data[e])
+      );
+      if (plan.length === 0) {
+        return Response.json({ success: false, error: 'No valid entities selected' }, { status: 400 });
+      }
+      return Response.json({ success: true, plan });
+    }
+
+    // Restore a SINGLE entity — used by the frontend to give live progress feedback
+    // and to avoid backend timeouts. Wipes that entity first, then inserts.
+    if (action === 'restore-entity') {
+      const { entityName, records } = body || {};
+      if (!entityName || !BACKUP_ENTITIES.includes(entityName)) {
+        return Response.json({ success: false, error: 'Invalid entity' }, { status: 400 });
+      }
+      if (!Array.isArray(records)) {
+        return Response.json({ success: false, error: 'Invalid records' }, { status: 400 });
+      }
+
+      try {
+        // Wipe existing rows for this entity to give a clean slate
+        await deleteAll(base44, entityName);
+      } catch (e) {
+        console.error(`Pre-restore wipe failed for ${entityName}: ${e.message}`);
+      }
+
+      const cleaned = records.map(stripSystemFields);
+      let inserted = 0;
+      for (let i = 0; i < cleaned.length; i += 50) {
+        const batch = cleaned.slice(i, i + 50);
+        try {
+          await base44.asServiceRole.entities[entityName].bulkCreate(batch);
+          inserted += batch.length;
+        } catch (e) {
+          console.error(`Restore batch failed for ${entityName}: ${e.message}`);
+          for (const item of batch) {
+            try {
+              await base44.asServiceRole.entities[entityName].create(item);
+              inserted++;
+            } catch (innerErr) {
+              console.warn(`Skipped record in ${entityName}: ${innerErr.message}`);
+            }
+          }
+        }
+      }
+      return Response.json({ success: true, entity: entityName, inserted });
+    }
+
     if (action === 'restore') {
       if (!backupData || !backupData.data) {
         return Response.json({ success: false, error: 'Invalid backup data' }, { status: 400 });
       }
 
+      // Optional: caller can restrict restore to a subset of entities
+      const { selectedEntities } = body || {};
+      const filterSet = Array.isArray(selectedEntities) && selectedEntities.length > 0
+        ? new Set(selectedEntities)
+        : null;
+
       // Determine which entities the backup actually contains (supports v1 and v2 backups)
       const entitiesToRestore = BACKUP_ENTITIES.filter(
-        (e) => Array.isArray(backupData.data[e])
+        (e) => Array.isArray(backupData.data[e]) && (!filterSet || filterSet.has(e))
       );
 
       // Step 1: wipe existing data (so we have a clean slate) — only for entities present in backup

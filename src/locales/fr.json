@@ -549,12 +549,20 @@
     "backupSuccess": "Sauvegarde téléchargée ({{count}} entrées)",
     "restore": {
       "title": "Restaurer depuis une sauvegarde",
-      "desc": "Remplace TOUTES les données actuelles — y compris les paramètres, règles, alliances, rangs et configurations d'événements — par le contenu d'un fichier de sauvegarde. Seuls les comptes admin restent intacts.",
+      "desc": "Choisis précisément quels types de données restaurer depuis un fichier de sauvegarde. Les types sélectionnés sont d'abord effacés puis remplacés par le contenu de la sauvegarde. Les types non sélectionnés restent inchangés. Les comptes admin sont toujours préservés.",
       "selectFile": "Sélectionner le fichier",
+      "selectTitle": "Sélectionner les données à restaurer",
+      "selectDesc": "Choisis précisément quels types de données restaurer depuis la sauvegarde. Au moins un doit être sélectionné.",
+      "selectAll": "Tout sélectionner",
+      "deselectAll": "Tout désélectionner",
+      "noneSelected": "Sélectionne au moins un type de données à restaurer.",
       "confirmTitle": "Confirmer la restauration",
-      "confirmWarn": "Toutes les données actuelles seront supprimées et remplacées par la sauvegarde.",
+      "confirmWarn": "Les types sélectionnés seront supprimés et remplacés par le contenu de la sauvegarde. Les types non sélectionnés restent inchangés.",
       "fileInfo": "Sauvegarde du {{date}} · {{count}} entrées",
-      "confirmButton": "Remplacer toutes les données"
+      "confirmButton": "Restaurer les données sélectionnées",
+      "progressTitle": "Restauration des données…",
+      "insertedCount": "{{count}} restauré(s)",
+      "partialError": "Des erreurs sont survenues lors de la restauration. Voir la liste."
     },
     "restoreSuccess": "Restauration terminée ({{count}} entrées)",
     "wipe": {

@@ -585,12 +585,20 @@
     "backupSuccess": "Backup heruntergeladen ({{count}} Datensätze)",
     "restore": {
       "title": "Aus Backup wiederherstellen",
-      "desc": "ALLE aktuellen Daten — inklusive Einstellungen, Regeln, Allianzen, Ränge und Event-Konfigurationen — werden durch den Inhalt einer Backup-Datei ersetzt. Nur Admin-Konten bleiben unangetastet.",
+      "desc": "Wähle gezielt aus, welche Datentypen aus einer Backup-Datei wiederhergestellt werden sollen. Die ausgewählten Datentypen werden zuerst gelöscht und dann durch den Inhalt des Backups ersetzt. Nicht ausgewählte Datentypen bleiben unverändert. Admin-Konten bleiben immer unangetastet.",
       "selectFile": "Backup-Datei wählen",
+      "selectTitle": "Wiederherzustellende Daten auswählen",
+      "selectDesc": "Wähle gezielt aus, welche Datentypen aus dem Backup wiederhergestellt werden sollen. Mindestens einer muss ausgewählt sein.",
+      "selectAll": "Alle auswählen",
+      "deselectAll": "Auswahl aufheben",
+      "noneSelected": "Bitte mindestens einen Datentyp zum Wiederherstellen auswählen.",
       "confirmTitle": "Wiederherstellung bestätigen",
-      "confirmWarn": "Alle aktuellen Daten werden gelöscht und durch das Backup ersetzt.",
+      "confirmWarn": "Die ausgewählten Datentypen werden gelöscht und durch das Backup ersetzt. Nicht ausgewählte Datentypen bleiben unverändert.",
       "fileInfo": "Backup vom {{date}} · {{count}} Datensätze",
-      "confirmButton": "Alle Daten durch Backup ersetzen"
+      "confirmButton": "Ausgewählte Daten wiederherstellen",
+      "progressTitle": "Stelle Daten wieder her…",
+      "insertedCount": "{{count}} wiederhergestellt",
+      "partialError": "Bei der Wiederherstellung sind Fehler aufgetreten. Details siehe Liste."
     },
     "restoreSuccess": "Wiederherstellung abgeschlossen ({{count}} Datensätze)",
     "wipe": {

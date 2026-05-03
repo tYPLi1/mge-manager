@@ -585,12 +585,20 @@
     "backupSuccess": "Yedek indirildi ({{count}} kayıt)",
     "restore": {
       "title": "Yedekten geri yükle",
-      "desc": "MEVCUT TÜM veriler — ayarlar, kurallar, ittifaklar, sıralar ve etkinlik yapılandırmaları dahil — bir yedek dosyasının içeriğiyle değiştirilir. Yalnızca yönetici hesaplarına dokunulmaz.",
+      "desc": "Bir yedek dosyasından hangi veri türlerinin geri yükleneceğini seçici olarak belirle. Seçilen veri türleri önce silinir ve ardından yedeğin içeriğiyle değiştirilir. Seçilmeyen türler değişmeden kalır. Yönetici hesaplarına asla dokunulmaz.",
       "selectFile": "Yedek dosyasını seç",
+      "selectTitle": "Geri yüklenecek verileri seç",
+      "selectDesc": "Yedekten tam olarak hangi veri türlerinin geri yükleneceğini seç. En az biri seçilmelidir.",
+      "selectAll": "Tümünü seç",
+      "deselectAll": "Seçimi temizle",
+      "noneSelected": "Geri yüklenecek en az bir veri türü seç.",
       "confirmTitle": "Geri yüklemeyi onayla",
-      "confirmWarn": "Mevcut tüm veriler silinecek ve yedeğin içeriğiyle değiştirilecek.",
+      "confirmWarn": "Seçilen veri türleri silinecek ve yedeğin içeriğiyle değiştirilecek. Seçilmeyen türler değişmeden kalır.",
       "fileInfo": "{{date}} tarihli yedek · {{count}} kayıt",
-      "confirmButton": "Tüm verileri yedekle değiştir"
+      "confirmButton": "Seçili verileri geri yükle",
+      "progressTitle": "Veriler geri yükleniyor…",
+      "insertedCount": "{{count}} geri yüklendi",
+      "partialError": "Geri yükleme sırasında hatalar oluştu. Listeye bakın."
     },
     "restoreSuccess": "Geri yükleme tamamlandı ({{count}} kayıt)",
     "wipe": {
