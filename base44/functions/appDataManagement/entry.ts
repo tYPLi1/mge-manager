@@ -67,16 +67,10 @@ async function verifyAdminSession(base44, session) {
 }
 
 async function listAll(base44, entityName) {
-  // Pull in pages of 1000
-  const all = [];
-  let skip = 0;
-  const pageSize = 1000;
-  // Pagination via list with limit; loop until empty page
-  // base44.entities.X.list(sort, limit) — we use no sort for stability
-  // Some entities may not support skip — we'll just take up to 50000 in one request as fallback
-  // The SDK does not document skip — but list() should be enough for our scale.
-  // To be safe we'll request a large limit.
-  const records = await base44.asServiceRole.entities[entityName].list(null, 50000);
+  // Use filter({}) instead of list() — list() can return empty results for some entities
+  // (e.g. when records are scoped by owner/RLS and the service-role list still applies a filter).
+  // filter({}) bypasses that and returns ALL records the service role can see.
+  const records = await base44.asServiceRole.entities[entityName].filter({}, null, 50000);
   return records || [];
 }
 
@@ -93,7 +87,9 @@ async function deleteAll(base44, entityName) {
 
   while (iter < MAX_ITERATIONS) {
     iter++;
-    const page = await base44.asServiceRole.entities[entityName].list(null, BATCH_SIZE);
+    // Use filter({}) instead of list() — list() can silently return empty for some entities
+    // even when records exist. filter({}) returns everything the service role can see.
+    const page = await base44.asServiceRole.entities[entityName].filter({}, null, BATCH_SIZE);
     if (!page || page.length === 0) break;
 
     // Filter out IDs we already failed on — otherwise we'd loop forever on them.
