@@ -586,7 +586,10 @@
         "Penalty": "페널티",
         "OffenseResetLog": "재설정 로그",
         "PowerHistory": "파워 기록",
-        "UserReport": "사용자 보고서"
+        "UserReport": "사용자 보고서",
+        "AppSettings": "앱 설정 (경매, DKP, 동맹, 규칙, Discord)",
+        "EventType": "이벤트 구성",
+        "AdminUser": "관리자 계정 ⚠️"
       },
       "warnLine1": "다음 데이터가 영구적으로 삭제됩니다:",
       "warnPlayers": "모든 플레이어",

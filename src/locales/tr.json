@@ -625,7 +625,10 @@
         "Penalty": "Cezalar",
         "OffenseResetLog": "Sıfırlama günlükleri",
         "PowerHistory": "Güç geçmişi",
-        "UserReport": "Kullanıcı raporları"
+        "UserReport": "Kullanıcı raporları",
+        "AppSettings": "Uygulama ayarları (açık artırma, DKP, ittifaklar, kurallar, Discord)",
+        "EventType": "Etkinlik yapılandırmaları",
+        "AdminUser": "Yönetici hesapları ⚠️"
       },
       "warnTitle": "Bu geri alınamaz",
       "warnLine1": "Aşağıdaki veriler KALICI OLARAK SİLİNECEK:",

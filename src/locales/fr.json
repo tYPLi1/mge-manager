@@ -589,7 +589,10 @@
         "Penalty": "Sanctions",
         "OffenseResetLog": "Journaux de réinitialisation",
         "PowerHistory": "Historique de puissance",
-        "UserReport": "Rapports utilisateurs"
+        "UserReport": "Rapports utilisateurs",
+        "AppSettings": "Paramètres de l'app (enchère, DKP, alliances, règles, Discord)",
+        "EventType": "Configurations d'événements",
+        "AdminUser": "Comptes admin ⚠️"
       },
       "warnTitle": "Action irréversible",
       "warnLine1": "Les données suivantes seront SUPPRIMÉES DÉFINITIVEMENT :",

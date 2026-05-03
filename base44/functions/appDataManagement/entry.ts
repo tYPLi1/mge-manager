@@ -1,7 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Entities included in BACKUP and RESTORE.
-// AdminUser is intentionally excluded — admin accounts must never be overwritten by a backup.
+// AdminUser is included but must be EXPLICITLY selected in the restore UI (default off)
+// to prevent accidental lockout when restoring an old backup.
 const BACKUP_ENTITIES = [
   'Player',
   'DKPTransaction',
@@ -14,6 +15,7 @@ const BACKUP_ENTITIES = [
   'UserReport',
   'AppSettings',
   'EventType',
+  'AdminUser',
 ];
 
 // Entities cleared by the WIPE action (operational data only — settings/events/admins are kept).
@@ -290,6 +292,7 @@ Deno.serve(async (req) => {
       const RESTORE_ORDER = [
         'AppSettings',
         'EventType',
+        'AdminUser',
         'Player',
         'Auction',
         'Bid',

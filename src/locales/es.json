@@ -595,7 +595,10 @@
         "Penalty": "Sanciones",
         "OffenseResetLog": "Registros de reinicio",
         "PowerHistory": "Historial de poder",
-        "UserReport": "Informes de usuarios"
+        "UserReport": "Informes de usuarios",
+        "AppSettings": "Ajustes de la app (subasta, DKP, alianzas, reglas, Discord)",
+        "EventType": "Configuraciones de eventos",
+        "AdminUser": "Cuentas de admin ⚠️"
       },
       "warnTitle": "Esto no se puede deshacer",
       "warnLine1": "Los siguientes datos se ELIMINARÁN PERMANENTEMENTE:",

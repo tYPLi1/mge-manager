@@ -586,7 +586,10 @@
         "Penalty": "处罚",
         "OffenseResetLog": "重置日志",
         "PowerHistory": "战力历史",
-        "UserReport": "用户报告"
+        "UserReport": "用户报告",
+        "AppSettings": "应用设置 (拍卖、DKP、联盟、规则、Discord)",
+        "EventType": "事件配置",
+        "AdminUser": "管理员账户 ⚠️"
       },
       "warnLine1": "以下数据将被永久删除:",
       "warnPlayers": "所有玩家",

@@ -625,7 +625,10 @@
         "Penalty": "Strafen",
         "OffenseResetLog": "Vergehen-Reset-Logs",
         "PowerHistory": "Power-Historie",
-        "UserReport": "Benutzer-Reports"
+        "UserReport": "Benutzer-Reports",
+        "AppSettings": "App-Einstellungen (Auktion, DKP, Allianzen, Regeln, Discord)",
+        "EventType": "Event-Konfigurationen",
+        "AdminUser": "Admin-Konten ⚠️"
       },
       "warnTitle": "Dies kann nicht rückgängig gemacht werden",
       "warnLine1": "Folgende Daten werden DAUERHAFT GELÖSCHT:",

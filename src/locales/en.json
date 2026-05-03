@@ -625,7 +625,10 @@
         "Penalty": "Penalties",
         "OffenseResetLog": "Offense reset logs",
         "PowerHistory": "Power history",
-        "UserReport": "User reports"
+        "UserReport": "User reports",
+        "AppSettings": "App settings (auction, DKP, alliances, rules, Discord)",
+        "EventType": "Event configurations",
+        "AdminUser": "Admin accounts ⚠️"
       },
       "warnTitle": "This cannot be undone",
       "warnLine1": "The following data will be PERMANENTLY DELETED:",

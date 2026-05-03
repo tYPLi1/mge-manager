@@ -112,7 +112,9 @@ export default function AppDataPanel() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `dkp-backup-${new Date().toISOString().split("T")[0]}.json`;
+      // Versioned filename: full timestamp so multiple backups per day stay distinguishable.
+      const ts = new Date().toISOString().replace(/:/g, "-").replace(/\..+$/, "");
+      a.download = `dkp-backup-${ts}.json`;
       a.click();
       URL.revokeObjectURL(url);
       const total = Object.values(data.counts).reduce((s, n) => s + n, 0);
@@ -143,8 +145,11 @@ export default function AppDataPanel() {
       }
       setRestoreFile(parsed);
       setRestorePreview({ counts, total, createdAt: parsed.created_at });
-      // Pre-select all entities present in the backup
-      setSelectedRestoreEntities(Object.keys(counts).filter((k) => counts[k] > 0));
+      // Pre-select all entities present in the backup EXCEPT AdminUser
+      // (must be opted in explicitly to avoid accidental lockout).
+      setSelectedRestoreEntities(
+        Object.keys(counts).filter((k) => counts[k] > 0 && k !== "AdminUser")
+      );
       setRestoreStep(1);
     } catch (err) {
       toast.error(t("appData.invalidBackup"));
