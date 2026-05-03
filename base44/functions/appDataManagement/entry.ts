@@ -82,27 +82,56 @@ async function listAll(base44, entityName) {
 
 async function deleteAll(base44, entityName) {
   let total = 0;
-  // Loop until no records remain. Delete in parallel batches for speed.
   const BATCH_SIZE = 200;
-  const PARALLEL = 25; // delete this many concurrently
-  while (true) {
-    const records = await base44.asServiceRole.entities[entityName].list(null, BATCH_SIZE);
-    if (!records || records.length === 0) break;
+  const PARALLEL = 5; // gentle concurrency to avoid rate limits
+  const failedIds = new Set(); // IDs we've already tried and failed — skip on next page
 
-    // Process deletes in parallel chunks
+  // Hard safety cap so a buggy entity can never burn unlimited credits.
+  const MAX_ITERATIONS = 200;
+  let iter = 0;
+  let lastErrorMessage = null;
+
+  while (iter < MAX_ITERATIONS) {
+    iter++;
+    const page = await base44.asServiceRole.entities[entityName].list(null, BATCH_SIZE);
+    if (!page || page.length === 0) break;
+
+    // Filter out IDs we already failed on — otherwise we'd loop forever on them.
+    const records = page.filter((r) => !failedIds.has(r.id));
+    if (records.length === 0) {
+      // Every record on this page is unfixable — stop and report.
+      break;
+    }
+
+    let deletedThisRound = 0;
     for (let i = 0; i < records.length; i += PARALLEL) {
       const chunk = records.slice(i, i + PARALLEL);
       const results = await Promise.allSettled(
         chunk.map((r) => base44.asServiceRole.entities[entityName].delete(r.id))
       );
-      for (const res of results) {
-        if (res.status === 'fulfilled') total++;
-        else console.warn(`Failed to delete in ${entityName}: ${res.reason?.message || res.reason}`);
-      }
+      results.forEach((res, idx) => {
+        if (res.status === 'fulfilled') {
+          total++;
+          deletedThisRound++;
+        } else {
+          const id = chunk[idx].id;
+          failedIds.add(id);
+          lastErrorMessage = res.reason?.message || String(res.reason);
+          console.warn(`Failed to delete ${entityName}/${id}: ${lastErrorMessage}`);
+        }
+      });
     }
 
-    if (records.length < BATCH_SIZE) break;
+    // If a full page came back but we deleted nothing, we'll never finish — stop.
+    if (deletedThisRound === 0) break;
   }
+
+  if (failedIds.size > 0) {
+    throw new Error(
+      `${failedIds.size} record(s) could not be deleted in ${entityName} after ${total} successful deletes. Last error: ${lastErrorMessage}`
+    );
+  }
+
   return total;
 }
 
