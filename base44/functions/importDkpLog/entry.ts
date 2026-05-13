@@ -44,6 +44,7 @@ Deno.serve(async (req) => {
     }
 
     const transactions = [];
+    const powerUpdates = {}; // playerName -> new power value from sheet
     
     for (let r = startRow; r < rows.length; r++) {
       const row = rows[r];
@@ -58,6 +59,14 @@ Deno.serve(async (req) => {
       const spendDkp = Number(row[3]) || 0;
       const source = row[4] ? String(row[4]).trim() : '';
       const extraNote = row[5] ? String(row[5]).trim() : '';
+
+      // Power column (index 7 = column H). Optional.
+      if (row[7] !== null && row[7] !== undefined && row[7] !== '') {
+        const powerVal = Number(row[7]);
+        if (!isNaN(powerVal) && powerVal >= 0) {
+          powerUpdates[playerName] = powerVal;
+        }
+      }
       
       let eventDate = '';
       if (row[6]) {
@@ -127,8 +136,10 @@ Deno.serve(async (req) => {
     // Match player_id from existing players
     const players = await service.entities.Player.filter({});
     const playerMap = {};
+    const playerPowerMap = {};
     for (const p of players) {
       playerMap[p.name] = p.id;
+      playerPowerMap[p.name] = p.power || 0;
     }
 
     let matched = 0;
@@ -155,12 +166,39 @@ Deno.serve(async (req) => {
       created += batch.length;
     }
 
+    // Update player power values if changed (and log history)
+    let powerUpdated = 0;
+    const today = new Date().toISOString().split('T')[0];
+    const powerHistoryEntries = [];
+    for (const [name, newPower] of Object.entries(powerUpdates)) {
+      const pid = playerMap[name];
+      if (!pid) continue;
+      const oldPower = playerPowerMap[name] || 0;
+      if (oldPower !== newPower) {
+        await service.entities.Player.update(pid, { power: newPower });
+        powerHistoryEntries.push({
+          player_id: pid,
+          player_name: name,
+          power: newPower,
+          recorded_at: today,
+          source: 'dkp_log_import'
+        });
+        powerUpdated++;
+      }
+    }
+    if (powerHistoryEntries.length > 0) {
+      for (let i = 0; i < powerHistoryEntries.length; i += 100) {
+        await service.entities.PowerHistory.bulkCreate(powerHistoryEntries.slice(i, i + 100));
+      }
+    }
+
     return Response.json({
       success: true,
       total_created: created,
       matched_players: matched,
       unmatched_players: unmatched,
-      unmatched_names: [...unmatchedNames]
+      unmatched_names: [...unmatchedNames],
+      power_updated: powerUpdated
     });
 
   } catch (error) {

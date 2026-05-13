@@ -117,16 +117,16 @@ export default function EventTemplates() {
 
     if (isYN) {
       const data = [
-        ["Name", "Alliance", "Participated (Y/N)", "Note"],
-        ...playerRows.map(p => [p.name, p.alliance, "Y", ""]),
+        ["Name", "Alliance", "Power", "Participated (Y/N)", "Note"],
+        ...playerRows.map(p => [p.name, p.alliance, p.power || "", "Y", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     } else if (hasMultipleStages) {
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", ""]),
+          ["Name", "Alliance", "Server Rank", "Power", "Note"],
+          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
         ]),
         "Preparation"
       );
