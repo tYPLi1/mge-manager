@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { rankToDkp } from "@/components/dkp/rankToDkp";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
@@ -32,6 +33,8 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
   const [discordPreview, setDiscordPreview] = useState(null);
+  const [templateAlliance, setTemplateAlliance] = useState("__all__"); // "__all__" or alliance name
+  const [sortByPower, setSortByPower] = useState(true);
   const fileRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -56,10 +59,50 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       : "war";
 
   // ── Template Download (with Alliance column) ──────────────────────────
+  // Build set of valid alliance names that currently exist in settings.
+  // Used to drop player rows whose alliance was deleted (so dropdown stays in sync).
+  const validAllianceNames = new Set(alliances.map(a => a.name));
+
+  // Distinct alliances currently referenced by players AND still defined in settings.
+  const playerAllianceOptions = [...new Set(
+    players
+      .map(p => p.alliance)
+      .filter(a => a && validAllianceNames.has(a))
+  )].sort((a, b) => a.localeCompare(b));
+
+  // If currently selected templateAlliance no longer exists, reset to "__all__"
+  // (handled inline at render via fallback in Select value)
+  const allianceFilterValid = templateAlliance === "__all__" || validAllianceNames.has(templateAlliance);
+  const effectiveTemplateAlliance = allianceFilterValid ? templateAlliance : "__all__";
+
   const downloadTemplate = () => {
     if (!selectedEventType) return;
+
+    // Filter & sort players for template
+    let playerRows = players
+      .filter(p => p && p.name)
+      // Drop players whose alliance was deleted from settings (only when filtering by a specific alliance)
+      .filter(p => {
+        if (effectiveTemplateAlliance === "__all__") return true;
+        return (p.alliance || "") === effectiveTemplateAlliance;
+      })
+      .map(p => ({ name: p.name, alliance: p.alliance || "", power: p.power || 0 }));
+
+    if (effectiveTemplateAlliance === "__all__") {
+      // All players: sort by alliance first, then by power desc (if enabled) or name
+      playerRows.sort((a, b) => {
+        const allianceCmp = (a.alliance || "zzz").localeCompare(b.alliance || "zzz");
+        if (allianceCmp !== 0) return allianceCmp;
+        if (sortByPower) return (b.power || 0) - (a.power || 0);
+        return a.name.localeCompare(b.name);
+      });
+    } else if (sortByPower) {
+      playerRows.sort((a, b) => (b.power || 0) - (a.power || 0));
+    } else {
+      playerRows.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
     const wb = XLSX.utils.book_new();
-    const playerRows = players.map(p => ({ name: p.name, alliance: p.alliance || "" }));
 
     if (isYN) {
       const data = [
@@ -80,18 +123,20 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         wb,
         XLSX.utils.aoa_to_sheet([
           ["Name", "Alliance", "Server Rank", "Power", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", "", ""]),
+          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
         ]),
         "War Stage"
       );
     } else {
       const data = [
         ["Name", "Alliance", "Server Rank", "Power", "Note"],
-        ...playerRows.map(p => [p.name, p.alliance, "", "", ""]),
+        ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     }
-    XLSX.writeFile(wb, `Template_${selectedEventType.key}_${eventDate}.xlsx`);
+
+    const allianceSuffix = effectiveTemplateAlliance === "__all__" ? "ALL" : effectiveTemplateAlliance.replace(/[^a-z0-9]/gi, "_");
+    XLSX.writeFile(wb, `Template_${selectedEventType.key}_${allianceSuffix}_${eventDate}.xlsx`);
   };
 
   // ── File Parsing ──────────────────────────────────────────────────────
@@ -577,6 +622,32 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
           <Button onClick={downloadTemplate} disabled={!selectedEventType} variant="outline" className="border-white/10 text-gray-300 hover:bg-white/5 w-full">
             <Download className="w-4 h-4 mr-1" /> Template
           </Button>
+        </div>
+      </div>
+
+      {/* Template download options */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 p-3 rounded-lg bg-white/[0.02] border border-white/5">
+        <div className="lg:col-span-2">
+          <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Template: Alliance Filter</Label>
+          <Select value={effectiveTemplateAlliance} onValueChange={setTemplateAlliance}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All players (grouped by alliance)</SelectItem>
+              {playerAllianceOptions.map(name => (
+                <SelectItem key={name} value={name}>{name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="sm:col-span-2 flex items-end">
+          <div className="flex items-center gap-3 h-9">
+            <Switch id="sortByPower" checked={sortByPower} onCheckedChange={setSortByPower} />
+            <Label htmlFor="sortByPower" className="text-xs text-gray-300 cursor-pointer">
+              Sort by Power (desc)
+            </Label>
+          </div>
         </div>
       </div>
 
