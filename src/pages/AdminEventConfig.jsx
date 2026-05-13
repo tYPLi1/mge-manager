@@ -93,6 +93,29 @@ function EventEditor({ draft, onChange }) {
             className="bg-white/5 border-white/10 text-amber-400 font-mono h-8"
           />
         </div>
+        <div>
+          <Label className="text-gray-500 text-xs block mb-1">Sort Order</Label>
+          <Input
+            type="number"
+            value={draft.sort_order ?? ""}
+            onChange={(e) => set("sort_order", e.target.value === "" ? null : Number(e.target.value))}
+            className="bg-white/5 border-white/10 text-white h-8"
+          />
+        </div>
+        {draft.participation_type === "ranked" && (
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">
+              War Ranking Cutoff
+              <span className="text-gray-600 font-normal ml-1">(Top N qualified for DKP)</span>
+            </Label>
+            <Input
+              type="number"
+              value={draft.war_ranking_cutoff ?? ""}
+              onChange={(e) => set("war_ranking_cutoff", e.target.value === "" ? null : Number(e.target.value))}
+              className="bg-white/5 border-white/10 text-white h-8"
+            />
+          </div>
+        )}
       </div>
 
       {draft.participation_type === "ranked" ? (
@@ -283,6 +306,15 @@ function CreateEventModal({ onClose, onCreate }) {
               <Label className="text-gray-500 text-xs block mb-1">Sort Order</Label>
               <Input type="number" value={form.sort_order ?? ""} onChange={(e) => set("sort_order", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
             </div>
+            {!isYN && (
+              <div className="sm:col-span-2">
+                <Label className="text-gray-500 text-xs block mb-1">
+                  War Ranking Cutoff
+                  <span className="text-gray-600 font-normal ml-1">(Top N qualified for DKP)</span>
+                </Label>
+                <Input type="number" value={form.war_ranking_cutoff ?? ""} onChange={(e) => set("war_ranking_cutoff", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
+              </div>
+            )}
           </div>
 
           {/* DKP Config */}
