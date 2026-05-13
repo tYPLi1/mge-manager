@@ -33,6 +33,7 @@
     "punishments": "Sanciones",
     "charts": "Gráficos",
     "rules": "Reglas",
+    "eventTemplates": "Plantillas",
     "admin": "Admin",
     "dashboard": "Panel",
     "auctions": "Subastas",
@@ -485,7 +486,14 @@
       "discordDesc": "Configura varios servidores de Discord. Por servidor puedes decidir qué mensajes van a qué canal. El bot envía con @everyone y un enlace a la app.",
       "discordHint": "💡 Clic derecho en un canal → «Copiar ID» (activa Modo desarrollador en Discord)",
       "compensationDivisor": "Divisor de la fórmula de compensación",
-      "compensationDivisorDesc": "Al otorgar compensaciones, la puja del jugador se divide por este valor para calcular el DKP devuelto."
+      "compensationDivisorDesc": "Al otorgar compensaciones, la puja del jugador se divide por este valor para calcular el DKP devuelto.",
+      "templatesTitle": "Descarga de plantillas de eventos (Página pública)",
+      "templatesDesc": "Permite a usuarios de confianza descargar plantillas de eventos prerellenadas desde una página pública protegida por contraseña.",
+      "templatesEnabled": "Habilitar página de plantillas",
+      "templatesEnabledHint": "Cuando está desactivado, la página está completamente bloqueada y oculta de la navegación pública.",
+      "templatesPassword": "Contraseña de acceso",
+      "templatesPasswordHint": "Comparte esta contraseña con los usuarios que deben poder descargar plantillas.",
+      "templatesPasswordPlaceholder": "p. ej. guild2026"
     },
     "alliances": {
       "title": "Alianzas",
@@ -617,6 +625,30 @@
     },
     "wipeTypeWrong": "Debes escribir exactamente WIPE",
     "wipeSuccess": "Borrado completo ({{count}} registros eliminados)"
+  },
+  "eventTemplates": {
+    "title": "Plantillas de eventos",
+    "subtitle": "Descarga plantillas Excel prerellenadas para subidas de eventos",
+    "lockTitle": "Protegido con contraseña",
+    "lockDesc": "Introduce la contraseña proporcionada por tu administrador para acceder a las plantillas.",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Introducir contraseña",
+    "unlock": "Desbloquear",
+    "unlocking": "Desbloqueando…",
+    "invalidPassword": "Contraseña incorrecta.",
+    "disabledOrNotConfigured": "Esta página no está disponible actualmente.",
+    "loginFailed": "No se pudo verificar la contraseña. Inténtalo de nuevo.",
+    "disabledTitle": "Página deshabilitada",
+    "disabledDesc": "El administrador ha deshabilitado la página de plantillas.",
+    "downloadTitle": "Descargar plantilla",
+    "eventType": "Tipo de evento",
+    "selectEvent": "Selecciona evento…",
+    "eventDate": "Fecha del evento",
+    "allianceFilter": "Filtro de alianza",
+    "allPlayersOption": "Todos los jugadores (agrupados por alianza)",
+    "sortByPower": "Ordenar por poder (descendente)",
+    "download": "Descargar",
+    "hint": "El archivo Excel contiene la lista de jugadores que coinciden con tus filtros. Rellena rangos/valores y envíalo de vuelta a un administrador para importarlo."
   },
   "legal": {
     "contact": {

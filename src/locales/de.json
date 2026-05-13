@@ -33,6 +33,7 @@
     "punishments": "Strafen",
     "charts": "Diagramme",
     "rules": "Regeln",
+    "eventTemplates": "Vorlagen",
     "admin": "Admin",
     "dashboard": "Übersicht",
     "auctions": "Auktionen",
@@ -508,7 +509,14 @@
       "discordDesc": "Konfiguriere mehrere Discord-Server. Pro Server kannst du festlegen, welche Nachrichten in welchen Channel gesendet werden. Der Bot sendet mit @everyone und einem Link zur App.",
       "discordHint": "💡 Rechtsklick auf einen Channel → „ID kopieren\" (Developer Mode in Discord aktivieren)",
       "compensationDivisor": "Gutschrifts-Divisor",
-      "compensationDivisorDesc": "Bei Gutschriften wird das Gebot des Spielers durch diesen Wert geteilt, um die zurückerstattete DKP-Menge zu berechnen."
+      "compensationDivisorDesc": "Bei Gutschriften wird das Gebot des Spielers durch diesen Wert geteilt, um die zurückerstattete DKP-Menge zu berechnen.",
+      "templatesTitle": "Event-Vorlagen Download (öffentliche Seite)",
+      "templatesDesc": "Vertrauenswürdige Nutzer können auf einer passwortgeschützten Seite vorausgefüllte Event-Vorlagen herunterladen.",
+      "templatesEnabled": "Vorlagen-Seite aktivieren",
+      "templatesEnabledHint": "Wenn deaktiviert, ist die Seite komplett gesperrt und aus der öffentlichen Navigation ausgeblendet.",
+      "templatesPassword": "Zugangs-Passwort",
+      "templatesPasswordHint": "Gib dieses Passwort an Nutzer weiter, die Vorlagen herunterladen dürfen.",
+      "templatesPasswordPlaceholder": "z. B. gilde2026"
     },
     "alliances": {
       "title": "Allianzen",
@@ -647,6 +655,30 @@
     },
     "wipeTypeWrong": "Du musst exakt WIPE eingeben",
     "wipeSuccess": "Löschung abgeschlossen ({{count}} Datensätze gelöscht)"
+  },
+  "eventTemplates": {
+    "title": "Event-Vorlagen",
+    "subtitle": "Vorausgefüllte Excel-Vorlagen für Event-Uploads herunterladen",
+    "lockTitle": "Passwort-geschützt",
+    "lockDesc": "Gib das Passwort ein, das du vom Admin erhalten hast, um auf die Vorlagen zuzugreifen.",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "unlock": "Entsperren",
+    "unlocking": "Wird entsperrt…",
+    "invalidPassword": "Falsches Passwort.",
+    "disabledOrNotConfigured": "Diese Seite ist derzeit nicht verfügbar.",
+    "loginFailed": "Passwort konnte nicht überprüft werden. Bitte erneut versuchen.",
+    "disabledTitle": "Seite deaktiviert",
+    "disabledDesc": "Der Administrator hat die Vorlagen-Seite deaktiviert.",
+    "downloadTitle": "Vorlage herunterladen",
+    "eventType": "Event-Typ",
+    "selectEvent": "Event auswählen…",
+    "eventDate": "Event-Datum",
+    "allianceFilter": "Allianz-Filter",
+    "allPlayersOption": "Alle Spieler (nach Allianz gruppiert)",
+    "sortByPower": "Nach Macht sortieren (absteigend)",
+    "download": "Herunterladen",
+    "hint": "Die Excel-Datei enthält die Liste der Spieler entsprechend deinem Filter. Trage Ränge/Werte ein und sende die Datei zurück an einen Admin zum Importieren."
   },
   "legal": {
     "contact": {

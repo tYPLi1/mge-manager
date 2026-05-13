@@ -34,6 +34,8 @@ const SETTING_LABELS = {
   discord_servers: "Discord Server Config",
   compensation_formula_divisor: "Compensation Formula Divisor",
   alliances: "Alliances",
+  event_templates_enabled: "Event Templates Page Enabled",
+  event_templates_password: "Event Templates Password",
 };
 
 export default function AdminSettings() {
@@ -216,6 +218,35 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <Label className="text-gray-300">{t("admin.settings.dawnDkp")}</Label>
               <Switch checked={getBool("dawn_dkp_enabled")} onCheckedChange={(v) => setBool("dawn_dkp_enabled", v)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Event Templates Page (public) */}
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+          <h3 className="text-sm font-semibold text-white mb-1">{t("admin.settings.templatesTitle")}</h3>
+          <p className="text-xs text-gray-500 mb-4">{t("admin.settings.templatesDesc")}</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-gray-300">{t("admin.settings.templatesEnabled")}</Label>
+                <p className="text-xs text-gray-500 mt-0.5">{t("admin.settings.templatesEnabledHint")}</p>
+              </div>
+              <Switch
+                checked={getBool("event_templates_enabled")}
+                onCheckedChange={(v) => setBool("event_templates_enabled", v)}
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300 text-sm">{t("admin.settings.templatesPassword")}</Label>
+              <p className="text-xs text-gray-500 mb-2">{t("admin.settings.templatesPasswordHint")}</p>
+              <Input
+                type="text"
+                value={form.event_templates_password || ""}
+                onChange={(e) => setForm({ ...form, event_templates_password: e.target.value })}
+                placeholder={t("admin.settings.templatesPasswordPlaceholder")}
+                className="bg-white/5 border-white/10 text-white"
+              />
             </div>
           </div>
         </div>

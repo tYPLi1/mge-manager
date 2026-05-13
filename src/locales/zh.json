@@ -33,6 +33,7 @@
     "punishments": "处罚",
     "charts": "图表",
     "rules": "规则",
+    "eventTemplates": "模板",
     "admin": "管理",
     "dashboard": "仪表盘",
     "auctions": "拍卖",
@@ -475,7 +476,14 @@
       "discordDesc": "配置多个 Discord 服务器。可为每个服务器决定哪些消息发送至哪个频道。机器人会以 @everyone 并附带应用链接发送。",
       "discordHint": "💡 右键点击频道 → 「复制 ID」（在 Discord 中启用开发者模式）",
       "compensationDivisor": "补偿公式除数",
-      "compensationDivisorDesc": "发放补偿时，玩家的出价将除以此值以计算返还的 DKP。"
+      "compensationDivisorDesc": "发放补偿时，玩家的出价将除以此值以计算返还的 DKP。",
+      "templatesTitle": "事件模板下载（公开页面）",
+      "templatesDesc": "允许受信任的用户在受密码保护的公开页面上下载预填的事件模板。",
+      "templatesEnabled": "启用模板页面",
+      "templatesEnabledHint": "关闭后，该页面将被完全阻止并从公开导航中隐藏。",
+      "templatesPassword": "访问密码",
+      "templatesPasswordHint": "将此密码分享给应能够下载模板的用户。",
+      "templatesPasswordPlaceholder": "例如 guild2026"
     },
     "alliances": {
       "title": "联盟",
@@ -607,6 +615,30 @@
     },
     "wipeTypeWrong": "你必须准确输入 WIPE",
     "wipeSuccess": "清除完成(已删除 {{count}} 条记录)"
+  },
+  "eventTemplates": {
+    "title": "事件模板",
+    "subtitle": "下载用于事件上传的预填 Excel 模板",
+    "lockTitle": "密码保护",
+    "lockDesc": "请输入管理员提供的密码以访问模板。",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "输入密码",
+    "unlock": "解锁",
+    "unlocking": "解锁中…",
+    "invalidPassword": "密码错误。",
+    "disabledOrNotConfigured": "此页面当前不可用。",
+    "loginFailed": "无法验证密码，请重试。",
+    "disabledTitle": "页面已禁用",
+    "disabledDesc": "管理员已禁用模板页面。",
+    "downloadTitle": "下载模板",
+    "eventType": "事件类型",
+    "selectEvent": "选择事件…",
+    "eventDate": "事件日期",
+    "allianceFilter": "联盟筛选",
+    "allPlayersOption": "所有玩家（按联盟分组）",
+    "sortByPower": "按战力排序（降序）",
+    "download": "下载",
+    "hint": "Excel 文件包含与你的筛选条件匹配的玩家列表。填写排名/数值后，将其发回给管理员进行导入。"
   },
   "legal": {
     "contact": {

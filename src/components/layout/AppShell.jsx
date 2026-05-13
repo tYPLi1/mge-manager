@@ -3,14 +3,15 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Trophy, Gavel, ScrollText, History, AlertTriangle, BookOpen, BarChart3,
-  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users,
+  Shield, Settings, Menu, X, ArrowLeft, Zap, Settings2, Users, FileSpreadsheet,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { base44 } from "@/api/base44Client";
 import AdminSessionGuard from "@/components/AdminSessionGuard";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import LegalFooter from "@/components/layout/LegalFooter";
 
-const publicNavConfig = [
+const publicNavConfigBase = [
   { name: "leaderboard", page: "Leaderboard", icon: Trophy },
   { name: "auction", page: "Auction", icon: Gavel },
   { name: "results", page: "Results", icon: ScrollText },
@@ -19,6 +20,7 @@ const publicNavConfig = [
   { name: "charts", page: "Charts", icon: BarChart3 },
   { name: "rules", page: "Rules", icon: BookOpen },
 ];
+const eventTemplatesNavItem = { name: "eventTemplates", page: "EventTemplates", icon: FileSpreadsheet };
 
 const adminNavConfig = [
   { name: "dashboard", page: "AdminDashboard", icon: Zap },
@@ -41,6 +43,20 @@ export default function AppShell({ children, currentPageName }) {
     return saved === null ? true : saved === "true";
   });
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [templatesEnabled, setTemplatesEnabled] = useState(false);
+
+  // Check whether the EventTemplates page is enabled (public setting)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await base44.functions.invoke("getPublicSettings", {});
+        const settings = res?.data?.settings || [];
+        setTemplatesEnabled(settings.find(s => s.key === "event_templates_enabled")?.value === "true");
+      } catch (_) {
+        setTemplatesEnabled(false);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("adminNavOpen", String(adminNavOpen));
@@ -77,6 +93,9 @@ export default function AppShell({ children, currentPageName }) {
     return <div style={{ minHeight: "100vh", background: "var(--dp-bg)" }} />;
   }
 
+  const publicNavConfig = templatesEnabled
+    ? [...publicNavConfigBase, eventTemplatesNavItem]
+    : publicNavConfigBase;
   const navConfig = isAdmin ? adminNavConfig : publicNavConfig;
 
   const navButtons = navConfig.map((item) => {

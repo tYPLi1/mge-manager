@@ -33,6 +33,7 @@
     "punishments": "Cezalar",
     "charts": "Grafikler",
     "rules": "Kurallar",
+    "eventTemplates": "Şablonlar",
     "admin": "Yönetici",
     "dashboard": "Panel",
     "auctions": "Açık Artırmalar",
@@ -508,7 +509,14 @@
       "discordDesc": "Birden fazla Discord sunucusu yapılandır. Her sunucu için hangi mesajın hangi kanala gideceğini belirleyebilirsin. Bot, @everyone ve uygulama bağlantısı ile gönderir.",
       "discordHint": "💡 Bir kanala sağ tıkla → „Kimliği Kopyala\" (Discord'da Developer Mode'u etkinleştir)",
       "compensationDivisor": "Tazminat Formül Bölücüsü",
-      "compensationDivisorDesc": "Tazminat verilirken oyuncunun teklifi bu değere bölünerek iade edilen DKP hesaplanır."
+      "compensationDivisorDesc": "Tazminat verilirken oyuncunun teklifi bu değere bölünerek iade edilen DKP hesaplanır.",
+      "templatesTitle": "Etkinlik Şablonu İndirme (Genel Sayfa)",
+      "templatesDesc": "Güvendiğin kullanıcıların parola korumalı bir genel sayfadan önceden doldurulmuş etkinlik şablonlarını indirmesine izin ver.",
+      "templatesEnabled": "Şablon sayfasını etkinleştir",
+      "templatesEnabledHint": "Kapatıldığında, sayfa tamamen engellenir ve genel navigasyondan gizlenir.",
+      "templatesPassword": "Erişim parolası",
+      "templatesPasswordHint": "Bu parolayı şablon indirebilmesi gereken kullanıcılarla paylaş.",
+      "templatesPasswordPlaceholder": "örn. guild2026"
     },
     "alliances": {
       "title": "İttifaklar",
@@ -647,6 +655,30 @@
     },
     "wipeTypeWrong": "Onay için tam olarak WIPE yazmalısın",
     "wipeSuccess": "Silme tamamlandı ({{count}} kayıt silindi)"
+  },
+  "eventTemplates": {
+    "title": "Etkinlik Şablonları",
+    "subtitle": "Etkinlik yüklemeleri için önceden doldurulmuş Excel şablonlarını indir",
+    "lockTitle": "Parola korumalı",
+    "lockDesc": "Şablonlara erişmek için yöneticinin verdiği parolayı gir.",
+    "passwordLabel": "Parola",
+    "passwordPlaceholder": "Parolayı gir",
+    "unlock": "Kilidi aç",
+    "unlocking": "Açılıyor…",
+    "invalidPassword": "Hatalı parola.",
+    "disabledOrNotConfigured": "Bu sayfa şu anda kullanılamıyor.",
+    "loginFailed": "Parola doğrulanamadı. Lütfen tekrar dene.",
+    "disabledTitle": "Sayfa devre dışı",
+    "disabledDesc": "Yönetici şablon sayfasını devre dışı bıraktı.",
+    "downloadTitle": "Şablonu İndir",
+    "eventType": "Etkinlik Türü",
+    "selectEvent": "Etkinlik seç…",
+    "eventDate": "Etkinlik Tarihi",
+    "allianceFilter": "İttifak Filtresi",
+    "allPlayersOption": "Tüm oyuncular (ittifak bazında gruplanmış)",
+    "sortByPower": "Güce göre sırala (azalan)",
+    "download": "İndir",
+    "hint": "Excel dosyası filtrelerinize uyan oyuncu listesini içerir. Sıraları/değerleri doldur ve içe aktarması için bir yöneticiye geri gönder."
   },
   "legal": {
     "contact": {

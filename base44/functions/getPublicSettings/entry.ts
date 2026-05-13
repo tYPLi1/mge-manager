@@ -17,6 +17,7 @@ const PUBLIC_KEYS = [
   'rules_text',
   'reserve_next_mge_ranks',
   'alliances',
+  'event_templates_enabled',
 ];
 
 Deno.serve(async (req) => {

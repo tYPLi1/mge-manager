@@ -33,6 +33,7 @@
     "punishments": "처벌",
     "charts": "차트",
     "rules": "규칙",
+    "eventTemplates": "템플릿",
     "admin": "관리",
     "dashboard": "대시보드",
     "auctions": "경매",
@@ -475,7 +476,14 @@
       "discordDesc": "여러 디스코드 서버를 구성합니다. 각 서버마다 어떤 메시지가 어떤 채널로 전송될지 결정할 수 있습니다. 봇은 @everyone과 앱 링크와 함께 전송합니다.",
       "discordHint": "💡 채널 우클릭 → 「ID 복사」 (디스코드에서 개발자 모드 활성화)",
       "compensationDivisor": "보상 공식 제수",
-      "compensationDivisorDesc": "보상 지급 시, 플레이어의 입찰을 이 값으로 나누어 환불 DKP를 계산합니다."
+      "compensationDivisorDesc": "보상 지급 시, 플레이어의 입찰을 이 값으로 나누어 환불 DKP를 계산합니다.",
+      "templatesTitle": "이벤트 템플릿 다운로드 (공개 페이지)",
+      "templatesDesc": "신뢰할 수 있는 사용자가 비밀번호로 보호된 공개 페이지에서 미리 채워진 이벤트 템플릿을 다운로드할 수 있도록 합니다.",
+      "templatesEnabled": "템플릿 페이지 활성화",
+      "templatesEnabledHint": "비활성화되면 페이지가 완전히 차단되고 공개 내비게이션에서 숨겨집니다.",
+      "templatesPassword": "접근 비밀번호",
+      "templatesPasswordHint": "템플릿을 다운로드할 수 있어야 하는 사용자에게 이 비밀번호를 공유하세요.",
+      "templatesPasswordPlaceholder": "예: guild2026"
     },
     "alliances": {
       "title": "동맹",
@@ -607,6 +615,30 @@
     },
     "wipeTypeWrong": "정확히 WIPE를 입력해야 합니다",
     "wipeSuccess": "삭제 완료 ({{count}}개 레코드 삭제됨)"
+  },
+  "eventTemplates": {
+    "title": "이벤트 템플릿",
+    "subtitle": "이벤트 업로드를 위한 미리 채워진 Excel 템플릿 다운로드",
+    "lockTitle": "비밀번호 보호됨",
+    "lockDesc": "템플릿에 접근하려면 관리자가 제공한 비밀번호를 입력하세요.",
+    "passwordLabel": "비밀번호",
+    "passwordPlaceholder": "비밀번호 입력",
+    "unlock": "잠금 해제",
+    "unlocking": "잠금 해제 중…",
+    "invalidPassword": "잘못된 비밀번호입니다.",
+    "disabledOrNotConfigured": "이 페이지는 현재 사용할 수 없습니다.",
+    "loginFailed": "비밀번호를 확인할 수 없습니다. 다시 시도하세요.",
+    "disabledTitle": "페이지 비활성화됨",
+    "disabledDesc": "관리자가 템플릿 페이지를 비활성화했습니다.",
+    "downloadTitle": "템플릿 다운로드",
+    "eventType": "이벤트 유형",
+    "selectEvent": "이벤트 선택…",
+    "eventDate": "이벤트 날짜",
+    "allianceFilter": "동맹 필터",
+    "allPlayersOption": "모든 플레이어 (동맹별 그룹화)",
+    "sortByPower": "전투력 기준 정렬 (내림차순)",
+    "download": "다운로드",
+    "hint": "Excel 파일에는 필터 조건에 맞는 플레이어 목록이 포함되어 있습니다. 순위/값을 입력한 후 관리자에게 다시 보내 가져오기를 요청하세요."
   },
   "legal": {
     "contact": {

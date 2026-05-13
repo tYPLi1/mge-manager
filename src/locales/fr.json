@@ -33,6 +33,7 @@
     "punishments": "Sanctions",
     "charts": "Graphiques",
     "rules": "Règles",
+    "eventTemplates": "Modèles",
     "admin": "Admin",
     "dashboard": "Tableau de bord",
     "auctions": "Enchères",
@@ -479,7 +480,14 @@
       "discordDesc": "Configure plusieurs serveurs Discord. Par serveur, tu peux décider quels messages vont dans quel canal. Le bot envoie avec @everyone et un lien vers l'app.",
       "discordHint": "💡 Clic droit sur un canal → « Copier l'ID » (active le mode développeur dans Discord)",
       "compensationDivisor": "Diviseur de la formule de compensation",
-      "compensationDivisorDesc": "Lors des compensations, l'enchère du joueur est divisée par cette valeur pour calculer le DKP remboursé."
+      "compensationDivisorDesc": "Lors des compensations, l'enchère du joueur est divisée par cette valeur pour calculer le DKP remboursé.",
+      "templatesTitle": "Téléchargement de modèles d'événement (Page publique)",
+      "templatesDesc": "Permets à des utilisateurs de confiance de télécharger des modèles d'événement pré-remplis depuis une page publique protégée par mot de passe.",
+      "templatesEnabled": "Activer la page des modèles",
+      "templatesEnabledHint": "Quand désactivée, la page est complètement bloquée et masquée de la navigation publique.",
+      "templatesPassword": "Mot de passe d'accès",
+      "templatesPasswordHint": "Partage ce mot de passe avec les utilisateurs qui doivent pouvoir télécharger des modèles.",
+      "templatesPasswordPlaceholder": "ex. guild2026"
     },
     "alliances": {
       "title": "Alliances",
@@ -611,6 +619,30 @@
     },
     "wipeTypeWrong": "Tu dois taper exactement WIPE",
     "wipeSuccess": "Effacement terminé ({{count}} entrées supprimées)"
+  },
+  "eventTemplates": {
+    "title": "Modèles d'événement",
+    "subtitle": "Télécharge des modèles Excel pré-remplis pour les imports d'événements",
+    "lockTitle": "Protégé par mot de passe",
+    "lockDesc": "Saisis le mot de passe fourni par ton administrateur pour accéder aux modèles.",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Saisir le mot de passe",
+    "unlock": "Déverrouiller",
+    "unlocking": "Déverrouillage…",
+    "invalidPassword": "Mot de passe incorrect.",
+    "disabledOrNotConfigured": "Cette page n'est pas disponible actuellement.",
+    "loginFailed": "Impossible de vérifier le mot de passe. Réessaie.",
+    "disabledTitle": "Page désactivée",
+    "disabledDesc": "L'administrateur a désactivé la page des modèles.",
+    "downloadTitle": "Télécharger le modèle",
+    "eventType": "Type d'événement",
+    "selectEvent": "Sélectionne un événement…",
+    "eventDate": "Date de l'événement",
+    "allianceFilter": "Filtre d'alliance",
+    "allPlayersOption": "Tous les joueurs (groupés par alliance)",
+    "sortByPower": "Trier par puissance (décroissant)",
+    "download": "Télécharger",
+    "hint": "Le fichier Excel contient la liste des joueurs correspondant à tes filtres. Remplis les rangs/valeurs puis renvoie-le à un administrateur pour import."
   },
   "legal": {
     "contact": {
