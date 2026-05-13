@@ -63,12 +63,10 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
   // Used to drop player rows whose alliance was deleted (so dropdown stays in sync).
   const validAllianceNames = new Set(alliances.map(a => a.name));
 
-  // Distinct alliances currently referenced by players AND still defined in settings.
-  const playerAllianceOptions = [...new Set(
-    players
-      .map(p => p.alliance)
-      .filter(a => a && validAllianceNames.has(a))
-  )].sort((a, b) => a.localeCompare(b));
+  // All alliances configured in settings (independent of whether players are assigned yet).
+  const playerAllianceOptions = [...alliances]
+    .map(a => a.name)
+    .sort((a, b) => a.localeCompare(b));
 
   // If currently selected templateAlliance no longer exists, reset to "__all__"
   // (handled inline at render via fallback in Select value)
