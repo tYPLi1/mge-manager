@@ -22,7 +22,7 @@ function DkpRankEditor({ label, tableJson, color = "text-amber-400", onChange })
 
   const update = (i, val) => {
     const next = [...values];
-    next[i] = Number(val);
+    next[i] = val === "" ? null : Number(val);
     setValues(next);
     onChange(JSON.stringify(next));
   };
@@ -59,7 +59,7 @@ function DkpRankEditor({ label, tableJson, color = "text-amber-400", onChange })
             <div className="text-[10px] text-gray-600 mb-1">#{i + 1}</div>
             <input
               type="number"
-              value={v}
+              value={v ?? ""}
               onChange={(e) => update(i, e.target.value)}
               className={`w-12 bg-transparent border-b border-white/20 text-center font-mono font-bold text-sm focus:outline-none focus:border-amber-400 ${color}`}
             />
@@ -125,11 +125,11 @@ function EventEditor({ draft, onChange }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-                      <Input type="number" value={draft.prep_top20_fallback ?? ""} onChange={(e) => set("prep_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                      <Input type="number" value={draft.prep_top20_fallback ?? ""} onChange={(e) => set("prep_top20_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
                     </div>
                     <div>
                       <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-                      <Input type="number" value={draft.prep_outside_fallback ?? ""} onChange={(e) => set("prep_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                      <Input type="number" value={draft.prep_outside_fallback ?? ""} onChange={(e) => set("prep_outside_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
                     </div>
                   </div>
                   <DkpRankEditor
@@ -172,11 +172,11 @@ function EventEditor({ draft, onChange }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-                      <Input type="number" value={draft.war_top20_fallback ?? draft.dkp_top20_fallback ?? ""} onChange={(e) => set("war_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                      <Input type="number" value={draft.war_top20_fallback ?? draft.dkp_top20_fallback ?? ""} onChange={(e) => set("war_top20_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
                     </div>
                     <div>
                       <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-                      <Input type="number" value={draft.war_outside_fallback ?? draft.dkp_outside_fallback ?? ""} onChange={(e) => set("war_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
+                      <Input type="number" value={draft.war_outside_fallback ?? draft.dkp_outside_fallback ?? ""} onChange={(e) => set("war_outside_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8 w-24" />
                     </div>
                   </div>
                   <DkpRankEditor
@@ -207,11 +207,11 @@ function EventEditor({ draft, onChange }) {
         <div className="grid grid-cols-2 gap-6">
           <div>
             <Label className="text-gray-500 text-xs block mb-1">DKP if Present (Y)</Label>
-            <Input type="number" value={draft.dkp_yn_present ?? ""} onChange={(e) => set("dkp_yn_present", Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold w-28" />
+            <Input type="number" value={draft.dkp_yn_present ?? ""} onChange={(e) => set("dkp_yn_present", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold w-28" />
           </div>
           <div>
             <Label className="text-gray-500 text-xs block mb-1">DKP if Absent (N)</Label>
-            <Input type="number" value={draft.dkp_yn_absent ?? ""} onChange={(e) => set("dkp_yn_absent", Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold w-28" />
+            <Input type="number" value={draft.dkp_yn_absent ?? ""} onChange={(e) => set("dkp_yn_absent", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold w-28" />
           </div>
         </div>
       )}
@@ -281,7 +281,7 @@ function CreateEventModal({ onClose, onCreate }) {
             </div>
             <div>
               <Label className="text-gray-500 text-xs block mb-1">Sort Order</Label>
-              <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
+              <Input type="number" value={form.sort_order ?? ""} onChange={(e) => set("sort_order", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
             </div>
           </div>
 
@@ -290,11 +290,11 @@ function CreateEventModal({ onClose, onCreate }) {
             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
               <div>
                 <Label className="text-gray-500 text-xs block mb-1">DKP if Present (Y)</Label>
-                <Input type="number" value={form.dkp_yn_present} onChange={(e) => set("dkp_yn_present", Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold" />
+                <Input type="number" value={form.dkp_yn_present ?? ""} onChange={(e) => set("dkp_yn_present", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-emerald-400 font-mono font-bold" />
               </div>
               <div>
                 <Label className="text-gray-500 text-xs block mb-1">DKP if Absent (N)</Label>
-                <Input type="number" value={form.dkp_yn_absent} onChange={(e) => set("dkp_yn_absent", Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold" />
+                <Input type="number" value={form.dkp_yn_absent ?? ""} onChange={(e) => set("dkp_yn_absent", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-red-400 font-mono font-bold" />
               </div>
             </div>
           ) : (
@@ -325,11 +325,11 @@ function CreateEventModal({ onClose, onCreate }) {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-                          <Input type="number" value={form.prep_top20_fallback ?? 20} onChange={(e) => set("prep_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                          <Input type="number" value={form.prep_top20_fallback ?? ""} onChange={(e) => set("prep_top20_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
                         </div>
                         <div>
                           <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-                          <Input type="number" value={form.prep_outside_fallback ?? 0} onChange={(e) => set("prep_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                          <Input type="number" value={form.prep_outside_fallback ?? ""} onChange={(e) => set("prep_outside_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
                         </div>
                       </div>
                       <DkpRankEditor label="Prep — Top 20 Power Players" tableJson={form.dkp_table_prep_top20 || "[]"} color="text-amber-400" onChange={(v) => set("dkp_table_prep_top20", v)} />
@@ -356,11 +356,11 @@ function CreateEventModal({ onClose, onCreate }) {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-gray-500 text-xs block mb-1">Top 20 Fallback DKP</Label>
-                          <Input type="number" value={form.war_top20_fallback ?? 20} onChange={(e) => set("war_top20_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                          <Input type="number" value={form.war_top20_fallback ?? ""} onChange={(e) => set("war_top20_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
                         </div>
                         <div>
                           <Label className="text-gray-500 text-xs block mb-1">Outside Fallback DKP</Label>
-                          <Input type="number" value={form.war_outside_fallback ?? 0} onChange={(e) => set("war_outside_fallback", Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
+                          <Input type="number" value={form.war_outside_fallback ?? ""} onChange={(e) => set("war_outside_fallback", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono h-8" />
                         </div>
                       </div>
                       <DkpRankEditor label="War — Top 20 Power Players" tableJson={form.dkp_table_war_top20 || "[]"} color="text-amber-400" onChange={(v) => set("dkp_table_war_top20", v)} />
