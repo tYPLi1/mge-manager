@@ -492,6 +492,38 @@ export default function AdminPlayers() {
       const newPenalties = items.filter(p => p.type === "new" && p.entity === "penalty").map(({ type, entity, ...rest }) => rest);
       const penaltyUpdates = items.filter(p => p.type === "update" && p.entity === "penalty");
 
+      // Detect unknown alliances from new players + alliance changes in updates
+      const knownAllianceNames = new Set(alliances.map(a => a.name));
+      const unknownAlliancesSet = new Set();
+      for (const p of newPlayers) {
+        if (p.alliance && !knownAllianceNames.has(p.alliance)) unknownAlliancesSet.add(p.alliance);
+      }
+      for (const u of playerUpdates) {
+        const a = u.changes?.alliance?.new;
+        if (a && !knownAllianceNames.has(a)) unknownAlliancesSet.add(a);
+      }
+      const unknownAlliances = [...unknownAlliancesSet];
+      if (unknownAlliances.length > 0) {
+        const ok = confirm(
+          `${unknownAlliances.length} unknown alliance(s) found in the import:\n\n` +
+          `${unknownAlliances.join(", ")}\n\n` +
+          `Click OK to automatically create these alliances and continue.\n` +
+          `Click Cancel to abort the import.`
+        );
+        if (!ok) { setImporting(false); return; }
+        const allianceSetting = settings.find(s => s.key === "alliances");
+        const next = [
+          ...alliances,
+          ...unknownAlliances.map(name => ({ name, color: "#f59e0b" })),
+        ];
+        if (allianceSetting?.id) {
+          await adminEntities.AppSettings.update(allianceSetting.id, { value: JSON.stringify(next) });
+        } else {
+          await adminEntities.AppSettings.create({ key: "alliances", value: JSON.stringify(next) });
+        }
+        await queryClient.invalidateQueries({ queryKey: ["settings"] });
+      }
+
       if (newPlayers.length > 0) {
         await adminEntities.Player.bulkCreate(newPlayers);
       }
