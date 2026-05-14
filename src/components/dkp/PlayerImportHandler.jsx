@@ -272,6 +272,22 @@ export default function PlayerImportHandler({
       const playerUpdates = items.filter(p => p.type === "update" && p.entity === "player");
       const newPenalties = items.filter(p => p.type === "new" && p.entity === "penalty").map(({ type, entity, ...rest }) => rest);
       const penaltyUpdates = items.filter(p => p.type === "update" && p.entity === "penalty");
+      let playerDeletions = items.filter(p => p.type === "delete" && p.entity === "player");
+
+      // Extra confirmation for player deletions
+      if (playerDeletions.length > 0) {
+        const names = playerDeletions.map(p => p.name).join(", ");
+        const okDelete = confirm(
+          `⚠️ ACHTUNG: ${playerDeletions.length} Spieler werden DAUERHAFT gelöscht:\n\n` +
+          `${names}\n\n` +
+          `Diese Aktion kann nicht rückgängig gemacht werden.\n\n` +
+          `Klicke OK, um die Löschung zu bestätigen.\n` +
+          `Klicke Abbrechen, um die Löschungen zu überspringen (andere Änderungen werden trotzdem importiert).`
+        );
+        if (!okDelete) {
+          playerDeletions = [];
+        }
+      }
 
       // Detect unknown alliances from new players + alliance changes in updates
       const knownAllianceNames = new Set(alliances.map(a => a.name));
