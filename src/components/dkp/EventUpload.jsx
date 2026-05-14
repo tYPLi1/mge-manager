@@ -365,6 +365,27 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     queryClient.invalidateQueries({ queryKey: ["settings"] });
   };
 
+  // Bulk create multiple new alliances at once (single setting update)
+  const createAlliancesBulk = async (names) => {
+    const existingLower = new Set(alliances.map(a => a.name.toLowerCase()));
+    const toAdd = [];
+    for (const n of names) {
+      const trimmed = n.trim();
+      if (!trimmed) continue;
+      if (existingLower.has(trimmed.toLowerCase())) continue;
+      existingLower.add(trimmed.toLowerCase());
+      toAdd.push({ name: trimmed, color: "#f59e0b" });
+    }
+    if (!toAdd.length) return;
+    const next = [...alliances, ...toAdd];
+    if (alliancesSetting?.id) {
+      await adminEntities.AppSettings.update(alliancesSetting.id, { value: JSON.stringify(next) });
+    } else {
+      await adminEntities.AppSettings.create({ key: "alliances", value: JSON.stringify(next) });
+    }
+    await queryClient.invalidateQueries({ queryKey: ["settings"] });
+  };
+
   // ── Apply ─────────────────────────────────────────────────────────────
   const doApply = async () => {
     if (!preview || !selectedEventType) return;
@@ -469,19 +490,23 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
   const applyResults = async () => {
     if (!preview || !selectedEventType || applying) return;
 
-    // Confirm: any unknown alliances still left?
+    // Detect unknown alliances and offer to auto-create them
     const allianceNames = alliances.map(a => a.name);
-    const unknownAlliancesLeft = preview
-      .map(r => r.alliance)
-      .filter(a => a && !allianceNames.includes(a));
+    const unknownAlliancesLeft = [...new Set(
+      preview.map(r => r.alliance).filter(a => a && !allianceNames.includes(a))
+    )];
     if (unknownAlliancesLeft.length > 0) {
-      if (!confirm(
-        `${unknownAlliancesLeft.length} player(s) reference an alliance that does not exist (${[...new Set(unknownAlliancesLeft)].join(", ")}). ` +
-        `Use the dropdown to fix or create new alliances. Continue anyway and assign these names as-is?`
-      )) {
+      const choice = confirm(
+        `${unknownAlliancesLeft.length} unknown alliance(s) found:\n\n` +
+        `${unknownAlliancesLeft.join(", ")}\n\n` +
+        `Click OK to automatically create these alliances and continue.\n` +
+        `Click Cancel to abort and fix manually in the dropdown.`
+      );
+      if (!choice) {
         setApplying(false);
         return;
       }
+      await createAlliancesBulk(unknownAlliancesLeft);
     }
 
     setApplying(true);
