@@ -216,20 +216,13 @@ export default function AdminPlayers() {
       "",                       // New Alliance
       p.power || 0,
       p.updated_date || "",
-      false,                    // Delete Player checkbox (TRUE = delete on import)
+      "",                       // Delete Player — leave empty; type TRUE to delete on import
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player ☐"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 16 }];
-
-    // Force the Delete Player column to be boolean cells (renders as checkbox in Excel 365 / shows TRUE/FALSE elsewhere)
-    for (let i = 0; i < playerData.length; i++) {
-      const rowNum = i + 2; // header is row 1
-      const cellRef = `G${rowNum}`;
-      playerWs[cellRef] = { t: "b", v: false };
-    }
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
 
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
