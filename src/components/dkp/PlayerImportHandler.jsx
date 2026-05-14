@@ -76,13 +76,29 @@ export default function PlayerImportHandler({
       const powerCol = col("power");
       const allianceCol = col("alliance");
       const updatedCol = headerRow.findIndex(h => h.includes("last updated") || h.includes("updated"));
+      const deleteCol = headerRow.findIndex(h => h.includes("delete player") || h === "delete");
 
       const rows = allRows.slice(1);
       const playersMap = new Map(players.map(p => [p.name.toLowerCase(), p]));
 
+      const isTruthyDeleteFlag = (val) => {
+        if (val === null || val === undefined) return false;
+        const s = String(val).trim().toLowerCase();
+        return ["true", "x", "1", "yes", "ja", "y"].includes(s);
+      };
+
       for (const row of rows) {
         const name = row[nameCol]?.toString().trim();
         if (!name) continue;
+
+        // Check delete flag first — if set on an existing player, mark for deletion and skip update logic
+        if (deleteCol !== -1 && isTruthyDeleteFlag(row[deleteCol])) {
+          const existing = players.find(p => p.name?.trim().toLowerCase() === name.toLowerCase());
+          if (existing) {
+            preview.push({ type: "delete", entity: "player", id: existing.id, name: existing.name });
+            continue;
+          }
+        }
 
         const hasNewName = newNameCol !== -1;
         const hasNewAlliance = newAllianceCol !== -1;
@@ -325,6 +341,11 @@ export default function PlayerImportHandler({
         await adminEntities.Player.bulkCreate(newPlayers);
       }
 
+      // Execute player deletions (already confirmed above)
+      for (const item of playerDeletions) {
+        await adminEntities.Player.delete(item.id);
+      }
+
       for (const item of playerUpdates) {
         const updateData = {};
         Object.entries(item.changes).forEach(([key, { new: val }]) => {
@@ -393,6 +414,7 @@ export default function PlayerImportHandler({
       const parts = [];
       if (newPlayers.length) parts.push(`${newPlayers.length} new players`);
       if (playerUpdates.length) parts.push(`${playerUpdates.length} player updates`);
+      if (playerDeletions.length) parts.push(`${playerDeletions.length} players deleted`);
       if (newPenalties.length) parts.push(`${newPenalties.length} new penalties`);
       if (penaltyUpdates.length) parts.push(`${penaltyUpdates.length} penalty updates`);
       if (newTransactions.length) parts.push(`${newTransactions.length} DKP transactions`);

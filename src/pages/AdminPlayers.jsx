@@ -200,90 +200,39 @@ export default function AdminPlayers() {
     const wb = XLSX.utils.book_new();
     const filtered = getFilteredPlayersForDownload();
 
-    // Players sheet — sorted by alliance, then by current DKP (total + spent) desc
+    // Players sheet — sorted by alliance, then by power desc
     const sortedPlayers = [...filtered].sort((a, b) => {
       const aAll = (a.alliance || "").toLowerCase();
       const bAll = (b.alliance || "").toLowerCase();
       if (aAll === "" && bAll !== "") return 1;
       if (bAll === "" && aAll !== "") return -1;
       if (aAll !== bAll) return aAll.localeCompare(bAll);
-      const aDkp = (a.total_dkp || 0) + (a.dkp_spent || 0);
-      const bDkp = (b.total_dkp || 0) + (b.dkp_spent || 0);
-      return bDkp - aDkp;
+      return (b.power || 0) - (a.power || 0);
     });
     const playerData = sortedPlayers.map(p => [
       p.name,
-      p.alliance || "",
       "",                       // New Name
+      p.alliance || "",
       "",                       // New Alliance
-      p.total_dkp || 0,
-      p.dkp_spent || 0,
-      p.cooldown_until || "",
       p.power || 0,
       p.updated_date || "",
+      "",                       // Delete Player (set to TRUE / X / 1 to delete on import)
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "Alliance", "New Name", "New Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 14 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
-    // Build a name set of the filtered players to scope penalties + transactions
-    const filteredNames = new Set(sortedPlayers.map(p => (p.name || "").toLowerCase()));
-
-    // Penalties sheet
-    const penaltyData = penalties
-      .filter(p => p.status === "probation")
-      .filter(p => templateDownloadAlliance === "__all__" || filteredNames.has((p.player_name || "").toLowerCase()))
-      .map(p => [
-        p.player_name,
-        p.level,
-        p.offense_count,
-        p.offense_date,
-        p.dkp_deducted || 0,
-        p.note || "",
-      ]);
-    const penaltyWs = XLSX.utils.aoa_to_sheet([
-      ["Player", "Level", "Offense #", "Date", "DKP Deducted", "Note"],
-      ...penaltyData,
+    // Available Alliances sheet — reference list of configured alliances
+    const allianceRows = alliances.map(a => [a.name]);
+    const allianceWs = XLSX.utils.aoa_to_sheet([
+      ["Existing Alliances"],
+      ...allianceRows,
     ]);
-    penaltyWs["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 30 }];
-    XLSX.utils.book_append_sheet(wb, penaltyWs, "Penalties");
-
-    // DKP History sheet — sorted by player, then date
-    const filteredTx = transactions.filter(tx =>
-      templateDownloadAlliance === "__all__" || filteredNames.has((tx.player_name || "").toLowerCase())
-    );
-    const sortedTx = [...filteredTx].sort((a, b) => {
-      const nameCompare = (a.player_name || "").localeCompare(b.player_name || "");
-      if (nameCompare !== 0) return nameCompare;
-      return (a.event_date || "").localeCompare(b.event_date || "");
-    });
-
-    const cumulativeMap = {};
-    const txRows = sortedTx.map(tx => {
-      const name = tx.player_name || "Unknown";
-      if (!cumulativeMap[name]) cumulativeMap[name] = 0;
-      cumulativeMap[name] += (tx.amount || 0);
-      return [
-        name,
-        tx.type || "",
-        tx.source || "",
-        tx.source_stage || "",
-        tx.amount || 0,
-        cumulativeMap[name],
-        tx.event_date || "",
-        tx.note || "",
-      ];
-    });
-
-    const txWs = XLSX.utils.aoa_to_sheet([
-      ["Player", "Type", "Source", "Stage", "Amount", "Cumulative DKP", "Date", "Note"],
-      ...txRows,
-    ]);
-    txWs["!cols"] = [{ wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 30 }];
-    XLSX.utils.book_append_sheet(wb, txWs, "DKP_History");
+    allianceWs["!cols"] = [{ wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, allianceWs, "Available Alliances");
 
     XLSX.writeFile(wb, `Players-State-${allianceSuffix()}-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
