@@ -656,6 +656,13 @@
     "wipeTypeWrong": "You must type WIPE exactly to confirm",
     "wipeSuccess": "Wipe complete ({{count}} records deleted)"
   },
+  "adminImport": {
+    "deleteWarning": "This player will be PERMANENTLY deleted",
+    "badgeNew": "NEW",
+    "badgeUpdated": "UPDATED",
+    "badgeDelete": "DELETE",
+    "deleteConfirm": "⚠️ WARNING: {{count}} player(s) will be PERMANENTLY deleted:\n\n{{names}}\n\nThis action cannot be undone.\n\nClick OK to confirm the deletion.\nClick Cancel to skip the deletions (other changes will still be imported)."
+  },
   "eventTemplates": {
     "title": "Event Templates",
     "subtitle": "Download pre-filled Excel templates for event uploads",

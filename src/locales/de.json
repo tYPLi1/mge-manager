@@ -656,6 +656,13 @@
     "wipeTypeWrong": "Du musst exakt WIPE eingeben",
     "wipeSuccess": "Löschung abgeschlossen ({{count}} Datensätze gelöscht)"
   },
+  "adminImport": {
+    "deleteWarning": "Dieser Spieler wird DAUERHAFT gelöscht",
+    "badgeNew": "NEU",
+    "badgeUpdated": "AKTUALISIERT",
+    "badgeDelete": "LÖSCHEN",
+    "deleteConfirm": "⚠️ ACHTUNG: {{count}} Spieler werden DAUERHAFT gelöscht:\n\n{{names}}\n\nDiese Aktion kann nicht rückgängig gemacht werden.\n\nKlicke OK, um die Löschung zu bestätigen.\nKlicke Abbrechen, um die Löschungen zu überspringen (andere Änderungen werden trotzdem importiert)."
+  },
   "eventTemplates": {
     "title": "Event-Vorlagen",
     "subtitle": "Vorausgefüllte Excel-Vorlagen für Event-Uploads herunterladen",

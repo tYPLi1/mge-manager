@@ -620,6 +620,13 @@
     "wipeTypeWrong": "Tu dois taper exactement WIPE",
     "wipeSuccess": "Effacement terminé ({{count}} entrées supprimées)"
   },
+  "adminImport": {
+    "deleteWarning": "Ce joueur sera supprimé DÉFINITIVEMENT",
+    "badgeNew": "NOUVEAU",
+    "badgeUpdated": "MIS À JOUR",
+    "badgeDelete": "SUPPRIMER",
+    "deleteConfirm": "⚠️ ATTENTION : {{count}} joueur(s) seront supprimés DÉFINITIVEMENT :\n\n{{names}}\n\nCette action est irréversible.\n\nCliquez sur OK pour confirmer la suppression.\nCliquez sur Annuler pour ignorer les suppressions (les autres modifications seront tout de même importées)."
+  },
   "eventTemplates": {
     "title": "Modèles d'événement",
     "subtitle": "Télécharge des modèles Excel pré-remplis pour les imports d'événements",

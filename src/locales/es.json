@@ -626,6 +626,13 @@
     "wipeTypeWrong": "Debes escribir exactamente WIPE",
     "wipeSuccess": "Borrado completo ({{count}} registros eliminados)"
   },
+  "adminImport": {
+    "deleteWarning": "Este jugador será eliminado PERMANENTEMENTE",
+    "badgeNew": "NUEVO",
+    "badgeUpdated": "ACTUALIZADO",
+    "badgeDelete": "ELIMINAR",
+    "deleteConfirm": "⚠️ ADVERTENCIA: {{count}} jugador(es) serán eliminados PERMANENTEMENTE:\n\n{{names}}\n\nEsta acción no se puede deshacer.\n\nHaz clic en Aceptar para confirmar la eliminación.\nHaz clic en Cancelar para omitir las eliminaciones (los demás cambios se importarán de todos modos)."
+  },
   "eventTemplates": {
     "title": "Plantillas de eventos",
     "subtitle": "Descarga plantillas Excel prerellenadas para subidas de eventos",

@@ -656,6 +656,13 @@
     "wipeTypeWrong": "Onay için tam olarak WIPE yazmalısın",
     "wipeSuccess": "Silme tamamlandı ({{count}} kayıt silindi)"
   },
+  "adminImport": {
+    "deleteWarning": "Bu oyuncu KALICI olarak silinecek",
+    "badgeNew": "YENİ",
+    "badgeUpdated": "GÜNCELLENDİ",
+    "badgeDelete": "SİL",
+    "deleteConfirm": "⚠️ UYARI: {{count}} oyuncu KALICI olarak silinecek:\n\n{{names}}\n\nBu işlem geri alınamaz.\n\nSilme işlemini onaylamak için Tamam'a tıkla.\nDiğer değişiklikler içe aktarılırken silmeleri atlamak için İptal'e tıkla."
+  },
   "eventTemplates": {
     "title": "Etkinlik Şablonları",
     "subtitle": "Etkinlik yüklemeleri için önceden doldurulmuş Excel şablonlarını indir",

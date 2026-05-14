@@ -616,6 +616,13 @@
     "wipeTypeWrong": "정확히 WIPE를 입력해야 합니다",
     "wipeSuccess": "삭제 완료 ({{count}}개 레코드 삭제됨)"
   },
+  "adminImport": {
+    "deleteWarning": "이 플레이어는 영구적으로 삭제됩니다",
+    "badgeNew": "신규",
+    "badgeUpdated": "업데이트됨",
+    "badgeDelete": "삭제",
+    "deleteConfirm": "⚠️ 경고: {{count}}명의 플레이어가 영구적으로 삭제됩니다:\n\n{{names}}\n\n이 작업은 되돌릴 수 없습니다.\n\n삭제를 확인하려면 확인을 클릭하세요.\n삭제를 건너뛰려면 취소를 클릭하세요(다른 변경 사항은 그대로 가져옵니다)."
+  },
   "eventTemplates": {
     "title": "이벤트 템플릿",
     "subtitle": "이벤트 업로드를 위한 미리 채워진 Excel 템플릿 다운로드",

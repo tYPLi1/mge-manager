@@ -616,6 +616,13 @@
     "wipeTypeWrong": "你必须准确输入 WIPE",
     "wipeSuccess": "清除完成(已删除 {{count}} 条记录)"
   },
+  "adminImport": {
+    "deleteWarning": "该玩家将被永久删除",
+    "badgeNew": "新增",
+    "badgeUpdated": "已更新",
+    "badgeDelete": "删除",
+    "deleteConfirm": "⚠️ 警告：{{count}} 名玩家将被永久删除：\n\n{{names}}\n\n此操作无法撤销。\n\n点击「确定」确认删除。\n点击「取消」跳过删除（其他更改仍将导入）。"
+  },
   "eventTemplates": {
     "title": "事件模板",
     "subtitle": "下载用于事件上传的预填 Excel 模板",

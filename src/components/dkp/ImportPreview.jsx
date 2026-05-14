@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, CheckSquare, XSquare } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export default function ImportPreview({ preview, onConfirm, onCancel }) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState(new Set(preview.map((_, i) => i)));
   const [confirming, setConfirming] = useState(false);
 
@@ -81,7 +83,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                         ? "bg-red-500/20 text-red-400"
                         : "bg-blue-500/20 text-blue-400"
                     }`}>
-                      {item.type === "new" ? "NEW" : item.type === "delete" ? "DELETE" : "UPDATED"}
+                      {item.type === "new" ? t("adminImport.badgeNew") : item.type === "delete" ? t("adminImport.badgeDelete") : t("adminImport.badgeUpdated")}
                     </span>
                     <span className={`font-medium ${item.type === "delete" ? "text-red-300 line-through" : "text-white"}`}>
                       {item.name || item.player_name}
@@ -90,7 +92,7 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
 
                   {item.type === "delete" && (
                     <div className="text-xs text-red-400 ml-2">
-                      ⚠️ Dieser Spieler wird DAUERHAFT gelöscht
+                      ⚠️ {t("adminImport.deleteWarning")}
                     </div>
                   )}
 

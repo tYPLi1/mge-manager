@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 import ImportPreview from "@/components/dkp/ImportPreview";
+import { useTranslation } from "@/lib/i18n";
 
 // Normalize date values from Excel (could be serial number, Date, or string)
 function normalizeDateValue(val) {
@@ -37,6 +38,7 @@ export default function PlayerImportHandler({
   settings,
   queryClient,
 }) {
+  const { t } = useTranslation();
   const fileRef = useRef();
   const [importing, setImporting] = useState(false);
   const [previewData, setPreviewData] = useState(null);
@@ -294,11 +296,7 @@ export default function PlayerImportHandler({
       if (playerDeletions.length > 0) {
         const names = playerDeletions.map(p => p.name).join(", ");
         const okDelete = confirm(
-          `⚠️ ACHTUNG: ${playerDeletions.length} Spieler werden DAUERHAFT gelöscht:\n\n` +
-          `${names}\n\n` +
-          `Diese Aktion kann nicht rückgängig gemacht werden.\n\n` +
-          `Klicke OK, um die Löschung zu bestätigen.\n` +
-          `Klicke Abbrechen, um die Löschungen zu überspringen (andere Änderungen werden trotzdem importiert).`
+          t("adminImport.deleteConfirm", { count: playerDeletions.length, names })
         );
         if (!okDelete) {
           playerDeletions = [];
