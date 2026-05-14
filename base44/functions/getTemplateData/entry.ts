@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
       name: p.name,
       alliance: p.alliance || '',
       power: p.power || 0,
+      updated_date: p.updated_date || '',
     }));
 
     return Response.json({

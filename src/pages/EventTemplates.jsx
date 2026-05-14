@@ -181,7 +181,7 @@ export default function EventTemplates() {
       p.alliance || "",
       "",
       p.power || 0,
-      "",
+      p.updated_date || "",
       "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
