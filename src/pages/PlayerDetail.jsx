@@ -9,6 +9,7 @@ import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
 import PlayerDKPChart from "@/components/dkp/PlayerDKPChart";
 import PlayerPowerChart from "@/components/dkp/PlayerPowerChart";
+import PlayerMeritsChart from "@/components/dkp/PlayerMeritsChart";
 import AllianceBadge from "@/components/dkp/AllianceBadge";
 import { useTranslation } from "@/lib/i18n";
 
@@ -37,6 +38,12 @@ export default function PlayerDetail() {
   const { data: powerHistory = [] } = useQuery({
     queryKey: ["powerHistory", playerId],
     queryFn: () => base44.entities.PowerHistory.filter({ player_id: playerId }, "recorded_at", 500),
+    enabled: !!playerId,
+  });
+
+  const { data: meritsHistory = [] } = useQuery({
+    queryKey: ["meritsHistory", playerId],
+    queryFn: () => base44.entities.MeritsHistory.filter({ player_id: playerId }, "recorded_at", 500),
     enabled: !!playerId,
   });
 
@@ -98,7 +105,7 @@ export default function PlayerDetail() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
           <p className="text-xs text-gray-400 mb-1">{t("playerDetail.power")}</p>
           <p className="font-mono text-white text-lg font-bold">{(player.power || 0).toLocaleString()}</p>
@@ -109,6 +116,10 @@ export default function PlayerDetail() {
           )}
         </div>
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
+          <p className="text-xs text-gray-400 mb-1">{t("playerDetail.merits") || "Merits"}</p>
+          <p className="font-mono text-emerald-400 text-lg font-bold">{(player.merits || 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
           <p className="text-xs text-gray-400 mb-1">{t("playerDetail.auctionBans")}</p>
           <p className="font-mono text-white text-lg font-bold">{player.auction_ban_count || 0}</p>
         </div>
@@ -117,6 +128,7 @@ export default function PlayerDetail() {
       {/* Charts */}
       <PlayerDKPChart transactions={transactions} />
       <PlayerPowerChart powerHistory={powerHistory} currentPower={player.power} />
+      <PlayerMeritsChart meritsHistory={meritsHistory} currentMerits={player.merits} />
 
       {/* Transaction History */}
       <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{t("playerDetail.transactionHistory", { count: transactions.length })}</h3>

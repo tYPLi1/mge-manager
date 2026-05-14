@@ -25,6 +25,11 @@
       "default": 0,
       "description": "Player power (Macht)"
     },
+    "merits": {
+      "type": "number",
+      "default": 0,
+      "description": "Player merits (Verdienste)"
+    },
     "auction_ban_count": {
       "type": "number",
       "default": 0,

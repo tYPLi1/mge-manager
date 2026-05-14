@@ -76,6 +76,7 @@ export default function PlayerImportHandler({
       const dkpSpentCol = col("dkp spent");
       const cooldownCol = headerRow.findIndex(h => h.includes("cooldown"));
       const powerCol = col("power");
+      const meritsCol = col("merits");
       const allianceCol = col("alliance");
       const updatedCol = headerRow.findIndex(h => h.includes("last updated") || h.includes("updated"));
       const deleteCol = headerRow.findIndex(h => h.includes("delete player") || h === "delete");
@@ -108,6 +109,7 @@ export default function PlayerImportHandler({
         const hasDkpSpent = dkpSpentCol !== -1;
         const hasCooldown = cooldownCol !== -1;
         const hasPower = powerCol !== -1;
+        const hasMerits = meritsCol !== -1;
         const hasAlliance = allianceCol !== -1;
         const hasUpdated = updatedCol !== -1;
 
@@ -118,6 +120,7 @@ export default function PlayerImportHandler({
         const rawCooldown = hasCooldown ? row[cooldownCol] : null;
         const cooldown = hasCooldown ? normalizeDateValue(rawCooldown) : null;
         const power = hasPower ? (row[powerCol] !== undefined && row[powerCol] !== null && row[powerCol] !== "" ? Math.round(Number(row[powerCol])) || 0 : null) : null;
+        const merits = hasMerits ? (row[meritsCol] !== undefined && row[meritsCol] !== null && row[meritsCol] !== "" ? Math.round(Number(row[meritsCol])) || 0 : null) : null;
         const allianceVal = hasAlliance ? (row[allianceCol]?.toString().trim() || "") : null;
         const fileUpdatedDate = hasUpdated ? row[updatedCol]?.toString().trim() : null;
 
@@ -132,6 +135,7 @@ export default function PlayerImportHandler({
             dkp_spent: dkpSpent ?? 0,
             cooldown_until: cooldown,
             power: power ?? 0,
+            merits: merits ?? 0,
             alliance: newAllianceVal || allianceVal || null,
           });
         } else {
@@ -157,6 +161,7 @@ export default function PlayerImportHandler({
           if (hasDkpSpent && (existing.dkp_spent || 0) !== dkpSpent) changes.dkp_spent = { old: existing.dkp_spent || 0, new: dkpSpent };
           if (hasCooldown && normalizeCooldown(existing.cooldown_until) !== cooldown) changes.cooldown_until = { old: existing.cooldown_until, new: cooldown };
           if (hasPower && (existing.power || 0) !== power) changes.power = { old: existing.power || 0, new: power };
+          if (hasMerits && (existing.merits || 0) !== merits) changes.merits = { old: existing.merits || 0, new: merits };
 
           if (Object.keys(changes).length > 0) {
             preview.push({ type: "update", entity: "player", id: existing.id, name, changes });
@@ -354,6 +359,15 @@ export default function PlayerImportHandler({
             player_id: item.id,
             player_name: item.changes.name?.new || item.name,
             power: item.changes.power.new,
+            recorded_at: new Date().toISOString().split("T")[0],
+            source: "import",
+          });
+        }
+        if (item.changes.merits) {
+          await adminEntities.MeritsHistory.create({
+            player_id: item.id,
+            player_name: item.changes.name?.new || item.name,
+            merits: item.changes.merits.new,
             recorded_at: new Date().toISOString().split("T")[0],
             source: "import",
           });

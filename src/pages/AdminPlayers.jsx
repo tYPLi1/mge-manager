@@ -34,6 +34,7 @@ export default function AdminPlayers() {
   const [editName, setEditName] = useState("");
   const [editCooldown, setEditCooldown] = useState("");
   const [editPower, setEditPower] = useState("");
+  const [editMerits, setEditMerits] = useState("");
   const [editAlliance, setEditAlliance] = useState("");
   const queryClient = useQueryClient();
 
@@ -108,16 +109,27 @@ export default function AdminPlayers() {
     setEditName(p.name || "");
     setEditCooldown(p.cooldown_until || "");
     setEditPower(String(p.power || 0));
+    setEditMerits(String(p.merits || 0));
     setEditAlliance(p.alliance || "");
   };
 
   const saveEdit = async (p) => {
     const newPower = parseInt(editPower) || 0;
+    const newMerits = parseInt(editMerits) || 0;
     if (newPower !== (p.power || 0)) {
       await adminEntities.PowerHistory.create({
         player_id: p.id,
         player_name: editName.trim() || p.name,
         power: newPower,
+        recorded_at: new Date().toISOString().split("T")[0],
+        source: "manual",
+      });
+    }
+    if (newMerits !== (p.merits || 0)) {
+      await adminEntities.MeritsHistory.create({
+        player_id: p.id,
+        player_name: editName.trim() || p.name,
+        merits: newMerits,
         recorded_at: new Date().toISOString().split("T")[0],
         source: "manual",
       });
@@ -128,6 +140,7 @@ export default function AdminPlayers() {
         name: editName.trim() || p.name,
         cooldown_until: editCooldown || null,
         power: newPower,
+        merits: newMerits,
         alliance: editAlliance || null,
       },
     });
@@ -170,13 +183,14 @@ export default function AdminPlayers() {
       p.dkp_spent || 0,
       p.cooldown_until || "",
       p.power || 0,
+      p.merits || 0,
       "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "Alliance", "New Name", "New Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Last Updated"],
+      ["Name", "Alliance", "New Name", "New Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Merits", "Last Updated"],
       ...playerRows,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 20 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Penalties sheet
@@ -215,14 +229,15 @@ export default function AdminPlayers() {
       p.alliance || "",
       "",                       // New Alliance
       p.power || 0,
+      p.merits || 0,
       p.updated_date || "",
       "",                       // Delete Player — leave empty; type TRUE to delete on import
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
 
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
@@ -369,6 +384,7 @@ export default function AdminPlayers() {
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Cooldown</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Power</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Merits</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase w-24">Actions</th>
               </tr>
             </thead>
@@ -414,6 +430,15 @@ export default function AdminPlayers() {
                         onChange={(e) => setEditPower(e.target.value)}
                         className="w-28 h-7 text-xs bg-white/5 border-white/20 text-white"
                         placeholder="Power"
+                      />
+                    </td>
+                    <td className="px-3 py-2 hidden lg:table-cell">
+                      <Input
+                        type="number"
+                        value={editMerits}
+                        onChange={(e) => setEditMerits(e.target.value)}
+                        className="w-28 h-7 text-xs bg-white/5 border-white/20 text-white"
+                        placeholder="Merits"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -462,6 +487,9 @@ export default function AdminPlayers() {
                     </td>
                     <td className="px-3 py-2.5 hidden md:table-cell">
                       <span className="text-sm text-gray-400 font-mono">{p.power?.toLocaleString() || "—"}</span>
+                    </td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                      <span className="text-sm text-emerald-400 font-mono">{p.merits?.toLocaleString() || "—"}</span>
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-1">

@@ -181,14 +181,15 @@ export default function EventTemplates() {
       p.alliance || "",
       "",
       p.power || 0,
+      p.merits || 0,
       p.updated_date || "",
       "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"],
       ...playerRows,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     const allianceRows = alliances.map(a => [a.name]);
@@ -206,10 +207,10 @@ export default function EventTemplates() {
     const wb = XLSX.utils.book_new();
 
     // Empty template — same columns as the Update sheet so the same importer accepts it
-    const headerRow = ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"];
-    const emptyRows = Array.from({ length: 20 }, () => ["", "", "", "", "", "", ""]);
+    const headerRow = ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"];
+    const emptyRows = Array.from({ length: 20 }, () => ["", "", "", "", "", "", "", ""]);
     const playerWs = XLSX.utils.aoa_to_sheet([headerRow, ...emptyRows]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     const allianceRows = alliances.map(a => [a.name]);
