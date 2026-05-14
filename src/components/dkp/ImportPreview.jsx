@@ -77,12 +77,22 @@ export default function ImportPreview({ preview, onConfirm, onCancel }) {
                     <span className={`text-xs font-semibold px-2 py-1 rounded ${
                       item.type === "new"
                         ? "bg-green-500/20 text-green-400"
+                        : item.type === "delete"
+                        ? "bg-red-500/20 text-red-400"
                         : "bg-blue-500/20 text-blue-400"
                     }`}>
-                      {item.type === "new" ? "NEW" : "UPDATED"}
+                      {item.type === "new" ? "NEW" : item.type === "delete" ? "DELETE" : "UPDATED"}
                     </span>
-                    <span className="text-white font-medium">{item.name || item.player_name}</span>
+                    <span className={`font-medium ${item.type === "delete" ? "text-red-300 line-through" : "text-white"}`}>
+                      {item.name || item.player_name}
+                    </span>
                   </div>
+
+                  {item.type === "delete" && (
+                    <div className="text-xs text-red-400 ml-2">
+                      ⚠️ Dieser Spieler wird DAUERHAFT gelöscht
+                    </div>
+                  )}
 
                   {item.type === "update" && item.changes && (
                     <div className="space-y-1 text-xs ml-2">
