@@ -219,20 +219,16 @@ export default function AdminPlayers() {
       false,                    // Delete Player checkbox (TRUE = delete on import)
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player ☐"],
       ...playerData,
     ]);
-    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 14 }];
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 16 }];
 
-    // Add TRUE/FALSE dropdown (checkbox-like) on the Delete Player column for all data rows
-    if (playerData.length > 0) {
-      const lastRow = playerData.length + 1; // +1 for header (1-indexed)
-      playerWs["!dataValidation"] = [{
-        sqref: `G2:G${lastRow}`,
-        type: "list",
-        formula1: '"TRUE,FALSE"',
-        showDropDown: false,
-      }];
+    // Force the Delete Player column to be boolean cells (renders as checkbox in Excel 365 / shows TRUE/FALSE elsewhere)
+    for (let i = 0; i < playerData.length; i++) {
+      const rowNum = i + 2; // header is row 1
+      const cellRef = `G${rowNum}`;
+      playerWs[cellRef] = { t: "b", v: false };
     }
 
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
