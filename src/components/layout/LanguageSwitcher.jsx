@@ -9,13 +9,19 @@ import { useTranslation, AVAILABLE_LOCALES } from "@/lib/i18n";
 export default function LanguageSwitcher({ variant = "header" }) {
   const { locale, setLocale } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState(null);
   const wrapperRef = useRef(null);
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
 
   const current = AVAILABLE_LOCALES.find((l) => l.code === locale) || AVAILABLE_LOCALES[0];
 
   useEffect(() => {
     const onClick = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      if (
+        wrapperRef.current && !wrapperRef.current.contains(e.target) &&
+        menuRef.current && !menuRef.current.contains(e.target)
+      ) {
         setOpen(false);
       }
     };
@@ -25,9 +31,38 @@ export default function LanguageSwitcher({ variant = "header" }) {
 
   const isFullWidth = variant === "mobile";
 
+  // Compute fixed position so the dropdown can escape any scroll container
+  useEffect(() => {
+    if (!open || !buttonRef.current) return;
+    const update = () => {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const margin = 8;
+      const vh = window.innerHeight;
+      const spaceBelow = vh - rect.bottom - margin;
+      const spaceAbove = rect.top - margin;
+      const openUp = spaceBelow < 200 && spaceAbove > spaceBelow;
+      const maxHeight = Math.max(160, Math.min(openUp ? spaceAbove : spaceBelow, vh * 0.7));
+      setMenuPos({
+        top: openUp ? null : rect.bottom + 4,
+        bottom: openUp ? vh - rect.top + 4 : null,
+        left: rect.left,
+        width: isFullWidth ? rect.width : Math.max(rect.width, 200),
+        maxHeight,
+      });
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open, isFullWidth]);
+
   return (
     <div ref={wrapperRef} style={{ position: "relative", width: isFullWidth ? "100%" : "auto" }}>
       <button
+        ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
         style={{
           display: "inline-flex",
@@ -59,26 +94,28 @@ export default function LanguageSwitcher({ variant = "header" }) {
         />
       </button>
 
-      {open && (
+      {open && menuPos && (
         <div
+          ref={menuRef}
           style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            right: isFullWidth ? "auto" : 0,
-            left: isFullWidth ? 0 : "auto",
-            minWidth: isFullWidth ? "100%" : 180,
+            position: "fixed",
+            top: menuPos.top !== null ? menuPos.top : "auto",
+            bottom: menuPos.bottom !== null ? menuPos.bottom : "auto",
+            left: menuPos.left,
+            width: menuPos.width,
             background: "var(--dp-bg-elevated)",
             border: "1px solid var(--dp-border)",
             borderRadius: 8,
             boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-            zIndex: 200,
+            zIndex: 9999,
             padding: 4,
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            maxHeight: "60vh",
+            maxHeight: menuPos.maxHeight,
             overflowY: "auto",
             overscrollBehavior: "contain",
+            WebkitOverflowScrolling: "touch",
           }}
         >
           {AVAILABLE_LOCALES.map((l) => {
