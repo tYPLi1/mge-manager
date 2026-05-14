@@ -46,7 +46,7 @@ export default function LegalFooter() {
         padding: "16px 24px",
         marginTop: 40,
         position: "relative",
-        zIndex: 70,
+        zIndex: 1,
       }}>
         <div style={{
           maxWidth: 1400,

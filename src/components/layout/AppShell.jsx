@@ -168,7 +168,7 @@ export default function AppShell({ children, currentPageName }) {
       <div className="dp-bg-grain" />
 
       <header style={{
-        position: "sticky", top: 0, zIndex: 50,
+        position: "sticky", top: 0, zIndex: 100,
         borderBottom: "1px solid var(--dp-border)",
         background: "var(--dp-bg-elevated)",
         backdropFilter: "blur(8px)",
@@ -259,6 +259,10 @@ export default function AppShell({ children, currentPageName }) {
             background: "var(--dp-bg-elevated)",
             padding: 12,
             display: "flex", flexDirection: "column", gap: 4,
+            maxHeight: "calc(100vh - 64px)",
+            overflowY: "auto",
+            overscrollBehavior: "contain",
+            WebkitOverflowScrolling: "touch",
           }}>
             {navConfig.map((item) => {
               const Icon = item.icon;

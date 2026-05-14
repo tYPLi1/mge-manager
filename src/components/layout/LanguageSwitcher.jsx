@@ -71,11 +71,14 @@ export default function LanguageSwitcher({ variant = "header" }) {
             border: "1px solid var(--dp-border)",
             borderRadius: 8,
             boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-            zIndex: 100,
+            zIndex: 200,
             padding: 4,
             display: "flex",
             flexDirection: "column",
             gap: 2,
+            maxHeight: "60vh",
+            overflowY: "auto",
+            overscrollBehavior: "contain",
           }}
         >
           {AVAILABLE_LOCALES.map((l) => {
