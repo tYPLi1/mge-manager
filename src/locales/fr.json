@@ -649,7 +649,16 @@
     "allPlayersOption": "Tous les joueurs (groupés par alliance)",
     "sortByPower": "Trier par puissance (décroissant)",
     "download": "Télécharger",
-    "hint": "Le fichier Excel contient la liste des joueurs correspondant à tes filtres. Remplis les rangs/valeurs puis renvoie-le à un administrateur pour import."
+    "hint": "Le fichier Excel contient la liste des joueurs correspondant à tes filtres. Remplis les rangs/valeurs puis renvoie-le à un administrateur pour import.",
+    "sectionEvent": "Modèle d'événement",
+    "sectionEventDesc": "Modèle pré-rempli pour l'import d'un événement.",
+    "sectionPlayerUpdate": "Modèle de mise à jour des joueurs",
+    "sectionPlayerUpdateDesc": "État actuel des joueurs (nom, alliance, puissance). Modifie les champs et renvoie le fichier à un administrateur pour mettre à jour les joueurs existants ou les marquer pour suppression.",
+    "sectionNewPlayers": "Modèle de nouveaux joueurs",
+    "sectionNewPlayersDesc": "Modèle vide pour ajouter de tout nouveaux joueurs. Remplis les lignes et renvoie le fichier à un administrateur pour import.",
+    "downloadPlayerUpdate": "Télécharger la mise à jour des joueurs",
+    "downloadNewPlayers": "Télécharger les nouveaux joueurs",
+    "newPlayerHint": "Laisse vides les colonnes des joueurs existants — remplis uniquement les lignes pour les joueurs qui n'existent pas encore."
   },
   "legal": {
     "contact": {

@@ -645,7 +645,16 @@
     "allPlayersOption": "모든 플레이어 (동맹별 그룹화)",
     "sortByPower": "전투력 기준 정렬 (내림차순)",
     "download": "다운로드",
-    "hint": "Excel 파일에는 필터 조건에 맞는 플레이어 목록이 포함되어 있습니다. 순위/값을 입력한 후 관리자에게 다시 보내 가져오기를 요청하세요."
+    "hint": "Excel 파일에는 필터 조건에 맞는 플레이어 목록이 포함되어 있습니다. 순위/값을 입력한 후 관리자에게 다시 보내 가져오기를 요청하세요.",
+    "sectionEvent": "이벤트 템플릿",
+    "sectionEventDesc": "이벤트 업로드용 미리 채워진 템플릿입니다.",
+    "sectionPlayerUpdate": "플레이어 업데이트 템플릿",
+    "sectionPlayerUpdateDesc": "플레이어의 현재 상태(이름, 동맹, 전투력)입니다. 필드를 편집한 후 관리자에게 보내 기존 플레이어를 업데이트하거나 삭제 표시하세요.",
+    "sectionNewPlayers": "신규 플레이어 템플릿",
+    "sectionNewPlayersDesc": "완전히 새로운 플레이어를 추가하기 위한 빈 템플릿입니다. 행을 채운 후 관리자에게 보내 가져오기를 요청하세요.",
+    "downloadPlayerUpdate": "플레이어 업데이트 다운로드",
+    "downloadNewPlayers": "신규 플레이어 다운로드",
+    "newPlayerHint": "기존 플레이어 열은 비워 두세요 — 아직 존재하지 않는 플레이어의 행만 채우세요."
   },
   "legal": {
     "contact": {

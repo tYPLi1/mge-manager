@@ -685,7 +685,16 @@
     "allPlayersOption": "Alle Spieler (nach Allianz gruppiert)",
     "sortByPower": "Nach Macht sortieren (absteigend)",
     "download": "Herunterladen",
-    "hint": "Die Excel-Datei enthält die Liste der Spieler entsprechend deinem Filter. Trage Ränge/Werte ein und sende die Datei zurück an einen Admin zum Importieren."
+    "hint": "Die Excel-Datei enthält die Liste der Spieler entsprechend deinem Filter. Trage Ränge/Werte ein und sende die Datei zurück an einen Admin zum Importieren.",
+    "sectionEvent": "Event-Vorlage",
+    "sectionEventDesc": "Vorausgefüllte Vorlage für einen Event-Upload.",
+    "sectionPlayerUpdate": "Spieler-Update-Vorlage",
+    "sectionPlayerUpdateDesc": "Aktueller Stand der Spieler (Name, Allianz, Macht). Bearbeite die Felder und sende die Datei zurück an einen Admin, um bestehende Spieler zu aktualisieren oder zur Löschung zu markieren.",
+    "sectionNewPlayers": "Vorlage für neue Spieler",
+    "sectionNewPlayersDesc": "Leere Vorlage zum Hinzufügen ganz neuer Spieler. Trage Zeilen ein und sende die Datei zurück an einen Admin zum Importieren.",
+    "downloadPlayerUpdate": "Spieler-Update herunterladen",
+    "downloadNewPlayers": "Neue Spieler herunterladen",
+    "newPlayerHint": "Lasse die Spalten bestehender Spieler leer — fülle nur Zeilen für Spieler aus, die es noch nicht gibt."
   },
   "legal": {
     "contact": {

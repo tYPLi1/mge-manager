@@ -150,6 +150,79 @@ export default function EventTemplates() {
     XLSX.writeFile(wb, `Template_${selectedEventType.key}_${allianceSuffix}_${eventDate}.xlsx`);
   };
 
+  const allianceSuffixForPlayers = () => {
+    if (templateAlliance === "__all__") return "ALL";
+    return templateAlliance.replace(/[^a-z0-9]/gi, "_");
+  };
+
+  const getPlayersForUpdate = () => {
+    return players.filter(p => {
+      if (templateAlliance === "__all__") return true;
+      return (p.alliance || "") === templateAlliance;
+    });
+  };
+
+  const downloadPlayerUpdate = () => {
+    const wb = XLSX.utils.book_new();
+    const filtered = getPlayersForUpdate();
+
+    const sorted = [...filtered].sort((a, b) => {
+      const aAll = (a.alliance || "").toLowerCase();
+      const bAll = (b.alliance || "").toLowerCase();
+      if (aAll === "" && bAll !== "") return 1;
+      if (bAll === "" && aAll !== "") return -1;
+      if (aAll !== bAll) return aAll.localeCompare(bAll);
+      return (b.power || 0) - (a.power || 0);
+    });
+
+    const playerRows = sorted.map(p => [
+      p.name,
+      "",
+      p.alliance || "",
+      "",
+      p.power || 0,
+      "",
+      "",
+    ]);
+    const playerWs = XLSX.utils.aoa_to_sheet([
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"],
+      ...playerRows,
+    ]);
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
+    XLSX.utils.book_append_sheet(wb, playerWs, "Players");
+
+    const allianceRows = alliances.map(a => [a.name]);
+    const allianceWs = XLSX.utils.aoa_to_sheet([
+      ["Existing Alliances"],
+      ...allianceRows,
+    ]);
+    allianceWs["!cols"] = [{ wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, allianceWs, "Available Alliances");
+
+    XLSX.writeFile(wb, `Players-Update_${allianceSuffixForPlayers()}_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
+  const downloadNewPlayers = () => {
+    const wb = XLSX.utils.book_new();
+
+    // Empty template — same columns as the Update sheet so the same importer accepts it
+    const headerRow = ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player (TRUE = delete)"];
+    const emptyRows = Array.from({ length: 20 }, () => ["", "", "", "", "", "", ""]);
+    const playerWs = XLSX.utils.aoa_to_sheet([headerRow, ...emptyRows]);
+    playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
+    XLSX.utils.book_append_sheet(wb, playerWs, "Players");
+
+    const allianceRows = alliances.map(a => [a.name]);
+    const allianceWs = XLSX.utils.aoa_to_sheet([
+      ["Existing Alliances"],
+      ...allianceRows,
+    ]);
+    allianceWs["!cols"] = [{ wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, allianceWs, "Available Alliances");
+
+    XLSX.writeFile(wb, `Players-New_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   // ── Render ────────────────────────────────────────────────────────────
   if (!enabledChecked) {
     return (
@@ -225,10 +298,42 @@ export default function EventTemplates() {
     <div>
       <PageHeader title={t("eventTemplates.title")} icon={FileSpreadsheet} subtitle={t("eventTemplates.subtitle")} />
 
-      <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-6">
-        <h3 className="text-sm font-semibold text-white mb-4">{t("eventTemplates.downloadTitle")}</h3>
+      {/* Shared alliance filter */}
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mt-6 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
+              {t("eventTemplates.allianceFilter")}
+            </Label>
+            <Select value={templateAlliance} onValueChange={setTemplateAlliance}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">{t("eventTemplates.allPlayersOption")}</SelectItem>
+                {allianceOptions.map(name => (
+                  <SelectItem key={name} value={name}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end">
+            <div className="flex items-center gap-3 p-2 rounded-lg bg-white/[0.02] border border-white/5 w-full">
+              <Switch id="etSortByPower" checked={sortByPower} onCheckedChange={setSortByPower} />
+              <Label htmlFor="etSortByPower" className="text-xs text-gray-300 cursor-pointer">
+                {t("eventTemplates.sortByPower")}
+              </Label>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      {/* Event template section */}
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
+        <h3 className="text-sm font-semibold text-white mb-1">{t("eventTemplates.sectionEvent")}</h3>
+        <p className="text-xs text-gray-400 mb-4">{t("eventTemplates.sectionEventDesc")}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
               {t("eventTemplates.eventType")}
@@ -257,23 +362,6 @@ export default function EventTemplates() {
             />
           </div>
 
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
-              {t("eventTemplates.allianceFilter")}
-            </Label>
-            <Select value={templateAlliance} onValueChange={setTemplateAlliance}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">{t("eventTemplates.allPlayersOption")}</SelectItem>
-                {allianceOptions.map(name => (
-                  <SelectItem key={name} value={name}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex items-end">
             <Button
               onClick={downloadTemplate}
@@ -285,15 +373,36 @@ export default function EventTemplates() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-          <Switch id="etSortByPower" checked={sortByPower} onCheckedChange={setSortByPower} />
-          <Label htmlFor="etSortByPower" className="text-xs text-gray-300 cursor-pointer">
-            {t("eventTemplates.sortByPower")}
-          </Label>
-        </div>
-
-        <p className="text-xs text-gray-500 mt-4">
+        <p className="text-xs text-gray-500">
           {t("eventTemplates.hint")}
+        </p>
+      </div>
+
+      {/* Player update template section */}
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-4">
+        <h3 className="text-sm font-semibold text-white mb-1">{t("eventTemplates.sectionPlayerUpdate")}</h3>
+        <p className="text-xs text-gray-400 mb-4">{t("eventTemplates.sectionPlayerUpdateDesc")}</p>
+        <Button
+          onClick={downloadPlayerUpdate}
+          disabled={players.length === 0}
+          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+        >
+          <Download className="w-4 h-4 mr-1" /> {t("eventTemplates.downloadPlayerUpdate")}
+        </Button>
+      </div>
+
+      {/* New players template section */}
+      <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mt-4">
+        <h3 className="text-sm font-semibold text-white mb-1">{t("eventTemplates.sectionNewPlayers")}</h3>
+        <p className="text-xs text-gray-400 mb-3">{t("eventTemplates.sectionNewPlayersDesc")}</p>
+        <Button
+          onClick={downloadNewPlayers}
+          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+        >
+          <Download className="w-4 h-4 mr-1" /> {t("eventTemplates.downloadNewPlayers")}
+        </Button>
+        <p className="text-xs text-gray-500 mt-3">
+          {t("eventTemplates.newPlayerHint")}
         </p>
       </div>
     </div>

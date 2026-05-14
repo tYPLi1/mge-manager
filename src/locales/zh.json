@@ -645,7 +645,16 @@
     "allPlayersOption": "所有玩家（按联盟分组）",
     "sortByPower": "按战力排序（降序）",
     "download": "下载",
-    "hint": "Excel 文件包含与你的筛选条件匹配的玩家列表。填写排名/数值后，将其发回给管理员进行导入。"
+    "hint": "Excel 文件包含与你的筛选条件匹配的玩家列表。填写排名/数值后，将其发回给管理员进行导入。",
+    "sectionEvent": "事件模板",
+    "sectionEventDesc": "用于事件上传的预填模板。",
+    "sectionPlayerUpdate": "玩家更新模板",
+    "sectionPlayerUpdateDesc": "玩家的当前状态（姓名、联盟、战力）。编辑字段后发回给管理员以更新现有玩家或标记为删除。",
+    "sectionNewPlayers": "新玩家模板",
+    "sectionNewPlayersDesc": "用于添加全新玩家的空白模板。填写行后发回给管理员以导入。",
+    "downloadPlayerUpdate": "下载玩家更新",
+    "downloadNewPlayers": "下载新玩家",
+    "newPlayerHint": "请将现有玩家的列保持为空 — 仅为尚不存在的玩家填写行。"
   },
   "legal": {
     "contact": {

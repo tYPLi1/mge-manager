@@ -685,7 +685,16 @@
     "allPlayersOption": "Tüm oyuncular (ittifak bazında gruplanmış)",
     "sortByPower": "Güce göre sırala (azalan)",
     "download": "İndir",
-    "hint": "Excel dosyası filtrelerinize uyan oyuncu listesini içerir. Sıraları/değerleri doldur ve içe aktarması için bir yöneticiye geri gönder."
+    "hint": "Excel dosyası filtrelerinize uyan oyuncu listesini içerir. Sıraları/değerleri doldur ve içe aktarması için bir yöneticiye geri gönder.",
+    "sectionEvent": "Etkinlik Şablonu",
+    "sectionEventDesc": "Etkinlik yüklemesi için önceden doldurulmuş şablon.",
+    "sectionPlayerUpdate": "Oyuncu Güncelleme Şablonu",
+    "sectionPlayerUpdateDesc": "Oyuncuların güncel durumu (ad, ittifak, güç). Alanları düzenle ve mevcut oyuncuları güncellemek ya da silinmek üzere işaretlemek için bir yöneticiye geri gönder.",
+    "sectionNewPlayers": "Yeni Oyuncu Şablonu",
+    "sectionNewPlayersDesc": "Tamamen yeni oyuncular eklemek için boş şablon. Satırları doldur ve içe aktarması için bir yöneticiye geri gönder.",
+    "downloadPlayerUpdate": "Oyuncu Güncellemesini İndir",
+    "downloadNewPlayers": "Yeni Oyuncuları İndir",
+    "newPlayerHint": "Mevcut oyuncu sütunlarını boş bırak — yalnızca henüz olmayan oyuncular için satır doldur."
   },
   "legal": {
     "contact": {

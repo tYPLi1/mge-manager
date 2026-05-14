@@ -685,7 +685,16 @@
     "allPlayersOption": "All players (grouped by alliance)",
     "sortByPower": "Sort by Power (desc)",
     "download": "Download",
-    "hint": "The Excel file contains the list of players matching your filters. Fill in ranks/values, then send it back to an admin to import."
+    "hint": "The Excel file contains the list of players matching your filters. Fill in ranks/values, then send it back to an admin to import.",
+    "sectionEvent": "Event Template",
+    "sectionEventDesc": "Pre-filled template for an event upload.",
+    "sectionPlayerUpdate": "Player Update Template",
+    "sectionPlayerUpdateDesc": "Current state of players (name, alliance, power). Edit fields and send it back to an admin to update existing players or mark for deletion.",
+    "sectionNewPlayers": "New Players Template",
+    "sectionNewPlayersDesc": "Empty template for adding brand new players. Fill in the rows and send it back to an admin to import.",
+    "downloadPlayerUpdate": "Download Player Update",
+    "downloadNewPlayers": "Download New Players",
+    "newPlayerHint": "Leave the existing player columns empty — only fill rows for players who don't exist yet."
   },
   "legal": {
     "lastUpdated": "Last updated",
