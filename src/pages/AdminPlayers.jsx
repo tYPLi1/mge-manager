@@ -216,13 +216,25 @@ export default function AdminPlayers() {
       "",                       // New Alliance
       p.power || 0,
       p.updated_date || "",
-      "",                       // Delete Player (set to TRUE / X / 1 to delete on import)
+      false,                    // Delete Player checkbox (TRUE = delete on import)
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
       ["Name", "New Name", "Alliance", "New Alliance", "Power", "Last Updated", "Delete Player"],
       ...playerData,
     ]);
     playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 20 }, { wch: 14 }];
+
+    // Add TRUE/FALSE dropdown (checkbox-like) on the Delete Player column for all data rows
+    if (playerData.length > 0) {
+      const lastRow = playerData.length + 1; // +1 for header (1-indexed)
+      playerWs["!dataValidation"] = [{
+        sqref: `G2:G${lastRow}`,
+        type: "list",
+        formula1: '"TRUE,FALSE"',
+        showDropDown: false,
+      }];
+    }
+
     XLSX.utils.book_append_sheet(wb, playerWs, "Players");
 
     // Available Alliances sheet — reference list of configured alliances
