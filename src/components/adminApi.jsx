@@ -70,6 +70,7 @@ function createEntityProxy(entityName) {
     create: (data) => proxyCall({ operation: "create", entityName, data }),
     bulkCreate: (data) => proxyCall({ operation: "bulkCreate", entityName, data }),
     update: (id, data) => proxyCall({ operation: "update", entityName, entityId: id, data }),
+    bulkUpdate: (updates) => proxyCall({ operation: "bulkUpdate", entityName, data: updates }),
     delete: (id) => proxyCall({ operation: "delete", entityName, entityId: id }),
     
     // Subscribe still works directly (read-only, real-time)

@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     // Entity whitelist
     const ALLOWED_ENTITIES = [
       'Player', 'Auction', 'Bid', 'AuctionResult', 'DKPTransaction',
-      'Penalty', 'PowerHistory', 'EventType', 'AppSettings', 'AdminUser',
+      'Penalty', 'PowerHistory', 'MeritsHistory', 'EventType', 'AppSettings', 'AdminUser',
       'OffenseResetLog', 'UserReport'
     ];
     if (!ALLOWED_ENTITIES.includes(entityName)) {
@@ -68,6 +68,24 @@ Deno.serve(async (req) => {
       case 'update':
         if (!entityId) return Response.json({ error: 'entityId required for update' }, { status: 400 });
         result = await entity.update(entityId, data);
+        break;
+      case 'bulkUpdate':
+        // data: [{ id, data }, ...] — execute updates in parallel chunks
+        if (!Array.isArray(data)) {
+          return Response.json({ error: 'bulkUpdate requires an array of { id, data }' }, { status: 400 });
+        }
+        {
+          const results = [];
+          const CHUNK = 25;
+          for (let i = 0; i < data.length; i += CHUNK) {
+            const chunk = data.slice(i, i + CHUNK);
+            const chunkResults = await Promise.all(
+              chunk.map(item => entity.update(item.id, item.data))
+            );
+            results.push(...chunkResults);
+          }
+          result = results;
+        }
         break;
       case 'delete':
         if (!entityId) return Response.json({ error: 'entityId required for delete' }, { status: 400 });

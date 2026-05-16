@@ -351,30 +351,61 @@ export default function PlayerImportHandler({
         await adminEntities.Player.delete(item.id);
       }
 
+      // Collect player updates and history entries, then send in bulk batches
+      const playerUpdateBatch = [];
+      const powerHistoryBatch = [];
+      const meritsHistoryBatch = [];
+      const today = new Date().toISOString().split("T")[0];
+
       for (const item of playerUpdates) {
         const updateData = {};
         Object.entries(item.changes).forEach(([key, { new: val }]) => {
           updateData[key] = val;
         });
         if (item.changes.power) {
-          await adminEntities.PowerHistory.create({
+          powerHistoryBatch.push({
             player_id: item.id,
             player_name: item.changes.name?.new || item.name,
             power: item.changes.power.new,
-            recorded_at: new Date().toISOString().split("T")[0],
+            recorded_at: today,
             source: "import",
           });
         }
         if (item.changes.merits) {
-          await adminEntities.MeritsHistory.create({
+          meritsHistoryBatch.push({
             player_id: item.id,
             player_name: item.changes.name?.new || item.name,
             merits: item.changes.merits.new,
-            recorded_at: new Date().toISOString().split("T")[0],
+            recorded_at: today,
             source: "import",
           });
         }
-        await adminEntities.Player.update(item.id, updateData);
+        playerUpdateBatch.push({ id: item.id, data: updateData });
+      }
+
+      if (playerUpdateBatch.length > 0) {
+        if (typeof adminEntities.Player.bulkUpdate === "function") {
+          for (let i = 0; i < playerUpdateBatch.length; i += 100) {
+            await adminEntities.Player.bulkUpdate(playerUpdateBatch.slice(i, i + 100));
+          }
+        } else {
+          for (let i = 0; i < playerUpdateBatch.length; i += 20) {
+            const chunk = playerUpdateBatch.slice(i, i + 20);
+            await Promise.all(chunk.map(u => adminEntities.Player.update(u.id, u.data)));
+          }
+        }
+      }
+
+      if (powerHistoryBatch.length > 0) {
+        for (let i = 0; i < powerHistoryBatch.length; i += 100) {
+          await adminEntities.PowerHistory.bulkCreate(powerHistoryBatch.slice(i, i + 100));
+        }
+      }
+
+      if (meritsHistoryBatch.length > 0) {
+        for (let i = 0; i < meritsHistoryBatch.length; i += 100) {
+          await adminEntities.MeritsHistory.bulkCreate(meritsHistoryBatch.slice(i, i + 100));
+        }
       }
 
       if (newPenalties.length > 0) {
@@ -391,12 +422,25 @@ export default function PlayerImportHandler({
         }
       }
 
-      for (const item of penaltyUpdates) {
-        const updateData = {};
-        Object.entries(item.changes).forEach(([key, { new: val }]) => {
-          updateData[key] = val;
+      // Bulk update penalties
+      if (penaltyUpdates.length > 0) {
+        const penaltyUpdateBatch = penaltyUpdates.map(item => {
+          const updateData = {};
+          Object.entries(item.changes).forEach(([key, { new: val }]) => {
+            updateData[key] = val;
+          });
+          return { id: item.id, data: updateData };
         });
-        await adminEntities.Penalty.update(item.id, updateData);
+        if (typeof adminEntities.Penalty.bulkUpdate === "function") {
+          for (let i = 0; i < penaltyUpdateBatch.length; i += 100) {
+            await adminEntities.Penalty.bulkUpdate(penaltyUpdateBatch.slice(i, i + 100));
+          }
+        } else {
+          for (let i = 0; i < penaltyUpdateBatch.length; i += 20) {
+            const chunk = penaltyUpdateBatch.slice(i, i + 20);
+            await Promise.all(chunk.map(u => adminEntities.Penalty.update(u.id, u.data)));
+          }
+        }
       }
 
       const newTransactions = items.filter(p => p.type === "new" && p.entity === "transaction");

@@ -442,6 +442,9 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     }
 
     // 3) Update each player's total_dkp, power, alliance + power history
+    //    Collect all updates and history entries, then send in bulk batches.
+    const playerUpdates = [];
+    const powerHistoryEntries = [];
     for (const entry of preview) {
       const player = resolvePlayer(entry);
       if (!player) continue;
@@ -452,7 +455,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       }
       if (entry.power && entry.power > 0 && entry.power !== (player.power || 0)) {
         updateData.power = entry.power;
-        await adminEntities.PowerHistory.create({
+        powerHistoryEntries.push({
           player_id: player.id,
           player_name: entry.playerName,
           power: entry.power,
@@ -466,7 +469,29 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       }
 
       if (Object.keys(updateData).length > 0) {
-        await adminEntities.Player.update(player.id, updateData);
+        playerUpdates.push({ id: player.id, data: updateData });
+      }
+    }
+
+    // Bulk update players in batches of 100
+    if (playerUpdates.length > 0) {
+      if (typeof adminEntities.Player.bulkUpdate === "function") {
+        for (let i = 0; i < playerUpdates.length; i += 100) {
+          await adminEntities.Player.bulkUpdate(playerUpdates.slice(i, i + 100));
+        }
+      } else {
+        // Fallback: parallel updates in chunks of 20
+        for (let i = 0; i < playerUpdates.length; i += 20) {
+          const chunk = playerUpdates.slice(i, i + 20);
+          await Promise.all(chunk.map(u => adminEntities.Player.update(u.id, u.data)));
+        }
+      }
+    }
+
+    // Bulk create power history in batches of 100
+    if (powerHistoryEntries.length > 0) {
+      for (let i = 0; i < powerHistoryEntries.length; i += 100) {
+        await adminEntities.PowerHistory.bulkCreate(powerHistoryEntries.slice(i, i + 100));
       }
     }
 
