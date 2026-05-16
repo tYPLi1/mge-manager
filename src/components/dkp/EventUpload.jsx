@@ -138,11 +138,15 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
   };
 
   // ── File Parsing ──────────────────────────────────────────────────────
+  // Normalize names: trim, lowercase, Unicode NFC normalization to handle
+  // hidden whitespace / Unicode quirks in Excel files vs DB.
+  const normalizeName = (n) => String(n ?? "").normalize("NFC").trim().toLowerCase();
+
   const processFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const wb = XLSX.read(e.target.result, { type: "binary" });
-      const playerByName = new Map(players.map(p => [p.name.toLowerCase(), p]));
+      const playerByName = new Map(players.map(p => [normalizeName(p.name), p]));
 
       if (isYN) {
         const allRows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
@@ -162,7 +166,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
           const name = row[nameIdx]?.toString().trim();
           const participated = row[participatedIdx]?.toString().trim().toUpperCase();
           if (!name || !participated) continue;
-          const player = playerByName.get(name.toLowerCase());
+          const player = playerByName.get(normalizeName(name));
           const alliance = allianceIdx >= 0 ? (row[allianceIdx]?.toString().trim() || "") : (player?.alliance || "");
           const note = noteIdx >= 0 ? (row[noteIdx]?.toString().trim() || "") : "";
           const dkp = participated === "Y"
@@ -207,7 +211,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
           const name = row[nameIdx]?.toString().trim();
           const serverRank = parseInt(row[serverRankIdx]);
           if (!name || !serverRank || isNaN(serverRank)) continue;
-          const player = playerByName.get(name.toLowerCase());
+          const player = playerByName.get(normalizeName(name));
           const alliance = allianceIdx >= 0
             ? (row[allianceIdx]?.toString().trim() || "")
             : (player?.alliance || "");
@@ -409,16 +413,16 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       // Re-fetch to resolve IDs reliably
       const refreshed = await adminEntities.Player.list("name", 100000);
       for (const r of newPlayerRows) {
-        const found = refreshed.find(p => p.name.toLowerCase() === r.playerName.toLowerCase());
-        if (found) playerNameToId.set(r.playerName.toLowerCase(), found);
+        const found = refreshed.find(p => normalizeName(p.name) === normalizeName(r.playerName));
+        if (found) playerNameToId.set(normalizeName(r.playerName), found);
       }
     }
 
     // Helper to resolve player object for any preview row
     const resolvePlayer = (row) => {
       if (row.playerId) return players.find(p => p.id === row.playerId);
-      const fromNew = playerNameToId.get(row.playerName.toLowerCase());
-      return fromNew || players.find(p => p.name.toLowerCase() === row.playerName.toLowerCase());
+      const fromNew = playerNameToId.get(normalizeName(row.playerName));
+      return fromNew || players.find(p => normalizeName(p.name) === normalizeName(row.playerName));
     };
 
     const toApply = preview.filter(r => r.dkp !== 0);
