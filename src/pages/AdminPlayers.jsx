@@ -371,7 +371,49 @@ export default function AdminPlayers() {
             <option value="__none__" className="bg-[#1f2937] text-white">{t("admin.alliances.filterNone")}</option>
           </select>
         </div>
+        {allianceFilter !== "all" && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            {filtered.length} {filtered.length === 1 ? "Mitglied" : "Mitglieder"}
+          </span>
+        )}
       </div>
+
+      {/* Alliance member counts overview */}
+      {allianceFilter === "all" && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {alliances.map(a => {
+            const count = players.filter(p => p.alliance === a.name).length;
+            return (
+              <button
+                key={a.name}
+                onClick={() => setAllianceFilter(a.name)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border hover:opacity-80 transition-opacity"
+                style={{
+                  color: a.color,
+                  borderColor: a.color + "40",
+                  background: a.color + "15",
+                }}
+              >
+                {a.name}
+                <span className="font-mono">({count})</span>
+              </button>
+            );
+          })}
+          {(() => {
+            const noAllianceCount = players.filter(p => !p.alliance).length;
+            if (noAllianceCount === 0) return null;
+            return (
+              <button
+                onClick={() => setAllianceFilter("__none__")}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 transition-colors"
+              >
+                {t("admin.alliances.filterNone")}
+                <span className="font-mono">({noAllianceCount})</span>
+              </button>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden">
