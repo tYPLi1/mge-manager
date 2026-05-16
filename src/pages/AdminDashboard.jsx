@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("-total_dkp", 500),
+    queryFn: () => base44.entities.Player.list("-total_dkp", 100000),
   });
 
   const { data: auctions = [] } = useQuery({
