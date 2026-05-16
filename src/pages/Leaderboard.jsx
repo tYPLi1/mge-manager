@@ -49,7 +49,7 @@ export default function Leaderboard() {
 
   const { data: players = [], isLoading: pLoading } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("-total_dkp", 500),
+    queryFn: () => base44.entities.Player.list("-total_dkp", 100000),
   });
 
   const { data: transactions = [], isLoading: txLoading } = useQuery({

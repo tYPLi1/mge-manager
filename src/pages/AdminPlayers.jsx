@@ -55,7 +55,7 @@ export default function AdminPlayers() {
 
   const { data: players = [], isLoading } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("name", 5000),
+    queryFn: () => base44.entities.Player.list("name", 100000),
   });
 
   const { data: penalties = [] } = useQuery({
