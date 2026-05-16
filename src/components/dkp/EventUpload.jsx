@@ -84,7 +84,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         if (effectiveTemplateAlliance === "__all__") return true;
         return (p.alliance || "") === effectiveTemplateAlliance;
       })
-      .map(p => ({ name: p.name, alliance: p.alliance || "", power: p.power || 0 }));
+      .map(p => ({ name: p.name, alliance: p.alliance || "", power: p.power || 0, merits: p.merits || 0 }));
 
     if (effectiveTemplateAlliance === "__all__") {
       // All players: sort by alliance first, then by power desc (if enabled) or name
@@ -120,15 +120,15 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
+          ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
         ]),
         "War Stage"
       );
     } else {
       const data = [
-        ["Name", "Alliance", "Server Rank", "Power", "Note"],
-        ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
+        ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+        ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     }
@@ -199,6 +199,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         const allianceIdx = headers.findIndex(h => h === "alliance");
         const serverRankIdx = headers.findIndex(h => h === "server rank");
         const powerIdx = headers.findIndex(h => h === "power");
+        const meritsIdx = headers.findIndex(h => h === "merits");
         const noteIdx = headers.findIndex(h => h === "note");
         if (nameIdx < 0 || serverRankIdx < 0) {
           alert("Missing required columns: Name, Server Rank");
@@ -217,6 +218,8 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
             : (player?.alliance || "");
           let power = null;
           if (powerIdx >= 0) power = parseFloat(row[powerIdx]) || null;
+          let merits = null;
+          if (meritsIdx >= 0) merits = parseFloat(row[meritsIdx]) || null;
           const note = noteIdx >= 0 ? (row[noteIdx]?.toString().trim() || "") : "";
           parsed.push({
             player,
@@ -225,6 +228,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
             alliance,
             serverRank,
             power: power ?? (player?.power || 0),
+            merits: merits ?? (player?.merits || 0),
             note,
           });
         }
@@ -254,6 +258,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               dkp,
               group: "All",
               power: entry.power,
+              merits: entry.merits,
               note: entry.note,
             });
           }
@@ -302,6 +307,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               dkp,
               group: "Outside",
               power: entry.power,
+              merits: entry.merits,
               overrideApplied: true,
               note: entry.note,
             });
@@ -325,6 +331,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               dkp,
               group: "Top 20",
               power: entry.power,
+              merits: entry.merits,
               note: entry.note,
             });
             effectiveRank++;
@@ -345,6 +352,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               dkp,
               group: "Outside",
               power: entry.power,
+              merits: entry.merits,
               note: entry.note,
             });
           }
@@ -405,6 +413,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         dkp_spent: 0,
         alliance: r.alliance || null,
         power: r.power || 0,
+        merits: r.merits || 0,
       }));
       // Batch bulkCreate to avoid payload-size / timeout issues with large uploads
       for (let i = 0; i < newPlayersPayload.length; i += 100) {
@@ -445,10 +454,13 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       await adminEntities.DKPTransaction.bulkCreate(txPayload.slice(i, i + 100));
     }
 
-    // 3) Update each player's total_dkp, power, alliance + power history
-    //    Collect all updates and history entries, then send in bulk batches.
+    // 3) Update each player's total_dkp, power, merits, alliance + power/merits history
+    //    History entries are written for EVERY upload row that has a value (>0),
+    //    even if the value is unchanged — so the timeline stays complete.
+    //    Player record itself is only updated when the value actually changes.
     const playerUpdates = [];
     const powerHistoryEntries = [];
+    const meritsHistoryEntries = [];
     for (const entry of preview) {
       const player = resolvePlayer(entry);
       if (!player) continue;
@@ -457,12 +469,26 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       if (entry.dkp !== 0) {
         updateData.total_dkp = (player.total_dkp || 0) + entry.dkp;
       }
-      if (entry.power && entry.power > 0 && entry.power !== (player.power || 0)) {
-        updateData.power = entry.power;
+      if (entry.power && entry.power > 0) {
+        if (entry.power !== (player.power || 0)) {
+          updateData.power = entry.power;
+        }
         powerHistoryEntries.push({
           player_id: player.id,
           player_name: entry.playerName,
           power: entry.power,
+          recorded_at: eventDate,
+          source: selectedEventType.key,
+        });
+      }
+      if (entry.merits && entry.merits > 0) {
+        if (entry.merits !== (player.merits || 0)) {
+          updateData.merits = entry.merits;
+        }
+        meritsHistoryEntries.push({
+          player_id: player.id,
+          player_name: entry.playerName,
+          merits: entry.merits,
           recorded_at: eventDate,
           source: selectedEventType.key,
         });
@@ -496,6 +522,13 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     if (powerHistoryEntries.length > 0) {
       for (let i = 0; i < powerHistoryEntries.length; i += 100) {
         await adminEntities.PowerHistory.bulkCreate(powerHistoryEntries.slice(i, i + 100));
+      }
+    }
+
+    // Bulk create merits history in batches of 100
+    if (meritsHistoryEntries.length > 0) {
+      for (let i = 0; i < meritsHistoryEntries.length; i += 100) {
+        await adminEntities.MeritsHistory.bulkCreate(meritsHistoryEntries.slice(i, i + 100));
       }
     }
 

@@ -57,6 +57,7 @@ export default function EventUploadPreviewTable({
             {!isYN && <th className="px-3 py-2">Group / #</th>}
             <th className="px-3 py-2">DKP</th>
             {!isYN && <th className="px-3 py-2">Power</th>}
+            {!isYN && <th className="px-3 py-2">Merits</th>}
             <th className="px-3 py-2">Note</th>
           </tr>
         </thead>
@@ -174,6 +175,20 @@ export default function EventUploadPreviewTable({
                       onChange={(e) =>
                         updateRow(idx, {
                           power: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs w-24 text-right text-gray-300"
+                    />
+                  </td>
+                )}
+                {!isYN && (
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      value={row.merits ?? 0}
+                      onChange={(e) =>
+                        updateRow(idx, {
+                          merits: parseFloat(e.target.value) || 0,
                         })
                       }
                       className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs w-24 text-right text-gray-300"
