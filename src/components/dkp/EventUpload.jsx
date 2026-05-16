@@ -405,7 +405,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         }))
       );
       // Re-fetch to resolve IDs reliably
-      const refreshed = await adminEntities.Player.list("name", 500);
+      const refreshed = await adminEntities.Player.list("name", 100000);
       for (const r of newPlayerRows) {
         const found = refreshed.find(p => p.name.toLowerCase() === r.playerName.toLowerCase());
         if (found) playerNameToId.set(r.playerName.toLowerCase(), found);

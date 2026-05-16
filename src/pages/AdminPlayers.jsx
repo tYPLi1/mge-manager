@@ -60,12 +60,12 @@ export default function AdminPlayers() {
 
   const { data: penalties = [] } = useQuery({
     queryKey: ["penalties"],
-    queryFn: () => base44.entities.Penalty.list("-offense_date", 1000),
+    queryFn: () => base44.entities.Penalty.list("-offense_date", 100000),
   });
 
   const { data: transactions = [] } = useQuery({
     queryKey: ["transactions-export"],
-    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 10000),
+    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 1000000),
   });
 
   // Real-time subscriptions

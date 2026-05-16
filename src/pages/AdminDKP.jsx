@@ -23,12 +23,12 @@ export default function AdminDKP() {
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("name", 500),
+    queryFn: () => base44.entities.Player.list("name", 100000),
   });
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ["eventTypes"],
-    queryFn: () => base44.entities.EventType.list("sort_order", 20),
+    queryFn: () => base44.entities.EventType.list("sort_order", 1000),
   });
 
   useEffect(() => {
