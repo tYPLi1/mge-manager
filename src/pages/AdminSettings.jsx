@@ -15,6 +15,7 @@ import RulesMultiLangEditor from "@/components/dkp/RulesMultiLangEditor";
 import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel";
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
 import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
+import CollapsibleSection from "@/components/dkp/CollapsibleSection";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useTranslation } from "@/lib/i18n";
@@ -208,8 +209,10 @@ export default function AdminSettings() {
         </div>
 
         {/* Event Toggles */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.eventToggles")}</h3>
+        <CollapsibleSection
+          storageKey="settings.eventToggles"
+          title={t("admin.settings.eventToggles")}
+        >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-gray-300">{t("admin.settings.wonderDkp")}</Label>
@@ -220,12 +223,14 @@ export default function AdminSettings() {
               <Switch checked={getBool("dawn_dkp_enabled")} onCheckedChange={(v) => setBool("dawn_dkp_enabled", v)} />
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
 
         {/* Event Templates Page (public) */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">{t("admin.settings.templatesTitle")}</h3>
-          <p className="text-xs text-gray-500 mb-4">{t("admin.settings.templatesDesc")}</p>
+        <CollapsibleSection
+          storageKey="settings.templates"
+          title={t("admin.settings.templatesTitle")}
+          description={t("admin.settings.templatesDesc")}
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -249,49 +254,63 @@ export default function AdminSettings() {
               />
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
 
         {/* Rules Text — multi language */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.rulesText")}</h3>
+        <CollapsibleSection
+          storageKey="settings.rules"
+          title={t("admin.settings.rulesText")}
+        >
           <RulesMultiLangEditor
             form={form}
             setForm={setForm}
             placeholder={t("admin.settings.rulesPlaceholder")}
           />
-        </div>
+        </CollapsibleSection>
 
         {/* Alliances */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t("admin.alliances.title")}</h3>
+        <CollapsibleSection
+          storageKey="settings.alliances"
+          title={t("admin.alliances.title")}
+        >
           <AllianceConfigEditor
             value={form.alliances}
             onChange={(val) => setForm({ ...form, alliances: val })}
           />
-        </div>
+        </CollapsibleSection>
 
         {/* Penalty Config */}
-        <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-          <h3 className="text-sm font-semibold text-white mb-5">{t("admin.settings.penaltyConfig")}</h3>
+        <CollapsibleSection
+          storageKey="settings.penalty"
+          title={t("admin.settings.penaltyConfig")}
+        >
           <PenaltyConfigEditor
             value={form.penalty_config}
             onChange={(val) => setForm({ ...form, penalty_config: val })}
           />
-        </div>
+        </CollapsibleSection>
 
         {/* Discord Integration */}
-         <div className="bg-[#111827] rounded-xl border border-white/5 p-5">
-           <h3 className="text-sm font-semibold text-white mb-4">{t("admin.settings.discordTitle")}</h3>
-           <p className="text-xs text-gray-500 mb-4">{t("admin.settings.discordDesc")}</p>
-           <p className="text-xs text-gray-500 mb-4">{t("admin.settings.discordHint")}</p>
-           <DiscordServerConfig
-             value={form.discord_servers}
-             onChange={(val) => setForm({ ...form, discord_servers: val })}
-           />
-        </div>
+        <CollapsibleSection
+          storageKey="settings.discord"
+          title={t("admin.settings.discordTitle")}
+          description={t("admin.settings.discordDesc")}
+        >
+          <p className="text-xs text-gray-500 mb-4">{t("admin.settings.discordHint")}</p>
+          <DiscordServerConfig
+            value={form.discord_servers}
+            onChange={(val) => setForm({ ...form, discord_servers: val })}
+          />
+        </CollapsibleSection>
 
         {/* Manual Message Component */}
-        <DiscordNotificationPanel serversJson={form.discord_servers} />
+        <CollapsibleSection
+          storageKey="settings.discordNotify"
+          title={t("admin.settings.discordTitle")}
+          defaultOpen={false}
+        >
+          <DiscordNotificationPanel serversJson={form.discord_servers} />
+        </CollapsibleSection>
       </div>
     </div>
   );
