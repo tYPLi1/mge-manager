@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
   try {
     const service = getServiceClient(req);
 
-    const players = await service.entities.Player.list();
-    const transactions = await service.entities.DKPTransaction.list();
+    const players = await service.entities.Player.list('name', 100000);
+    const transactions = await service.entities.DKPTransaction.list('-event_date', 1000000);
 
     const updates = [];
 

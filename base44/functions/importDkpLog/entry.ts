@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
     }
 
     // Match player_id from existing players
-    const players = await service.entities.Player.filter({});
+    const players = await service.entities.Player.list('name', 100000);
     const playerMap = {};
     const playerPowerMap = {};
     for (const p of players) {

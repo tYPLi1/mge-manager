@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const service = base44.asServiceRole;
-    const auctions = await service.entities.Auction.list('-created_date', 10);
+    const auctions = await service.entities.Auction.list('-created_date', 1000);
 
     // Strip sensitive fields
     const publicAuctions = auctions.map(a => {
