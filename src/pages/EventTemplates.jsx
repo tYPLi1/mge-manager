@@ -98,7 +98,7 @@ export default function EventTemplates() {
         if (templateAlliance === "__all__") return true;
         return (p.alliance || "") === templateAlliance;
       })
-      .map(p => ({ name: p.name, alliance: p.alliance || "", power: p.power || 0 }));
+      .map(p => ({ name: p.name, alliance: p.alliance || "", power: p.power || 0, merits: p.merits || 0 }));
 
     if (templateAlliance === "__all__") {
       playerRows.sort((a, b) => {
@@ -117,31 +117,31 @@ export default function EventTemplates() {
 
     if (isYN) {
       const data = [
-        ["Name", "Alliance", "Power", "Participated (Y/N)", "Note"],
-        ...playerRows.map(p => [p.name, p.alliance, p.power || "", "Y", ""]),
+        ["Name", "Alliance", "Power", "Merits", "Participated (Y/N)", "Note"],
+        ...playerRows.map(p => [p.name, p.alliance, p.power || "", p.merits || "", "Y", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     } else if (hasMultipleStages) {
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
+          ["Name", "Alliance", "Server Rank", "Note"],
+          ...playerRows.map(p => [p.name, p.alliance, "", ""]),
         ]),
         "Preparation"
       );
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
+          ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
         ]),
         "War Stage"
       );
     } else {
       const data = [
-        ["Name", "Alliance", "Server Rank", "Power", "Note"],
-        ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", ""]),
+        ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+        ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     }
