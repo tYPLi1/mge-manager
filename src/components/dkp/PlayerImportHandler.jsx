@@ -341,7 +341,9 @@ export default function PlayerImportHandler({
       }
 
       if (newPlayers.length > 0) {
-        await adminEntities.Player.bulkCreate(newPlayers);
+        for (let i = 0; i < newPlayers.length; i += 100) {
+          await adminEntities.Player.bulkCreate(newPlayers.slice(i, i + 100));
+        }
       }
 
       // Execute player deletions (already confirmed above)
@@ -383,7 +385,9 @@ export default function PlayerImportHandler({
           return { ...p, player_id: player?.id };
         }).filter(p => p.player_id);
         if (penaltiesToCreate.length > 0) {
-          await adminEntities.Penalty.bulkCreate(penaltiesToCreate);
+          for (let i = 0; i < penaltiesToCreate.length; i += 100) {
+            await adminEntities.Penalty.bulkCreate(penaltiesToCreate.slice(i, i + 100));
+          }
         }
       }
 

@@ -54,7 +54,7 @@ export default function Leaderboard() {
 
   const { data: transactions = [], isLoading: txLoading } = useQuery({
     queryKey: ["transactions-activity"],
-    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 5000),
+    queryFn: () => base44.entities.DKPTransaction.list("-event_date", 1000000),
   });
 
   const { data: eventTypes = [], isLoading: etLoading } = useQuery({

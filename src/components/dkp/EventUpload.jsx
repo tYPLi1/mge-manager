@@ -395,15 +395,17 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     const newPlayerRows = preview.filter(r => r.isNewPlayer);
     const playerNameToId = new Map();
     if (newPlayerRows.length) {
-      const createdResp = await adminEntities.Player.bulkCreate(
-        newPlayerRows.map(r => ({
-          name: r.playerName,
-          total_dkp: 0,
-          dkp_spent: 0,
-          alliance: r.alliance || null,
-          power: r.power || 0,
-        }))
-      );
+      const newPlayersPayload = newPlayerRows.map(r => ({
+        name: r.playerName,
+        total_dkp: 0,
+        dkp_spent: 0,
+        alliance: r.alliance || null,
+        power: r.power || 0,
+      }));
+      // Batch bulkCreate to avoid payload-size / timeout issues with large uploads
+      for (let i = 0; i < newPlayersPayload.length; i += 100) {
+        await adminEntities.Player.bulkCreate(newPlayersPayload.slice(i, i + 100));
+      }
       // Re-fetch to resolve IDs reliably
       const refreshed = await adminEntities.Player.list("name", 100000);
       for (const r of newPlayerRows) {
@@ -421,22 +423,23 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
 
     const toApply = preview.filter(r => r.dkp !== 0);
 
-    // 2) DKP transactions
-    await adminEntities.DKPTransaction.bulkCreate(
-      toApply.map(entry => {
-        const player = resolvePlayer(entry);
-        return {
-          player_id: player?.id || "",
-          player_name: entry.playerName,
-          amount: entry.dkp,
-          type: "earn",
-          source: selectedEventType.key,
-          source_stage: isYN ? null : effectiveStage,
-          event_date: eventDate,
-          note: entry.note || null,
-        };
-      }).filter(t => t.player_id)
-    );
+    // 2) DKP transactions — batched
+    const txPayload = toApply.map(entry => {
+      const player = resolvePlayer(entry);
+      return {
+        player_id: player?.id || "",
+        player_name: entry.playerName,
+        amount: entry.dkp,
+        type: "earn",
+        source: selectedEventType.key,
+        source_stage: isYN ? null : effectiveStage,
+        event_date: eventDate,
+        note: entry.note || null,
+      };
+    }).filter(t => t.player_id);
+    for (let i = 0; i < txPayload.length; i += 100) {
+      await adminEntities.DKPTransaction.bulkCreate(txPayload.slice(i, i + 100));
+    }
 
     // 3) Update each player's total_dkp, power, alliance + power history
     for (const entry of preview) {
