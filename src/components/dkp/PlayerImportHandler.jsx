@@ -376,7 +376,7 @@ export default function PlayerImportHandler({
       }
 
       if (newPenalties.length > 0) {
-        const allPlayers = await adminEntities.Player.list("name", 500);
+        const allPlayers = await adminEntities.Player.list("name", 100000);
         const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
         const penaltiesToCreate = newPenalties.map(p => {
           const player = pMap.get((p.player_name || "").toLowerCase());
@@ -397,7 +397,7 @@ export default function PlayerImportHandler({
 
       const newTransactions = items.filter(p => p.type === "new" && p.entity === "transaction");
       if (newTransactions.length > 0) {
-        const allPlayers = await adminEntities.Player.list("name", 500);
+        const allPlayers = await adminEntities.Player.list("name", 100000);
         const pMap = new Map(allPlayers.map(p => [p.name.toLowerCase(), p]));
 
         const txBatch = newTransactions.map(tx => {

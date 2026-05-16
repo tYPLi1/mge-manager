@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     }
 
     const [players, eventTypes] = await Promise.all([
-      service.entities.Player.list('name', 1000),
+      service.entities.Player.list('name', 100000),
       service.entities.EventType.filter({ active: true }, 'sort_order', 100),
     ]);
 
