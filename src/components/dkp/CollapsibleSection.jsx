@@ -10,7 +10,7 @@ export default function CollapsibleSection({
   title,
   description,
   storageKey,
-  defaultOpen = true,
+  defaultOpen = false,
   children,
 }) {
   const [open, setOpen] = useState(() => {

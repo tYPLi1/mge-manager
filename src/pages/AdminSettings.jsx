@@ -307,7 +307,6 @@ export default function AdminSettings() {
         <CollapsibleSection
           storageKey="settings.discordNotify"
           title={t("admin.settings.discordTitle")}
-          defaultOpen={false}
         >
           <DiscordNotificationPanel serversJson={form.discord_servers} />
         </CollapsibleSection>
