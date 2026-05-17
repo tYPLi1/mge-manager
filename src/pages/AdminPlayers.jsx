@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download, Filter } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -305,16 +305,25 @@ export default function AdminPlayers() {
 
         {/* Alliance selector for downloads */}
         <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <Filter className="w-4 h-4 text-gray-500" />
           <span className="text-xs text-gray-400 uppercase tracking-wider">Template/Export Alliance:</span>
           <select
             value={templateDownloadAlliance}
             onChange={(e) => setTemplateDownloadAlliance(e.target.value)}
             className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-1.5 text-sm text-white"
+            style={{
+              color: templateDownloadAlliance !== "__all__" && templateDownloadAlliance !== "__none__"
+                ? (allianceColors[templateDownloadAlliance] || "#ffffff")
+                : "#ffffff"
+            }}
           >
             <option value="__all__" className="bg-[#1f2937] text-white">All Players ({players.length})</option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">
+              <option
+                key={a.name}
+                value={a.name}
+                className="bg-[#1f2937]"
+                style={{ color: a.color }}
+              >
                 {a.name} ({countAllianceMembers(players, a.name)})
               </option>
             ))}
@@ -363,15 +372,24 @@ export default function AdminPlayers() {
           />
         </div>
         <div className="inline-flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
           <select
             value={allianceFilter}
             onChange={(e) => setAllianceFilter(e.target.value)}
             className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-2 text-sm text-white"
+            style={{
+              color: allianceFilter !== "all" && allianceFilter !== "__none__"
+                ? (allianceColors[allianceFilter] || "#ffffff")
+                : "#ffffff"
+            }}
           >
             <option value="all" className="bg-[#1f2937] text-white">{t("admin.alliances.filterAll")} ({players.length})</option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">
+              <option
+                key={a.name}
+                value={a.name}
+                className="bg-[#1f2937]"
+                style={{ color: a.color }}
+              >
                 {a.name} ({countAllianceMembers(players, a.name)})
               </option>
             ))}
