@@ -35,6 +35,12 @@ export default function AdminDashboard() {
     queryFn: () => base44.entities.Penalty.filter({ status: "probation" }, "-offense_date", 50),
   });
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => adminEntities.AppSettings.list(),
+  });
+  const discordServersJson = settings.find((s) => s.key === "discord_servers")?.value;
+
   const queryClient = useQueryClient();
   useEffect(() => {
     const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
@@ -102,7 +108,7 @@ export default function AdminDashboard() {
         <h2 className="dp-heading" style={{ fontSize: 13, fontWeight: 600, color: "var(--dp-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "8px 0 12px" }}>
           {a("discordNotifications")}
         </h2>
-        <DiscordNotificationPanel />
+        <DiscordNotificationPanel serversJson={discordServersJson} />
       </div>
 
       <div className="dp-grid-2">
