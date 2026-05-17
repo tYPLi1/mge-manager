@@ -5,6 +5,7 @@ import { useTranslation } from "@/lib/i18n";
 export default function DPLeaderboardFilters({
   search, setSearch, powerGroup, setPowerGroup,
   statusFilter, setStatusFilter, allianceFilter, setAllianceFilter, alliances = [],
+  allianceCounts = {}, totalPlayers,
   hasActiveFilters, onClearFilters,
 }) {
   const { t } = useTranslation();
@@ -43,13 +44,26 @@ export default function DPLeaderboardFilters({
           <select
             value={allianceFilter}
             onChange={(e) => setAllianceFilter(e.target.value)}
-            style={{ ...selectStyle, flex: 1, minWidth: 0 }}
+            style={{
+              ...selectStyle,
+              flex: 1,
+              minWidth: 0,
+              color: allianceFilter !== "all" && allianceFilter !== "__none__"
+                ? (alliances.find(a => a.name === allianceFilter)?.color || "var(--dp-text)")
+                : "var(--dp-text)",
+            }}
           >
-            <option value="all">{t("leaderboard.filters.allAlliances")}</option>
+            <option value="all" style={{ color: "var(--dp-text)" }}>
+              {t("leaderboard.filters.allAlliances")}{typeof totalPlayers === "number" ? ` (${totalPlayers})` : ""}
+            </option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name}>{a.name}</option>
+              <option key={a.name} value={a.name} style={{ color: a.color }}>
+                ● {a.name}{allianceCounts[a.name] != null ? ` (${allianceCounts[a.name]})` : ""}
+              </option>
             ))}
-            <option value="__none__">{t("leaderboard.filters.noAlliance")}</option>
+            <option value="__none__" style={{ color: "var(--dp-text)" }}>
+              {t("leaderboard.filters.noAlliance")}{allianceCounts.__none__ != null ? ` (${allianceCounts.__none__})` : ""}
+            </option>
           </select>
         </div>
       )}

@@ -225,6 +225,15 @@ export default function Leaderboard() {
         allianceFilter={allianceFilter}
         setAllianceFilter={setAllianceFilter}
         alliances={alliances}
+        allianceCounts={(() => {
+          const m = { __none__: 0 };
+          enrichedPlayers.forEach(p => {
+            if (!p.alliance) m.__none__++;
+            else m[p.alliance] = (m[p.alliance] || 0) + 1;
+          });
+          return m;
+        })()}
+        totalPlayers={enrichedPlayers.length}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={() => { setSearch(""); setPowerGroup("all"); setStatusFilter("all"); setAllianceFilter("all"); }}
       />
