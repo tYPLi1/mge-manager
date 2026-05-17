@@ -61,9 +61,11 @@ export default function DPLeaderboardFilters({
                 ● {a.name}{allianceCounts[a.name] != null ? ` (${allianceCounts[a.name]})` : ""}
               </option>
             ))}
-            <option value="__none__" style={{ color: "var(--dp-text)" }}>
-              {t("leaderboard.filters.noAlliance")}{allianceCounts.__none__ != null ? ` (${allianceCounts.__none__})` : ""}
-            </option>
+            {(allianceCounts.__none__ ?? 0) > 0 && (
+              <option value="__none__" style={{ color: "var(--dp-text)" }}>
+                {t("leaderboard.filters.noAlliance")} ({allianceCounts.__none__})
+              </option>
+            )}
           </select>
         </div>
       )}

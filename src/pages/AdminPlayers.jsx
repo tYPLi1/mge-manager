@@ -323,9 +323,11 @@ export default function AdminPlayers() {
                   />
                 </SelectItem>
               ))}
-              <SelectItem value="__none__">
-                No Alliance ({countAllianceMembers(players, "__none__")})
-              </SelectItem>
+              {countAllianceMembers(players, "__none__") > 0 && (
+                <SelectItem value="__none__">
+                  No Alliance ({countAllianceMembers(players, "__none__")})
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -384,9 +386,11 @@ export default function AdminPlayers() {
                   />
                 </SelectItem>
               ))}
-              <SelectItem value="__none__">
-                {t("admin.alliances.filterNone")} ({countAllianceMembers(players, "__none__")})
-              </SelectItem>
+              {countAllianceMembers(players, "__none__") > 0 && (
+                <SelectItem value="__none__">
+                  {t("admin.alliances.filterNone")} ({countAllianceMembers(players, "__none__")})
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
