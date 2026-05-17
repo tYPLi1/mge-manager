@@ -11,6 +11,8 @@ import StatusBadge from "@/components/dkp/StatusBadge";
 import PlayerImportHandler from "@/components/dkp/PlayerImportHandler";
 import { useTranslation } from "@/lib/i18n";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
+import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import * as XLSX from "xlsx";
 
 function parseAllianceList(json) {
@@ -306,31 +308,26 @@ export default function AdminPlayers() {
         {/* Alliance selector for downloads */}
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <span className="text-xs text-gray-400 uppercase tracking-wider">Template/Export Alliance:</span>
-          <select
-            value={templateDownloadAlliance}
-            onChange={(e) => setTemplateDownloadAlliance(e.target.value)}
-            className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-1.5 text-sm text-white"
-            style={{
-              color: templateDownloadAlliance !== "__all__" && templateDownloadAlliance !== "__none__"
-                ? (allianceColors[templateDownloadAlliance] || "#ffffff")
-                : "#ffffff"
-            }}
-          >
-            <option value="__all__" className="bg-[#1f2937] text-white">All Players ({players.length})</option>
-            {alliances.map(a => (
-              <option
-                key={a.name}
-                value={a.name}
-                className="bg-[#1f2937]"
-                style={{ color: a.color }}
-              >
-                {a.name} ({countAllianceMembers(players, a.name)})
-              </option>
-            ))}
-            <option value="__none__" className="bg-[#1f2937] text-white">
-              No Alliance ({countAllianceMembers(players, "__none__")})
-            </option>
-          </select>
+          <Select value={templateDownloadAlliance} onValueChange={setTemplateDownloadAlliance}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white w-auto min-w-[220px] h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All Players ({players.length})</SelectItem>
+              {alliances.map(a => (
+                <SelectItem key={a.name} value={a.name}>
+                  <AllianceOptionLabel
+                    name={a.name}
+                    color={a.color}
+                    count={countAllianceMembers(players, a.name)}
+                  />
+                </SelectItem>
+              ))}
+              <SelectItem value="__none__">
+                No Alliance ({countAllianceMembers(players, "__none__")})
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex gap-3 flex-wrap">
@@ -372,31 +369,26 @@ export default function AdminPlayers() {
           />
         </div>
         <div className="inline-flex items-center gap-2">
-          <select
-            value={allianceFilter}
-            onChange={(e) => setAllianceFilter(e.target.value)}
-            className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-2 text-sm text-white"
-            style={{
-              color: allianceFilter !== "all" && allianceFilter !== "__none__"
-                ? (allianceColors[allianceFilter] || "#ffffff")
-                : "#ffffff"
-            }}
-          >
-            <option value="all" className="bg-[#1f2937] text-white">{t("admin.alliances.filterAll")} ({players.length})</option>
-            {alliances.map(a => (
-              <option
-                key={a.name}
-                value={a.name}
-                className="bg-[#1f2937]"
-                style={{ color: a.color }}
-              >
-                {a.name} ({countAllianceMembers(players, a.name)})
-              </option>
-            ))}
-            <option value="__none__" className="bg-[#1f2937] text-white">
-              {t("admin.alliances.filterNone")} ({countAllianceMembers(players, "__none__")})
-            </option>
-          </select>
+          <Select value={allianceFilter} onValueChange={setAllianceFilter}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white w-auto min-w-[200px] h-10 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("admin.alliances.filterAll")} ({players.length})</SelectItem>
+              {alliances.map(a => (
+                <SelectItem key={a.name} value={a.name}>
+                  <AllianceOptionLabel
+                    name={a.name}
+                    color={a.color}
+                    count={countAllianceMembers(players, a.name)}
+                  />
+                </SelectItem>
+              ))}
+              <SelectItem value="__none__">
+                {t("admin.alliances.filterNone")} ({countAllianceMembers(players, "__none__")})
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {allianceFilter !== "all" && (
           <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -470,16 +462,19 @@ export default function AdminPlayers() {
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <select
-                        value={editAlliance}
-                        onChange={(e) => setEditAlliance(e.target.value)}
-                        className="h-7 text-xs bg-[#1f2937] border border-white/20 rounded text-white px-2 w-32"
-                      >
-                        <option value="" className="bg-[#1f2937] text-white">—</option>
-                        {alliances.map(a => (
-                          <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">{a.name}</option>
-                        ))}
-                      </select>
+                      <Select value={editAlliance || "__none__"} onValueChange={(v) => setEditAlliance(v === "__none__" ? "" : v)}>
+                        <SelectTrigger className="h-7 text-xs bg-white/5 border-white/20 text-white w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">—</SelectItem>
+                          {alliances.map(a => (
+                            <SelectItem key={a.name} value={a.name}>
+                              <AllianceOptionLabel name={a.name} color={a.color} />
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-3 py-2">
                       <DKPValue value={(p.total_dkp || 0) + (p.dkp_spent || 0)} size="sm" />

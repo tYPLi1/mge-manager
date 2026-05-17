@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Sparkles, AlertTriangle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 
 /**
  * Inline-editable preview table for event uploads.
@@ -106,29 +108,35 @@ export default function EventUploadPreviewTable({
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <select
+                    <div className="flex items-center gap-1 w-full">
+                      <Select
                         value={row.alliance || "__none__"}
-                        onChange={(e) => handleAllianceChange(idx, e.target.value)}
-                        className={`bg-white/5 border rounded px-2 py-1 text-xs w-full ${
-                          allianceUnknown
-                            ? "border-yellow-500/40 text-yellow-300"
-                            : "border-white/10 text-white"
-                        }`}
+                        onValueChange={(v) => handleAllianceChange(idx, v)}
                       >
-                        <option value="__none__">— None —</option>
-                        {alliances.map((a) => (
-                          <option key={a.name} value={a.name}>
-                            {a.name}
-                          </option>
-                        ))}
-                        {allianceUnknown && (
-                          <option value={row.alliance}>
-                            {row.alliance} (unknown)
-                          </option>
-                        )}
-                        <option value="__create__">+ Create new...</option>
-                      </select>
+                        <SelectTrigger
+                          className={`h-7 text-xs bg-white/5 w-full ${
+                            allianceUnknown
+                              ? "border-yellow-500/40 text-yellow-300"
+                              : "border-white/10 text-white"
+                          }`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">— None —</SelectItem>
+                          {alliances.map((a) => (
+                            <SelectItem key={a.name} value={a.name}>
+                              <AllianceOptionLabel name={a.name} color={a.color} />
+                            </SelectItem>
+                          ))}
+                          {allianceUnknown && (
+                            <SelectItem value={row.alliance}>
+                              {row.alliance} (unknown)
+                            </SelectItem>
+                          )}
+                          <SelectItem value="__create__">+ Create new...</SelectItem>
+                        </SelectContent>
+                      </Select>
                       {allianceUnknown && (
                         <AlertTriangle className="w-3 h-3 text-yellow-400 shrink-0" />
                       )}

@@ -13,6 +13,7 @@ import { rankToDkp } from "@/components/dkp/rankToDkp";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
+import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -68,6 +69,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
   const playerAllianceOptions = [...alliances]
     .map(a => a.name)
     .sort((a, b) => a.localeCompare(b));
+  const allianceColorMap = Object.fromEntries(alliances.map(a => [a.name, a.color]));
 
   // If currently selected templateAlliance no longer exists, reset to "__all__"
   // (handled inline at render via fallback in Select value)
@@ -726,7 +728,11 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               <SelectItem value="__all__">All players (grouped by alliance) ({players.length})</SelectItem>
               {playerAllianceOptions.map(name => (
                 <SelectItem key={name} value={name}>
-                  {name} ({countAllianceMembers(players, name)})
+                  <AllianceOptionLabel
+                    name={name}
+                    color={allianceColorMap[name]}
+                    count={countAllianceMembers(players, name)}
+                  />
                 </SelectItem>
               ))}
             </SelectContent>

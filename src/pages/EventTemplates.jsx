@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import PageHeader from "@/components/dkp/PageHeader";
 import { useTranslation } from "@/lib/i18n";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
+import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -89,6 +90,7 @@ export default function EventTemplates() {
   const hasMultipleStages = selectedEventType?.has_prep_stage && selectedEventType?.has_war_stage;
 
   const allianceOptions = [...alliances].map(a => a.name).sort((a, b) => a.localeCompare(b));
+  const allianceColorMap = Object.fromEntries(alliances.map(a => [a.name, a.color]));
 
   const downloadTemplate = () => {
     if (!selectedEventType) return;
@@ -315,7 +317,11 @@ export default function EventTemplates() {
                 <SelectItem value="__all__">{t("eventTemplates.allPlayersOption")} ({players.length})</SelectItem>
                 {allianceOptions.map(name => (
                   <SelectItem key={name} value={name}>
-                    {name} ({countAllianceMembers(players, name)})
+                    <AllianceOptionLabel
+                      name={name}
+                      color={allianceColorMap[name]}
+                      count={countAllianceMembers(players, name)}
+                    />
                   </SelectItem>
                 ))}
               </SelectContent>
