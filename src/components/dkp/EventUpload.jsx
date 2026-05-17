@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { rankToDkp } from "@/components/dkp/rankToDkp";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
+import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -722,9 +723,11 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">All players (grouped by alliance)</SelectItem>
+              <SelectItem value="__all__">All players (grouped by alliance) ({players.length})</SelectItem>
               {playerAllianceOptions.map(name => (
-                <SelectItem key={name} value={name}>{name}</SelectItem>
+                <SelectItem key={name} value={name}>
+                  {name} ({countAllianceMembers(players, name)})
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

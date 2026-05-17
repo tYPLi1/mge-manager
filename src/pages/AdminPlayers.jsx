@@ -10,6 +10,7 @@ import DKPValue from "@/components/dkp/DKPValue";
 import StatusBadge from "@/components/dkp/StatusBadge";
 import PlayerImportHandler from "@/components/dkp/PlayerImportHandler";
 import { useTranslation } from "@/lib/i18n";
+import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 import * as XLSX from "xlsx";
 
 function parseAllianceList(json) {
@@ -311,11 +312,15 @@ export default function AdminPlayers() {
             onChange={(e) => setTemplateDownloadAlliance(e.target.value)}
             className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-1.5 text-sm text-white"
           >
-            <option value="__all__" className="bg-[#1f2937] text-white">All Players</option>
+            <option value="__all__" className="bg-[#1f2937] text-white">All Players ({players.length})</option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">{a.name}</option>
+              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">
+                {a.name} ({countAllianceMembers(players, a.name)})
+              </option>
             ))}
-            <option value="__none__" className="bg-[#1f2937] text-white">No Alliance</option>
+            <option value="__none__" className="bg-[#1f2937] text-white">
+              No Alliance ({countAllianceMembers(players, "__none__")})
+            </option>
           </select>
         </div>
 
@@ -364,11 +369,15 @@ export default function AdminPlayers() {
             onChange={(e) => setAllianceFilter(e.target.value)}
             className="bg-[#1f2937] border border-white/10 rounded-md px-3 py-2 text-sm text-white"
           >
-            <option value="all" className="bg-[#1f2937] text-white">{t("admin.alliances.filterAll")}</option>
+            <option value="all" className="bg-[#1f2937] text-white">{t("admin.alliances.filterAll")} ({players.length})</option>
             {alliances.map(a => (
-              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">{a.name}</option>
+              <option key={a.name} value={a.name} className="bg-[#1f2937] text-white">
+                {a.name} ({countAllianceMembers(players, a.name)})
+              </option>
             ))}
-            <option value="__none__" className="bg-[#1f2937] text-white">{t("admin.alliances.filterNone")}</option>
+            <option value="__none__" className="bg-[#1f2937] text-white">
+              {t("admin.alliances.filterNone")} ({countAllianceMembers(players, "__none__")})
+            </option>
           </select>
         </div>
         {allianceFilter !== "all" && (

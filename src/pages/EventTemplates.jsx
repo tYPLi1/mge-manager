@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import PageHeader from "@/components/dkp/PageHeader";
 import { useTranslation } from "@/lib/i18n";
+import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -311,9 +312,11 @@ export default function EventTemplates() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__all__">{t("eventTemplates.allPlayersOption")}</SelectItem>
+                <SelectItem value="__all__">{t("eventTemplates.allPlayersOption")} ({players.length})</SelectItem>
                 {allianceOptions.map(name => (
-                  <SelectItem key={name} value={name}>{name}</SelectItem>
+                  <SelectItem key={name} value={name}>
+                    {name} ({countAllianceMembers(players, name)})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
