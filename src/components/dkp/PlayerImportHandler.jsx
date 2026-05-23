@@ -64,8 +64,22 @@ export default function PlayerImportHandler({
     const preview = [];
 
     // Process Players sheet — header-based column detection
-    if (wb.Sheets["Players"]) {
-      const allRows = XLSX.utils.sheet_to_json(wb.Sheets["Players"], { header: 1 });
+    // Prefer a sheet literally named "Players"; otherwise fall back to the first
+    // sheet that has a "Name" column (so generic exports like
+    // "Top 50 Power Rankings" still import correctly).
+    let playersSheet = wb.Sheets["Players"];
+    if (!playersSheet) {
+      for (const sheetName of wb.SheetNames) {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1 });
+        const headers = (rows[0] || []).map(h => String(h).trim().toLowerCase());
+        if (headers.includes("name")) {
+          playersSheet = wb.Sheets[sheetName];
+          break;
+        }
+      }
+    }
+    if (playersSheet) {
+      const allRows = XLSX.utils.sheet_to_json(playersSheet, { header: 1 });
       const headerRow = (allRows[0] || []).map(h => String(h).trim().toLowerCase());
       const col = (label) => headerRow.indexOf(label.toLowerCase());
       const nameCol = col("name");
