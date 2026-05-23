@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -31,6 +31,8 @@ export default function AdminPlayers() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [allianceFilter, setAllianceFilter] = useState("all");
+  const [sortKey, setSortKey] = useState("default");
+  const [sortDir, setSortDir] = useState("desc");
   const [templateDownloadAlliance, setTemplateDownloadAlliance] = useState("__all__");
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -256,6 +258,21 @@ export default function AdminPlayers() {
     XLSX.writeFile(wb, `Players-State-${allianceSuffix()}-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      // sensible default direction per column
+      setSortDir(key === "name" || key === "alliance" ? "asc" : "desc");
+    }
+  };
+
+  const SortIcon = ({ column }) => {
+    if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="w-3 h-3 text-amber-400" /> : <ArrowDown className="w-3 h-3 text-amber-400" />;
+  };
+
   const filtered = useMemo(() => {
     let res = players;
     if (search) {
@@ -269,18 +286,45 @@ export default function AdminPlayers() {
         res = res.filter(p => p.alliance === allianceFilter);
       }
     }
-    // Sort: alliance asc (empty last), then current DKP desc
+
+    const getValue = (p, key) => {
+      switch (key) {
+        case "name": return (p.name || "").toLowerCase();
+        case "alliance": return (p.alliance || "").toLowerCase();
+        case "dkp": return (p.total_dkp || 0) + (p.dkp_spent || 0);
+        case "power": return p.power || 0;
+        case "merits": return p.merits || 0;
+        default: return null;
+      }
+    };
+
+    if (sortKey === "default") {
+      // Default sort: alliance asc (empty last), then current DKP desc
+      return [...res].sort((a, b) => {
+        const aAll = a.alliance || "";
+        const bAll = b.alliance || "";
+        if (aAll === "" && bAll !== "") return 1;
+        if (bAll === "" && aAll !== "") return -1;
+        if (aAll !== bAll) return aAll.localeCompare(bAll);
+        const aDkp = (a.total_dkp || 0) + (a.dkp_spent || 0);
+        const bDkp = (b.total_dkp || 0) + (b.dkp_spent || 0);
+        return bDkp - aDkp;
+      });
+    }
+
+    const dir = sortDir === "asc" ? 1 : -1;
     return [...res].sort((a, b) => {
-      const aAll = a.alliance || "";
-      const bAll = b.alliance || "";
-      if (aAll === "" && bAll !== "") return 1;
-      if (bAll === "" && aAll !== "") return -1;
-      if (aAll !== bAll) return aAll.localeCompare(bAll);
-      const aDkp = (a.total_dkp || 0) + (a.dkp_spent || 0);
-      const bDkp = (b.total_dkp || 0) + (b.dkp_spent || 0);
-      return bDkp - aDkp;
+      const av = getValue(a, sortKey);
+      const bv = getValue(b, sortKey);
+      // Push empty strings / 0 to the end consistently when sorting desc
+      if (typeof av === "string" && typeof bv === "string") {
+        if (av === "" && bv !== "") return 1;
+        if (bv === "" && av !== "") return -1;
+        return av.localeCompare(bv) * dir;
+      }
+      return ((av ?? 0) - (bv ?? 0)) * dir;
     });
-  }, [players, search, allianceFilter]);
+  }, [players, search, allianceFilter, sortKey, sortDir]);
 
   return (
     <div>
@@ -444,12 +488,32 @@ export default function AdminPlayers() {
           <table className="w-full">
             <thead className="bg-[#0d1117] border-b border-white/5">
               <tr>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">Name</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("admin.alliances.column")}</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">
+                  <button onClick={() => handleSort("name")} className="inline-flex items-center gap-1.5 hover:text-amber-400 transition-colors">
+                    Name <SortIcon column="name" />
+                  </button>
+                </th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">
+                  <button onClick={() => handleSort("alliance")} className="inline-flex items-center gap-1.5 hover:text-amber-400 transition-colors">
+                    {t("admin.alliances.column")} <SortIcon column="alliance" />
+                  </button>
+                </th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">
+                  <button onClick={() => handleSort("dkp")} className="inline-flex items-center gap-1.5 hover:text-amber-400 transition-colors">
+                    DKP <SortIcon column="dkp" />
+                  </button>
+                </th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Cooldown</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Power</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Contributions</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">
+                  <button onClick={() => handleSort("power")} className="inline-flex items-center gap-1.5 hover:text-amber-400 transition-colors">
+                    Power <SortIcon column="power" />
+                  </button>
+                </th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">
+                  <button onClick={() => handleSort("merits")} className="inline-flex items-center gap-1.5 hover:text-amber-400 transition-colors">
+                    Contributions <SortIcon column="merits" />
+                  </button>
+                </th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase w-24">Actions</th>
               </tr>
             </thead>
