@@ -59,7 +59,7 @@ export default function EventUploadPreviewTable({
             {!isYN && <th className="px-3 py-2">Group / #</th>}
             <th className="px-3 py-2">DKP</th>
             {!isYN && <th className="px-3 py-2">Power</th>}
-            {!isYN && <th className="px-3 py-2">Merits</th>}
+            {!isYN && <th className="px-3 py-2">Contributions</th>}
             <th className="px-3 py-2">Note</th>
           </tr>
         </thead>

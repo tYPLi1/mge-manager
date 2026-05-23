@@ -45,13 +45,13 @@ export default function PlayerMeritsChart({ meritsHistory, currentMerits }) {
   };
 
   const chartWidth = Math.max(chartData.length * 60, 400);
-  const meritsLabel = t("playerDetail.merits") || "Merits";
+  const meritsLabel = t("playerDetail.merits") || "Contributions";
 
   return (
     <div className="bg-[#111827] rounded-xl border border-white/5 p-4 mb-6">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-          {t("playerDetail.meritsHistory") || "Merits History"}
+          {t("playerDetail.meritsHistory") || "Contributions History"}
         </h3>
         <div className="flex gap-1">
           {RANGE_OPTIONS.map((opt, i) => (
@@ -72,7 +72,7 @@ export default function PlayerMeritsChart({ meritsHistory, currentMerits }) {
 
       {chartData.length === 0 ? (
         <div className="text-center text-gray-500 text-sm py-8">
-          {t("playerDetail.noMeritsHistory") || "No merits history data"}
+          {t("playerDetail.noMeritsHistory") || "No contributions history data"}
         </div>
       ) : (
         <div className="relative">

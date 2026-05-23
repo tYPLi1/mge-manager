@@ -123,14 +123,14 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+          ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
           ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
         ]),
         "War Stage"
       );
     } else {
       const data = [
-        ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+        ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
         ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
@@ -202,7 +202,8 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         const allianceIdx = headers.findIndex(h => h === "alliance");
         const serverRankIdx = headers.findIndex(h => h === "server rank");
         const powerIdx = headers.findIndex(h => h === "power");
-        const meritsIdx = headers.findIndex(h => h === "merits");
+        // Accept both "merits" (legacy) and "contributions" (new) as column header
+        const meritsIdx = headers.findIndex(h => h === "contributions" || h === "merits");
         const noteIdx = headers.findIndex(h => h === "note");
         if (nameIdx < 0 || serverRankIdx < 0) {
           alert("Missing required columns: Name, Server Rank");

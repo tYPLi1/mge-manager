@@ -120,7 +120,7 @@ export default function EventTemplates() {
 
     if (isYN) {
       const data = [
-        ["Name", "Alliance", "Power", "Merits", "Participated (Y/N)", "Note"],
+        ["Name", "Alliance", "Power", "Contributions", "Participated (Y/N)", "Note"],
         ...playerRows.map(p => [p.name, p.alliance, p.power || "", p.merits || "", "Y", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
@@ -136,14 +136,14 @@ export default function EventTemplates() {
       XLSX.utils.book_append_sheet(
         wb,
         XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+          ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
           ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
         ]),
         "War Stage"
       );
     } else {
       const data = [
-        ["Name", "Alliance", "Server Rank", "Power", "Merits", "Note"],
+        ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
         ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
@@ -189,7 +189,7 @@ export default function EventTemplates() {
       "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Contributions", "Last Updated", "Delete Player (TRUE = delete)"],
       ...playerRows,
     ]);
     playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
@@ -210,7 +210,7 @@ export default function EventTemplates() {
     const wb = XLSX.utils.book_new();
 
     // Empty template — same columns as the Update sheet so the same importer accepts it
-    const headerRow = ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"];
+    const headerRow = ["Name", "New Name", "Alliance", "New Alliance", "Power", "Contributions", "Last Updated", "Delete Player (TRUE = delete)"];
     const emptyRows = Array.from({ length: 20 }, () => ["", "", "", "", "", "", "", ""]);
     const playerWs = XLSX.utils.aoa_to_sheet([headerRow, ...emptyRows]);
     playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];

@@ -190,7 +190,7 @@ export default function AdminPlayers() {
       "",
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "Alliance", "New Name", "New Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Merits", "Last Updated"],
+      ["Name", "Alliance", "New Name", "New Alliance", "DKP Earned", "DKP Spent", "Cooldown (YYYY-MM-DD)", "Power", "Contributions", "Last Updated"],
       ...playerRows,
     ]);
     playerWs["!cols"] = [{ wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 20 }];
@@ -237,7 +237,7 @@ export default function AdminPlayers() {
       "",                       // Delete Player — leave empty; type TRUE to delete on import
     ]);
     const playerWs = XLSX.utils.aoa_to_sheet([
-      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Merits", "Last Updated", "Delete Player (TRUE = delete)"],
+      ["Name", "New Name", "Alliance", "New Alliance", "Power", "Contributions", "Last Updated", "Delete Player (TRUE = delete)"],
       ...playerData,
     ]);
     playerWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 28 }];
@@ -449,7 +449,7 @@ export default function AdminPlayers() {
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Cooldown</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Power</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Merits</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Contributions</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase w-24">Actions</th>
               </tr>
             </thead>
@@ -506,7 +506,7 @@ export default function AdminPlayers() {
                         value={editMerits}
                         onChange={(e) => setEditMerits(e.target.value)}
                         className="w-28 h-7 text-xs bg-white/5 border-white/20 text-white"
-                        placeholder="Merits"
+                        placeholder="Contributions"
                       />
                     </td>
                     <td className="px-3 py-2">

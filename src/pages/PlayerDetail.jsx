@@ -116,7 +116,7 @@ export default function PlayerDetail() {
           )}
         </div>
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">
-          <p className="text-xs text-gray-400 mb-1">{t("playerDetail.merits") || "Merits"}</p>
+          <p className="text-xs text-gray-400 mb-1">{t("playerDetail.merits") || "Contributions"}</p>
           <p className="font-mono text-emerald-400 text-lg font-bold">{(player.merits || 0).toLocaleString()}</p>
         </div>
         <div className="bg-[#111827] rounded-xl border border-white/5 p-4">

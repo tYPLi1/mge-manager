@@ -76,7 +76,8 @@ export default function PlayerImportHandler({
       const dkpSpentCol = col("dkp spent");
       const cooldownCol = headerRow.findIndex(h => h.includes("cooldown"));
       const powerCol = col("power");
-      const meritsCol = col("merits");
+      // Accept both "merits" (legacy) and "contributions" (new) as column header
+      const meritsCol = col("contributions") !== -1 ? col("contributions") : col("merits");
       const allianceCol = col("alliance");
       const updatedCol = headerRow.findIndex(h => h.includes("last updated") || h.includes("updated"));
       const deleteCol = headerRow.findIndex(h => h.includes("delete player") || h === "delete");
