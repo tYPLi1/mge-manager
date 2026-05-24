@@ -678,6 +678,42 @@
     "downloadNewPlayers": "Télécharger les nouveaux joueurs",
     "newPlayerHint": "Laisse vides les colonnes des joueurs existants — remplis uniquement les lignes pour les joueurs qui n'existent pas encore."
   },
+  "editEvent": {
+    "title": "Modifier l'événement",
+    "warning": "Les changements affectent immédiatement le solde DKP des joueurs. Une prévisualisation Discord avec toutes les corrections s'ouvre après l'enregistrement.",
+    "addPlayer": "Ajouter un joueur",
+    "selectPlayer": "Sélectionner un joueur...",
+    "notePlaceholder": "Note (optionnel)",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "restore": "Restaurer",
+    "badgeNew": "NOUVEAU",
+    "pendingChanges": "{{count}} modification(s) en attente",
+    "noChanges": "Aucune modification",
+    "addRequiredError": "Joueur et valeur DKP requis",
+    "invalidValueFor": "Valeur DKP invalide pour {{name}}",
+    "savedTitle": "Événement mis à jour",
+    "savedDesc": "{{count}} modification(s) enregistrée(s)",
+    "saveFailed": "Échec de l'enregistrement",
+    "saving": "Enregistrement...",
+    "saveAndPreview": "Enregistrer & prévisualiser Discord",
+    "cols": {
+      "player": "Joueur",
+      "note": "Note"
+    },
+    "diff": {
+      "added": "ajouté avec",
+      "removed": "retiré (était"
+    },
+    "discord": {
+      "title": "Correction d'événement",
+      "description": "Les données suivantes ont été ajustées après coup :",
+      "changesHeader": "Modifications",
+      "addedWith": "ajouté avec `{{dkp}} DKP`",
+      "removedWas": "retiré (était `{{dkp}} DKP`)",
+      "footerTag": "Correction"
+    }
+  },
   "legal": {
     "contact": {
       "title": "Contact"

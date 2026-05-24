@@ -674,6 +674,42 @@
     "downloadNewPlayers": "신규 플레이어 다운로드",
     "newPlayerHint": "기존 플레이어 열은 비워 두세요 — 아직 존재하지 않는 플레이어의 행만 채우세요."
   },
+  "editEvent": {
+    "title": "이벤트 편집",
+    "warning": "변경 사항은 즉시 플레이어의 DKP 잔액에 영향을 미칩니다. 저장 후 모든 수정 내역이 포함된 Discord 미리보기가 열립니다.",
+    "addPlayer": "플레이어 추가",
+    "selectPlayer": "플레이어 선택...",
+    "notePlaceholder": "메모 (선택)",
+    "add": "추가",
+    "remove": "제거",
+    "restore": "복원",
+    "badgeNew": "신규",
+    "pendingChanges": "{{count}}개 대기 중인 변경",
+    "noChanges": "변경 사항 없음",
+    "addRequiredError": "플레이어와 DKP 값이 필요합니다",
+    "invalidValueFor": "{{name}}의 DKP 값이 잘못되었습니다",
+    "savedTitle": "이벤트가 업데이트됨",
+    "savedDesc": "{{count}}개 변경 사항 저장됨",
+    "saveFailed": "저장 실패",
+    "saving": "저장 중...",
+    "saveAndPreview": "저장 및 Discord 미리보기",
+    "cols": {
+      "player": "플레이어",
+      "note": "메모"
+    },
+    "diff": {
+      "added": "추가됨:",
+      "removed": "제거됨 (이전"
+    },
+    "discord": {
+      "title": "이벤트 수정",
+      "description": "다음 데이터가 사후에 조정되었습니다:",
+      "changesHeader": "변경 사항",
+      "addedWith": "`{{dkp}} DKP`로 추가됨",
+      "removedWas": "제거됨 (이전 `{{dkp}} DKP`)",
+      "footerTag": "수정"
+    }
+  },
   "legal": {
     "contact": {
       "title": "문의"

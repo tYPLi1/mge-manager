@@ -674,6 +674,42 @@
     "downloadNewPlayers": "下载新玩家",
     "newPlayerHint": "请将现有玩家的列保持为空 — 仅为尚不存在的玩家填写行。"
   },
+  "editEvent": {
+    "title": "编辑事件",
+    "warning": "更改会立即影响玩家的 DKP 余额。保存后会打开包含所有更正的 Discord 预览。",
+    "addPlayer": "添加玩家",
+    "selectPlayer": "选择玩家...",
+    "notePlaceholder": "备注（可选）",
+    "add": "添加",
+    "remove": "移除",
+    "restore": "恢复",
+    "badgeNew": "新增",
+    "pendingChanges": "{{count}} 项待处理更改",
+    "noChanges": "无更改",
+    "addRequiredError": "玩家和 DKP 值为必填项",
+    "invalidValueFor": "{{name}} 的 DKP 值无效",
+    "savedTitle": "事件已更新",
+    "savedDesc": "已保存 {{count}} 项更改",
+    "saveFailed": "保存失败",
+    "saving": "保存中...",
+    "saveAndPreview": "保存并预览 Discord",
+    "cols": {
+      "player": "玩家",
+      "note": "备注"
+    },
+    "diff": {
+      "added": "添加为",
+      "removed": "已移除（原"
+    },
+    "discord": {
+      "title": "事件更正",
+      "description": "以下数据已事后调整：",
+      "changesHeader": "变更",
+      "addedWith": "添加为 `{{dkp}} DKP`",
+      "removedWas": "已移除（原 `{{dkp}} DKP`）",
+      "footerTag": "更正"
+    }
+  },
   "legal": {
     "contact": {
       "title": "联系"

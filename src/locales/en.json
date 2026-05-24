@@ -715,6 +715,42 @@
     "downloadNewPlayers": "Download New Players",
     "newPlayerHint": "Leave the existing player columns empty — only fill rows for players who don't exist yet."
   },
+  "editEvent": {
+    "title": "Edit Event",
+    "warning": "Changes immediately affect player DKP balances. A Discord preview with all corrections opens after saving.",
+    "addPlayer": "Add player",
+    "selectPlayer": "Select player...",
+    "notePlaceholder": "Note (optional)",
+    "add": "Add",
+    "remove": "Remove",
+    "restore": "Restore",
+    "badgeNew": "NEW",
+    "pendingChanges": "{{count}} pending change(s)",
+    "noChanges": "No changes",
+    "addRequiredError": "Player and DKP value are required",
+    "invalidValueFor": "Invalid DKP value for {{name}}",
+    "savedTitle": "Event updated",
+    "savedDesc": "{{count}} change(s) saved",
+    "saveFailed": "Save failed",
+    "saving": "Saving...",
+    "saveAndPreview": "Save & Discord preview",
+    "cols": {
+      "player": "Player",
+      "note": "Note"
+    },
+    "diff": {
+      "added": "added with",
+      "removed": "removed (was"
+    },
+    "discord": {
+      "title": "Event Correction",
+      "description": "The following data was adjusted after the fact:",
+      "changesHeader": "Changes",
+      "addedWith": "added with `{{dkp}} DKP`",
+      "removedWas": "removed (was `{{dkp}} DKP`)",
+      "footerTag": "Correction"
+    }
+  },
   "legal": {
     "lastUpdated": "Last updated",
     "contact": {

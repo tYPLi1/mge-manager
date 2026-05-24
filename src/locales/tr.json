@@ -714,6 +714,42 @@
     "downloadNewPlayers": "Yeni Oyuncuları İndir",
     "newPlayerHint": "Mevcut oyuncu sütunlarını boş bırak — yalnızca henüz olmayan oyuncular için satır doldur."
   },
+  "editEvent": {
+    "title": "Etkinliği Düzenle",
+    "warning": "Değişiklikler oyuncuların DKP bakiyesini anında etkiler. Kaydettikten sonra tüm düzeltmeleri içeren bir Discord önizlemesi açılır.",
+    "addPlayer": "Oyuncu ekle",
+    "selectPlayer": "Oyuncu seç...",
+    "notePlaceholder": "Not (opsiyonel)",
+    "add": "Ekle",
+    "remove": "Kaldır",
+    "restore": "Geri yükle",
+    "badgeNew": "YENİ",
+    "pendingChanges": "{{count}} bekleyen değişiklik",
+    "noChanges": "Değişiklik yok",
+    "addRequiredError": "Oyuncu ve DKP değeri gereklidir",
+    "invalidValueFor": "{{name}} için geçersiz DKP değeri",
+    "savedTitle": "Etkinlik güncellendi",
+    "savedDesc": "{{count}} değişiklik kaydedildi",
+    "saveFailed": "Kaydetme başarısız",
+    "saving": "Kaydediliyor...",
+    "saveAndPreview": "Kaydet ve Discord önizleme",
+    "cols": {
+      "player": "Oyuncu",
+      "note": "Not"
+    },
+    "diff": {
+      "added": "şununla eklendi",
+      "removed": "kaldırıldı (önceki"
+    },
+    "discord": {
+      "title": "Etkinlik Düzeltmesi",
+      "description": "Aşağıdaki veriler sonradan değiştirildi:",
+      "changesHeader": "Değişiklikler",
+      "addedWith": "`{{dkp}} DKP` ile eklendi",
+      "removedWas": "kaldırıldı (önceki `{{dkp}} DKP`)",
+      "footerTag": "Düzeltme"
+    }
+  },
   "legal": {
     "contact": {
       "title": "İletişim"
