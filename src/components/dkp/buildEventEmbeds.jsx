@@ -120,7 +120,7 @@ function chunkGroupsIntoFields(groups) {
     // for both, start a new chunk.
     const headerAndFirst = group.header + "\n" + group.lines[0];
     if (current) {
-      const tentative = current + "\n\n" + headerAndFirst;
+      const tentative = current + "\n" + headerAndFirst;
       if (tentative.length > MAX_FIELD_LENGTH) {
         flush();
         current = headerAndFirst;
@@ -165,30 +165,35 @@ export function buildEventEmbeds({
   extraFields = [],
 }) {
   const groups = buildGroups(rows);
-  const fieldChunks = chunkGroupsIntoFields(groups);
+   const fieldChunks = chunkGroupsIntoFields(groups);
 
-  const counterFields = [
-    { name: "Players Updated", value: String(playersUpdated ?? rows.length), inline: true },
-    { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
-    ...extraFields,
-  ];
+   const counterFields = [
+     { name: "Players Updated", value: String(playersUpdated ?? rows.length), inline: true },
+     { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
+     ...extraFields,
+   ];
 
-  const embeds = [];
-  let currentFields = [...counterFields];
-  let currentLength = counterFields.reduce((s, f) => s + f.name.length + f.value.length, 0) + 100;
+   const embeds = [];
+   let currentFields = [];
+   let currentLength = 100;
 
-  for (let i = 0; i < fieldChunks.length; i++) {
-    const fieldName = i === 0 ? "📋 Results" : "📋 Results (cont.)";
-    const fieldLength = fieldName.length + fieldChunks[i].length;
-    if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
-      embeds.push({ color, fields: currentFields });
-      currentFields = [];
-      currentLength = 100;
-    }
-    currentFields.push({ name: fieldName, value: fieldChunks[i], inline: false });
-    currentLength += fieldLength;
-  }
-  if (currentFields.length > 0) embeds.push({ color, fields: currentFields });
+   for (let i = 0; i < fieldChunks.length; i++) {
+     const fieldName = i === 0 ? "📋 Results" : "📋 Results (cont.)";
+     const fieldLength = fieldName.length + fieldChunks[i].length;
+     if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
+       embeds.push({ color, fields: currentFields });
+       currentFields = [];
+       currentLength = 100;
+     }
+     currentFields.push({ name: fieldName, value: fieldChunks[i], inline: false });
+     currentLength += fieldLength;
+   }
+   if (currentFields.length > 0) embeds.push({ color, fields: currentFields });
+
+   // Add counter fields to the first embed only
+   if (embeds.length > 0) {
+     embeds[0].fields = [...counterFields, ...embeds[0].fields];
+   }
 
   if (embeds.length > 0) {
     embeds[0].title = title;
