@@ -6,6 +6,7 @@ import { History, Plus } from "lucide-react";
 import EventUpload from "@/components/dkp/EventUpload";
 import DeleteEventData from "@/components/dkp/DeleteEventData";
 import ResendLastEventNotification from "@/components/dkp/ResendLastEventNotification.jsx";
+import RecentEventsList from "@/components/dkp/RecentEventsList";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -141,6 +142,7 @@ export default function AdminDKP() {
 
       <EventUpload players={players} eventTypes={eventTypes} />
       <ResendLastEventNotification />
+      <RecentEventsList />
       <DeleteEventData />
     </div>
   );
