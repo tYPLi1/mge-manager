@@ -559,6 +559,7 @@
         "fz": "Friendly Zone",
         "reserveNext": "Nächste MGE reservieren"
       },
+      "delayedCooldownHint": "Nur verfügbar wenn „Reserve Next MGE“ aktiv ist. Wenn aktiv, startet der Cooldown erst nach dem ZWEITEN (reservierten/gratis) Sieg — nicht nach dem ersten bezahlten Sieg. Der Spieler bekommt dadurch zwei aufeinander­folgende Auktionen, bevor der Cooldown greift.",
       "reserveNextHint": "Aktivieren, um diesen Rang dem Gewinner in der NÄCHSTEN Auktion zu reservieren (kostenlos, ohne DKP-Abzug). Der Gewinner wird beim Bestätigen der Resultate automatisch als fixer Rang in der nächsten Auktion eingetragen.",
       "reserveNextBlockedTitle": "Resultate können noch nicht veröffentlicht werden",
       "reserveNextBlockedMessage": "Diese Auktion hat reservierte Ränge für die nächste MGE. Bitte zuerst die nächste Auktion erstellen, dann die Resultate veröffentlichen, damit die Reservationen übertragen werden können.",

@@ -557,9 +557,11 @@
         "medals": "Medals",
         "target": "Target Score",
         "fz": "Friendly Zone",
-        "reserveNext": "Reserve Next MGE"
+        "reserveNext": "Reserve Next MGE",
+        "delayedCooldown": "Delayed Cooldown"
       },
       "reserveNextHint": "Tick to reserve this rank for the winner in the NEXT auction (free, no DKP cost). The winner is auto-added as a fixed assignment when results are confirmed.",
+      "delayedCooldownHint": "Only available when Reserve Next MGE is on. If ticked, the cooldown starts only after the SECOND (reserved/free) win — not after the first paid win. The player gets two consecutive auctions before the cooldown applies.",
       "reserveNextBlockedTitle": "Cannot publish results yet",
       "reserveNextBlockedMessage": "This auction has reserved ranks for the next MGE. Please create the next auction first, then publish the results so the reservations can be transferred.",
       "reserveNextTransferred": "{{count}} reserved rank(s) transferred to next auction",

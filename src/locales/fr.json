@@ -523,6 +523,7 @@
       "maxRanksDesc": "Seul ce nombre de rangs sera attribué dans les enchères.",
       "fzColumnHint": "Coche la colonne Zone Amicale pour tout rang réservé aux enchérisseurs Zone Amicale.",
       "cols": { "rank": "Rang", "cooldown": "Cooldown (jours)", "medals": "Médailles", "target": "Score cible", "fz": "Zone Amicale", "reserveNext": "Réserver prochaine MGE" },
+      "delayedCooldownHint": "Disponible uniquement si « Reserve Next MGE » est activé. Si coché, le cooldown ne démarre qu'après la DEUXIÈME victoire (réservée/gratuite), et non après la première victoire payante. Le joueur a deux enchères consécutives avant que le cooldown ne s'applique.",
       "reserveNextHint": "Cocher pour réserver ce rang au gagnant lors de la PROCHAINE enchère (gratuit, sans coût DKP). Le gagnant est ajouté automatiquement comme attribution fixe à la confirmation des résultats.",
       "reserveNextBlockedTitle": "Impossible de publier les résultats",
       "reserveNextBlockedMessage": "Cette enchère a des rangs réservés pour la prochaine MGE. Crée d'abord la prochaine enchère, puis publie les résultats pour que les réservations soient transférées.",

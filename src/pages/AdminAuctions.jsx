@@ -234,6 +234,16 @@ export default function AdminAuctions() {
     } catch { return []; }
   }, [settings]);
 
+  // Ranks where the cooldown is delayed until the 2nd (reserved/free) win.
+  // Only meaningful when the rank is also in reserveNextRanks.
+  const delayedCooldownRanks = useMemo(() => {
+    try {
+      const raw = settings.find((s) => s.key === "delayed_cooldown_start_ranks")?.value;
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map(Number) : [];
+    } catch { return []; }
+  }, [settings]);
+
   const compensationFormula = useMemo(() => {
     // Read from penalty_config.compensation_formula (managed in PenaltyConfigEditor)
     // Backwards compat: if only legacy compensation_divisor exists, build "bid / N"
@@ -563,6 +573,17 @@ export default function AdminAuctions() {
       const cooldownDate = addDays(today, cooldownDays);
       const isReservedRank = !entry._fixed && reserveNextRanks.includes(Number(entry.rank));
 
+      // Delayed cooldown: rank is in delayedCooldownRanks AND reserveNextRanks.
+      // Skip cooldown for the FIRST (paid) win — only apply it when this is the
+      // second win via a reserved-transfer fixed assignment.
+      const rankNum = Number(entry.rank);
+      const isDelayedRank = delayedCooldownRanks.includes(rankNum) && reserveNextRanks.includes(rankNum);
+      const isReservedTransferFix = entry._fixed && typeof entry._fixedReason === "string"
+        && entry._fixedReason.startsWith("Reserved from");
+      const skipCooldown = isDelayedRank && !entry._fixed; // first paid win on a delayed-cooldown rank
+      const applyCooldown = !skipCooldown; // covers normal wins, fixed assignments, and the 2nd reserved win
+      // Note: isReservedTransferFix path falls through to applyCooldown=true (intended).
+
       await adminEntities.AuctionResult.create({
         auction_id: viewBids.id,
         player_id: entry.player_id,
@@ -595,11 +616,16 @@ export default function AdminAuctions() {
 
       const player = players.find((p) => p.id === entry.player_id);
       if (player) {
-        const updates = { cooldown_until: cooldownDate };
+        const updates = {};
+        if (applyCooldown) {
+          updates.cooldown_until = cooldownDate;
+        }
         if (!entry._fixed) {
           updates.dkp_spent = (player.dkp_spent || 0) - entry.dkp_bid;
         }
-        await adminEntities.Player.update(entry.player_id, updates);
+        if (Object.keys(updates).length > 0) {
+          await adminEntities.Player.update(entry.player_id, updates);
+        }
       }
     }
 

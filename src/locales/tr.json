@@ -559,6 +559,7 @@
         "fz": "Friendly Zone",
         "reserveNext": "Sonraki MGE'yi Rezerve Et"
       },
+      "delayedCooldownHint": "Yalnızca „Reserve Next MGE\" açıkken kullanılabilir. İşaretlenirse cooldown ilk (ücretli) galibiyetten sonra değil, İKİNCİ (rezerve/ücretsiz) galibiyetten sonra başlar. Oyuncu cooldown uygulanmadan önce iki ardışık açık artırma alır.",
       "reserveNextHint": "Bu sırayı bir SONRAKİ açık artırmadaki kazanan için rezerve etmek üzere işaretle (ücretsiz, DKP gerektirmez). Sonuçlar onaylandığında kazanan, sonraki açık artırmaya sabit atama olarak otomatik eklenir.",
       "reserveNextBlockedTitle": "Sonuçlar henüz yayınlanamaz",
       "reserveNextBlockedMessage": "Bu açık artırmada bir sonraki MGE için rezerve edilmiş sıralar var. Lütfen önce bir sonraki açık artırmayı oluştur, ardından sonuçları yayınla; böylece rezervasyonlar aktarılabilir.",

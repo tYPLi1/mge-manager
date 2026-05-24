@@ -519,6 +519,7 @@
       "maxRanksDesc": "拍卖中只会授予此数量的名次。",
       "fzColumnHint": "为友好区出价者保留的名次请勾选友好区列。",
       "cols": { "rank": "名次", "cooldown": "冷却（天）", "medals": "勋章", "target": "目标分数", "fz": "友好区", "reserveNext": "保留至下次 MGE" },
+      "delayedCooldownHint": "仅在「Reserve Next MGE」开启时可用。勾选后,冷却时间只在第二次(保留/免费)获胜后开始,而不是第一次付费获胜后。玩家在冷却生效前会获得两场连续的拍卖。",
       "reserveNextHint": "勾选以将此名次保留给下一场拍卖的获胜者（免费，无 DKP 费用）。结果确认时，获胜者将自动作为固定分配添加到下一场拍卖。",
       "reserveNextBlockedTitle": "暂时无法发布结果",
       "reserveNextBlockedMessage": "本场拍卖有为下一场 MGE 保留的名次。请先创建下一场拍卖，然后再发布结果，以便保留可以转移。",

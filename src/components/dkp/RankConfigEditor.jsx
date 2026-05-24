@@ -20,11 +20,13 @@ export default function RankConfigEditor({
   cooldownTableJson,
   friendlyZoneRanksJson,
   reserveNextRanksJson,
+  delayedCooldownRanksJson,
   onChangeMaxRanks,
   onChangeMgeTargets,
   onChangeCooldownTable,
   onChangeFriendlyZoneRanks,
   onChangeReserveNextRanks,
+  onChangeDelayedCooldownRanks,
   t,
 }) {
   // Fallback labels if no `t` provided (component still works standalone)
@@ -40,6 +42,8 @@ export default function RankConfigEditor({
     fzHint: tr("admin.auctionConfig.fzColumnHint") || "Tick the Friendly Zone column for any rank that should be reserved for Friendly Zone bidders.",
     reserveNext: tr("admin.auctionConfig.cols.reserveNext") || "Reserve Next MGE",
     reserveNextHint: tr("admin.auctionConfig.reserveNextHint") || "Tick to reserve this rank for the winner in the NEXT auction (for free, no DKP cost). The winner will be auto-added as a fixed assignment when results are confirmed.",
+    delayedCooldown: tr("admin.auctionConfig.cols.delayedCooldown") || "Delayed Cooldown",
+    delayedCooldownHint: tr("admin.auctionConfig.delayedCooldownHint") || "Only available when Reserve Next MGE is on. If ticked, the cooldown starts only after the SECOND (reserved/free) win — not after the first paid win. This gives the player two consecutive auctions before the cooldown applies.",
   };
   const numRanks = useMemo(() => {
     const n = parseInt(maxRanks, 10);
@@ -84,6 +88,13 @@ export default function RankConfigEditor({
       return Array.isArray(arr) ? arr.map(Number) : [];
     } catch { return []; }
   }, [reserveNextRanksJson]);
+
+  const delayedCooldownRanks = useMemo(() => {
+    try {
+      const arr = JSON.parse(delayedCooldownRanksJson || "[]");
+      return Array.isArray(arr) ? arr.map(Number) : [];
+    } catch { return []; }
+  }, [delayedCooldownRanksJson]);
 
   // Helpers to read row values
   const getMedals = (rank) => {
@@ -134,9 +145,26 @@ export default function RankConfigEditor({
   const isReserveNext = (rank) => reserveNextRanks.includes(rank);
   const toggleReserveNext = (rank) => {
     if (!onChangeReserveNextRanks) return;
-    const next = isReserveNext(rank) ? reserveNextRanks.filter(r => r !== rank) : [...reserveNextRanks, rank];
+    const wasOn = isReserveNext(rank);
+    const next = wasOn ? reserveNextRanks.filter(r => r !== rank) : [...reserveNextRanks, rank];
     next.sort((a, b) => a - b);
     onChangeReserveNextRanks(JSON.stringify(next));
+    // If we just disabled Reserve Next for this rank, also disable Delayed Cooldown for it.
+    if (wasOn && onChangeDelayedCooldownRanks && delayedCooldownRanks.includes(rank)) {
+      const nextDelayed = delayedCooldownRanks.filter(r => r !== rank);
+      onChangeDelayedCooldownRanks(JSON.stringify(nextDelayed));
+    }
+  };
+
+  const isDelayedCooldown = (rank) => delayedCooldownRanks.includes(rank);
+  const toggleDelayedCooldown = (rank) => {
+    if (!onChangeDelayedCooldownRanks) return;
+    if (!isReserveNext(rank)) return; // gated by Reserve Next MGE
+    const next = isDelayedCooldown(rank)
+      ? delayedCooldownRanks.filter(r => r !== rank)
+      : [...delayedCooldownRanks, rank];
+    next.sort((a, b) => a - b);
+    onChangeDelayedCooldownRanks(JSON.stringify(next));
   };
 
   const incrementMaxRanks = (delta) => {
@@ -187,6 +215,7 @@ export default function RankConfigEditor({
               <th className="px-3 py-2 text-left font-medium">{L.target}</th>
               <th className="px-3 py-2 text-center font-medium">{L.fz}</th>
               <th className="px-3 py-2 text-center font-medium">{L.reserveNext}</th>
+              <th className="px-3 py-2 text-center font-medium">{L.delayedCooldown}</th>
             </tr>
           </thead>
           <tbody>
@@ -236,6 +265,14 @@ export default function RankConfigEditor({
                     className="border-gray-500 bg-white/5 hover:border-blue-400 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 data-[state=checked]:text-white"
                   />
                 </td>
+                <td className="px-3 py-2 text-center">
+                  <Checkbox
+                    checked={isDelayedCooldown(rank)}
+                    disabled={!isReserveNext(rank)}
+                    onCheckedChange={() => toggleDelayedCooldown(rank)}
+                    className="border-gray-500 bg-white/5 hover:border-purple-400 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 data-[state=checked]:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -244,6 +281,7 @@ export default function RankConfigEditor({
 
       <p className="text-xs text-gray-500">{L.fzHint}</p>
       <p className="text-xs text-blue-400/80">🔄 {L.reserveNextHint}</p>
+      <p className="text-xs text-purple-400/80">⏳ {L.delayedCooldownHint}</p>
     </div>
   );
 }

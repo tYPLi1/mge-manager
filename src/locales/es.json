@@ -529,6 +529,7 @@
       "maxRanksDesc": "Solo se otorgarán esta cantidad de rangos en las subastas.",
       "fzColumnHint": "Marca la columna Zona Amistosa para cualquier rango reservado a pujadores de Zona Amistosa.",
       "cols": { "rank": "Rango", "cooldown": "Enfriamiento (días)", "medals": "Medallas", "target": "Puntuación objetivo", "fz": "Zona Amistosa", "reserveNext": "Reservar próxima MGE" },
+      "delayedCooldownHint": "Solo disponible cuando «Reserve Next MGE» está activado. Si se marca, el cooldown solo empieza tras la SEGUNDA victoria (reservada/gratis), no tras la primera victoria pagada. El jugador obtiene dos subastas consecutivas antes de que se aplique el cooldown.",
       "reserveNextHint": "Marcar para reservar este rango al ganador en la PRÓXIMA subasta (gratis, sin coste DKP). El ganador se agrega automáticamente como asignación fija al confirmar los resultados.",
       "reserveNextBlockedTitle": "Aún no se pueden publicar los resultados",
       "reserveNextBlockedMessage": "Esta subasta tiene rangos reservados para la próxima MGE. Por favor crea primero la próxima subasta y luego publica los resultados para que las reservas se transfieran.",
