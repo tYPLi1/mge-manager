@@ -180,15 +180,15 @@ export function buildEventEmbeds({
 
    for (let i = 0; i < fieldChunks.length; i++) {
      const fieldLength = fieldChunks[i].length;
-     const fieldName = firstChunk ? "📋 Results" : " ";
-     firstChunk = false;
+     let fieldName = firstChunk ? "📋 Results" : "\u200B";
 
      if (currentLength + fieldLength + fieldName.length > MAX_EMBED_LENGTH || currentFields.length >= 24) {
        embeds.push({ color, fields: currentFields });
        currentFields = [];
        currentLength = 100;
-       fieldName = " ";
+       fieldName = "\u200B";
      }
+     firstChunk = false;
      currentFields.push({ name: fieldName, value: fieldChunks[i], inline: false });
      currentLength += fieldLength;
    }
