@@ -16,8 +16,10 @@ import DiscordNotificationPanel from "@/components/dkp/DiscordNotificationPanel"
 import DiscordServerConfig from "@/components/dkp/DiscordServerConfig";
 import UnsavedChangesGuard from "@/components/dkp/UnsavedChangesGuard";
 import CollapsibleSection from "@/components/dkp/CollapsibleSection";
-import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import SettingsTabs from "@/components/dkp/SettingsTabs";
+import AdminEventConfig from "@/pages/AdminEventConfig";
+import AdminAuctionConfig from "@/pages/AdminAuctionConfig";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "@/lib/i18n";
 
 const SETTING_LABELS = {
@@ -47,6 +49,13 @@ export default function AdminSettings() {
   const pendingNavigationRef = useRef(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "general";
+  const setActiveTab = (tab) => {
+    const next = new URLSearchParams(searchParams);
+    if (tab === "general") next.delete("tab"); else next.set("tab", tab);
+    setSearchParams(next, { replace: true });
+  };
 
   // Refs to avoid stale closures
   const formRef = useRef(form);
@@ -183,31 +192,29 @@ export default function AdminSettings() {
         setShowDialog={setShowUnsavedDialog}
       />
       <PageHeader title={t("admin.settings.title")} icon={Settings}>
-        <div className="flex items-center gap-3">
-          {hasChanges && (
-            <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-              {getChangedKeys().length > 1
-                ? t("admin.common.unsavedChangesPlural", { count: getChangedKeys().length })
-                : t("admin.common.unsavedChanges", { count: getChangedKeys().length })}
-            </span>
-          )}
-          <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-            <Save className="w-4 h-4 mr-1" /> {t("admin.common.saveAll")}
-          </Button>
-        </div>
+        {activeTab === "general" && (
+          <div className="flex items-center gap-3">
+            {hasChanges && (
+              <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+                {getChangedKeys().length > 1
+                  ? t("admin.common.unsavedChangesPlural", { count: getChangedKeys().length })
+                  : t("admin.common.unsavedChanges", { count: getChangedKeys().length })}
+              </span>
+            )}
+            <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+              <Save className="w-4 h-4 mr-1" /> {t("admin.common.saveAll")}
+            </Button>
+          </div>
+        )}
       </PageHeader>
 
-      <div className="space-y-6">
-        {/* Note about Auction Config */}
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-          <p className="text-xs text-amber-300">
-            ℹ️ {t("admin.settings.movedNotice")}{" "}
-            <Link to={createPageUrl("AdminAuctionConfig")} className="font-semibold underline hover:text-amber-200">
-              {t("admin.settings.auctionConfigLink")}
-            </Link>.
-          </p>
-        </div>
+      <SettingsTabs active={activeTab} onChange={setActiveTab} t={t} />
 
+      {activeTab === "events" && <AdminEventConfig />}
+      {activeTab === "auctions" && <AdminAuctionConfig />}
+
+      {activeTab === "general" && (
+      <div className="space-y-6">
         {/* Event Toggles */}
         <CollapsibleSection
           storageKey="settings.eventToggles"
@@ -311,6 +318,7 @@ export default function AdminSettings() {
           <DiscordNotificationPanel serversJson={form.discord_servers} />
         </CollapsibleSection>
       </div>
+      )}
     </div>
   );
 }

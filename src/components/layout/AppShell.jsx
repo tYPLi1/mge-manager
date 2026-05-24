@@ -28,8 +28,6 @@ const adminNavConfig = [
   { name: "players", page: "AdminPlayers", icon: Users },
   { name: "dkp", page: "AdminDKP", icon: History },
   { name: "penalties", page: "AdminPenalties", icon: Shield },
-  { name: "eventConfig", page: "AdminEventConfig", icon: Settings2 },
-  { name: "auctionConfig", page: "AdminAuctionConfig", icon: Gavel },
   { name: "settings", page: "AdminSettings", icon: Settings },
   { name: "appManagement", page: "AdminAppManagement", icon: Shield },
 ];

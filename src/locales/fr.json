@@ -497,7 +497,10 @@
       "templatesEnabledHint": "Quand désactivée, la page est complètement bloquée et masquée de la navigation publique.",
       "templatesPassword": "Mot de passe d'accès",
       "templatesPasswordHint": "Partage ce mot de passe avec les utilisateurs qui doivent pouvoir télécharger des modèles.",
-      "templatesPasswordPlaceholder": "ex. guild2026"
+      "tabGeneral": "Général",
+    "tabEvents": "Événements",
+    "tabAuctions": "Enchères",
+    "templatesPasswordPlaceholder": "ex. guild2026"
     },
     "alliances": {
       "title": "Alliances",

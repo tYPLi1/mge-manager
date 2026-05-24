@@ -503,7 +503,10 @@
       "templatesEnabledHint": "Cuando está desactivado, la página está completamente bloqueada y oculta de la navegación pública.",
       "templatesPassword": "Contraseña de acceso",
       "templatesPasswordHint": "Comparte esta contraseña con los usuarios que deben poder descargar plantillas.",
-      "templatesPasswordPlaceholder": "p. ej. guild2026"
+      "tabGeneral": "General",
+    "tabEvents": "Eventos",
+    "tabAuctions": "Subastas",
+    "templatesPasswordPlaceholder": "p. ej. guild2026"
     },
     "alliances": {
       "title": "Alianzas",

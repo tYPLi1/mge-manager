@@ -493,7 +493,10 @@
       "templatesEnabledHint": "关闭后，该页面将被完全阻止并从公开导航中隐藏。",
       "templatesPassword": "访问密码",
       "templatesPasswordHint": "将此密码分享给应能够下载模板的用户。",
-      "templatesPasswordPlaceholder": "例如 guild2026"
+      "tabGeneral": "常规",
+    "tabEvents": "事件",
+    "tabAuctions": "拍卖",
+    "templatesPasswordPlaceholder": "例如 guild2026"
     },
     "alliances": {
       "title": "联盟",

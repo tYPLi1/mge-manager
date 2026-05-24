@@ -526,7 +526,10 @@
       "templatesEnabledHint": "When off, the page is completely blocked and hidden from public navigation.",
       "templatesPassword": "Access password",
       "templatesPasswordHint": "Share this password with users who should be able to download templates.",
-      "templatesPasswordPlaceholder": "e.g. guild2026"
+      "tabGeneral": "General",
+    "tabEvents": "Events",
+    "tabAuctions": "Auctions",
+    "templatesPasswordPlaceholder": "e.g. guild2026"
     },
     "alliances": {
       "title": "Alliances",

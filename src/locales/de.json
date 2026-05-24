@@ -526,7 +526,10 @@
       "templatesEnabledHint": "Wenn deaktiviert, ist die Seite komplett gesperrt und aus der öffentlichen Navigation ausgeblendet.",
       "templatesPassword": "Zugangs-Passwort",
       "templatesPasswordHint": "Gib dieses Passwort an Nutzer weiter, die Vorlagen herunterladen dürfen.",
-      "templatesPasswordPlaceholder": "z. B. gilde2026"
+      "tabGeneral": "Allgemein",
+    "tabEvents": "Events",
+    "tabAuctions": "Auktionen",
+    "templatesPasswordPlaceholder": "z. B. gilde2026"
     },
     "alliances": {
       "title": "Allianzen",

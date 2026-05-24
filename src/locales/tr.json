@@ -526,7 +526,10 @@
       "templatesEnabledHint": "Kapatıldığında, sayfa tamamen engellenir ve genel navigasyondan gizlenir.",
       "templatesPassword": "Erişim parolası",
       "templatesPasswordHint": "Bu parolayı şablon indirebilmesi gereken kullanıcılarla paylaş.",
-      "templatesPasswordPlaceholder": "örn. guild2026"
+      "tabGeneral": "Genel",
+    "tabEvents": "Etkinlikler",
+    "tabAuctions": "Açık Artırmalar",
+    "templatesPasswordPlaceholder": "örn. guild2026"
     },
     "alliances": {
       "title": "İttifaklar",
