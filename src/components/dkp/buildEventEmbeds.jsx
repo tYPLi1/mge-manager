@@ -178,7 +178,7 @@ export function buildEventEmbeds({
    let currentLength = 100;
 
    for (let i = 0; i < fieldChunks.length; i++) {
-     const fieldName = i === 0 ? "📋 Results" : "📋 Results (cont.)";
+     const fieldName = "📋 Results";
      const fieldLength = fieldName.length + fieldChunks[i].length;
      if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
        embeds.push({ color, fields: currentFields });
