@@ -438,6 +438,13 @@
     "dashboard": {
       "title": "관리자 대시보드",
       "totalPlayers": "전체 플레이어",
+      "totalDkpInCirculation": "전체 DKP",
+      "avgDkpPerPlayer": "플레이어당 평균 {{value}}",
+      "recentEvents": "최근 이벤트",
+      "recentAuctions": "최근 경매",
+      "last4Weeks": "최근 4주",
+      "viewAll": "모두 보기",
+      "players": "플레이어",
       "activePenalties": "활성 처벌",
       "onCooldown": "쿨다운 중",
       "activeAuction": "활성 경매",

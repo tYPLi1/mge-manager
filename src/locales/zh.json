@@ -438,6 +438,13 @@
     "dashboard": {
       "title": "管理员面板",
       "totalPlayers": "玩家总数",
+      "totalDkpInCirculation": "DKP 总量",
+      "avgDkpPerPlayer": "平均每位玩家 {{value}}",
+      "recentEvents": "最近事件",
+      "recentAuctions": "最近拍卖",
+      "last4Weeks": "最近 4 周",
+      "viewAll": "查看全部",
+      "players": "玩家",
       "activePenalties": "活跃处罚",
       "onCooldown": "冷却中",
       "activeAuction": "活跃拍卖",

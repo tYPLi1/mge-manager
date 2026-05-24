@@ -442,6 +442,13 @@
     "dashboard": {
       "title": "Tableau de bord admin",
       "totalPlayers": "Total joueurs",
+      "totalDkpInCirculation": "Total DKP",
+      "avgDkpPerPlayer": "{{value}} en moy. par joueur",
+      "recentEvents": "Événements récents",
+      "recentAuctions": "Enchères récentes",
+      "last4Weeks": "4 dernières semaines",
+      "viewAll": "Voir tout",
+      "players": "Joueurs",
       "activePenalties": "Sanctions actives",
       "onCooldown": "En cooldown",
       "activeAuction": "Enchère active",
