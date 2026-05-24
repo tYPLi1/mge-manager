@@ -174,26 +174,25 @@ export function buildEventEmbeds({
    ];
 
    const embeds = [];
-   let currentFields = [];
-   let currentLength = 100;
+   let currentFields = [...counterFields];
+   let currentLength = counterFields.reduce((s, f) => s + f.name.length + f.value.length, 0) + 100;
+   let firstChunk = true;
 
    for (let i = 0; i < fieldChunks.length; i++) {
-     const fieldName = "📋 Results";
-     const fieldLength = fieldName.length + fieldChunks[i].length;
-     if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
+     const fieldLength = fieldChunks[i].length;
+     const fieldName = firstChunk ? "📋 Results" : " ";
+     firstChunk = false;
+
+     if (currentLength + fieldLength + fieldName.length > MAX_EMBED_LENGTH || currentFields.length >= 24) {
        embeds.push({ color, fields: currentFields });
        currentFields = [];
        currentLength = 100;
+       fieldName = " ";
      }
      currentFields.push({ name: fieldName, value: fieldChunks[i], inline: false });
      currentLength += fieldLength;
    }
    if (currentFields.length > 0) embeds.push({ color, fields: currentFields });
-
-   // Add counter fields to the first embed only
-   if (embeds.length > 0) {
-     embeds[0].fields = [...counterFields, ...embeds[0].fields];
-   }
 
   if (embeds.length > 0) {
     embeds[0].title = title;
