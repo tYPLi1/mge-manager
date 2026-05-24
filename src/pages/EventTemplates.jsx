@@ -39,6 +39,7 @@ export default function EventTemplates() {
 
   // Template selection state
   const [eventTypeId, setEventTypeId] = useState(undefined);
+  const [stageChoice, setStageChoice] = useState("prep"); // "prep" or "war" — only used when event has both
   const [templateAlliance, setTemplateAlliance] = useState("__all__");
   const [sortByPower, setSortByPower] = useState(true);
   const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
@@ -125,22 +126,25 @@ export default function EventTemplates() {
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), selectedEventType.key);
     } else if (hasMultipleStages) {
-      XLSX.utils.book_append_sheet(
-        wb,
-        XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", ""]),
-        ]),
-        "Preparation"
-      );
-      XLSX.utils.book_append_sheet(
-        wb,
-        XLSX.utils.aoa_to_sheet([
-          ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
-          ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
-        ]),
-        "War Stage"
-      );
+      if (stageChoice === "prep") {
+        XLSX.utils.book_append_sheet(
+          wb,
+          XLSX.utils.aoa_to_sheet([
+            ["Name", "Alliance", "Server Rank", "Note"],
+            ...playerRows.map(p => [p.name, p.alliance, "", ""]),
+          ]),
+          "Preparation"
+        );
+      } else {
+        XLSX.utils.book_append_sheet(
+          wb,
+          XLSX.utils.aoa_to_sheet([
+            ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
+            ...playerRows.map(p => [p.name, p.alliance, "", p.power || "", p.merits || "", ""]),
+          ]),
+          "War Stage"
+        );
+      }
     } else {
       const data = [
         ["Name", "Alliance", "Server Rank", "Power", "Contributions", "Note"],
@@ -150,7 +154,8 @@ export default function EventTemplates() {
     }
 
     const allianceSuffix = templateAlliance === "__all__" ? "ALL" : templateAlliance.replace(/[^a-z0-9]/gi, "_");
-    XLSX.writeFile(wb, `Template_${selectedEventType.key}_${allianceSuffix}_${eventDate}.xlsx`);
+    const stageSuffix = hasMultipleStages ? `_${stageChoice === "prep" ? "Prep" : "War"}` : "";
+    XLSX.writeFile(wb, `Template_${selectedEventType.key}${stageSuffix}_${allianceSuffix}_${eventDate}.xlsx`);
   };
 
   const allianceSuffixForPlayers = () => {
@@ -359,6 +364,23 @@ export default function EventTemplates() {
               </SelectContent>
             </Select>
           </div>
+
+          {hasMultipleStages && (
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
+                {t("eventTemplates.stage")}
+              </Label>
+              <Select value={stageChoice} onValueChange={setStageChoice}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="prep">{t("eventTemplates.stagePrep")}</SelectItem>
+                  <SelectItem value="war">{t("eventTemplates.stageWar")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
