@@ -2,9 +2,10 @@ import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Trash2, Loader2, AlertTriangle, Calendar, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2, Loader2, AlertTriangle, Calendar, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 
 const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
 
@@ -12,7 +13,13 @@ export default function RecentEventsList() {
   const [expandedKey, setExpandedKey] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // event object
   const [deleting, setDeleting] = useState(false);
+  const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
+
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["eventTypes"],
+    queryFn: () => base44.entities.EventType.list("sort_order", 100),
+  });
 
   // Load transactions from the last 4 weeks (with a generous cap)
   const { data: transactions = [], isLoading } = useQuery({
@@ -53,6 +60,68 @@ export default function RecentEventsList() {
 
   const stageLabel = (stage) =>
     stage === "prep" ? "Preparation" : stage === "war" ? "War Stage" : null;
+
+  const handleResend = (event) => {
+    const eventType = eventTypes.find(e => e.key === event.source);
+    const stageName = !event.source_stage ? "" : ` - ${stageLabel(event.source_stage)}`;
+    const toApply = event.transactions;
+    const totalDkp = toApply.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    const sortedByDkp = [...toApply].sort((a, b) => b.amount - a.amount);
+    const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
+    const MAX_FIELD_LENGTH = 1000;
+    const MAX_EMBED_LENGTH = 5500;
+
+    const allLines = sortedByDkp.map((entry, idx) => {
+      const rank = idx + 1;
+      const dkpStr = entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`;
+      let line = `**${rank}. ${entry.player_name}** — \`${dkpStr} DKP\``;
+      if (entry.note && entry.note.trim()) line += ` — _${entry.note}_`;
+      return line;
+    });
+
+    const resultChunks = [];
+    let currentChunk = "";
+    for (let i = 0; i < allLines.length; i++) {
+      const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
+      if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
+        resultChunks.push(currentChunk);
+        currentChunk = allLines[i];
+      } else {
+        currentChunk = tentative;
+      }
+    }
+    if (currentChunk) resultChunks.push(currentChunk);
+
+    const embeds = [];
+    let currentFields = [
+      { name: "Players Updated", value: String(toApply.length), inline: true },
+      { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
+    ];
+    let currentLength = 200;
+    for (let i = 0; i < resultChunks.length; i++) {
+      const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
+      const fieldLength = fieldName.length + resultChunks[i].length;
+      if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
+        embeds.push({ color: 0x8b5cf6, fields: currentFields });
+        currentFields = [];
+        currentLength = 100;
+      }
+      currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
+      currentLength += fieldLength;
+    }
+    if (currentFields.length > 0) embeds.push({ color: 0x8b5cf6, fields: currentFields });
+
+    if (embeds.length > 0) {
+      embeds[0].title = "📊 Event Data Uploaded";
+      embeds[0].description = `**${eventType?.display_name || event.source}${stageName}** - ${new Date(event.event_date).toLocaleDateString("en-GB")}`;
+      embeds[0].url = leaderboardUrl;
+      embeds[embeds.length - 1].fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
+      embeds[embeds.length - 1].footer = { text: "DKP System" };
+    }
+
+    setDiscordPreview({ embeds, onSent: () => {}, notifType: "event_upload" });
+  };
 
   const handleDelete = async (event) => {
     setDeleting(true);
@@ -161,13 +230,22 @@ export default function RecentEventsList() {
                       </div>
                     </div>
                   </button>
-                  <Button
-                    size="sm"
-                    onClick={() => setConfirmDelete(event)}
-                    className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs ml-2 shrink-0"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
-                  </Button>
+                  <div className="flex items-center gap-2 ml-2 shrink-0">
+                    <Button
+                      size="sm"
+                      onClick={() => handleResend(event)}
+                      className="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 text-xs"
+                    >
+                      <Send className="w-3.5 h-3.5 mr-1" /> Resend
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setConfirmDelete(event)}
+                      className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                    </Button>
+                  </div>
                 </div>
 
                 {isOpen && (
@@ -200,6 +278,16 @@ export default function RecentEventsList() {
             );
           })}
         </div>
+      )}
+
+      {discordPreview && (
+        <DiscordPreviewModal
+          embeds={discordPreview.embeds}
+          channelId={discordPreview.channelId}
+          onClose={() => setDiscordPreview(null)}
+          onSent={discordPreview.onSent}
+          notifType={discordPreview.notifType}
+        />
       )}
 
       {/* Confirm-delete modal */}
