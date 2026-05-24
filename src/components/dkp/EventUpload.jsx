@@ -551,18 +551,8 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     // Execute all write batches in parallel
     await Promise.all(allBatchPromises);
 
-    // 4) Discord notification
-    if (eventsEnabled && webhookUrl) {
-      const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
-      const stageLabel = effectiveStage === "prep" ? "Preparation" : "War Stage";
-      const stageName = isYN ? "" : ` - ${stageLabel}`;
-      await base44.functions.invoke('notifyEventUpload', {
-        eventName: `${selectedEventType.display_name}${stageName}`,
-        eventDate,
-        playersUpdated: toApply.length,
-        totalDkpDistributed: totalDkp,
-      });
-    }
+    // Note: Discord notification is already sent via DiscordPreviewModal → sendDiscordEmbed
+    // in applyResults(). No second notification needed here to avoid duplicates.
 
     queryClient.invalidateQueries({ queryKey: ["players"] });
     setApplied(true);

@@ -6,6 +6,7 @@ import { Send, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
+import { buildEventEmbeds } from "@/components/dkp/buildEventEmbeds";
 
 export default function ResendLastEventNotification() {
   const [sending, setSending] = useState(false);
@@ -73,104 +74,36 @@ export default function ResendLastEventNotification() {
       const stageLabel = lastEvent.sourceStage === "prep" ? "Preparation" : "War Stage";
       const stageName = !lastEvent.sourceStage ? "" : ` - ${stageLabel}`;
 
-      // Build the embeds like EventUpload does
       const toApply = lastEvent.transactions;
       const totalDkp = toApply.reduce((sum, e) => sum + e.amount, 0);
 
-      // Rank players by DKP amount (descending like in upload preview)
-      const sortedByDkp = [...toApply].sort((a, b) => b.amount - a.amount);
+      // Map transactions to row format expected by buildEventEmbeds
+      const rows = [...toApply]
+        .sort((a, b) => b.amount - a.amount)
+        .map((t) => ({
+          playerName: t.player_name,
+          alliance: t.alliance || "",
+          dkp: t.amount,
+          note: t.note,
+        }));
 
-      const buildGroupLines = (groupName, entries) => {
-        if (entries.length === 0) return [];
-        const lines = [`**${groupName}**`];
-        entries.forEach((r, idx) => {
-          const rank = idx + 1;
-          const dkpStr = r.amount > 0 ? `+${r.amount}` : `${r.amount}`;
-          let line = `**${rank}. ${r.player_name}** — \`${dkpStr} DKP\``;
-          if (r.note && r.note.trim()) {
-            line += ` — _${r.note}_`;
-          }
-          lines.push(line);
-        });
-        return lines;
-      };
-
-      const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
-
-      // Split results into chunks that fit Discord's 1024 char field limit
-      const MAX_FIELD_LENGTH = 1000;
-      const resultChunks = [];
-      let currentChunk = "";
-
-      const allLines = sortedByDkp.map((entry, idx) => {
-        const rank = idx + 1;
-        const dkpStr = entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`;
-        let line = `**${rank}. ${entry.player_name}** — \`${dkpStr} DKP\``;
-        if (entry.note && entry.note.trim()) line += ` — _${entry.note}_`;
-        return line;
+      const leaderboardUrl = "https://mge.era003.com/Leaderboard";
+      const embeds = buildEventEmbeds({
+        title: "📊 Event Data Uploaded",
+        description: `**${eventType?.display_name || lastEvent.source}${stageName}** - ${new Date(lastEvent.eventDate).toLocaleDateString("en-GB")}`,
+        rows,
+        totalDkp,
+        playersUpdated: toApply.length,
+        leaderboardUrl,
       });
 
-      for (let i = 0; i < allLines.length; i++) {
-        const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
-        if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
-          // Pull back trailing empty lines or group headers
-          const chunkLines = currentChunk.split("\n");
-          while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === "" || (chunkLines[chunkLines.length - 1].startsWith("**") && chunkLines[chunkLines.length - 1].endsWith("**")))) {
-            allLines.splice(i, 0, chunkLines.pop());
-          }
-          const trimmed = chunkLines.join("\n");
-          if (trimmed) resultChunks.push(trimmed);
-          currentChunk = allLines[i];
-        } else {
-          currentChunk = tentative;
-        }
-      }
-      if (currentChunk) resultChunks.push(currentChunk);
-
-      // Build embeds, splitting across multiple if needed (max 6000 chars total per embed)
-      const embeds = [];
-      const MAX_EMBED_LENGTH = 5500;
-
-      let currentFields = [
-        { name: "Players Updated", value: String(toApply.length), inline: true },
-        { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
-      ];
-      let currentLength = 200;
-
-      for (let i = 0; i < resultChunks.length; i++) {
-        const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
-        const fieldLength = fieldName.length + resultChunks[i].length;
-
-        if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
-          embeds.push({ color: 0x8b5cf6, fields: currentFields });
-          currentFields = [];
-          currentLength = 100;
-        }
-
-        currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
-        currentLength += fieldLength;
-      }
-
-      if (currentFields.length > 0) {
-        embeds.push({ color: 0x8b5cf6, fields: currentFields });
-      }
-
-      if (embeds.length > 0) {
-        embeds[0].title = "📊 Event Data Uploaded";
-        embeds[0].description = `**${eventType?.display_name || lastEvent.source}${stageName}** - ${new Date(lastEvent.eventDate).toLocaleDateString("en-GB")}`;
-        embeds[0].url = leaderboardUrl;
-
-        embeds[embeds.length - 1].fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
-        embeds[embeds.length - 1].footer = { text: "DKP System" };
-      }
-
       setDiscordPreview({ embeds, onSent: () => {}, notifType: "event_upload" });
-      } catch (error) {
+    } catch (error) {
       console.error("Error preparing resend:", error);
       toast.error("Failed to prepare notification");
-      }
+    }
 
-      setSending(false);
+    setSending(false);
   };
 
   if (!lastEvent) {

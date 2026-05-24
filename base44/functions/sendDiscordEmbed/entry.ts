@@ -109,48 +109,41 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Validate and sanitize embeds for Discord API limits
+    // Validate embeds for Discord API limits.
+    // NOTE: We trust the embeds are already correctly chunked (e.g. by buildEventEmbeds).
+    // We only sanitize: ensure non-empty name/value and that the value fits in 1024 chars.
+    // If a value is too long, we split into multiple fields WITHOUT changing the name
+    // (so continuation fields use a zero-width space, keeping the list visually continuous).
+    const ZWSP = '\u200B';
     for (const e of embedsToProcess) {
       if (!e.description && (!e.fields || e.fields.length === 0)) {
         e.description = ' ';
       }
       if (e.fields) {
-        // Filter out empty fields
-        e.fields = e.fields.filter(f => f.name && f.value);
-        // Split fields that exceed Discord's 1024 char limit
+        e.fields = e.fields.filter(f => f.value);
         const newFields = [];
         for (const f of e.fields) {
-          if (!f.value) f.value = '-';
-          if (!f.name) f.name = '-';
-          if (f.value.length > 1024) {
-            const lines = f.value.split('\n');
-            let chunk = '';
-            let partNum = 0;
-            for (let li = 0; li < lines.length; li++) {
-              const tentative = chunk ? chunk + '\n' + lines[li] : lines[li];
-              if (tentative.length > 1000 && chunk) {
-                // Remove trailing empty lines / lone headers at end of chunk
-                let trimmed = chunk;
-                const chunkLines = trimmed.split('\n');
-                while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === '' || (chunkLines[chunkLines.length - 1].startsWith('**') && chunkLines[chunkLines.length - 1].endsWith('**')))) {
-                  // Push orphan header back for next chunk
-                  lines.splice(li, 0, chunkLines.pop());
-                }
-                trimmed = chunkLines.join('\n');
-                if (trimmed) {
-                  newFields.push({ name: partNum === 0 ? f.name : `${f.name} (cont.)`, value: trimmed, inline: f.inline || false });
-                  partNum++;
-                }
-                chunk = lines[li];
-              } else {
-                chunk = tentative;
-              }
+          const safeName = f.name && f.name.length > 0 ? f.name : ZWSP;
+          if (f.value.length <= 1024) {
+            newFields.push({ name: safeName, value: f.value, inline: f.inline || false });
+            continue;
+          }
+          // Split over-long value into multiple fields, no "(cont.)" header — just ZWSP
+          const lines = f.value.split('\n');
+          let chunk = '';
+          let firstPart = true;
+          for (let li = 0; li < lines.length; li++) {
+            const tentative = chunk ? chunk + '\n' + lines[li] : lines[li];
+            if (tentative.length > 1000 && chunk) {
+              newFields.push({ name: firstPart ? safeName : ZWSP, value: chunk, inline: f.inline || false });
+              firstPart = false;
+              chunk = lines[li];
+            } else {
+              chunk = tentative;
             }
-            if (chunk) {
-              newFields.push({ name: partNum === 0 ? f.name : `${f.name} (cont.)`, value: chunk, inline: f.inline || false });
-            }
-          } else {
-            newFields.push(f);
+          }
+          if (chunk) {
+            newFields.push({ name: firstPart ? safeName : ZWSP, value: chunk, inline: f.inline || false });
           }
         }
         e.fields = newFields;
