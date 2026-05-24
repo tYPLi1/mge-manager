@@ -72,7 +72,8 @@ export default function AdminPenalties() {
   useEffect(() => {
     const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
     const unsub2 = base44.entities.Penalty.subscribe(() => queryClient.invalidateQueries({ queryKey: ["penalties"] }));
-    return () => { unsub1(); unsub2(); };
+    const unsub3 = adminEntities.AppSettings.subscribe(() => queryClient.invalidateQueries({ queryKey: ["settings"] }));
+    return () => { unsub1(); unsub2(); unsub3(); };
   }, [queryClient]);
 
   const createMutation = useMutation({

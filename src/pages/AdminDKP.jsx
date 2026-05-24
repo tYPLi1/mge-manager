@@ -35,7 +35,10 @@ export default function AdminDKP() {
   useEffect(() => {
     const unsub1 = base44.entities.Player.subscribe(() => queryClient.invalidateQueries({ queryKey: ["players"] }));
     const unsub2 = base44.entities.EventType.subscribe(() => queryClient.invalidateQueries({ queryKey: ["eventTypes"] }));
-    return () => { unsub1(); unsub2(); };
+    const unsub3 = base44.entities.DKPTransaction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["recent-events-4w"] });
+    });
+    return () => { unsub1(); unsub2(); unsub3(); };
   }, [queryClient]);
 
   const createMutation = useMutation({

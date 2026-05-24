@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +31,14 @@ export default function RecentEventsList() {
       return all.filter(tx => tx.event_date && tx.event_date >= cutoff && tx.source);
     },
   });
+
+  // Live updates: refetch when any DKPTransaction changes
+  useEffect(() => {
+    const unsub = base44.entities.DKPTransaction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["recent-events-4w"] });
+    });
+    return () => unsub();
+  }, [queryClient]);
 
   // Group by event_date + source + source_stage
   const events = useMemo(() => {
