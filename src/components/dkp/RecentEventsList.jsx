@@ -2,16 +2,18 @@ import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Trash2, Loader2, AlertTriangle, Calendar, X, Send } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2, Loader2, AlertTriangle, Calendar, X, Send, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
+import EditEventModal from "@/components/dkp/EditEventModal";
 
 const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
 
 export default function RecentEventsList() {
   const [expandedKey, setExpandedKey] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // event object
+  const [editEvent, setEditEvent] = useState(null); // event object being edited
   const [deleting, setDeleting] = useState(false);
   const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
@@ -248,6 +250,13 @@ export default function RecentEventsList() {
                     </Button>
                     <Button
                       size="sm"
+                      onClick={() => setEditEvent(event)}
+                      className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs"
+                    >
+                      <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={() => setConfirmDelete(event)}
                       className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs"
                     >
@@ -295,6 +304,13 @@ export default function RecentEventsList() {
           onClose={() => setDiscordPreview(null)}
           onSent={discordPreview.onSent}
           notifType={discordPreview.notifType}
+        />
+      )}
+
+      {editEvent && (
+        <EditEventModal
+          event={editEvent}
+          onClose={() => setEditEvent(null)}
         />
       )}
 
