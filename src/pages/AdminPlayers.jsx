@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Users, Plus, Search, Trash2, Edit2, Save, X, XCircle, Download, ArrowUp, ArrowDown, ArrowUpDown, Snowflake } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dkp/PageHeader";
@@ -108,6 +108,21 @@ export default function AdminPlayers() {
     mutationFn: (id) => adminEntities.Player.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["players"] }),
   });
+
+  const playersOnCooldown = useMemo(() => {
+    const now = new Date();
+    return players.filter(p => p.cooldown_until && new Date(p.cooldown_until) > now);
+  }, [players]);
+
+  const clearAllCooldowns = async () => {
+    if (playersOnCooldown.length === 0) return;
+    const names = playersOnCooldown.map(p => p.name).join(", ");
+    if (!confirm(`${playersOnCooldown.length} aktive Cooldown(s) löschen?\n\nBetroffene Spieler:\n${names}\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) return;
+    await Promise.all(
+      playersOnCooldown.map(p => adminEntities.Player.update(p.id, { cooldown_until: null }))
+    );
+    queryClient.invalidateQueries({ queryKey: ["players"] });
+  };
 
   const startEdit = (p) => {
     setEditingId(p.id);
@@ -400,6 +415,15 @@ export default function AdminPlayers() {
             settings={settings}
             queryClient={queryClient}
           />
+          {playersOnCooldown.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={clearAllCooldowns}
+              className="border-red-500/30 text-red-300 hover:text-red-200 hover:bg-red-500/10"
+            >
+              <Snowflake className="w-4 h-4 mr-1" /> Alle Cooldowns löschen ({playersOnCooldown.length})
+            </Button>
+          )}
         </div>
       </div>
 
