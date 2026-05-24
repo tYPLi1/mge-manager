@@ -25,6 +25,9 @@ function buildRowLine(row) {
         ? "❌"
         : "•";
   let line = `${rank} **${row.playerName}** — \`${formatDkp(row.dkp)} DKP\``;
+  if (row.originalDkp !== undefined && row.originalDkp !== row.dkp) {
+    line += ` ⚠ *(capped from ${formatDkp(row.originalDkp)})*`;
+  }
   if (row.overrideApplied) line += " ⚡ *Override*";
   if (row.note && row.note.trim()) line += ` — _${row.note}_`;
   return line;

@@ -225,7 +225,8 @@ export default function EditEventModal({ event, onClose }) {
         const player = playerMap[pid];
         if (!player) continue;
         const update = {};
-        if (d.total !== 0) update.total_dkp = (player.total_dkp || 0) + d.total;
+        // Event DKP cannot push a player below 0 (penalties handled separately).
+        if (d.total !== 0) update.total_dkp = Math.max(0, (player.total_dkp || 0) + d.total);
         if (d.spent !== 0) update.dkp_spent = (player.dkp_spent || 0) + d.spent;
         if (Object.keys(update).length > 0) playerUpdates.push({ id: pid, data: update });
       }

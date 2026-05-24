@@ -15,6 +15,7 @@ import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 import { buildEventEmbeds } from "@/components/dkp/buildEventEmbeds";
+import { clampEventDkpAgainstBalance } from "@/components/dkp/clampEventDkp";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -486,7 +487,8 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       const updateData = {};
 
       if (entry.dkp !== 0) {
-        updateData.total_dkp = (player.total_dkp || 0) + entry.dkp;
+        // Event DKP cannot push a player below 0 (penalties handled separately).
+        updateData.total_dkp = Math.max(0, (player.total_dkp || 0) + entry.dkp);
       }
       if (entry.power && entry.power > 0) {
         if (entry.power !== (player.power || 0)) {
@@ -591,9 +593,17 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       await createAlliancesBulk(unknownAlliancesLeft);
     }
 
+    // Clamp negative event DKP against player balances (cannot go below 0
+    // for event earnings — penalties are handled separately).
+    const clamped = clampEventDkpAgainstBalance(
+      preview.map(r => ({ ...r, playerId: r.playerId || r.player?.id })),
+      players,
+    );
+    setPreview(clamped);
+
     setApplying(true);
 
-    const toApply = preview.filter(entry => entry.dkp !== 0);
+    const toApply = clamped.filter(entry => entry.dkp !== 0);
     const totalDkp = toApply.reduce((sum, e) => sum + e.dkp, 0);
     const stageLabel = effectiveStage === "prep" ? "Preparation" : "War Stage";
     const stageName = isYN ? "" : ` - ${stageLabel}`;

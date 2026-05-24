@@ -160,20 +160,30 @@ export default function EventUploadPreviewTable({
                   </td>
                 )}
                 <td className="px-3 py-2">
-                  <input
-                    type="number"
-                    value={row.dkp ?? 0}
-                    onChange={(e) =>
-                      updateRow(idx, { dkp: parseInt(e.target.value) || 0 })
-                    }
-                    className={`bg-white/5 border border-white/10 rounded px-2 py-1 text-xs w-20 text-right ${
-                      row.dkp > 0
-                        ? "text-emerald-400"
-                        : row.dkp < 0
-                        ? "text-red-400"
-                        : "text-gray-400"
-                    }`}
-                  />
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      value={row.dkp ?? 0}
+                      onChange={(e) =>
+                        updateRow(idx, { dkp: parseInt(e.target.value) || 0 })
+                      }
+                      className={`bg-white/5 border border-white/10 rounded px-2 py-1 text-xs w-20 text-right ${
+                        row.dkp > 0
+                          ? "text-emerald-400"
+                          : row.dkp < 0
+                          ? "text-red-400"
+                          : "text-gray-400"
+                      }`}
+                    />
+                    {row.originalDkp !== undefined && row.originalDkp !== row.dkp && (
+                      <span
+                        className="text-[10px] text-amber-400"
+                        title={`Capped from ${row.originalDkp} — player balance can't go below 0`}
+                      >
+                        ⚠ {row.originalDkp}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 {!isYN && (
                   <td className="px-3 py-2">

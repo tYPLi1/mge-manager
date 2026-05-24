@@ -15,11 +15,28 @@ Deno.serve(async (req) => {
     const updates = [];
 
     for (const player of players) {
-      const playerTxns = transactions.filter(t => t.player_id === player.id);
-      
-      const total_dkp = playerTxns
-        .filter(t => !['bid'].includes(t.type))
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      const playerTxns = transactions
+        .filter(t => t.player_id === player.id)
+        // process chronologically so the 0-floor for non-penalty earnings is
+        // applied in the same order as events happened
+        .sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
+
+      // Earn / event DKP cannot push the balance below 0.
+      // Penalties (type === 'penalty') can push the balance below 0.
+      // Bids (type === 'bid') are tracked separately in dkp_spent.
+      let total_dkp = 0;
+      for (const t of playerTxns) {
+        const amount = t.amount || 0;
+        if (t.type === 'bid') continue;
+        if (t.type === 'penalty') {
+          total_dkp += amount; // penalties may take the player negative
+        } else {
+          // Event / earn / bonus / compensation / king_allocation:
+          // clamp the running balance at 0 (only when the delta would push it below).
+          const next = total_dkp + amount;
+          total_dkp = amount < 0 ? Math.max(0, next) : next;
+        }
+      }
 
       const dkp_spent = playerTxns
         .filter(t => t.type === 'bid')
