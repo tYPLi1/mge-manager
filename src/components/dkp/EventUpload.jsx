@@ -407,7 +407,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     if (!preview || !selectedEventType) return;
     setApplying(true);
 
-    // 1) Create new players (with alliance)
+    // 1) Create new players (with alliance) — parallel batches, use returned IDs
     const newPlayerRows = preview.filter(r => r.isNewPlayer);
     const playerNameToId = new Map();
     if (newPlayerRows.length) {
@@ -419,15 +419,28 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         power: r.power || 0,
         merits: r.merits || 0,
       }));
-      // Batch bulkCreate to avoid payload-size / timeout issues with large uploads
+      // Run all bulkCreate batches in parallel
+      const batchPromises = [];
       for (let i = 0; i < newPlayersPayload.length; i += 100) {
-        await adminEntities.Player.bulkCreate(newPlayersPayload.slice(i, i + 100));
+        batchPromises.push(adminEntities.Player.bulkCreate(newPlayersPayload.slice(i, i + 100)));
       }
-      // Re-fetch to resolve IDs reliably
-      const refreshed = await adminEntities.Player.list("name", 100000);
-      for (const r of newPlayerRows) {
-        const found = refreshed.find(p => normalizeName(p.name) === normalizeName(r.playerName));
-        if (found) playerNameToId.set(normalizeName(r.playerName), found);
+      const batchResults = await Promise.all(batchPromises);
+      // Map created players from bulkCreate responses (avoids re-fetching all players)
+      const createdPlayers = batchResults.flat().filter(Boolean);
+      for (const p of createdPlayers) {
+        if (p?.name && p?.id) playerNameToId.set(normalizeName(p.name), p);
+      }
+      // Fallback: if any new player wasn't returned with an ID, fetch once
+      const missing = newPlayerRows.some(r => !playerNameToId.has(normalizeName(r.playerName)));
+      if (missing) {
+        const refreshed = await adminEntities.Player.list("name", 100000);
+        for (const r of newPlayerRows) {
+          const key = normalizeName(r.playerName);
+          if (!playerNameToId.has(key)) {
+            const found = refreshed.find(p => normalizeName(p.name) === key);
+            if (found) playerNameToId.set(key, found);
+          }
+        }
       }
     }
 
@@ -454,8 +467,9 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         note: entry.note || null,
       };
     }).filter(t => t.player_id);
+    const txBatchPromises = [];
     for (let i = 0; i < txPayload.length; i += 100) {
-      await adminEntities.DKPTransaction.bulkCreate(txPayload.slice(i, i + 100));
+      txBatchPromises.push(adminEntities.DKPTransaction.bulkCreate(txPayload.slice(i, i + 100)));
     }
 
     // 3) Update each player's total_dkp, power, merits, alliance + power/merits history
@@ -507,34 +521,32 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
       }
     }
 
-    // Bulk update players in batches of 100
+    // Collect all remaining batches (player updates, power history, merits history)
+    // and run them in parallel with the DKP transaction batches
+    const allBatchPromises = [...txBatchPromises];
+
     if (playerUpdates.length > 0) {
       if (typeof adminEntities.Player.bulkUpdate === "function") {
         for (let i = 0; i < playerUpdates.length; i += 100) {
-          await adminEntities.Player.bulkUpdate(playerUpdates.slice(i, i + 100));
+          allBatchPromises.push(adminEntities.Player.bulkUpdate(playerUpdates.slice(i, i + 100)));
         }
       } else {
-        // Fallback: parallel updates in chunks of 20
-        for (let i = 0; i < playerUpdates.length; i += 20) {
-          const chunk = playerUpdates.slice(i, i + 20);
-          await Promise.all(chunk.map(u => adminEntities.Player.update(u.id, u.data)));
+        // Fallback: parallel individual updates
+        for (const u of playerUpdates) {
+          allBatchPromises.push(adminEntities.Player.update(u.id, u.data));
         }
       }
     }
 
-    // Bulk create power history in batches of 100
-    if (powerHistoryEntries.length > 0) {
-      for (let i = 0; i < powerHistoryEntries.length; i += 100) {
-        await adminEntities.PowerHistory.bulkCreate(powerHistoryEntries.slice(i, i + 100));
-      }
+    for (let i = 0; i < powerHistoryEntries.length; i += 100) {
+      allBatchPromises.push(adminEntities.PowerHistory.bulkCreate(powerHistoryEntries.slice(i, i + 100)));
+    }
+    for (let i = 0; i < meritsHistoryEntries.length; i += 100) {
+      allBatchPromises.push(adminEntities.MeritsHistory.bulkCreate(meritsHistoryEntries.slice(i, i + 100)));
     }
 
-    // Bulk create merits history in batches of 100
-    if (meritsHistoryEntries.length > 0) {
-      for (let i = 0; i < meritsHistoryEntries.length; i += 100) {
-        await adminEntities.MeritsHistory.bulkCreate(meritsHistoryEntries.slice(i, i + 100));
-      }
-    }
+    // Execute all write batches in parallel
+    await Promise.all(allBatchPromises);
 
     // 4) Discord notification
     if (eventsEnabled && webhookUrl) {
