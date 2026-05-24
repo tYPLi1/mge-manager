@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import EditEventModal from "@/components/dkp/EditEventModal";
+import { buildEventEmbeds } from "@/components/dkp/buildEventEmbeds";
 
 const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
 
@@ -71,64 +72,34 @@ export default function RecentEventsList() {
   const stageLabel = (stage) =>
     stage === "prep" ? "Preparation" : stage === "war" ? "War Stage" : null;
 
-  const handleResend = (event) => {
+  const handleResend = async (event) => {
     const eventType = eventTypes.find(e => e.key === event.source);
     const stageName = !event.source_stage ? "" : ` - ${stageLabel(event.source_stage)}`;
     const toApply = event.transactions;
     const totalDkp = toApply.reduce((sum, e) => sum + (e.amount || 0), 0);
-
-    const sortedByDkp = [...toApply].sort((a, b) => b.amount - a.amount);
     const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
-    const MAX_FIELD_LENGTH = 1000;
-    const MAX_EMBED_LENGTH = 5500;
 
-    const allLines = sortedByDkp.map((entry, idx) => {
-      const rank = idx + 1;
-      const dkpStr = entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`;
-      let line = `**${rank}. ${entry.player_name}** — \`${dkpStr} DKP\``;
-      if (entry.note && entry.note.trim()) line += ` — _${entry.note}_`;
-      return line;
+    // Look up alliances per player for grouping
+    const allPlayers = await base44.entities.Player.list("name", 100000);
+    const playerMap = Object.fromEntries(allPlayers.map(p => [p.id, p]));
+
+    // Map transactions to the row shape expected by buildEventEmbeds.
+    // Resend has no ranking info → grouping by alliance + A-Z is used.
+    const rows = toApply.map(tx => ({
+      playerName: tx.player_name,
+      alliance: playerMap[tx.player_id]?.alliance || "",
+      dkp: tx.amount,
+      note: tx.note || "",
+    }));
+
+    const embeds = buildEventEmbeds({
+      title: "📊 Event Data Uploaded",
+      description: `**${eventType?.display_name || event.source}${stageName}** - ${new Date(event.event_date).toLocaleDateString("en-GB")}`,
+      rows,
+      totalDkp,
+      playersUpdated: toApply.length,
+      leaderboardUrl,
     });
-
-    const resultChunks = [];
-    let currentChunk = "";
-    for (let i = 0; i < allLines.length; i++) {
-      const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
-      if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
-        resultChunks.push(currentChunk);
-        currentChunk = allLines[i];
-      } else {
-        currentChunk = tentative;
-      }
-    }
-    if (currentChunk) resultChunks.push(currentChunk);
-
-    const embeds = [];
-    let currentFields = [
-      { name: "Players Updated", value: String(toApply.length), inline: true },
-      { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
-    ];
-    let currentLength = 200;
-    for (let i = 0; i < resultChunks.length; i++) {
-      const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
-      const fieldLength = fieldName.length + resultChunks[i].length;
-      if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
-        embeds.push({ color: 0x8b5cf6, fields: currentFields });
-        currentFields = [];
-        currentLength = 100;
-      }
-      currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
-      currentLength += fieldLength;
-    }
-    if (currentFields.length > 0) embeds.push({ color: 0x8b5cf6, fields: currentFields });
-
-    if (embeds.length > 0) {
-      embeds[0].title = "📊 Event Data Uploaded";
-      embeds[0].description = `**${eventType?.display_name || event.source}${stageName}** - ${new Date(event.event_date).toLocaleDateString("en-GB")}`;
-      embeds[0].url = leaderboardUrl;
-      embeds[embeds.length - 1].fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
-      embeds[embeds.length - 1].footer = { text: "DKP System" };
-    }
 
     setDiscordPreview({ embeds, onSent: () => {}, notifType: "event_upload" });
   };

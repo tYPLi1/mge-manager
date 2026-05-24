@@ -14,6 +14,7 @@ import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import EventUploadPreviewTable from "@/components/dkp/EventUploadPreviewTable";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
+import { buildEventEmbeds } from "@/components/dkp/buildEventEmbeds";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -598,85 +599,15 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
     const stageName = isYN ? "" : ` - ${stageLabel}`;
 
     if (eventsEnabled && webhookUrl) {
-      const buildGroupLines = (groupName, entries) => {
-        if (entries.length === 0) return [];
-        const lines = [`**${groupName}**`];
-        for (const r of entries) {
-          const rank = r.groupRank ? `\`#${r.groupRank}\`` : r.group === "Present" ? "✅" : "❌";
-          const dkpStr = r.dkp > 0 ? `+${r.dkp}` : `${r.dkp}`;
-          let line = `${rank} **${r.playerName}** — \`${dkpStr} DKP\``;
-          if (r.overrideApplied) line += " ⚡ *Override*";
-          if (r.note && r.note.trim()) line += ` — _${r.note}_`;
-          lines.push(line);
-        }
-        return lines;
-      };
-
-      const sorted = [...toApply].sort((a, b) => (a.groupRank || 999) - (b.groupRank || 999));
-      const top20 = sorted.filter(r => r.group === "Top 20");
-      const outside = sorted.filter(r => r.group === "Outside");
-      const allGroup = sorted.filter(r => r.group === "All");
-      const present = sorted.filter(r => r.group === "Present");
-      const absent = sorted.filter(r => r.group === "Absent");
-
-      const allLines = [];
-      if (allGroup.length) allLines.push(...buildGroupLines("📋 Results", allGroup), "");
-      if (top20.length) allLines.push(...buildGroupLines("🏆 Top 20", top20), "");
-      if (outside.length) allLines.push(...buildGroupLines("🌐 Outside", outside), "");
-      if (present.length) allLines.push(...buildGroupLines("✅ Present", present), "");
-      if (absent.length) allLines.push(...buildGroupLines("❌ Absent", absent), "");
-
       const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
-
-      const MAX_FIELD_LENGTH = 1000;
-      const resultChunks = [];
-      let currentChunk = "";
-      for (let i = 0; i < allLines.length; i++) {
-        const tentative = currentChunk ? currentChunk + "\n" + allLines[i] : allLines[i];
-        if (tentative.length > MAX_FIELD_LENGTH && currentChunk) {
-          const chunkLines = currentChunk.split("\n");
-          while (chunkLines.length > 0 && (chunkLines[chunkLines.length - 1].trim() === "" || (chunkLines[chunkLines.length - 1].startsWith("**") && chunkLines[chunkLines.length - 1].endsWith("**")))) {
-            allLines.splice(i, 0, chunkLines.pop());
-          }
-          const trimmed = chunkLines.join("\n");
-          if (trimmed) resultChunks.push(trimmed);
-          currentChunk = allLines[i];
-        } else {
-          currentChunk = tentative;
-        }
-      }
-      if (currentChunk) resultChunks.push(currentChunk);
-
-      const embeds = [];
-      const MAX_EMBED_LENGTH = 5500;
-      let currentFields = [
-        { name: "Players Updated", value: String(toApply.length), inline: true },
-        { name: "Total DKP Distributed", value: String(totalDkp), inline: true },
-      ];
-      let currentLength = 200;
-      for (let i = 0; i < resultChunks.length; i++) {
-        const fieldName = i === 0 ? "📋 Results" : `📋 Results (cont.)`;
-        const fieldLength = fieldName.length + resultChunks[i].length;
-        if (currentLength + fieldLength > MAX_EMBED_LENGTH || currentFields.length >= 24) {
-          embeds.push({ color: 0x8b5cf6, fields: currentFields });
-          currentFields = [];
-          currentLength = 100;
-        }
-        currentFields.push({ name: fieldName, value: resultChunks[i], inline: false });
-        currentLength += fieldLength;
-      }
-      if (currentFields.length > 0) {
-        embeds.push({ color: 0x8b5cf6, fields: currentFields });
-      }
-
-      if (embeds.length > 0) {
-        embeds[0].title = "📊 Event Data Uploaded";
-        embeds[0].description = `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`;
-        embeds[0].url = leaderboardUrl;
-        embeds[embeds.length - 1].fields.push({ name: "🔗 Link", value: `[View Leaderboard](${leaderboardUrl})`, inline: false });
-        embeds[embeds.length - 1].footer = { text: "DKP System" };
-      }
-
+      const embeds = buildEventEmbeds({
+        title: "📊 Event Data Uploaded",
+        description: `**${selectedEventType.display_name}${stageName}** - ${new Date(eventDate).toLocaleDateString("en-GB")}`,
+        rows: toApply,
+        totalDkp,
+        playersUpdated: toApply.length,
+        leaderboardUrl,
+      });
       setDiscordPreview({ embeds, channelId, onSent: doApply, notifType: "event_upload" });
     } else {
       await doApply();
