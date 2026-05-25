@@ -336,7 +336,10 @@ export default function AdminAuctions() {
     if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
     const primary = compareBids(a, b, tiebreaker);
     if (primary !== 0) return primary;
-    return compareBids(a, b, tiebreakerFallback);
+    const fallback = compareBids(a, b, tiebreakerFallback);
+    if (fallback !== 0) return fallback;
+    // Final safety net: earlier bid wins when everything else is equal
+    return new Date(a.created_date) - new Date(b.created_date);
   });
 
   // Helper: check if a bid is FZ-eligible (opted in + player DKP ≤ threshold)
@@ -437,17 +440,21 @@ export default function AdminAuctions() {
                          (next && !next._fixed && !next._friendlyZone && next.dkp_bid === s.dkp_bid);
           if (hasTie) {
             const tiedGroup = Object.values(slots).filter(t => !t._fixed && !t._friendlyZone && t.dkp_bid === s.dkp_bid);
-            const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
-              const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
-                            tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
-              const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
-                                 tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
-              return score === firstScore;
-            });
-            if (allPrimarySame && tiebreaker !== "fcfs") {
+            const firstP = tiedGroup[0];
+            const scoreFor = (rule, pid) => {
+              if (rule === "activity") return activityScores[pid] || 0;
+              if (rule === "last_event_dkp") return lastEventDkpScores[pid] || 0;
+              return null;
+            };
+            const allPrimarySame = tiebreaker === "fcfs" || tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
+            const allFallbackSame = tiebreakerFallback === "fcfs" || tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+
+            if (tiebreaker !== "fcfs" && !allPrimarySame) {
+              _tiebreaker = `Tiebreak: ${getRuleLabel(tiebreaker, s.player_id, s)}`;
+            } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
               _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
             } else {
-              _tiebreaker = getRuleLabel(tiebreaker, s.player_id, s);
+              _tiebreaker = `Final: ${getRuleLabel("fcfs", s.player_id, s)}`;
             }
           }
         }
@@ -930,6 +937,12 @@ export default function AdminAuctions() {
       effectiveTop = sorted;
     }
 
+    const scoreFor = (rule, playerId) => {
+      if (rule === "activity") return activityScores[playerId] || 0;
+      if (rule === "last_event_dkp") return lastEventDkpScores[playerId] || 0;
+      return null; // fcfs has no numeric score
+    };
+
     return effectiveTop.map((b, i) => {
       let rankReason = b._friendlyZone ? "Friendly Zone (Platz 10)" : "Highest DKP bid";
       const prev = effectiveTop[i - 1];
@@ -938,17 +951,19 @@ export default function AdminAuctions() {
       const tiedWithNext = next && !next._friendlyZone && next.dkp_bid === b.dkp_bid;
       if (!b._friendlyZone && (tiedWithPrev || tiedWithNext)) {
         const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
-        const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
-          const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
-                        tiebreaker === "last_event_dkp" ? (lastEventDkpScores[t.player_id] || 0) : null;
-          const firstScore = tiebreaker === "activity" ? (activityScores[tiedGroup[0].player_id] || 0) :
-                             tiebreaker === "last_event_dkp" ? (lastEventDkpScores[tiedGroup[0].player_id] || 0) : null;
-          return score === firstScore;
-        });
-        if (allPrimarySame) {
+        const firstP = tiedGroup[0];
+        const allPrimarySame = tiebreaker === "fcfs" || tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
+        const allFallbackSame = tiebreakerFallback === "fcfs" || tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+
+        if (tiebreaker !== "fcfs" && !allPrimarySame) {
+          // Primary decided
+          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
+        } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
+          // Fallback decided
           rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
         } else {
-          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
+          // Everything equal → earlier bid decided
+          rankReason = `Final: ${getRuleLabel("fcfs", b.player_id, b)}`;
         }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
