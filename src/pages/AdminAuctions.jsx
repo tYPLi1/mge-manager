@@ -407,10 +407,12 @@ export default function AdminAuctions() {
     });
 
     // 4) Build sorted output by rank, with tiebreaker detection within bid group
-    const getRuleLabel = (rule, playerId) => {
+    const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      return "Earlier bid";
+      // fcfs: show the actual bid time so admins see WHY this bid won the tie
+      const ts = bid?.created_date ? new Date(bid.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+      return `Earlier bid: ${ts} UTC`;
     };
 
     const result = [];
@@ -443,9 +445,9 @@ export default function AdminAuctions() {
               return score === firstScore;
             });
             if (allPrimarySame && tiebreaker !== "fcfs") {
-              _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id)}`;
+              _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
             } else {
-              _tiebreaker = getRuleLabel(tiebreaker, s.player_id);
+              _tiebreaker = getRuleLabel(tiebreaker, s.player_id, s);
             }
           }
         }
@@ -892,10 +894,11 @@ export default function AdminAuctions() {
   const rankedBids = useMemo(() => {
     if (activeBids.length === 0) return [];
     const sorted = sortBids(activeBids);
-    const getRuleLabel = (rule, playerId) => {
+    const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      return "Earlier bid";
+      const ts = bid?.created_date ? new Date(bid.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+      return `Earlier bid: ${ts} UTC`;
     };
 
     // Build the effective ranking with FZ logic applied
@@ -939,9 +942,9 @@ export default function AdminAuctions() {
           return score === firstScore;
         });
         if (allPrimarySame) {
-          rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id)}`;
+          rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
         } else {
-          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id)}`;
+          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
         }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
