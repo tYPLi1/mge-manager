@@ -349,7 +349,7 @@
     "searchPlaceholder": "Rechercher joueur ou source…",
     "exportButton": "Exporter",
     "filters": { "allPlayers": "Tous les joueurs", "allEvents": "Tous les événements", "allTypes": "Tous les types", "allAlliances": "Toutes les alliances", "noAlliance": "Sans alliance" },
-    "tabs": { "transactions": "Transactions", "events": "Événements", "auditLog": "Journal d'audit" },
+    "tabs": { "transactions": "Transactions", "events": "Événements", "auditLog": "Journaux" },
     "types": {
       "earn": "Gain",
       "bid": "Enchère",

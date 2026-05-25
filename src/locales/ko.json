@@ -345,7 +345,7 @@
     "searchPlaceholder": "플레이어 또는 출처 검색…",
     "exportButton": "내보내기",
     "filters": { "allPlayers": "모든 플레이어", "allEvents": "모든 이벤트", "allTypes": "모든 유형", "allAlliances": "모든 동맹", "noAlliance": "동맹 없음" },
-    "tabs": { "transactions": "거래", "events": "이벤트", "auditLog": "감사 로그" },
+    "tabs": { "transactions": "거래", "events": "이벤트", "auditLog": "로그" },
     "types": {
       "earn": "획득",
       "bid": "입찰",

@@ -345,7 +345,7 @@
     "searchPlaceholder": "搜索玩家或来源…",
     "exportButton": "导出",
     "filters": { "allPlayers": "所有玩家", "allEvents": "所有事件", "allTypes": "所有类型", "allAlliances": "所有联盟", "noAlliance": "无联盟" },
-    "tabs": { "transactions": "交易", "events": "事件", "auditLog": "审计日志" },
+    "tabs": { "transactions": "交易", "events": "事件", "auditLog": "日志" },
     "types": {
       "earn": "获得",
       "bid": "出价",
