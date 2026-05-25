@@ -366,7 +366,13 @@
     "filters": {
       "allPlayers": "Tüm Oyuncular",
       "allEvents": "Tüm Etkinlikler",
-      "allTypes": "Tüm Türler"
+      "allTypes": "Tüm Türler",
+      "allAlliances": "Tüm İttifaklar",
+      "noAlliance": "İttifak yok"
+    },
+    "tabs": {
+      "transactions": "İşlemler",
+      "auditLog": "Denetim Günlüğü"
     },
     "types": {
       "earn": "Kazanım",
@@ -379,6 +385,7 @@
     "columns": {
       "date": "Tarih",
       "player": "Oyuncu",
+      "alliance": "İttifak",
       "event": "Etkinlik",
       "stage": "Aşama",
       "amount": "Miktar",
@@ -387,6 +394,30 @@
       "note": "Not"
     },
     "transactionsLabel": "{{count}} işlem"
+  },
+  "auditLog": {
+    "subtitle": "Tüm yönetici eylemlerinin herkese açık kaydı",
+    "searchPlaceholder": "Oyuncu veya eylem ara…",
+    "allActions": "Tüm eylemler",
+    "empty": "Henüz kayıt yok.",
+    "viewDetails": "Ayrıntıları gör",
+    "actions": {
+      "dkp_manual_adjust": "Manuel DKP düzenleme",
+      "dkp_penalty": "DKP cezası",
+      "dkp_compensation": "DKP tazminatı",
+      "cooldown_set": "Bekleme ayarlandı",
+      "cooldown_cleared": "Bekleme kaldırıldı",
+      "penalty_applied": "Ceza uygulandı",
+      "penalty_reset": "Ceza sıfırlandı",
+      "event_upload": "Etkinlik yüklemesi"
+    },
+    "columns": {
+      "date": "Tarih",
+      "action": "Eylem",
+      "player": "Oyuncu",
+      "summary": "Özet",
+      "amount": "DKP"
+    }
   },
   "compensation": {
     "button": "Tazminatlar",

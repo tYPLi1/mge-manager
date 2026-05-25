@@ -7,6 +7,7 @@ import EventUpload from "@/components/dkp/EventUpload";
 import DeleteEventData from "@/components/dkp/DeleteEventData";
 import ResendLastEventNotification from "@/components/dkp/ResendLastEventNotification.jsx";
 import RecentEventsList from "@/components/dkp/RecentEventsList";
+import { writeAuditLog } from "@/lib/auditLog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -62,6 +63,17 @@ export default function AdminDKP() {
           total_dkp: (player?.total_dkp || 0) + amt,
         });
       }
+      // Public audit log
+      await writeAuditLog({
+        action_type: "dkp_manual_adjust",
+        player_id: data.player_id,
+        player_name: player?.name,
+        amount: amt,
+        source: data.source,
+        action_date: data.event_date,
+        summary: `${data.type}: ${amt > 0 ? "+" : ""}${amt} DKP (${data.source})${data.note ? " — " + data.note : ""}`,
+        details: { type: data.type, note: data.note },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["players"] });

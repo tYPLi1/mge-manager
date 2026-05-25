@@ -344,7 +344,8 @@
     "transactionsCount": "거래",
     "searchPlaceholder": "플레이어 또는 출처 검색…",
     "exportButton": "내보내기",
-    "filters": { "allPlayers": "모든 플레이어", "allEvents": "모든 이벤트", "allTypes": "모든 유형" },
+    "filters": { "allPlayers": "모든 플레이어", "allEvents": "모든 이벤트", "allTypes": "모든 유형", "allAlliances": "모든 동맹", "noAlliance": "동맹 없음" },
+    "tabs": { "transactions": "거래", "auditLog": "감사 로그" },
     "types": {
       "earn": "획득",
       "bid": "입찰",
@@ -356,6 +357,7 @@
     "columns": {
       "date": "날짜",
       "player": "플레이어",
+      "alliance": "동맹",
       "event": "이벤트",
       "stage": "단계",
       "amount": "금액",
@@ -364,6 +366,30 @@
       "note": "메모"
     },
     "transactionsLabel": "{{count}}건의 거래"
+  },
+  "auditLog": {
+    "subtitle": "모든 관리자 작업의 공개 로그",
+    "searchPlaceholder": "플레이어 또는 작업 검색…",
+    "allActions": "모든 작업",
+    "empty": "아직 로그가 없습니다.",
+    "viewDetails": "자세히 보기",
+    "actions": {
+      "dkp_manual_adjust": "수동 DKP 조정",
+      "dkp_penalty": "DKP 처벌",
+      "dkp_compensation": "DKP 보상",
+      "cooldown_set": "쿨다운 설정",
+      "cooldown_cleared": "쿨다운 해제",
+      "penalty_applied": "처벌 적용",
+      "penalty_reset": "처벌 초기화",
+      "event_upload": "이벤트 업로드"
+    },
+    "columns": {
+      "date": "날짜",
+      "action": "작업",
+      "player": "플레이어",
+      "summary": "요약",
+      "amount": "DKP"
+    }
   },
   "compensation": {
     "button": "보상",

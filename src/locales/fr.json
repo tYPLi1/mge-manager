@@ -348,7 +348,8 @@
     "transactionsCount": "Transactions",
     "searchPlaceholder": "Rechercher joueur ou source…",
     "exportButton": "Exporter",
-    "filters": { "allPlayers": "Tous les joueurs", "allEvents": "Tous les événements", "allTypes": "Tous les types" },
+    "filters": { "allPlayers": "Tous les joueurs", "allEvents": "Tous les événements", "allTypes": "Tous les types", "allAlliances": "Toutes les alliances", "noAlliance": "Sans alliance" },
+    "tabs": { "transactions": "Transactions", "auditLog": "Journal d'audit" },
     "types": {
       "earn": "Gain",
       "bid": "Enchère",
@@ -360,6 +361,7 @@
     "columns": {
       "date": "Date",
       "player": "Joueur",
+      "alliance": "Alliance",
       "event": "Événement",
       "stage": "Phase",
       "amount": "Montant",
@@ -368,6 +370,30 @@
       "note": "Note"
     },
     "transactionsLabel": "{{count}} transactions"
+  },
+  "auditLog": {
+    "subtitle": "Journal public de toutes les actions administratives",
+    "searchPlaceholder": "Rechercher joueur ou action…",
+    "allActions": "Toutes les actions",
+    "empty": "Aucun journal pour l'instant.",
+    "viewDetails": "Voir détails",
+    "actions": {
+      "dkp_manual_adjust": "Ajustement DKP manuel",
+      "dkp_penalty": "Sanction DKP",
+      "dkp_compensation": "Compensation DKP",
+      "cooldown_set": "Cooldown défini",
+      "cooldown_cleared": "Cooldown effacé",
+      "penalty_applied": "Sanction appliquée",
+      "penalty_reset": "Sanction réinitialisée",
+      "event_upload": "Import d'événement"
+    },
+    "columns": {
+      "date": "Date",
+      "action": "Action",
+      "player": "Joueur",
+      "summary": "Résumé",
+      "amount": "DKP"
+    }
   },
   "compensation": {
     "button": "Compensations",

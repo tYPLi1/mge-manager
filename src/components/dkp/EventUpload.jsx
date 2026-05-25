@@ -16,6 +16,7 @@ import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 import { buildEventEmbeds } from "@/components/dkp/buildEventEmbeds";
 import { clampEventDkpAgainstBalance } from "@/components/dkp/clampEventDkp";
+import { writeAuditLog } from "@/lib/auditLog";
 
 function parseAlliances(json) {
   if (!json) return [];
@@ -550,6 +551,17 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
 
     // Execute all write batches in parallel
     await Promise.all(allBatchPromises);
+
+    // Public audit log — single bundled entry per event upload
+    const totalDkpForLog = txPayload.reduce((s, t) => s + (t.amount || 0), 0);
+    await writeAuditLog({
+      action_type: "event_upload",
+      source: selectedEventType.key,
+      action_date: eventDate,
+      amount: totalDkpForLog,
+      summary: `${selectedEventType.display_name}${isYN ? "" : ` - ${effectiveStage === "prep" ? "Preparation" : "War Stage"}`} — ${txPayload.length} players, ${totalDkpForLog >= 0 ? "+" : ""}${totalDkpForLog} DKP total`,
+      details: { event_key: selectedEventType.key, stage: isYN ? null : effectiveStage, players: txPayload.length, total_dkp: totalDkpForLog },
+    });
 
     // Note: Discord notification is already sent via DiscordPreviewModal → sendDiscordEmbed
     // in applyResults(). No second notification needed here to avoid duplicates.

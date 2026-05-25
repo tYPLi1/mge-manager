@@ -1,0 +1,74 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "dkp_manual_adjust",
+        "dkp_penalty",
+        "dkp_compensation",
+        "cooldown_set",
+        "cooldown_cleared",
+        "penalty_applied",
+        "penalty_reset",
+        "event_upload"
+      ],
+      "description": "Type of action logged"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player (optional for bulk events)"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Player name for display"
+    },
+    "amount": {
+      "type": "number",
+      "description": "DKP amount affected (if applicable)"
+    },
+    "source": {
+      "type": "string",
+      "description": "Event source / context (MEE, GEE, manual, etc.)"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary of the action"
+    },
+    "details": {
+      "type": "string",
+      "description": "JSON-encoded additional details (old/new values, reason, etc.)"
+    },
+    "action_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the action took effect"
+    },
+    "related_id": {
+      "type": "string",
+      "description": "Reference to related entity (transaction id, penalty id, etc.)"
+    }
+  },
+  "required": [
+    "action_type"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

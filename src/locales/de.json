@@ -366,7 +366,13 @@
     "filters": {
       "allPlayers": "Alle Spieler",
       "allEvents": "Alle Events",
-      "allTypes": "Alle Typen"
+      "allTypes": "Alle Typen",
+      "allAlliances": "Alle Allianzen",
+      "noAlliance": "Keine Allianz"
+    },
+    "tabs": {
+      "transactions": "Transaktionen",
+      "auditLog": "Audit Log"
     },
     "types": {
       "earn": "Verdient",
@@ -379,6 +385,7 @@
     "columns": {
       "date": "Datum",
       "player": "Spieler",
+      "alliance": "Allianz",
       "event": "Event",
       "stage": "Phase",
       "amount": "Betrag",
@@ -387,6 +394,30 @@
       "note": "Notiz"
     },
     "transactionsLabel": "{{count}} Transaktionen"
+  },
+  "auditLog": {
+    "subtitle": "Öffentliches Logbuch aller administrativen Aktionen",
+    "searchPlaceholder": "Spieler oder Aktion suchen…",
+    "allActions": "Alle Aktionen",
+    "empty": "Noch keine Logs vorhanden.",
+    "viewDetails": "Details ansehen",
+    "actions": {
+      "dkp_manual_adjust": "Manuelle DKP-Anpassung",
+      "dkp_penalty": "DKP-Strafe",
+      "dkp_compensation": "DKP-Gutschrift",
+      "cooldown_set": "Cooldown gesetzt",
+      "cooldown_cleared": "Cooldown gelöscht",
+      "penalty_applied": "Strafe erteilt",
+      "penalty_reset": "Strafe aufgehoben",
+      "event_upload": "Event-Upload"
+    },
+    "columns": {
+      "date": "Datum",
+      "action": "Aktion",
+      "player": "Spieler",
+      "summary": "Zusammenfassung",
+      "amount": "DKP"
+    }
   },
   "compensation": {
     "button": "Gutschriften",

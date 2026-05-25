@@ -13,6 +13,7 @@ import { useTranslation } from "@/lib/i18n";
 import { countAllianceMembers } from "@/components/dkp/allianceLabel";
 import AllianceOptionLabel from "@/components/dkp/AllianceOptionLabel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { writeAuditLog } from "@/lib/auditLog";
 import * as XLSX from "xlsx";
 
 function parseAllianceList(json) {
@@ -119,7 +120,17 @@ export default function AdminPlayers() {
     const names = playersOnCooldown.map(p => p.name).join(", ");
     if (!confirm(`${playersOnCooldown.length} aktive Cooldown(s) löschen?\n\nBetroffene Spieler:\n${names}\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) return;
     await Promise.all(
-      playersOnCooldown.map(p => adminEntities.Player.update(p.id, { cooldown_until: null }))
+      playersOnCooldown.map(async (p) => {
+        await adminEntities.Player.update(p.id, { cooldown_until: null });
+        await writeAuditLog({
+          action_type: "cooldown_cleared",
+          player_id: p.id,
+          player_name: p.name,
+          source: "bulk",
+          summary: `Cooldown cleared (was until ${p.cooldown_until})`,
+          details: { previous: p.cooldown_until },
+        });
+      })
     );
     queryClient.invalidateQueries({ queryKey: ["players"] });
   };
@@ -136,6 +147,31 @@ export default function AdminPlayers() {
   const saveEdit = async (p) => {
     const newPower = parseInt(editPower) || 0;
     const newMerits = parseInt(editMerits) || 0;
+    const newCooldown = editCooldown || null;
+    const oldCooldown = p.cooldown_until || null;
+    if (newCooldown !== oldCooldown) {
+      if (newCooldown) {
+        await writeAuditLog({
+          action_type: "cooldown_set",
+          player_id: p.id,
+          player_name: p.name,
+          source: "manual",
+          summary: oldCooldown
+            ? `Cooldown changed: ${oldCooldown} → ${newCooldown}`
+            : `Cooldown set until ${newCooldown}`,
+          details: { previous: oldCooldown, new: newCooldown },
+        });
+      } else {
+        await writeAuditLog({
+          action_type: "cooldown_cleared",
+          player_id: p.id,
+          player_name: p.name,
+          source: "manual",
+          summary: `Cooldown cleared (was until ${oldCooldown})`,
+          details: { previous: oldCooldown },
+        });
+      }
+    }
     if (newPower !== (p.power || 0)) {
       await adminEntities.PowerHistory.create({
         player_id: p.id,
@@ -633,7 +669,18 @@ export default function AdminPlayers() {
                         <StatusBadge cooldownUntil={p.cooldown_until} />
                         {p.cooldown_until && new Date(p.cooldown_until) > new Date() && (
                           <button
-                            onClick={() => { if (confirm(`Clear cooldown for ${p.name}?`)) updateMutation.mutate({ id: p.id, data: { cooldown_until: null } }); }}
+                            onClick={async () => {
+                              if (!confirm(`Clear cooldown for ${p.name}?`)) return;
+                              await writeAuditLog({
+                                action_type: "cooldown_cleared",
+                                player_id: p.id,
+                                player_name: p.name,
+                                source: "manual",
+                                summary: `Cooldown cleared (was until ${p.cooldown_until})`,
+                                details: { previous: p.cooldown_until },
+                              });
+                              updateMutation.mutate({ id: p.id, data: { cooldown_until: null } });
+                            }}
                             className="text-gray-600 hover:text-red-400 transition-colors"
                           >
                             <XCircle className="w-3.5 h-3.5" />

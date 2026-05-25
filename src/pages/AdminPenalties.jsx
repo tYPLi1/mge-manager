@@ -11,6 +11,7 @@ import PageHeader from "@/components/dkp/PageHeader";
 import DKPValue from "@/components/dkp/DKPValue";
 import PlayerSearchSelect from "@/components/dkp/PlayerSearchSelect";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
+import { writeAuditLog } from "@/lib/auditLog";
 import { toast } from "sonner";
 
 export default function AdminPenalties() {
@@ -102,6 +103,17 @@ export default function AdminPenalties() {
           total_dkp: (player?.total_dkp || 0) - data.dkp_deducted,
         });
       }
+      // Public audit log
+      await writeAuditLog({
+        action_type: "penalty_applied",
+        player_id: data.player_id,
+        player_name: player?.name,
+        amount: data.level === 3 ? -(player?.total_dkp || 0) : -(data.dkp_deducted || 0),
+        source: `Level ${data.level}`,
+        action_date: data.offense_date,
+        summary: `Level ${data.level} Penalty (Offense #${data.offense_count})${data.note ? " — " + data.note : ""}`,
+        details: { level: data.level, offense_count: data.offense_count, note: data.note },
+      });
     },
     onSuccess: () => {
       const playerName = players.find(p => p.id === playerId)?.name || "Spieler";
@@ -118,7 +130,21 @@ export default function AdminPenalties() {
   });
 
   const resetMutation = useMutation({
-    mutationFn: (id) => adminEntities.Penalty.update(id, { status: "reset" }),
+    mutationFn: async (id) => {
+      const penalty = penalties.find(p => p.id === id);
+      await adminEntities.Penalty.update(id, { status: "reset" });
+      if (penalty) {
+        await writeAuditLog({
+          action_type: "penalty_reset",
+          player_id: penalty.player_id,
+          player_name: penalty.player_name,
+          source: `Level ${penalty.level}`,
+          action_date: new Date().toISOString().split("T")[0],
+          summary: `Level ${penalty.level} Penalty reset (Offense #${penalty.offense_count})`,
+          related_id: id,
+        });
+      }
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["penalties"] }),
   });
 
@@ -183,6 +209,16 @@ export default function AdminPenalties() {
       });
       await adminEntities.Player.update(playerIdArg, {
         total_dkp: (player.total_dkp || 0) + refundArg,
+      });
+      await writeAuditLog({
+        action_type: "dkp_compensation",
+        player_id: playerIdArg,
+        player_name: player.name,
+        amount: refundArg,
+        source: "MGE",
+        action_date: new Date().toISOString().split("T")[0],
+        summary: `Compensation +${refundArg} DKP (bid ${bidDkpArg}, expected ${expectedArg}, actual ${actualArg})`,
+        details: { bid: bidDkpArg, expected: expectedArg, actual: actualArg },
       });
       setCompResult(refundArg);
       setCompPlayer(""); setCompBidDkp(""); setCompExpectedMedals(""); setCompActualMedals("");

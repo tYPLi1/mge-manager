@@ -366,7 +366,13 @@
     "filters": {
       "allPlayers": "All Players",
       "allEvents": "All Events",
-      "allTypes": "All Types"
+      "allTypes": "All Types",
+      "allAlliances": "All Alliances",
+      "noAlliance": "No Alliance"
+    },
+    "tabs": {
+      "transactions": "Transactions",
+      "auditLog": "Audit Log"
     },
     "types": {
       "earn": "Earn",
@@ -379,6 +385,7 @@
     "columns": {
       "date": "Date",
       "player": "Player",
+      "alliance": "Alliance",
       "event": "Event",
       "stage": "Stage",
       "amount": "Amount",
@@ -387,6 +394,30 @@
       "note": "Note"
     },
     "transactionsLabel": "{{count}} transactions"
+  },
+  "auditLog": {
+    "subtitle": "Public log of all administrative actions",
+    "searchPlaceholder": "Search player or action…",
+    "allActions": "All actions",
+    "empty": "No logs yet.",
+    "viewDetails": "View details",
+    "actions": {
+      "dkp_manual_adjust": "Manual DKP adjustment",
+      "dkp_penalty": "DKP penalty",
+      "dkp_compensation": "DKP compensation",
+      "cooldown_set": "Cooldown set",
+      "cooldown_cleared": "Cooldown cleared",
+      "penalty_applied": "Penalty applied",
+      "penalty_reset": "Penalty reset",
+      "event_upload": "Event upload"
+    },
+    "columns": {
+      "date": "Date",
+      "action": "Action",
+      "player": "Player",
+      "summary": "Summary",
+      "amount": "DKP"
+    }
   },
   "compensation": {
     "button": "Compensations",
