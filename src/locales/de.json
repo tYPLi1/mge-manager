@@ -373,7 +373,7 @@
     "tabs": {
       "transactions": "Transaktionen",
       "events": "Events",
-      "auditLog": "Logs"
+      "auditLog": "Audit-Log"
     },
     "types": {
       "earn": "Verdient",
