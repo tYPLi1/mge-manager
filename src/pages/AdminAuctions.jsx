@@ -334,14 +334,27 @@ export default function AdminAuctions() {
     return new Date(a.created_date) - new Date(b.created_date); // fcfs
   };
 
+  // Deterministic hash from bid id → stable "random" score per bid.
+  // Same bid always produces same hash, so the ranking is consistent across
+  // preview / confirm / display, but the choice is unpredictable (no FCFS bias).
+  const hashBidId = (id) => {
+    const s = String(id || "");
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return h;
+  };
+
   const sortBids = (list) => [...list].sort((a, b) => {
     if (b.dkp_bid !== a.dkp_bid) return b.dkp_bid - a.dkp_bid;
     const primary = compareBids(a, b, tiebreaker);
     if (primary !== 0) return primary;
     const fallback = compareBids(a, b, tiebreakerFallback);
     if (fallback !== 0) return fallback;
-    // Final safety net: earlier bid wins when everything else is equal
-    return new Date(a.created_date) - new Date(b.created_date);
+    // Final safety net: deterministic random pick when all configured rules are tied
+    return hashBidId(a.id) - hashBidId(b.id);
   });
 
   // Helper: check if a bid is FZ-eligible (opted in + player DKP ≤ threshold)
@@ -415,9 +428,8 @@ export default function AdminAuctions() {
     const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      // fcfs: show the actual bid time so admins see WHY this bid won the tie
-      const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
-      return `Earlier bid: ${ts} UTC`;
+      // Final fallback: random (deterministic) pick when all rules are tied
+      return `Random pick (alle Regeln gleich)`;
     };
 
     const result = [];
@@ -906,8 +918,7 @@ export default function AdminAuctions() {
     const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
-      return `Earlier bid: ${ts} UTC`;
+      return `Random pick (alle Regeln gleich)`;
     };
 
     // Build the effective ranking with FZ logic applied

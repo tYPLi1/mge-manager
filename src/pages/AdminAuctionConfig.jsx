@@ -330,10 +330,10 @@ export default function AdminAuctionConfig() {
           {form.auction_tiebreaker && form.auction_tiebreaker !== "fcfs" && (
             <div className="mt-4 bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
               <p className="text-xs text-blue-300 font-semibold mb-1 flex items-center gap-1.5">
-                <span>🛟</span> Notlösung (immer aktiv)
+                <span>🎲</span> Notlösung (immer aktiv)
               </p>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Wenn der primäre <span className="text-amber-400 font-medium">und</span> der Fallback-Tiebreaker bei gleichem DKP-Gebot identische Werte liefern, entscheidet als letzte Stufe automatisch das <span className="text-white font-medium">früheste Gebot</span> (millisekundengenau nach Bid-Zeitstempel). So ist immer ein eindeutiger Sieger garantiert.
+                Wenn der primäre <span className="text-amber-400 font-medium">und</span> der Fallback-Tiebreaker bei gleichem DKP-Gebot identische Werte liefern, wählt das System als letzte Stufe automatisch einen <span className="text-white font-medium">zufälligen Sieger</span>. Die Wahl ist deterministisch (gleicher Bid → gleicher Sieger), damit Preview und Endergebnis konsistent bleiben.
               </p>
             </div>
           )}
