@@ -326,6 +326,18 @@ export default function AdminAuctionConfig() {
             </div>
           )}
 
+          {/* Final fallback notice — always applies when primary + fallback are inconclusive */}
+          {form.auction_tiebreaker && form.auction_tiebreaker !== "fcfs" && (
+            <div className="mt-4 bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
+              <p className="text-xs text-blue-300 font-semibold mb-1 flex items-center gap-1.5">
+                <span>🛟</span> Notlösung (immer aktiv)
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Wenn der primäre <span className="text-amber-400 font-medium">und</span> der Fallback-Tiebreaker bei gleichem DKP-Gebot identische Werte liefern, entscheidet als letzte Stufe automatisch das <span className="text-white font-medium">früheste Gebot</span> (millisekundengenau nach Bid-Zeitstempel). So ist immer ein eindeutiger Sieger garantiert.
+              </p>
+            </div>
+          )}
+
           {/* Last Event DKP source checkboxes */}
           {(form.auction_tiebreaker === "last_event_dkp" || form.auction_tiebreaker_fallback === "last_event_dkp") && (
             <div className="mt-4 bg-white/5 rounded-lg border border-white/10 p-4">

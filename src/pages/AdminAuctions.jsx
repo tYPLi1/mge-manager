@@ -304,8 +304,10 @@ export default function AdminAuctions() {
   }, [transactions, eventTypes]);
 
   // Last event DKP per player: find the most recent event_date for configured sources, sum DKP per player for that date
+  // Compute when last_event_dkp is used as either primary OR fallback tiebreaker
   const lastEventDkpScores = useMemo(() => {
-    if (tiebreaker !== "last_event_dkp" || lastEventDkpSources.length === 0) return {};
+    const usesLastEvent = tiebreaker === "last_event_dkp" || tiebreakerFallback === "last_event_dkp";
+    if (!usesLastEvent || lastEventDkpSources.length === 0) return {};
     const sourceSet = new Set(lastEventDkpSources);
     // Filter relevant transactions
     const relevant = transactions.filter(t => {
@@ -323,7 +325,7 @@ export default function AdminAuctions() {
       scores[t.player_id] = (scores[t.player_id] || 0) + t.amount;
     });
     return scores;
-  }, [transactions, tiebreaker, lastEventDkpSources]);
+  }, [transactions, tiebreaker, tiebreakerFallback, lastEventDkpSources]);
 
   // Shared tiebreaker comparator
   const compareBids = (a, b, rule) => {
