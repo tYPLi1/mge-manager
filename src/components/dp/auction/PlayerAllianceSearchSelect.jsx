@@ -136,10 +136,10 @@ export default function PlayerAllianceSearchSelect({
             top: "calc(100% + 4px)",
             left: 0,
             right: 0,
-            background: "var(--dp-card)",
-            border: "1px solid var(--dp-border)",
+            background: "#1a1d2e",
+            border: "1px solid #3a3f4d",
             borderRadius: 8,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
             overflow: "hidden",
           }}
         >
@@ -150,10 +150,11 @@ export default function PlayerAllianceSearchSelect({
               alignItems: "center",
               gap: 8,
               padding: "8px 10px",
-              borderBottom: "1px solid var(--dp-border)",
+              borderBottom: "1px solid #3a3f4d",
+              background: "#0f1118",
             }}
           >
-            <Search size={13} style={{ color: "var(--dp-text-dim)", flexShrink: 0 }} />
+            <Search size={13} style={{ color: "#8b92a0", flexShrink: 0 }} />
             <input
               ref={inputRef}
               type="text"
@@ -165,7 +166,7 @@ export default function PlayerAllianceSearchSelect({
                 background: "transparent",
                 border: "none",
                 outline: "none",
-                color: "var(--dp-text)",
+                color: "#e8eaed",
                 fontSize: 13,
               }}
             />
@@ -176,7 +177,7 @@ export default function PlayerAllianceSearchSelect({
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "var(--dp-text-dim)",
+                  color: "#8b92a0",
                   cursor: "pointer",
                   padding: 2,
                   display: "flex",
@@ -195,8 +196,8 @@ export default function PlayerAllianceSearchSelect({
                 flexWrap: "wrap",
                 gap: 4,
                 padding: "8px 10px",
-                borderBottom: "1px solid var(--dp-border)",
-                background: "var(--dp-bg)",
+                borderBottom: "1px solid #3a3f4d",
+                background: "#0f1118",
               }}
             >
               <Chip
@@ -229,7 +230,7 @@ export default function PlayerAllianceSearchSelect({
                 style={{
                   padding: "12px",
                   fontSize: 12,
-                  color: "var(--dp-text-dim)",
+                  color: "#8b92a0",
                   textAlign: "center",
                 }}
               >
@@ -247,19 +248,19 @@ export default function PlayerAllianceSearchSelect({
                     width: "100%",
                     textAlign: "left",
                     padding: "8px 12px",
-                    background: isSelected ? "var(--dp-accent-soft)" : "transparent",
+                    background: isSelected ? "#2a3f5e" : "transparent",
                     border: "none",
-                    borderBottom: "1px solid var(--dp-border)",
+                    borderBottom: "1px solid #3a3f4d",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     gap: 8,
-                    color: isSelected ? "var(--dp-accent)" : "var(--dp-text)",
+                    color: isSelected ? "#5ba3d0" : "#e8eaed",
                     fontSize: 13,
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSelected) e.currentTarget.style.background = "var(--dp-bg)";
+                    if (!isSelected) e.currentTarget.style.background = "#1a1f2b";
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelected) e.currentTarget.style.background = "transparent";
