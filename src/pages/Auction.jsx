@@ -83,7 +83,7 @@ export default function Auction() {
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("name", 500),
+    queryFn: () => base44.entities.Player.list("name", 100000),
   });
 
   const { data: allBids = [] } = useQuery({
