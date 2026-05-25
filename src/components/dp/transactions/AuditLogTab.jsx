@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Filter, Search, Coins, Snowflake, ShieldAlert, Gift, Upload, RotateCcw } from "lucide-react";
+import { Filter, Search, Coins, Snowflake, ShieldAlert, Gift, Upload, RotateCcw, Gavel, Play, Square, CheckCircle, Trash2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
 const ACTION_META = {
@@ -13,6 +13,10 @@ const ACTION_META = {
   penalty_applied: { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.25)", icon: ShieldAlert },
   penalty_reset: { color: "var(--dp-success)", bg: "rgba(109, 185, 137, 0.12)", border: "rgba(109, 185, 137, 0.25)", icon: RotateCcw },
   event_upload: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", border: "rgba(245, 158, 11, 0.25)", icon: Upload },
+  auction_opened: { color: "#10b981", bg: "rgba(16, 185, 129, 0.12)", border: "rgba(16, 185, 129, 0.25)", icon: Play },
+  auction_closed: { color: "#f97316", bg: "rgba(249, 115, 22, 0.12)", border: "rgba(249, 115, 22, 0.25)", icon: Square },
+  auction_confirmed: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)", border: "rgba(59, 130, 246, 0.25)", icon: CheckCircle },
+  auction_deleted: { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.25)", icon: Trash2 },
 };
 
 export default function AuditLogTab({ onJumpToTransactions }) {
@@ -82,6 +86,10 @@ export default function AuditLogTab({ onJumpToTransactions }) {
             <option value="penalty_applied">{t("auditLog.actions.penalty_applied")}</option>
             <option value="penalty_reset">{t("auditLog.actions.penalty_reset")}</option>
             <option value="event_upload">{t("auditLog.actions.event_upload")}</option>
+            <option value="auction_opened">{t("auditLog.actions.auction_opened")}</option>
+            <option value="auction_closed">{t("auditLog.actions.auction_closed")}</option>
+            <option value="auction_confirmed">{t("auditLog.actions.auction_confirmed")}</option>
+            <option value="auction_deleted">{t("auditLog.actions.auction_deleted")}</option>
           </select>
         </div>
       </div>

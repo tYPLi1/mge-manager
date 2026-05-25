@@ -372,6 +372,7 @@
     },
     "tabs": {
       "transactions": "İşlemler",
+      "events": "Etkinlikler",
       "auditLog": "Denetim Günlüğü"
     },
     "types": {
@@ -395,6 +396,13 @@
     },
     "transactionsLabel": "{{count}} işlem"
   },
+  "eventsList": {
+    "subtitle": "Tüm etkinlik yüklemeleri — etkinlik ve tarihe göre gruplandırılmış",
+    "searchPlaceholder": "Etkinlik, tarih veya oyuncu ara…",
+    "empty": "Etkinlik bulunamadı.",
+    "eventsCount": "{{count}} etkinlik",
+    "playersCount": "{{count}} oyuncu"
+  },
   "auditLog": {
     "subtitle": "Tüm yönetici eylemlerinin herkese açık kaydı",
     "searchPlaceholder": "Oyuncu veya eylem ara…",
@@ -409,7 +417,11 @@
       "cooldown_cleared": "Bekleme kaldırıldı",
       "penalty_applied": "Ceza uygulandı",
       "penalty_reset": "Ceza sıfırlandı",
-      "event_upload": "Etkinlik yüklemesi"
+      "event_upload": "Etkinlik yüklemesi",
+      "auction_opened": "Açık artırma açıldı",
+      "auction_closed": "Açık artırma kapatıldı",
+      "auction_confirmed": "Açık artırma yayınlandı",
+      "auction_deleted": "Açık artırma silindi"
     },
     "columns": {
       "date": "Tarih",

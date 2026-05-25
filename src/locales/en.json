@@ -372,6 +372,7 @@
     },
     "tabs": {
       "transactions": "Transactions",
+      "events": "Events",
       "auditLog": "Audit Log"
     },
     "types": {
@@ -395,6 +396,13 @@
     },
     "transactionsLabel": "{{count}} transactions"
   },
+  "eventsList": {
+    "subtitle": "All event uploads — grouped by event and date",
+    "searchPlaceholder": "Search event, date or player…",
+    "empty": "No events found.",
+    "eventsCount": "{{count}} events",
+    "playersCount": "{{count}} player(s)"
+  },
   "auditLog": {
     "subtitle": "Public log of all administrative actions",
     "searchPlaceholder": "Search player or action…",
@@ -409,7 +417,11 @@
       "cooldown_cleared": "Cooldown cleared",
       "penalty_applied": "Penalty applied",
       "penalty_reset": "Penalty reset",
-      "event_upload": "Event upload"
+      "event_upload": "Event upload",
+      "auction_opened": "Auction opened",
+      "auction_closed": "Auction closed",
+      "auction_confirmed": "Auction published",
+      "auction_deleted": "Auction deleted"
     },
     "columns": {
       "date": "Date",

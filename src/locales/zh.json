@@ -345,7 +345,7 @@
     "searchPlaceholder": "搜索玩家或来源…",
     "exportButton": "导出",
     "filters": { "allPlayers": "所有玩家", "allEvents": "所有事件", "allTypes": "所有类型", "allAlliances": "所有联盟", "noAlliance": "无联盟" },
-    "tabs": { "transactions": "交易", "auditLog": "审计日志" },
+    "tabs": { "transactions": "交易", "events": "事件", "auditLog": "审计日志" },
     "types": {
       "earn": "获得",
       "bid": "出价",
@@ -367,6 +367,13 @@
     },
     "transactionsLabel": "{{count}} 条交易"
   },
+  "eventsList": {
+    "subtitle": "所有事件上传 — 按事件和日期分组",
+    "searchPlaceholder": "搜索事件、日期或玩家…",
+    "empty": "未找到事件。",
+    "eventsCount": "{{count}} 个事件",
+    "playersCount": "{{count}} 名玩家"
+  },
   "auditLog": {
     "subtitle": "所有管理员操作的公开日志",
     "searchPlaceholder": "搜索玩家或操作…",
@@ -381,7 +388,11 @@
       "cooldown_cleared": "清除冷却",
       "penalty_applied": "施加处罚",
       "penalty_reset": "重置处罚",
-      "event_upload": "事件上传"
+      "event_upload": "事件上传",
+      "auction_opened": "拍卖已开启",
+      "auction_closed": "拍卖已关闭",
+      "auction_confirmed": "拍卖结果已发布",
+      "auction_deleted": "拍卖已删除"
     },
     "columns": {
       "date": "日期",

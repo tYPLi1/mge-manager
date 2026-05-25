@@ -12,7 +12,11 @@
         "cooldown_cleared",
         "penalty_applied",
         "penalty_reset",
-        "event_upload"
+        "event_upload",
+        "auction_opened",
+        "auction_closed",
+        "auction_confirmed",
+        "auction_deleted"
       ],
       "description": "Type of action logged"
     },
@@ -47,7 +51,7 @@
     },
     "related_id": {
       "type": "string",
-      "description": "Reference to related entity (transaction id, penalty id, etc.)"
+      "description": "Reference to related entity (transaction id, penalty id, auction id, etc.)"
     }
   },
   "required": [

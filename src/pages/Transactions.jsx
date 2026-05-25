@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Filter, ArrowUpCircle, ArrowDownCircle, Search, ListOrdered, History as HistoryIcon } from "lucide-react";
+import { Filter, ArrowUpCircle, ArrowDownCircle, Search, ListOrdered, History as HistoryIcon, Calendar } from "lucide-react";
 import DPPageHeader from "@/components/dp/PageHeader";
 import StatCard from "@/components/dp/StatCard";
 import AuditLogTab from "@/components/dp/transactions/AuditLogTab";
+import PublicEventsList from "@/components/dp/transactions/PublicEventsList";
 import { useTranslation } from "@/lib/i18n";
 
 const typeStyle = (type) => {
@@ -154,20 +155,31 @@ export default function Transactions() {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <DPPageHeader
         title={t("transactions.title")}
-        subtitle={activeTab === "transactions" ? t("transactions.transactionsLabel", { count: filtered.length }) : t("auditLog.subtitle")}
+        subtitle={
+          activeTab === "transactions"
+            ? t("transactions.transactionsLabel", { count: filtered.length })
+            : activeTab === "events"
+              ? t("eventsList.subtitle")
+              : t("auditLog.subtitle")
+        }
       />
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--dp-border)", paddingLeft: 4 }}>
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--dp-border)", paddingLeft: 4, flexWrap: "wrap" }}>
         <button onClick={() => setActiveTab("transactions")} style={tabBtnStyle(activeTab === "transactions")}>
           <HistoryIcon size={14} /> {t("transactions.tabs.transactions")}
+        </button>
+        <button onClick={() => setActiveTab("events")} style={tabBtnStyle(activeTab === "events")}>
+          <Calendar size={14} /> {t("transactions.tabs.events")}
         </button>
         <button onClick={() => setActiveTab("audit")} style={tabBtnStyle(activeTab === "audit")}>
           <ListOrdered size={14} /> {t("transactions.tabs.auditLog")}
         </button>
       </div>
 
-      {activeTab === "audit" ? (
+      {activeTab === "events" ? (
+        <PublicEventsList />
+      ) : activeTab === "audit" ? (
         <AuditLogTab onJumpToTransactions={handleJumpToTransactions} />
       ) : (
         <>

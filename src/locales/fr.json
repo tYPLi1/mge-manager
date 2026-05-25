@@ -349,7 +349,7 @@
     "searchPlaceholder": "Rechercher joueur ou source…",
     "exportButton": "Exporter",
     "filters": { "allPlayers": "Tous les joueurs", "allEvents": "Tous les événements", "allTypes": "Tous les types", "allAlliances": "Toutes les alliances", "noAlliance": "Sans alliance" },
-    "tabs": { "transactions": "Transactions", "auditLog": "Journal d'audit" },
+    "tabs": { "transactions": "Transactions", "events": "Événements", "auditLog": "Journal d'audit" },
     "types": {
       "earn": "Gain",
       "bid": "Enchère",
@@ -371,6 +371,13 @@
     },
     "transactionsLabel": "{{count}} transactions"
   },
+  "eventsList": {
+    "subtitle": "Tous les imports d'événements — groupés par événement et date",
+    "searchPlaceholder": "Rechercher événement, date ou joueur…",
+    "empty": "Aucun événement trouvé.",
+    "eventsCount": "{{count}} événements",
+    "playersCount": "{{count}} joueur(s)"
+  },
   "auditLog": {
     "subtitle": "Journal public de toutes les actions administratives",
     "searchPlaceholder": "Rechercher joueur ou action…",
@@ -385,7 +392,11 @@
       "cooldown_cleared": "Cooldown effacé",
       "penalty_applied": "Sanction appliquée",
       "penalty_reset": "Sanction réinitialisée",
-      "event_upload": "Import d'événement"
+      "event_upload": "Import d'événement",
+      "auction_opened": "Enchère ouverte",
+      "auction_closed": "Enchère fermée",
+      "auction_confirmed": "Enchère publiée",
+      "auction_deleted": "Enchère supprimée"
     },
     "columns": {
       "date": "Date",

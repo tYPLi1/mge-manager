@@ -14,6 +14,7 @@ import DKPValue from "@/components/dkp/DKPValue";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import FixedAssignmentsEditor from "@/components/dkp/FixedAssignmentsEditor";
 import InlineFixedAssignmentsEditor from "@/components/dkp/InlineFixedAssignmentsEditor";
+import { writeAuditLog } from "@/lib/auditLog";
 
 const DEFAULT_MGE_TARGETS = [
   { rank: 1, medals: 100, target: 30000000 },
@@ -504,7 +505,28 @@ export default function AdminAuctions() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }) => adminEntities.Auction.update(id, { status }),
+    mutationFn: async ({ id, status, auction }) => {
+      await adminEntities.Auction.update(id, { status });
+      // Log auction status change to the public audit log
+      const a = auction || auctions.find(x => x.id === id);
+      if (a) {
+        if (status === "closed") {
+          await writeAuditLog({
+            action_type: "auction_closed",
+            source: "MGE",
+            summary: `Auction "${a.title}" closed`,
+            related_id: id,
+          });
+        } else if (status === "open") {
+          await writeAuditLog({
+            action_type: "auction_opened",
+            source: "MGE",
+            summary: `Auction "${a.title}" opened`,
+            related_id: id,
+          });
+        }
+      }
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auctions"] }),
   });
 
@@ -517,7 +539,7 @@ export default function AdminAuctions() {
 
   const handleOpenAuction = async (auction) => {
     // Open the auction — Discord notification is handled by entity automation (notifyAuctionOpened)
-    statusMutation.mutate({ id: auction.id, status: "open" });
+    statusMutation.mutate({ id: auction.id, status: "open", auction });
   };
 
   const [deletingBidId, setDeletingBidId] = useState(null);
@@ -711,6 +733,18 @@ export default function AdminAuctions() {
       }
     }
 
+    // Log auction confirmation to public audit log
+    const totalDkpSpent = previewRanking
+      .filter(e => !e._fixed)
+      .reduce((sum, e) => sum + (e.dkp_bid || 0), 0);
+    await writeAuditLog({
+      action_type: "auction_confirmed",
+      source: "MGE",
+      summary: `Auction "${viewBids.title}" confirmed — ${previewRanking.length} winner(s), ${totalDkpSpent} DKP spent`,
+      amount: -totalDkpSpent,
+      related_id: viewBids.id,
+    });
+
     queryClient.invalidateQueries();
     setShowPreview(false);
     setViewBids(null);
@@ -846,6 +880,15 @@ export default function AdminAuctions() {
 
     // Delete auction
     await adminEntities.Auction.delete(auction.id);
+
+    // Log to public audit log
+    await writeAuditLog({
+      action_type: "auction_deleted",
+      source: "MGE",
+      summary: `Auction "${auction.title}" deleted${auction.status === "confirmed" ? (refundDkp ? " (DKP refunded)" : " (DKP not refunded)") : ""} — ${auctionBids.length} bid(s) removed`,
+      related_id: auction.id,
+    });
+
     toast.success(`Auction "${auction.title}" deleted (${auctionBids.length} bids removed)`);
 
     if (viewBids?.id === auction.id) {
@@ -1030,7 +1073,7 @@ export default function AdminAuctions() {
         if (effective === "open" && a.status === "draft") {
           handleOpenAuction(a);
         } else if (effective === "closed" && a.status === "open") {
-          statusMutation.mutate({ id: a.id, status: "closed" });
+          statusMutation.mutate({ id: a.id, status: "closed", auction: a });
         }
       }
     });
@@ -1123,7 +1166,7 @@ export default function AdminAuctions() {
                   </Button>
                 )}
                 {a.status === "open" && (
-                  <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "closed" })} className="bg-red-600 hover:bg-red-700 text-white text-xs">
+                  <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "closed", auction: a })} className="bg-red-600 hover:bg-red-700 text-white text-xs">
                     <Square className="w-3 h-3 mr-1" /> Close
                   </Button>
                 )}

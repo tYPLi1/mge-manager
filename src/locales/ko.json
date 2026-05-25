@@ -345,7 +345,7 @@
     "searchPlaceholder": "플레이어 또는 출처 검색…",
     "exportButton": "내보내기",
     "filters": { "allPlayers": "모든 플레이어", "allEvents": "모든 이벤트", "allTypes": "모든 유형", "allAlliances": "모든 동맹", "noAlliance": "동맹 없음" },
-    "tabs": { "transactions": "거래", "auditLog": "감사 로그" },
+    "tabs": { "transactions": "거래", "events": "이벤트", "auditLog": "감사 로그" },
     "types": {
       "earn": "획득",
       "bid": "입찰",
@@ -367,6 +367,13 @@
     },
     "transactionsLabel": "{{count}}건의 거래"
   },
+  "eventsList": {
+    "subtitle": "모든 이벤트 업로드 — 이벤트 및 날짜별로 그룹화",
+    "searchPlaceholder": "이벤트, 날짜 또는 플레이어 검색…",
+    "empty": "이벤트가 없습니다.",
+    "eventsCount": "{{count}}개 이벤트",
+    "playersCount": "{{count}}명 플레이어"
+  },
   "auditLog": {
     "subtitle": "모든 관리자 작업의 공개 로그",
     "searchPlaceholder": "플레이어 또는 작업 검색…",
@@ -381,7 +388,11 @@
       "cooldown_cleared": "쿨다운 해제",
       "penalty_applied": "처벌 적용",
       "penalty_reset": "처벌 초기화",
-      "event_upload": "이벤트 업로드"
+      "event_upload": "이벤트 업로드",
+      "auction_opened": "경매 시작됨",
+      "auction_closed": "경매 종료됨",
+      "auction_confirmed": "경매 결과 발표됨",
+      "auction_deleted": "경매 삭제됨"
     },
     "columns": {
       "date": "날짜",
