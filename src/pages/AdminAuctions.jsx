@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock, Loader2, Coins } from "lucide-react";
+import { Gavel, Plus, Play, Square, Eye, CheckCircle, Trash2, Edit2, X, Clock, Loader2, Coins, RotateCcw } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import CompensationModal from "@/components/dkp/CompensationModal";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import DKPValue from "@/components/dkp/DKPValue";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import FixedAssignmentsEditor from "@/components/dkp/FixedAssignmentsEditor";
 import InlineFixedAssignmentsEditor from "@/components/dkp/InlineFixedAssignmentsEditor";
+import ReopenAuctionModal from "@/components/dkp/ReopenAuctionModal";
 import { writeAuditLog } from "@/lib/auditLog";
 
 const DEFAULT_MGE_TARGETS = [
@@ -146,6 +147,7 @@ export default function AdminAuctions() {
   const [editBid, setEditBid] = useState(null);
   const [editDkp, setEditDkp] = useState("");
   const [deleteModal, setDeleteModal] = useState(null);
+  const [reopenModal, setReopenModal] = useState(null);
   const [discordPreview, setDiscordPreview] = useState(null);
   const queryClient = useQueryClient();
 
@@ -545,6 +547,29 @@ export default function AdminAuctions() {
   const handleOpenAuction = async (auction) => {
     // Open the auction — Discord notification is handled by entity automation (notifyAuctionOpened)
     statusMutation.mutate({ id: auction.id, status: "open", auction });
+  };
+
+  const handleReopenAuction = async (auction, newScheduledClose) => {
+    // Convert datetime-local (UTC, no tz) to ISO. Update close date FIRST so the
+    // auto-sync effect doesn't immediately close it again, then flip status to "open".
+    const newCloseIso = ensureUTC(newScheduledClose);
+    await adminEntities.Auction.update(auction.id, {
+      scheduled_close: newCloseIso,
+      status: "open",
+    });
+    // Reset auto-sync tracking for this auction so a fresh evaluation can happen.
+    syncedRef.current.delete(`${auction.id}:closed`);
+    syncedRef.current.delete(`${auction.id}:open`);
+
+    await writeAuditLog({
+      action_type: "auction_opened",
+      source: "MGE",
+      summary: `Auction "${auction.title}" reopened — new close: ${formatUTCDate(newCloseIso)}`,
+      related_id: auction.id,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["auctions"] });
+    toast.success(`Auction "${auction.title}" reopened`);
   };
 
   const [deletingBidId, setDeletingBidId] = useState(null);
@@ -1188,6 +1213,11 @@ export default function AdminAuctions() {
                     <Square className="w-3 h-3 mr-1" /> Close
                   </Button>
                 )}
+                {a.status === "closed" && (
+                  <Button size="sm" onClick={() => setReopenModal(a)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                    <RotateCcw className="w-3 h-3 mr-1" /> Reopen
+                  </Button>
+                )}
                 {(a.status === "draft" || a.status === "open" || a.status === "closed") && (
                   <Button size="sm" variant="outline" onClick={() => { setViewBids(viewBids?.id === a.id ? null : a); setShowPreview(false); }} className="border-white/10 text-gray-300 text-xs hover:bg-white/5">
                     <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : (a.status === "draft" ? "Edit" : "Bids")}
@@ -1455,6 +1485,14 @@ export default function AdminAuctions() {
           players={players}
           onClose={() => setDeleteModal(null)}
           onDelete={handleDeleteAuction}
+        />
+      )}
+
+      {reopenModal && (
+        <ReopenAuctionModal
+          auction={reopenModal}
+          onClose={() => setReopenModal(null)}
+          onConfirm={handleReopenAuction}
         />
       )}
 
