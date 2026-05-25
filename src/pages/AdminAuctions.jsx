@@ -932,7 +932,11 @@ export default function AdminAuctions() {
 
     return effectiveTop.map((b, i) => {
       let rankReason = b._friendlyZone ? "Friendly Zone (Platz 10)" : "Highest DKP bid";
-      if (!b._friendlyZone && i > 0 && !effectiveTop[i - 1]._friendlyZone && b.dkp_bid === effectiveTop[i - 1].dkp_bid) {
+      const prev = effectiveTop[i - 1];
+      const next = effectiveTop[i + 1];
+      const tiedWithPrev = i > 0 && prev && !prev._friendlyZone && prev.dkp_bid === b.dkp_bid;
+      const tiedWithNext = next && !next._friendlyZone && next.dkp_bid === b.dkp_bid;
+      if (!b._friendlyZone && (tiedWithPrev || tiedWithNext)) {
         const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
         const allPrimarySame = tiebreaker !== "fcfs" && tiedGroup.every(t => {
           const score = tiebreaker === "activity" ? (activityScores[t.player_id] || 0) :
