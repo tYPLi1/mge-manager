@@ -150,12 +150,14 @@ export default function AuditLogTab({ onJumpToTransactions }) {
                 paged.map((l) => {
                   const meta = ACTION_META[l.action_type] || { color: "var(--dp-text-dim)", bg: "rgba(255,255,255,0.05)", border: "var(--dp-border)", icon: Coins };
                   const Icon = meta.icon;
-                  const dateStr = l.created_date ? new Date(l.created_date).toISOString().slice(0, 10) : l.action_date;
+                  const dateObj = l.created_date ? new Date(l.created_date) : new Date(l.action_date);
+                  const dateStr = dateObj.toISOString().slice(0, 10);
+                  const timeStr = dateObj.toISOString().slice(11, 19);
                   const isEvent = (l.action_type === "event_upload" || l.action_type === "event_edited" || l.action_type === "event_deleted") && l.source;
                   return (
                     <tr key={l.id} className="dp-hover-row" style={{ borderBottom: "1px solid var(--dp-border)" }}>
                       <td className="dp-mono" style={{ padding: "12px 18px", color: "var(--dp-text-muted)", fontSize: 12.5 }}>
-                        {dateStr}
+                        {dateStr} <span style={{ fontSize: 11, color: "var(--dp-text-dim)" }}>({timeStr})</span>
                       </td>
                       <td style={{ padding: "12px 18px" }}>
                         <span className="dp-badge" style={{ background: meta.bg, color: meta.color, border: `1px solid ${meta.border}`, display: "inline-flex", alignItems: "center", gap: 4 }}>

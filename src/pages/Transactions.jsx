@@ -293,7 +293,7 @@ export default function Transactions() {
                             </span>
                           </td>
                           <td className="dp-mono" style={{ padding: "12px 18px", color: "var(--dp-text-muted)", fontSize: 12.5 }}>
-                            {tx.event_date}
+                            {tx.event_date} <span style={{ fontSize: 11, color: "var(--dp-text-dim)" }}>({tx.created_date ? new Date(tx.created_date).toISOString().slice(11, 19) : '—'})</span>
                           </td>
                           <td style={{ padding: "12px 18px", fontWeight: 500 }}>
                             <PlayerLink playerId={tx.player_id} playerName={tx.player_name} />
