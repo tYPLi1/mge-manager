@@ -1201,6 +1201,8 @@ export default function AdminAuctions() {
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Bid Time (UTC)</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell" title="Activity Score">Activity</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell" title="DKP earned in last configured event">Last Event</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Rank Reason</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">FZ</th>
                       <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Actions</th>
@@ -1237,6 +1239,16 @@ export default function AdminAuctions() {
                         </td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono whitespace-nowrap">
                           {b.created_date ? new Date(b.created_date).toISOString().slice(0, 23) : "—"}
+                        </td>
+                        <td className="px-2 py-1.5 text-xs hidden md:table-cell">
+                          <span className={`font-mono ${tiebreaker === "activity" || tiebreakerFallback === "activity" ? "text-amber-400" : "text-gray-500"}`}>
+                            {activityScores[b.player_id] || 0}
+                          </span>
+                        </td>
+                        <td className="px-2 py-1.5 text-xs hidden md:table-cell">
+                          <span className={`font-mono ${tiebreaker === "last_event_dkp" || tiebreakerFallback === "last_event_dkp" ? "text-amber-400" : "text-gray-500"}`}>
+                            {lastEventDkpScores[b.player_id] || 0}
+                          </span>
                         </td>
                         <td className="px-2 py-1.5 hidden sm:table-cell">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${
