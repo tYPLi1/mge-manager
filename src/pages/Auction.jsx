@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import DPPageHeader from "@/components/dp/PageHeader";
 import EmptyState from "@/components/dp/EmptyState";
+import PlayerAllianceSearchSelect from "@/components/dp/auction/PlayerAllianceSearchSelect";
 import { useTranslation } from "@/lib/i18n";
 
 function ensureUTC(dateStr) {
@@ -286,18 +287,15 @@ export default function Auction() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <label htmlFor="auction-player-select" style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                <label style={{ display: "block", fontSize: 11.5, color: "var(--dp-text-dim)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
                   {t("auction.selectName")}
                 </label>
-                <select
-                  id="auction-player-select"
-                  className="dp-input"
+                <PlayerAllianceSearchSelect
+                  players={players}
                   value={selectedPlayer}
-                  onChange={(e) => setSelectedPlayer(e.target.value)}
-                >
-                  <option value="">{t("auction.selectNamePlaceholder")}</option>
-                  {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                  onValueChange={setSelectedPlayer}
+                  placeholder={t("auction.selectNamePlaceholder")}
+                />
               </div>
 
               {fixedAssignmentForSelected && (
