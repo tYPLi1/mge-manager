@@ -139,6 +139,7 @@ export default function Auction() {
 
   const friendlyZoneEnabled = settings.find((s) => s.key === "friendly_zone_enabled")?.value === "true";
   const friendlyZoneThreshold = parseInt(settings.find((s) => s.key === "friendly_zone_threshold")?.value || "50");
+  const maxAuctionRanks = parseInt(settings.find((s) => s.key === "auction_max_ranks")?.value || "10");
 
   const fixedAssignments = useMemo(() => {
     if (!currentAuction?.fixed_assignments) return [];
@@ -173,8 +174,8 @@ export default function Auction() {
     return allBids
       .filter(b => b.auction_id === currentAuction.id && !b.is_deleted)
       .sort((a, b) => (b.dkp_bid || 0) - (a.dkp_bid || 0))
-      .slice(0, 10);
-  }, [allBids, currentAuction]);
+      .slice(0, maxAuctionRanks);
+  }, [allBids, currentAuction, maxAuctionRanks]);
 
   const handleSubmit = async () => {
     if (!selectedPlayer || !bidAmount || !currentAuction) return;
