@@ -18,11 +18,12 @@ const thBase = {
   top: 0,
   zIndex: 10,
   background: "var(--dp-bg-elevated)",
+  borderBottom: "1px solid var(--dp-border)",
 };
 
 function SortHeader({ field, sortField, sortDir, onSort, children, align = "left", sticky = false }) {
   const isActive = sortField === field;
-  const style = sticky ? { ...thBase, textAlign: align, zIndex: 20, left: sticky === "name" ? 56 : 0 } : { ...thBase, textAlign: align };
+  const style = sticky ? { ...thBase, textAlign: align, zIndex: 30, left: sticky === "name" ? 56 : 0 } : { ...thBase, textAlign: align };
   return (
     <th
       onClick={() => onSort(field)}
@@ -72,11 +73,12 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
 
   return (
     <div className="dp-card-elevated" style={{ overflow: "hidden" }}>
-      <div style={{ overflowX: "auto", maxHeight: "calc(100vh - 280px)" }}>
-        <table className="dp-table-sticky-first" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
+      <style>{`.dp-row-border > td { border-bottom: 1px solid var(--dp-border); }`}</style>
+      <div style={{ overflowX: "auto", overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+        <table className="dp-table-sticky-first" style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13.5, minWidth: 720 }}>
           <thead>
-            <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)", position: "sticky", top: 0, zIndex: 5 }}>
-              <th style={{ ...thBase, width: 56, textAlign: "left", zIndex: 20, left: 0, position: "sticky" }}>#</th>
+            <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)" }}>
+              <th style={{ ...thBase, width: 56, textAlign: "left", zIndex: 30, left: 0, position: "sticky" }}>#</th>
               <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} sticky="name">{c("name")}</SortHeader>
               <SortHeader field="alliance" sortField={sortField} sortDir={sortDir} onSort={onSort}>{c("alliance")}</SortHeader>
               <SortHeader field="current_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("dkp")}</SortHeader>
@@ -115,7 +117,7 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
               data.map((p, idx) => {
                 const rankClass = idx === 0 ? "dp-rank-1" : idx === 1 ? "dp-rank-2" : idx === 2 ? "dp-rank-3" : "";
                 return (
-                  <tr key={p.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                  <tr key={p.id} className={`dp-hover-row dp-row-border ${rankClass}`}>
                     <td style={{ padding: "12px 14px", position: "sticky", left: 0, zIndex: 8, background: "var(--dp-bg)" }}>
                       <span className="dp-heading dp-mono" style={{
                         fontSize: 14, fontWeight: 600,
