@@ -426,10 +426,10 @@ export default function AdminAuctions() {
 
     // 4) Build sorted output by rank, with tiebreaker detection within bid group
     const getRuleLabel = (rule, playerId, bid) => {
-      if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
-      if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      // Final fallback: random (deterministic) pick when all rules are tied
-      return `Random pick (alle Regeln gleich)`;
+      if (rule === "activity") return `${activityScores[playerId] || 0}`;
+      if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
+      // Final fallback: random system choice when all rules are tied
+      return `System choice`;
     };
 
     const result = [];
@@ -468,7 +468,7 @@ export default function AdminAuctions() {
             } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
               _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
             } else {
-              _tiebreaker = `Final: ${getRuleLabel("fcfs", s.player_id, s)}`;
+              _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
             }
           }
         }
@@ -916,9 +916,9 @@ export default function AdminAuctions() {
     if (activeBids.length === 0) return [];
     const sorted = sortBids(activeBids);
     const getRuleLabel = (rule, playerId, bid) => {
-      if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
-      if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      return `Random pick (alle Regeln gleich)`;
+      if (rule === "activity") return `${activityScores[playerId] || 0}`;
+      if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
+      return `System choice`;
     };
 
     // Build the effective ranking with FZ logic applied
@@ -969,15 +969,15 @@ export default function AdminAuctions() {
         const allFallbackSame = tiebreakerFallback === "fcfs" || tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
 
         if (tiebreaker !== "fcfs" && !allPrimarySame) {
-          // Primary decided
-          rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
-        } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
-          // Fallback decided
-          rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
-        } else {
-          // Everything equal → earlier bid decided
-          rankReason = `Final: ${getRuleLabel("fcfs", b.player_id, b)}`;
-        }
+           // Primary decided
+           rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
+         } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
+           // Fallback decided
+           rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
+         } else {
+           // Everything equal → random system choice
+           rankReason = `Random: ${getRuleLabel("random", b.player_id, b)}`;
+         }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
     });
