@@ -460,27 +460,34 @@ export default function AdminAuctions() {
                          (next && !next._fixed && !next._friendlyZone && next.dkp_bid === s.dkp_bid);
           if (hasTie) {
             const tiedGroup = Object.values(slots).filter(t => !t._fixed && !t._friendlyZone && t.dkp_bid === s.dkp_bid);
-            const firstP = tiedGroup[0];
             const scoreFor = (rule, pid) => {
               if (rule === "activity") return activityScores[pid] || 0;
               if (rule === "last_event_dkp") return lastEventDkpScores[pid] || 0;
               return null;
             };
-            // Check if all timestamps in the tied group are identical (millisecond-exact)
-            const allTimestampsSame = tiedGroup.every(t => new Date(t.created_date).getTime() === new Date(firstP.created_date).getTime());
-            const allPrimarySame = tiebreaker === "fcfs"
-              ? allTimestampsSame
-              : tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
-            const allFallbackSame = tiebreakerFallback === "fcfs"
-              ? allTimestampsSame
-              : tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+            const valueFor = (rule, bid) => {
+              if (rule === "activity") return scoreFor("activity", bid.player_id);
+              if (rule === "last_event_dkp") return scoreFor("last_event_dkp", bid.player_id);
+              return new Date(bid.created_date).getTime(); // fcfs
+            };
+            // Did the PRIMARY tiebreaker actually decide MY position?
+            const myPrimary = valueFor(tiebreaker, s);
+            const primaryDecidedForMe = tiedGroup.some(t => valueFor(tiebreaker, t) !== myPrimary);
 
-            if (!allPrimarySame) {
+            if (primaryDecidedForMe) {
               _tiebreaker = `Tiebreak: ${getRuleLabel(tiebreaker, s.player_id, s)}`;
-            } else if (!allFallbackSame) {
-              _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
             } else {
-              _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
+              // I'm in a sub-group with equal primary → fallback (or random) decided
+              const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
+              if (subGroup.length > 1) {
+                const myFallback = valueFor(tiebreakerFallback, s);
+                const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
+                if (fallbackDecidedForMe) {
+                  _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
+                } else {
+                  _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
+                }
+              }
             }
           }
         }
@@ -1021,6 +1028,14 @@ export default function AdminAuctions() {
       return null; // fcfs has no numeric score
     };
 
+    // Helper: get a comparable "value" for a rule (used to group by primary value)
+    const valueFor = (rule, bid) => {
+      if (rule === "activity") return scoreFor("activity", bid.player_id);
+      if (rule === "last_event_dkp") return scoreFor("last_event_dkp", bid.player_id);
+      // fcfs
+      return new Date(bid.created_date).getTime();
+    };
+
     return effectiveTop.map((b, i) => {
       let rankReason = b._friendlyZone ? "Friendly Zone (Platz 10)" : "Highest DKP bid";
       const prev = effectiveTop[i - 1];
@@ -1028,26 +1043,31 @@ export default function AdminAuctions() {
       const tiedWithPrev = i > 0 && prev && !prev._friendlyZone && prev.dkp_bid === b.dkp_bid;
       const tiedWithNext = next && !next._friendlyZone && next.dkp_bid === b.dkp_bid;
       if (!b._friendlyZone && (tiedWithPrev || tiedWithNext)) {
+        // Full tied group (same DKP bid)
         const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
-        const firstP = tiedGroup[0];
-        const allTimestampsSame = tiedGroup.every(t => new Date(t.created_date).getTime() === new Date(firstP.created_date).getTime());
-        const allPrimarySame = tiebreaker === "fcfs"
-          ? allTimestampsSame
-          : tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
-        const allFallbackSame = tiebreakerFallback === "fcfs"
-          ? allTimestampsSame
-          : tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+        // Determine if the PRIMARY tiebreaker actually decided MY position
+        // (i.e. someone else in the tied group has a DIFFERENT primary value than me)
+        const myPrimary = valueFor(tiebreaker, b);
+        const primaryDecidedForMe = tiedGroup.some(t => valueFor(tiebreaker, t) !== myPrimary);
 
-        if (!allPrimarySame) {
-           // Primary decided
-           rankReason = `Tiebreak (${ruleName(tiebreaker)}): ${getRuleLabel(tiebreaker, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
-         } else if (!allFallbackSame) {
-           // Fallback decided
-           rankReason = `Fallback (${ruleName(tiebreakerFallback)}): ${getRuleLabel(tiebreakerFallback, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
-         } else {
-           // Everything equal → random system choice
-           rankReason = `Random: System choice`;
-         }
+        if (primaryDecidedForMe) {
+          // Primary tiebreaker separated me from at least one other tied bidder
+          rankReason = `Tiebreak (${ruleName(tiebreaker)}): ${getRuleLabel(tiebreaker, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
+        } else {
+          // I'm in a sub-group where primary is equal → fallback (or random) decides
+          const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
+          if (subGroup.length > 1) {
+            const myFallback = valueFor(tiebreakerFallback, b);
+            const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
+            if (fallbackDecidedForMe) {
+              rankReason = `Fallback (${ruleName(tiebreakerFallback)}): ${getRuleLabel(tiebreakerFallback, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
+            } else {
+              rankReason = `Random: System choice`;
+            }
+          }
+          // If subGroup.length === 1, I'm alone in my sub-group → primary actually decided after all
+          // (shouldn't happen because primaryDecidedForMe would be true, but safe fallback)
+        }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
     });
