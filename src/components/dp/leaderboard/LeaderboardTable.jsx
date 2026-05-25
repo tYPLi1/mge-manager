@@ -106,11 +106,27 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
                 </tr>
               ))
             ) : (
-              data.map((p, idx) => {
+              Array(10).fill(0).map((_, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid var(--dp-border)" }}>
+                  <td style={{ padding: "12px 14px", position: "sticky", left: 0, zIndex: 8, background: "var(--dp-bg)" }}>
+                    <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
+                  </td>
+                  <td style={{ padding: "12px 14px", position: "sticky", left: 56, zIndex: 8, background: "var(--dp-bg)" }}>
+                    <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
+                  </td>
+                  {Array(8 + eventColumns.length).fill(0).map((_, j) => (
+                    <td key={j} style={{ padding: "12px 14px" }}>
+                      <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
+                    </td>
+                  ))}
+                  </tr>
+                  ))
+                  ) : (
+                  data.map((p, idx) => {
                 const rankClass = idx === 0 ? "dp-rank-1" : idx === 1 ? "dp-rank-2" : idx === 2 ? "dp-rank-3" : "";
                 return (
                   <tr key={p.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)" }}>
-                    <td style={{ padding: "12px 14px" }}>
+                    <td style={{ padding: "12px 14px", position: "sticky", left: 0, zIndex: 8, background: "var(--dp-bg)" }}>
                       <span className="dp-heading dp-mono" style={{
                         fontSize: 14, fontWeight: 600,
                         color: idx <= 2 ? "var(--dp-accent)" : "var(--dp-text-muted)",
@@ -118,7 +134,7 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
                         #{idx + 1}
                       </span>
                     </td>
-                    <td style={{ padding: "12px 14px", fontWeight: 500 }}>
+                    <td style={{ padding: "12px 14px", fontWeight: 500, position: "sticky", left: 56, zIndex: 8, background: "var(--dp-bg)" }}>
                       <Link to={createPageUrl(`PlayerDetail?id=${p.id}`)} style={{ color: "var(--dp-text)", textDecoration: "none" }}>
                         {p.name}
                       </Link>
