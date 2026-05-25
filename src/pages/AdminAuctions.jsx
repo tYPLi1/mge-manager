@@ -740,11 +740,11 @@ export default function AdminAuctions() {
         tiebreakerNote += `\n\n_Tiebreaker applies when 2+ players have the same DKP bid. The primary tiebreaker is checked first. If there is still a tie, the backup tiebreaker decides._`;
 
         const fields = [
-          { name: "Winners (Top 10)", value: resultsText || "No results", inline: false },
+          { name: `Winners (Top ${auctionMaxRanks})`, value: resultsText || "No results", inline: false },
           { name: "Total Participants", value: String(previewRanking.length), inline: true },
         ];
         if (hasFzWinner) {
-          fields.push({ name: "🤝 Friendly Zone", value: `Rank 10 reserved for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP). Highest FZ bid wins.`, inline: false });
+           fields.push({ name: "🤝 Friendly Zone", value: `Rank ${auctionMaxRanks} reserved for eligible FZ bidder (≤ ${friendlyZoneThreshold} DKP). Highest FZ bid wins.`, inline: false });
         }
         if (reservedLines) {
           fields.push({
@@ -907,15 +907,15 @@ export default function AdminAuctions() {
       const nonFzBids = sorted.filter(b => !isFzEligible(b));
 
       if (fzBids.length > 0) {
-        const fzWinner = fzBids[0];
-        fzWinnerId = fzWinner.id;
-        const top9 = nonFzBids.slice(0, 9);
-        if (top9.length < 9) {
-          const remainingFz = fzBids.filter(b => b.id !== fzWinner.id);
-          top9.push(...remainingFz.slice(0, 9 - top9.length));
-        }
-        // Rank 10 = FZ winner, ranks 1-9 = top9
-        effectiveTop = [...top9, { ...fzWinner, _friendlyZone: true }];
+         const fzWinner = fzBids[0];
+         fzWinnerId = fzWinner.id;
+         const topN = nonFzBids.slice(0, auctionMaxRanks - 1);
+         if (topN.length < auctionMaxRanks - 1) {
+           const remainingFz = fzBids.filter(b => b.id !== fzWinner.id);
+           topN.push(...remainingFz.slice(0, auctionMaxRanks - 1 - topN.length));
+         }
+         // Last rank = FZ winner, ranks 1 to auctionMaxRanks-1 = topN
+         effectiveTop = [...topN, { ...fzWinner, _friendlyZone: true }];
         // Remaining bids after the top 10
         const usedIds = new Set(effectiveTop.map(b => b.id));
         const rest = sorted.filter(b => !usedIds.has(b.id));
@@ -1152,7 +1152,7 @@ export default function AdminAuctions() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {rankedBids.map((b) => (
-                      <tr key={b.id} className={`${b._rank <= 10 ? "" : "opacity-50"} ${b._friendlyZone ? "bg-emerald-500/5" : ""}`}>
+                      <tr key={b.id} className={`${b._rank <= auctionMaxRanks ? "" : "opacity-50"} ${b._friendlyZone ? "bg-emerald-500/5" : ""}`}>
                         <td className="px-2 py-1.5">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                             b._rank <= 3 ? "bg-amber-500/20 text-amber-400" :
@@ -1236,7 +1236,7 @@ export default function AdminAuctions() {
             {viewBids?.id === a.id && showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-semibold text-white">Preview: Top 10 Ranking</p>
+                   <p className="text-sm font-semibold text-white">Preview: Top {auctionMaxRanks} Ranking</p>
                   {friendlyZoneEnabled && (
                     <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5">
                       Friendly Zone active (Threshold: {friendlyZoneThreshold} DKP)
