@@ -13,6 +13,8 @@
         "penalty_applied",
         "penalty_reset",
         "event_upload",
+        "event_edited",
+        "event_deleted",
         "auction_opened",
         "auction_closed",
         "auction_confirmed",

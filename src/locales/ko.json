@@ -389,6 +389,8 @@
       "penalty_applied": "처벌 적용",
       "penalty_reset": "처벌 초기화",
       "event_upload": "이벤트 업로드",
+      "event_edited": "이벤트 편집됨",
+      "event_deleted": "이벤트 삭제됨",
       "auction_opened": "경매 시작됨",
       "auction_closed": "경매 종료됨",
       "auction_confirmed": "경매 결과 발표됨",

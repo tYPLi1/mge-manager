@@ -389,6 +389,8 @@
       "penalty_applied": "施加处罚",
       "penalty_reset": "重置处罚",
       "event_upload": "事件上传",
+      "event_edited": "事件已编辑",
+      "event_deleted": "事件已删除",
       "auction_opened": "拍卖已开启",
       "auction_closed": "拍卖已关闭",
       "auction_confirmed": "拍卖结果已发布",

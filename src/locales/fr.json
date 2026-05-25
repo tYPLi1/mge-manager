@@ -393,6 +393,8 @@
       "penalty_applied": "Sanction appliquée",
       "penalty_reset": "Sanction réinitialisée",
       "event_upload": "Import d'événement",
+      "event_edited": "Événement modifié",
+      "event_deleted": "Événement supprimé",
       "auction_opened": "Enchère ouverte",
       "auction_closed": "Enchère fermée",
       "auction_confirmed": "Enchère publiée",

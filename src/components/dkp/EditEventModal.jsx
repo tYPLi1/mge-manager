@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import { useTranslation } from "@/lib/i18n";
+import { writeAuditLog } from "@/lib/auditLog";
 
 /**
  * Edit an existing event (group of DKPTransactions sharing event_date + source + source_stage).
@@ -231,6 +232,33 @@ export default function EditEventModal({ event, onClose }) {
         if (Object.keys(update).length > 0) playerUpdates.push({ id: pid, data: update });
       }
       await Promise.all(playerUpdates.map(u => adminEntities.Player.update(u.id, u.data)));
+
+      // Audit log — record event edit with diff summary
+      const addedCount = diff.filter(c => c.kind === "added").length;
+      const removedCount = diff.filter(c => c.kind === "removed").length;
+      const modifiedCount = diff.filter(c => c.kind === "modified").length;
+      const netDkp = diff.reduce((s, c) => {
+        if (c.kind === "added") return s + (c.to || 0);
+        if (c.kind === "removed") return s - (c.from || 0);
+        if (c.kind === "modified") return s + ((c.to || 0) - (c.from || 0));
+        return s;
+      }, 0);
+      await writeAuditLog({
+        action_type: "event_edited",
+        source: event.source,
+        action_date: event.event_date,
+        amount: netDkp,
+        summary: `${eventLabel} — ${diff.length} change(s): ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed (net ${netDkp >= 0 ? "+" : ""}${netDkp} DKP)`,
+        details: {
+          event_key: event.source,
+          stage: event.source_stage || null,
+          added: addedCount,
+          modified: modifiedCount,
+          removed: removedCount,
+          net_dkp: netDkp,
+          changes: diff,
+        },
+      });
 
       toast.success(t("editEvent.savedTitle"), {
         description: t("editEvent.savedDesc", { count: diff.length }),

@@ -418,6 +418,8 @@
       "penalty_applied": "Strafe erteilt",
       "penalty_reset": "Strafe aufgehoben",
       "event_upload": "Event-Upload",
+      "event_edited": "Event bearbeitet",
+      "event_deleted": "Event gelöscht",
       "auction_opened": "Auktion geöffnet",
       "auction_closed": "Auktion geschlossen",
       "auction_confirmed": "Auktion veröffentlicht",

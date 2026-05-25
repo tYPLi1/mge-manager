@@ -418,6 +418,8 @@
       "penalty_applied": "Ceza uygulandı",
       "penalty_reset": "Ceza sıfırlandı",
       "event_upload": "Etkinlik yüklemesi",
+      "event_edited": "Etkinlik düzenlendi",
+      "event_deleted": "Etkinlik silindi",
       "auction_opened": "Açık artırma açıldı",
       "auction_closed": "Açık artırma kapatıldı",
       "auction_confirmed": "Açık artırma yayınlandı",

@@ -418,6 +418,8 @@
       "penalty_applied": "Penalty applied",
       "penalty_reset": "Penalty reset",
       "event_upload": "Event upload",
+      "event_edited": "Event edited",
+      "event_deleted": "Event deleted",
       "auction_opened": "Auction opened",
       "auction_closed": "Auction closed",
       "auction_confirmed": "Auction published",

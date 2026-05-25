@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { writeAuditLog } from "@/lib/auditLog";
 
 
 
@@ -109,6 +110,25 @@ export default function DeleteEventData() {
       for (const [playerId, newDkp] of Object.entries(playerUpdates)) {
         await base44.entities.Player.update(playerId, { total_dkp: newDkp });
       }
+
+      // Audit log — record event deletion
+      const totalDkpRemoved = txsToDelete.reduce((s, tx) => s + (tx.amount || 0), 0);
+      const stageLabel = selectedEvent.source_stage === "prep" ? "Preparation" : selectedEvent.source_stage === "war" ? "War Stage" : null;
+      const eventDisplay = `${selectedEvent.source}${stageLabel ? ` - ${stageLabel}` : ""}`;
+      await writeAuditLog({
+        action_type: "event_deleted",
+        source: selectedEvent.source,
+        action_date: selectedEvent.event_date,
+        amount: -totalDkpRemoved,
+        summary: `${eventDisplay} — ${txsToDelete.length} transactions deleted, ${totalDkpRemoved >= 0 ? "-" : "+"}${Math.abs(totalDkpRemoved)} DKP removed`,
+        details: {
+          event_key: selectedEvent.source,
+          stage: selectedEvent.source_stage || null,
+          transactions_deleted: txsToDelete.length,
+          dkp_removed: totalDkpRemoved,
+          affected_players: affectedPlayerIds.length,
+        },
+      });
 
       toast.success(`Deleted ${txsToDelete.length} transactions`, {
         description: `Event: ${selectedEvent.source}${selectedEvent.source_stage ? ` - ${selectedEvent.source_stage}` : ""}`
