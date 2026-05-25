@@ -428,6 +428,10 @@ export default function AdminAuctions() {
     const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
+      if (rule === "fcfs") {
+        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
+        return `Earlier bid ${ts}`;
+      }
       // Final fallback: random system choice when all rules are tied
       return `System choice`;
     };
@@ -460,12 +464,18 @@ export default function AdminAuctions() {
               if (rule === "last_event_dkp") return lastEventDkpScores[pid] || 0;
               return null;
             };
-            const allPrimarySame = tiebreaker === "fcfs" || tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
-            const allFallbackSame = tiebreakerFallback === "fcfs" || tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+            // Check if all timestamps in the tied group are identical (millisecond-exact)
+            const allTimestampsSame = tiedGroup.every(t => new Date(t.created_date).getTime() === new Date(firstP.created_date).getTime());
+            const allPrimarySame = tiebreaker === "fcfs"
+              ? allTimestampsSame
+              : tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
+            const allFallbackSame = tiebreakerFallback === "fcfs"
+              ? allTimestampsSame
+              : tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
 
-            if (tiebreaker !== "fcfs" && !allPrimarySame) {
+            if (!allPrimarySame) {
               _tiebreaker = `Tiebreak: ${getRuleLabel(tiebreaker, s.player_id, s)}`;
-            } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
+            } else if (!allFallbackSame) {
               _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
             } else {
               _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
@@ -918,6 +928,10 @@ export default function AdminAuctions() {
     const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
+      if (rule === "fcfs") {
+        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
+        return `Earlier bid ${ts}`;
+      }
       return `System choice`;
     };
 
@@ -965,13 +979,18 @@ export default function AdminAuctions() {
       if (!b._friendlyZone && (tiedWithPrev || tiedWithNext)) {
         const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
         const firstP = tiedGroup[0];
-        const allPrimarySame = tiebreaker === "fcfs" || tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
-        const allFallbackSame = tiebreakerFallback === "fcfs" || tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
+        const allTimestampsSame = tiedGroup.every(t => new Date(t.created_date).getTime() === new Date(firstP.created_date).getTime());
+        const allPrimarySame = tiebreaker === "fcfs"
+          ? allTimestampsSame
+          : tiedGroup.every(t => scoreFor(tiebreaker, t.player_id) === scoreFor(tiebreaker, firstP.player_id));
+        const allFallbackSame = tiebreakerFallback === "fcfs"
+          ? allTimestampsSame
+          : tiedGroup.every(t => scoreFor(tiebreakerFallback, t.player_id) === scoreFor(tiebreakerFallback, firstP.player_id));
 
-        if (tiebreaker !== "fcfs" && !allPrimarySame) {
+        if (!allPrimarySame) {
            // Primary decided
            rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
-         } else if (tiebreakerFallback !== "fcfs" && !allFallbackSame) {
+         } else if (!allFallbackSame) {
            // Fallback decided
            rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
          } else {
