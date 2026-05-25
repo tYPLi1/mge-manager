@@ -20,12 +20,13 @@ const thBase = {
   background: "var(--dp-bg-elevated)",
 };
 
-function SortHeader({ field, sortField, sortDir, onSort, children, align = "left" }) {
+function SortHeader({ field, sortField, sortDir, onSort, children, align = "left", sticky = false }) {
   const isActive = sortField === field;
+  const style = sticky ? { ...thBase, textAlign: align, zIndex: 20, left: sticky === "name" ? 56 : 0 } : { ...thBase, textAlign: align };
   return (
     <th
       onClick={() => onSort(field)}
-      style={{ ...thBase, textAlign: align }}
+      style={style}
     >
       <div style={{ display: "inline-flex", alignItems: "center", gap: 4, justifyContent: align === "right" ? "flex-end" : align === "center" ? "center" : "flex-start" }}>
         {children}
@@ -75,8 +76,8 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
         <table className="dp-table-sticky-first" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
           <thead>
             <tr style={{ background: "var(--dp-bg-elevated)", borderBottom: "1px solid var(--dp-border)", position: "sticky", top: 0, zIndex: 5 }}>
-              <th style={{ ...thBase, width: 56, textAlign: "left" }}>#</th>
-              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort}>{c("name")}</SortHeader>
+              <th style={{ ...thBase, width: 56, textAlign: "left", zIndex: 20, left: 0, position: "sticky" }}>#</th>
+              <SortHeader field="name" sortField={sortField} sortDir={sortDir} onSort={onSort} sticky="name">{c("name")}</SortHeader>
               <SortHeader field="alliance" sortField={sortField} sortDir={sortDir} onSort={onSort}>{c("alliance")}</SortHeader>
               <SortHeader field="current_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("dkp")}</SortHeader>
               <SortHeader field="total_dkp" sortField={sortField} sortDir={sortDir} onSort={onSort} align="right">{c("earned")}</SortHeader>
