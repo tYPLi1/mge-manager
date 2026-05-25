@@ -414,7 +414,7 @@ export default function AdminAuctions() {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
       // fcfs: show the actual bid time so admins see WHY this bid won the tie
-      const ts = bid?.created_date ? new Date(bid.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+      const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
       return `Earlier bid: ${ts} UTC`;
     };
 
@@ -904,7 +904,7 @@ export default function AdminAuctions() {
     const getRuleLabel = (rule, playerId, bid) => {
       if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
-      const ts = bid?.created_date ? new Date(bid.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+      const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
       return `Earlier bid: ${ts} UTC`;
     };
 
@@ -1202,7 +1202,7 @@ export default function AdminAuctions() {
                           )}
                         </td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono whitespace-nowrap">
-                          {b.created_date ? new Date(b.created_date).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
+                          {b.created_date ? new Date(b.created_date).toISOString().slice(0, 23) : "—"}
                         </td>
                         <td className="px-2 py-1.5 hidden sm:table-cell">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${
