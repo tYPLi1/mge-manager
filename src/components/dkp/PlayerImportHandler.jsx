@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 import ImportPreview from "@/components/dkp/ImportPreview";
 import { useTranslation } from "@/lib/i18n";
+import { writeAuditLog } from "@/lib/auditLog";
 
 // Normalize date values from Excel (could be serial number, Date, or string)
 function normalizeDateValue(val) {
@@ -359,10 +360,34 @@ export default function PlayerImportHandler({
         for (let i = 0; i < newPlayers.length; i += 100) {
           await adminEntities.Player.bulkCreate(newPlayers.slice(i, i + 100));
         }
+        // Audit log: each newly created player (best effort — IDs not returned from bulkCreate, so we re-fetch by name)
+        try {
+          const allAfter = await adminEntities.Player.list("name", 100000);
+          const byName = new Map(allAfter.map(p => [p.name.toLowerCase(), p]));
+          for (const np of newPlayers) {
+            const created = byName.get((np.name || "").toLowerCase());
+            await writeAuditLog({
+              action_type: "player_created",
+              player_id: created?.id,
+              player_name: np.name,
+              source: "import",
+              summary: `Player "${np.name}" created via import${np.alliance ? ` (alliance: ${np.alliance})` : ""}`,
+              details: { name: np.name, alliance: np.alliance || null },
+            });
+          }
+        } catch (e) { console.warn("audit log for new players failed", e); }
       }
 
       // Execute player deletions (already confirmed above)
       for (const item of playerDeletions) {
+        await writeAuditLog({
+          action_type: "player_deleted",
+          player_id: item.id,
+          player_name: item.name,
+          source: "import",
+          summary: `Player "${item.name}" deleted via import`,
+          details: { name: item.name },
+        });
         await adminEntities.Player.delete(item.id);
       }
 
@@ -377,6 +402,27 @@ export default function PlayerImportHandler({
         Object.entries(item.changes).forEach(([key, { new: val }]) => {
           updateData[key] = val;
         });
+        // Audit log for name and alliance changes (fire-and-forget)
+        if (item.changes.name) {
+          writeAuditLog({
+            action_type: "player_renamed",
+            player_id: item.id,
+            player_name: item.changes.name.new,
+            source: "import",
+            summary: `Renamed: "${item.changes.name.old}" → "${item.changes.name.new}"`,
+            details: { old_name: item.changes.name.old, new_name: item.changes.name.new },
+          });
+        }
+        if (item.changes.alliance) {
+          writeAuditLog({
+            action_type: "player_alliance_changed",
+            player_id: item.id,
+            player_name: item.changes.name?.new || item.name,
+            source: "import",
+            summary: `Alliance: ${item.changes.alliance.old || "—"} → ${item.changes.alliance.new || "—"}`,
+            details: { old: item.changes.alliance.old || null, new: item.changes.alliance.new || null },
+          });
+        }
         if (item.changes.power) {
           powerHistoryBatch.push({
             player_id: item.id,

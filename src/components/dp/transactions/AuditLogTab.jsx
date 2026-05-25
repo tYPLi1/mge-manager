@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Filter, Search, Coins, Snowflake, ShieldAlert, Gift, Upload, RotateCcw, Gavel, Play, Square, CheckCircle, Trash2, Pencil } from "lucide-react";
+import { Filter, Search, Coins, Snowflake, ShieldAlert, Gift, Upload, RotateCcw, Gavel, Play, Square, CheckCircle, Trash2, Pencil, UserPlus, UserX, Edit3, Users } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import PlayerLink from "@/components/dp/PlayerLink";
+import AuditLogBackfillButton from "@/components/dp/transactions/AuditLogBackfillButton";
 
 const ACTION_META = {
   dkp_manual_adjust: { color: "var(--dp-info)", bg: "rgba(107, 147, 201, 0.12)", border: "rgba(107, 147, 201, 0.25)", icon: Coins },
@@ -16,6 +17,10 @@ const ACTION_META = {
   event_upload: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", border: "rgba(245, 158, 11, 0.25)", icon: Upload },
   event_edited: { color: "#fbbf24", bg: "rgba(251, 191, 36, 0.12)", border: "rgba(251, 191, 36, 0.25)", icon: Pencil },
   event_deleted: { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.25)", icon: Trash2 },
+  player_created: { color: "var(--dp-success)", bg: "rgba(109, 185, 137, 0.12)", border: "rgba(109, 185, 137, 0.25)", icon: UserPlus },
+  player_deleted: { color: "var(--dp-danger)", bg: "rgba(201, 101, 101, 0.12)", border: "rgba(201, 101, 101, 0.25)", icon: UserX },
+  player_renamed: { color: "#60a5fa", bg: "rgba(96, 165, 250, 0.12)", border: "rgba(96, 165, 250, 0.25)", icon: Edit3 },
+  player_alliance_changed: { color: "#a78bfa", bg: "rgba(167, 139, 250, 0.12)", border: "rgba(167, 139, 250, 0.25)", icon: Users },
   auction_opened: { color: "#10b981", bg: "rgba(16, 185, 129, 0.12)", border: "rgba(16, 185, 129, 0.25)", icon: Play },
   auction_closed: { color: "#f97316", bg: "rgba(249, 115, 22, 0.12)", border: "rgba(249, 115, 22, 0.25)", icon: Square },
   auction_confirmed: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)", border: "rgba(59, 130, 246, 0.25)", icon: CheckCircle },
@@ -91,12 +96,17 @@ export default function AuditLogTab({ onJumpToTransactions }) {
             <option value="event_upload">{t("auditLog.actions.event_upload")}</option>
             <option value="event_edited">{t("auditLog.actions.event_edited")}</option>
             <option value="event_deleted">{t("auditLog.actions.event_deleted")}</option>
+            <option value="player_created">{t("auditLog.actions.player_created")}</option>
+            <option value="player_deleted">{t("auditLog.actions.player_deleted")}</option>
+            <option value="player_renamed">{t("auditLog.actions.player_renamed")}</option>
+            <option value="player_alliance_changed">{t("auditLog.actions.player_alliance_changed")}</option>
             <option value="auction_opened">{t("auditLog.actions.auction_opened")}</option>
             <option value="auction_closed">{t("auditLog.actions.auction_closed")}</option>
             <option value="auction_confirmed">{t("auditLog.actions.auction_confirmed")}</option>
             <option value="auction_deleted">{t("auditLog.actions.auction_deleted")}</option>
           </select>
         </div>
+        <AuditLogBackfillButton />
       </div>
 
       <div className="dp-card-elevated" style={{ overflow: "hidden" }}>

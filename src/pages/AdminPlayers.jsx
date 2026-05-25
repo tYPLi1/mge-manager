@@ -96,7 +96,18 @@ export default function AdminPlayers() {
   }, [queryClient]);
 
   const createMutation = useMutation({
-    mutationFn: (name) => adminEntities.Player.create({ name, total_dkp: 0, dkp_spent: 0 }),
+    mutationFn: async (name) => {
+      const player = await adminEntities.Player.create({ name, total_dkp: 0, dkp_spent: 0 });
+      await writeAuditLog({
+        action_type: "player_created",
+        player_id: player?.id,
+        player_name: name,
+        source: "manual",
+        summary: `Player "${name}" created`,
+        details: { name },
+      });
+      return player;
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["players"] }); setNewName(""); },
   });
 
@@ -106,7 +117,17 @@ export default function AdminPlayers() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => adminEntities.Player.delete(id),
+    mutationFn: async ({ id, name, alliance }) => {
+      await writeAuditLog({
+        action_type: "player_deleted",
+        player_id: id,
+        player_name: name,
+        source: "manual",
+        summary: `Player "${name}" deleted${alliance ? ` (was in ${alliance})` : ""}`,
+        details: { name, alliance: alliance || null },
+      });
+      return adminEntities.Player.delete(id);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["players"] }),
   });
 
@@ -188,6 +209,31 @@ export default function AdminPlayers() {
         merits: newMerits,
         recorded_at: new Date().toISOString().split("T")[0],
         source: "manual",
+      });
+    }
+    // Audit log: name change
+    const newName = editName.trim() || p.name;
+    if (newName !== p.name) {
+      await writeAuditLog({
+        action_type: "player_renamed",
+        player_id: p.id,
+        player_name: newName,
+        source: "manual",
+        summary: `Renamed: "${p.name}" → "${newName}"`,
+        details: { old_name: p.name, new_name: newName },
+      });
+    }
+    // Audit log: alliance change
+    const newAllianceVal = editAlliance || null;
+    const oldAllianceVal = p.alliance || null;
+    if (newAllianceVal !== oldAllianceVal) {
+      await writeAuditLog({
+        action_type: "player_alliance_changed",
+        player_id: p.id,
+        player_name: newName,
+        source: "manual",
+        summary: `Alliance: ${oldAllianceVal || "—"} → ${newAllianceVal || "—"}`,
+        details: { old: oldAllianceVal, new: newAllianceVal },
       });
     }
     updateMutation.mutate({
@@ -704,7 +750,7 @@ export default function AdminPlayers() {
                           <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                          onClick={() => { if (confirm(`Delete ${p.name}?`)) deleteMutation.mutate(p.id); }}
+                          onClick={() => { if (confirm(`Delete ${p.name}?`)) deleteMutation.mutate({ id: p.id, name: p.name, alliance: p.alliance }); }}
                           className="p-1.5 rounded hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

@@ -18,7 +18,11 @@
         "auction_opened",
         "auction_closed",
         "auction_confirmed",
-        "auction_deleted"
+        "auction_deleted",
+        "player_created",
+        "player_deleted",
+        "player_renamed",
+        "player_alliance_changed"
       ],
       "description": "Type of action logged"
     },
