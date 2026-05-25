@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Search, Calendar, Upload } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import PlayerLink from "@/components/dp/PlayerLink";
 
 /**
  * Public, read-only events list — groups DKPTransactions by event_date + source + source_stage,
@@ -206,7 +207,9 @@ export default function PublicEventsList() {
                             const alliance = playerMap[tx.player_id]?.alliance || "";
                             return (
                               <tr key={tx.id} style={{ borderTop: "1px solid var(--dp-border)" }}>
-                                <td style={{ padding: "6px 12px", color: "var(--dp-text)", fontWeight: 500 }}>{tx.player_name}</td>
+                                <td style={{ padding: "6px 12px", color: "var(--dp-text)", fontWeight: 500 }}>
+                                  <PlayerLink playerId={tx.player_id} playerName={tx.player_name} />
+                                </td>
                                 <td style={{ padding: "6px 12px", color: "var(--dp-text-muted)", fontSize: 11.5 }}>
                                   {alliance || <span style={{ color: "var(--dp-text-dim)" }}>—</span>}
                                 </td>

@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Filter, Search, Coins, Snowflake, ShieldAlert, Gift, Upload, RotateCcw, Gavel, Play, Square, CheckCircle, Trash2, Pencil } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import PlayerLink from "@/components/dp/PlayerLink";
 
 const ACTION_META = {
   dkp_manual_adjust: { color: "var(--dp-info)", bg: "rgba(107, 147, 201, 0.12)", border: "rgba(107, 147, 201, 0.25)", icon: Coins },
@@ -152,7 +153,9 @@ export default function AuditLogTab({ onJumpToTransactions }) {
                           {t(`auditLog.actions.${l.action_type}`)}
                         </span>
                       </td>
-                      <td style={{ padding: "12px 18px", fontWeight: 500 }}>{l.player_name || "—"}</td>
+                      <td style={{ padding: "12px 18px", fontWeight: 500 }}>
+                        {l.player_name ? <PlayerLink playerId={l.player_id} playerName={l.player_name} /> : "—"}
+                      </td>
                       <td style={{ padding: "12px 18px", fontSize: 12.5, color: "var(--dp-text-muted)" }}>
                         {l.summary || "—"}
                         {isEvent && onJumpToTransactions && (

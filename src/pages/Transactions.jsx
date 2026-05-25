@@ -6,6 +6,7 @@ import DPPageHeader from "@/components/dp/PageHeader";
 import StatCard from "@/components/dp/StatCard";
 import AuditLogTab from "@/components/dp/transactions/AuditLogTab";
 import PublicEventsList from "@/components/dp/transactions/PublicEventsList";
+import PlayerLink from "@/components/dp/PlayerLink";
 import { useTranslation } from "@/lib/i18n";
 
 const typeStyle = (type) => {
@@ -294,7 +295,9 @@ export default function Transactions() {
                           <td className="dp-mono" style={{ padding: "12px 18px", color: "var(--dp-text-muted)", fontSize: 12.5 }}>
                             {tx.event_date}
                           </td>
-                          <td style={{ padding: "12px 18px", fontWeight: 500 }}>{tx.player_name}</td>
+                          <td style={{ padding: "12px 18px", fontWeight: 500 }}>
+                            <PlayerLink playerId={tx.player_id} playerName={tx.player_name} />
+                          </td>
                           <td style={{ padding: "12px 18px" }}>
                             {alliance ? (
                               <span style={{
