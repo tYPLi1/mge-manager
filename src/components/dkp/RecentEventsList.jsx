@@ -24,6 +24,16 @@ export default function RecentEventsList() {
     queryFn: () => base44.entities.EventType.list("sort_order", 100),
   });
 
+  const { data: players = [] } = useQuery({
+    queryKey: ["players-for-recent-events"],
+    queryFn: () => base44.entities.Player.list("name", 100000),
+  });
+
+  const playerMap = useMemo(
+    () => Object.fromEntries(players.map(p => [p.id, p])),
+    [players]
+  );
+
   // Load transactions from the last 4 weeks (with a generous cap)
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ["recent-events-4w"],
@@ -79,12 +89,9 @@ export default function RecentEventsList() {
     const totalDkp = toApply.reduce((sum, e) => sum + (e.amount || 0), 0);
     const leaderboardUrl = "https://mge002.base44.app/Leaderboard";
 
-    // Look up alliances per player for grouping
-    const allPlayers = await base44.entities.Player.list("name", 100000);
-    const playerMap = Object.fromEntries(allPlayers.map(p => [p.id, p]));
-
     // Map transactions to the row shape expected by buildEventEmbeds.
     // Resend has no ranking info → grouping by alliance + A-Z is used.
+    // Alliances are looked up from the Player entity via the playerMap.
     const rows = toApply.map(tx => ({
       playerName: tx.player_name,
       alliance: playerMap[tx.player_id]?.alliance || "",
@@ -242,6 +249,7 @@ export default function RecentEventsList() {
                       <thead className="bg-[#0d1117] sticky top-0">
                         <tr>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Player</th>
+                          <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Alliance</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">DKP</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Type</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Note</th>
@@ -251,6 +259,7 @@ export default function RecentEventsList() {
                         {event.transactions.map(tx => (
                           <tr key={tx.id} className="hover:bg-white/[0.02]">
                             <td className="px-3 py-1.5 text-white">{tx.player_name}</td>
+                            <td className="px-3 py-1.5 text-gray-300">{playerMap[tx.player_id]?.alliance || <span className="text-gray-600">—</span>}</td>
                             <td className={`px-3 py-1.5 font-mono font-semibold ${tx.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>
                               {tx.amount > 0 ? "+" : ""}{tx.amount}
                             </td>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { adminEntities } from "@/components/adminApi";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +30,16 @@ export default function ResendLastEventNotification() {
     queryKey: ["eventTypes"],
     queryFn: () => base44.entities.EventType.list("sort_order", 20),
   });
+
+  const { data: players = [] } = useQuery({
+    queryKey: ["players-for-resend"],
+    queryFn: () => base44.entities.Player.list("name", 100000),
+  });
+
+  const playerMap = useMemo(
+    () => Object.fromEntries(players.map(p => [p.id, p])),
+    [players]
+  );
 
   // Find last event by grouping transactions by event_date + source + source_stage
   const getLastEventUpload = () => {
@@ -77,12 +87,13 @@ export default function ResendLastEventNotification() {
       const toApply = lastEvent.transactions;
       const totalDkp = toApply.reduce((sum, e) => sum + e.amount, 0);
 
-      // Map transactions to row format expected by buildEventEmbeds
+      // Map transactions to row format expected by buildEventEmbeds.
+      // Alliance is looked up from Player entity (DKPTransaction has no alliance field).
       const rows = [...toApply]
         .sort((a, b) => b.amount - a.amount)
         .map((t) => ({
           playerName: t.player_name,
-          alliance: t.alliance || "",
+          alliance: playerMap[t.player_id]?.alliance || "",
           dkp: t.amount,
           note: t.note,
         }));
@@ -132,6 +143,7 @@ export default function ResendLastEventNotification() {
             <thead className="border-b border-white/10">
               <tr>
                 <th className="text-left py-2 px-2 text-gray-400 font-medium">Player</th>
+                <th className="text-left py-2 px-2 text-gray-400 font-medium">Alliance</th>
                 <th className="text-left py-2 px-2 text-gray-400 font-medium">DKP</th>
                 <th className="text-left py-2 px-2 text-gray-400 font-medium">Type</th>
                 <th className="text-left py-2 px-2 text-gray-400 font-medium">Note</th>
@@ -141,6 +153,7 @@ export default function ResendLastEventNotification() {
               {lastEvent.transactions.map((txn, idx) => (
                 <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
                   <td className="py-2 px-2 text-white">{txn.player_name}</td>
+                  <td className="py-2 px-2 text-gray-300">{playerMap[txn.player_id]?.alliance || <span className="text-gray-600">—</span>}</td>
                   <td className={`py-2 px-2 font-semibold ${txn.amount > 0 ? "text-green-400" : "text-red-400"}`}>
                     {txn.amount > 0 ? "+" : ""}{txn.amount}
                   </td>
