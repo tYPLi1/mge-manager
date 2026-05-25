@@ -98,16 +98,6 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
             {isLoading ? (
               Array(10).fill(0).map((_, i) => (
                 <tr key={i} style={{ borderBottom: "1px solid var(--dp-border)" }}>
-                  {Array(10 + eventColumns.length).fill(0).map((_, j) => (
-                    <td key={j} style={{ padding: "12px 14px" }}>
-                      <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              Array(10).fill(0).map((_, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid var(--dp-border)" }}>
                   <td style={{ padding: "12px 14px", position: "sticky", left: 0, zIndex: 8, background: "var(--dp-bg)" }}>
                     <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
                   </td>
@@ -119,10 +109,10 @@ export default function DPLeaderboardTable({ data, isLoading, sortField, sortDir
                       <div style={{ height: 14, width: 60, background: "var(--dp-border)", borderRadius: 4, opacity: 0.5 }} />
                     </td>
                   ))}
-                  </tr>
-                  ))
-                  ) : (
-                  data.map((p, idx) => {
+                </tr>
+              ))
+            ) : (
+              data.map((p, idx) => {
                 const rankClass = idx === 0 ? "dp-rank-1" : idx === 1 ? "dp-rank-2" : idx === 2 ? "dp-rank-3" : "";
                 return (
                   <tr key={p.id} className={`dp-hover-row ${rankClass}`} style={{ borderBottom: "1px solid var(--dp-border)" }}>
