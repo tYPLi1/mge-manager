@@ -969,9 +969,15 @@ export default function AdminAuctions() {
   const rankedBids = useMemo(() => {
     if (activeBids.length === 0) return [];
     const sorted = sortBids(activeBids);
+    const ruleName = (rule) => {
+      if (rule === "activity") return "Activity";
+      if (rule === "last_event_dkp") return "Last Event DKP";
+      if (rule === "fcfs") return "Earlier bid";
+      return "System";
+    };
     const getRuleLabel = (rule, playerId, bid) => {
-      if (rule === "activity") return `${activityScores[playerId] || 0}`;
-      if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
+      if (rule === "activity") return `Activity: ${activityScores[playerId] || 0}`;
+      if (rule === "last_event_dkp") return `Last Event DKP: ${lastEventDkpScores[playerId] || 0}`;
       if (rule === "fcfs") {
         // Full UTC timestamp with milliseconds: YYYY-MM-DD HH:MM:SS.mmm
         const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(0, 23).replace("T", " ") : "—";
@@ -1034,13 +1040,13 @@ export default function AdminAuctions() {
 
         if (!allPrimarySame) {
            // Primary decided
-           rankReason = `Tiebreak: ${getRuleLabel(tiebreaker, b.player_id, b)}`;
+           rankReason = `Tiebreak (${ruleName(tiebreaker)}): ${getRuleLabel(tiebreaker, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
          } else if (!allFallbackSame) {
            // Fallback decided
-           rankReason = `Fallback: ${getRuleLabel(tiebreakerFallback, b.player_id, b)}`;
+           rankReason = `Fallback (${ruleName(tiebreakerFallback)}): ${getRuleLabel(tiebreakerFallback, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
          } else {
            // Everything equal → random system choice
-           rankReason = `Random: ${getRuleLabel("random", b.player_id, b)}`;
+           rankReason = `Random: System choice`;
          }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
@@ -1294,11 +1300,18 @@ export default function AdminAuctions() {
                           </span>
                         </td>
                         <td className="px-2 py-1.5 hidden sm:table-cell">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            b._rankReason.startsWith("Tiebreak")
-                              ? "text-purple-400 bg-purple-500/10 border border-purple-500/20"
-                              : "text-gray-500"
-                          }`}>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.5 rounded inline-block max-w-[260px] truncate align-middle ${
+                              b._rankReason.startsWith("Tiebreak")
+                                ? "text-purple-400 bg-purple-500/10 border border-purple-500/20"
+                                : b._rankReason.startsWith("Fallback")
+                                ? "text-blue-400 bg-blue-500/10 border border-blue-500/20"
+                                : b._rankReason.startsWith("Random")
+                                ? "text-orange-400 bg-orange-500/10 border border-orange-500/20"
+                                : "text-gray-500"
+                            }`}
+                            title={b._rankReason}
+                          >
                             {b._rankReason}
                           </span>
                         </td>
