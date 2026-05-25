@@ -429,8 +429,9 @@ export default function AdminAuctions() {
       if (rule === "activity") return `${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
       if (rule === "fcfs") {
-        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
-        return `Earlier bid ${ts}`;
+        // Full UTC timestamp with milliseconds: YYYY-MM-DD HH:MM:SS.mmm
+        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(0, 23).replace("T", " ") : "—";
+        return `Earlier bid ${ts} UTC`;
       }
       // Final fallback: random system choice when all rules are tied
       return `System choice`;
@@ -929,8 +930,9 @@ export default function AdminAuctions() {
       if (rule === "activity") return `${activityScores[playerId] || 0}`;
       if (rule === "last_event_dkp") return `${lastEventDkpScores[playerId] || 0}`;
       if (rule === "fcfs") {
-        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(11, 23) : "—";
-        return `Earlier bid ${ts}`;
+        // Full UTC timestamp with milliseconds: YYYY-MM-DD HH:MM:SS.mmm
+        const ts = bid?.created_date ? new Date(bid.created_date).toISOString().slice(0, 23).replace("T", " ") : "—";
+        return `Earlier bid ${ts} UTC`;
       }
       return `System choice`;
     };
