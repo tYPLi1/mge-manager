@@ -470,23 +470,21 @@ export default function AdminAuctions() {
               if (rule === "last_event_dkp") return scoreFor("last_event_dkp", bid.player_id);
               return new Date(bid.created_date).getTime(); // fcfs
             };
-            // Did the PRIMARY tiebreaker actually decide MY position?
+            // Sub-group: everyone sharing MY primary value (incl. me)
             const myPrimary = valueFor(tiebreaker, s);
-            const primaryDecidedForMe = tiedGroup.some(t => valueFor(tiebreaker, t) !== myPrimary);
+            const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
 
-            if (primaryDecidedForMe) {
+            if (subGroup.length === 1) {
+              // I'm alone with my primary value → primary tiebreaker decided MY position
               _tiebreaker = `Tiebreak: ${getRuleLabel(tiebreaker, s.player_id, s)}`;
             } else {
-              // I'm in a sub-group with equal primary → fallback (or random) decided
-              const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
-              if (subGroup.length > 1) {
-                const myFallback = valueFor(tiebreakerFallback, s);
-                const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
-                if (fallbackDecidedForMe) {
-                  _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
-                } else {
-                  _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
-                }
+              // I share my primary value with others → fallback (or random) decides
+              const myFallback = valueFor(tiebreakerFallback, s);
+              const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
+              if (fallbackDecidedForMe) {
+                _tiebreaker = `Fallback: ${getRuleLabel(tiebreakerFallback, s.player_id, s)}`;
+              } else {
+                _tiebreaker = `Random: ${getRuleLabel("random", s.player_id, s)}`;
               }
             }
           }
@@ -1045,28 +1043,22 @@ export default function AdminAuctions() {
       if (!b._friendlyZone && (tiedWithPrev || tiedWithNext)) {
         // Full tied group (same DKP bid)
         const tiedGroup = effectiveTop.filter(t => !t._friendlyZone && t.dkp_bid === b.dkp_bid);
-        // Determine if the PRIMARY tiebreaker actually decided MY position
-        // (i.e. someone else in the tied group has a DIFFERENT primary value than me)
+        // Sub-group: everyone sharing MY primary value (incl. me)
         const myPrimary = valueFor(tiebreaker, b);
-        const primaryDecidedForMe = tiedGroup.some(t => valueFor(tiebreaker, t) !== myPrimary);
+        const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
 
-        if (primaryDecidedForMe) {
-          // Primary tiebreaker separated me from at least one other tied bidder
+        if (subGroup.length === 1) {
+          // I'm alone with my primary value → primary tiebreaker decided MY position
           rankReason = `Tiebreak (${ruleName(tiebreaker)}): ${getRuleLabel(tiebreaker, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
         } else {
-          // I'm in a sub-group where primary is equal → fallback (or random) decides
-          const subGroup = tiedGroup.filter(t => valueFor(tiebreaker, t) === myPrimary);
-          if (subGroup.length > 1) {
-            const myFallback = valueFor(tiebreakerFallback, b);
-            const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
-            if (fallbackDecidedForMe) {
-              rankReason = `Fallback (${ruleName(tiebreakerFallback)}): ${getRuleLabel(tiebreakerFallback, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
-            } else {
-              rankReason = `Random: System choice`;
-            }
+          // I share my primary value with others → fallback (or random) decides within sub-group
+          const myFallback = valueFor(tiebreakerFallback, b);
+          const fallbackDecidedForMe = subGroup.some(t => valueFor(tiebreakerFallback, t) !== myFallback);
+          if (fallbackDecidedForMe) {
+            rankReason = `Fallback (${ruleName(tiebreakerFallback)}): ${getRuleLabel(tiebreakerFallback, b.player_id, b).replace(/^[^:]+:\s*/, "")}`;
+          } else {
+            rankReason = `Random: System choice`;
           }
-          // If subGroup.length === 1, I'm alone in my sub-group → primary actually decided after all
-          // (shouldn't happen because primaryDecidedForMe would be true, but safe fallback)
         }
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
