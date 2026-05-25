@@ -1220,7 +1220,7 @@ export default function AdminAuctions() {
                 )}
                 {(a.status === "draft" || a.status === "open" || a.status === "closed") && (
                   <Button size="sm" variant="outline" onClick={() => { setViewBids(viewBids?.id === a.id ? null : a); setShowPreview(false); }} className="border-white/10 text-gray-300 text-xs hover:bg-white/5">
-                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : (a.status === "draft" ? "Edit" : "Bids")}
+                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : (a.status === "closed" ? t("auctionActions.processAuction") : a.status === "draft" ? "Edit" : t("auctionActions.viewBids"))}
                   </Button>
                 )}
                 {a.status === "closed" && viewBids?.id === a.id && (

@@ -443,8 +443,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "View Bids",
+     "processAuction": "Process Auction",
+     "reopenAuction": "Reopen Auction"
+  },
   "compensation": {
-    "button": "Compensations",
+     "button": "Compensations",
     "title": "Award Compensations",
     "subtitle": "Compensate bidders who didn't get their target rank.",
     "formula": "Formula: bid ÷ {{divisor}} = compensation DKP",

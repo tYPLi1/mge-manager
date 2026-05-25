@@ -418,8 +418,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "Voir les enchères",
+     "processAuction": "Traiter l'enchère",
+     "reopenAuction": "Rouvrir l'enchère"
+  },
   "compensation": {
-    "button": "Compensations",
+     "button": "Compensations",
     "title": "Attribuer compensations",
     "subtitle": "Compense les enchérisseurs n'ayant pas obtenu leur rang cible.",
     "formula": "Formule : enchère ÷ {{divisor}} = compensation DKP",

@@ -414,8 +414,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "查看出价",
+     "processAuction": "处理拍卖",
+     "reopenAuction": "重新打开拍卖"
+  },
   "compensation": {
-    "button": "补偿",
+     "button": "补偿",
     "title": "发放补偿",
     "subtitle": "补偿未达到目标名次的出价者。",
     "formula": "公式：出价 ÷ {{divisor}} = 补偿 DKP",

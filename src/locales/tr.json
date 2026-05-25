@@ -443,8 +443,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "Teklifleri Göster",
+     "processAuction": "Açık Artırmayı İşle",
+     "reopenAuction": "Açık Artırmayı Yeniden Aç"
+  },
   "compensation": {
-    "button": "Tazminatlar",
+     "button": "Tazminatlar",
     "title": "Tazminat Ver",
     "subtitle": "Hedeflediği sırayı alamayan teklif sahiplerini tazmin et.",
     "formula": "Formül: teklif ÷ {{divisor}} = tazminat DKP",

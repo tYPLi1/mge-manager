@@ -443,6 +443,11 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+    "viewBids": "Gebote anzeigen",
+    "processAuction": "Auktion verarbeiten",
+    "reopenAuction": "Auktion erneut öffnen"
+  },
   "compensation": {
     "button": "Gutschriften",
     "title": "Gutschriften vergeben",

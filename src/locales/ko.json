@@ -414,8 +414,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "입찰가 보기",
+     "processAuction": "경매 처리",
+     "reopenAuction": "경매 다시 열기"
+  },
   "compensation": {
-    "button": "보상",
+     "button": "보상",
     "title": "보상 지급",
     "subtitle": "목표 순위를 달성하지 못한 입찰자에게 보상합니다.",
     "formula": "공식: 입찰 ÷ {{divisor}} = 보상 DKP",

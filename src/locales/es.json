@@ -424,8 +424,13 @@
       "amount": "DKP"
     }
   },
+  "auctionActions": {
+     "viewBids": "Ver ofertas",
+     "processAuction": "Procesar subasta",
+     "reopenAuction": "Reabrir subasta"
+  },
   "compensation": {
-    "button": "Compensaciones",
+     "button": "Compensaciones",
     "title": "Otorgar compensaciones",
     "subtitle": "Compensa a los pujadores que no obtuvieron su rango objetivo.",
     "formula": "Fórmula: puja ÷ {{divisor}} = compensación DKP",
