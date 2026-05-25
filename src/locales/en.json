@@ -586,8 +586,10 @@
       "sourcesTitle": "Which event sources count?",
       "sourcesEmpty": "No active events found.",
       "stagePrep": "Prep",
-      "stageWar": "War"
-    }
+      "stageWar": "War",
+      "finalFallbackTitle": "🎲 Final Fallback (always active)",
+      "finalFallbackDesc": "When the primary and fallback tiebreaker both yield equal values at the same DKP bid, the system automatically picks a random winner as the final step. The selection is deterministic (same bid → same winner) to keep the preview and final results consistent."
+      }
   },
   "appData": {
     "tabs": {

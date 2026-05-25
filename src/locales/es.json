@@ -553,10 +553,12 @@
       "fallbackTitle": "Desempate alternativo",
       "fallbackDesc": "Si el desempate principal también es igual (p. ej. todos 0), esta regla decide.",
       "sourcesTitle": "¿Qué fuentes de eventos cuentan?",
-      "sourcesEmpty": "No se encontraron eventos activos.",
-      "stagePrep": "Preparación",
-      "stageWar": "Guerra"
-    }
+       "sourcesEmpty": "No se encontraron eventos activos.",
+       "stagePrep": "Preparación",
+       "stageWar": "Guerra",
+       "finalFallbackTitle": "🎲 Solución final (siempre activa)",
+       "finalFallbackDesc": "Cuando el desempate principal y el alternativo producen valores idénticos con la misma puja DKP, el sistema selecciona automáticamente un ganador aleatorio como último paso. La elección es determinista (misma puja → mismo ganador) para que la previsualización y el resultado final sean coherentes."
+      }
   },
   "appData": {
     "tabs": {

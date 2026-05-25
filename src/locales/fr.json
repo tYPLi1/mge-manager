@@ -547,10 +547,12 @@
       "fallbackTitle": "Départage de repli",
       "fallbackDesc": "Si le départage principal est aussi à égalité (ex. tous à 0), cette règle décide.",
       "sourcesTitle": "Quelles sources d'événement comptent ?",
-      "sourcesEmpty": "Aucun événement actif trouvé.",
-      "stagePrep": "Prépa",
-      "stageWar": "Guerre"
-    }
+       "sourcesEmpty": "Aucun événement actif trouvé.",
+       "stagePrep": "Prépa",
+       "stageWar": "Guerre",
+       "finalFallbackTitle": "🎲 Solution finale (toujours active)",
+       "finalFallbackDesc": "Quand le départage principal et le de repli donnent des valeurs identiques à la même mise DKP, le système choisit automatiquement un gagnant aléatoire en dernier recours. Le choix est déterministe (même mise → même gagnant) pour que la prévisualisation et le résultat soient cohérents."
+      }
   },
   "appData": {
     "tabs": {

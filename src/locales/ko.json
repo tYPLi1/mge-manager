@@ -543,10 +543,12 @@
       "fallbackTitle": "대체 동점 처리",
       "fallbackDesc": "주요 동점 처리도 동점인 경우(예: 모두 0), 이 규칙으로 결정됩니다.",
       "sourcesTitle": "어떤 이벤트 출처가 계산됩니까?",
-      "sourcesEmpty": "활성 이벤트를 찾을 수 없음.",
-      "stagePrep": "준비",
-      "stageWar": "전쟁"
-    }
+       "sourcesEmpty": "활성 이벤트를 찾을 수 없음.",
+       "stagePrep": "준비",
+       "stageWar": "전쟁",
+       "finalFallbackTitle": "🎲 최종 비상 수단 (항상 활성)",
+       "finalFallbackDesc": "주요 및 대체 동점 처리 규칙이 같은 DKP 입찰에서 동일한 값을 반환하면, 시스템이 마지막 단계로 자동으로 무작위 우승자를 선택합니다. 선택은 결정론적(같은 입찰 → 같은 우승자)이므로 미리보기와 최종 결과가 일관되게 유지됩니다."
+      }
   },
   "appData": {
     "tabs": {

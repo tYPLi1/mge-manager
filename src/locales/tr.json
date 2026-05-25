@@ -583,10 +583,12 @@
       "fallbackTitle": "Yedek Eşitlik Bozucu",
       "fallbackDesc": "Birincil eşitlik bozucu da eşitse (örn. hepsi 0), bu kural karar verir.",
       "sourcesTitle": "Hangi etkinlik kaynakları sayılır?",
-      "sourcesEmpty": "Aktif etkinlik bulunamadı.",
-      "stagePrep": "Hazırlık",
-      "stageWar": "Savaş"
-    }
+       "sourcesEmpty": "Aktif etkinlik bulunamadı.",
+       "stagePrep": "Hazırlık",
+       "stageWar": "Savaş",
+       "finalFallbackTitle": "🎲 Acil Çözüm (her zaman aktif)",
+       "finalFallbackDesc": "Birincil ve yedek eşitlik bozucu aynı DKP teklifinde özdeş değerler verirse, sistem son adım olarak otomatik olarak rastgele bir kazanan seçer. Seçim deterministiktir (aynı teklif → aynı kazanan), böylece önizleme ve sonuç tutarlı kalır."
+      }
   },
   "appData": {
     "tabs": {

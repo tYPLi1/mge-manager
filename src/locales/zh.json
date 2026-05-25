@@ -543,10 +543,12 @@
       "fallbackTitle": "备用并列裁决",
       "fallbackDesc": "如果主要并列裁决也相同（例如全部为 0），将由此规则决定。",
       "sourcesTitle": "哪些事件来源计入？",
-      "sourcesEmpty": "未找到活跃事件。",
-      "stagePrep": "准备",
-      "stageWar": "战争"
-    }
+       "sourcesEmpty": "未找到活跃事件。",
+       "stagePrep": "准备",
+       "stageWar": "战争",
+       "finalFallbackTitle": "🎲 最终备用方案（始终启用）",
+       "finalFallbackDesc": "当主要和备用并列裁决在相同 DKP 出价下产生相同值时，系统会自动随机选择一位获胜者作为最后步骤。选择是确定性的（相同出价 → 相同获胜者），以保持预览与最终结果一致。"
+      }
   },
   "appData": {
     "tabs": {

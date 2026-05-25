@@ -585,8 +585,10 @@
       "sourcesTitle": "Welche Event-Quellen zählen?",
       "sourcesEmpty": "Keine aktiven Events gefunden.",
       "stagePrep": "Prep",
-      "stageWar": "War"
-    }
+      "stageWar": "War",
+      "finalFallbackTitle": "🎲 Notlösung (immer aktiv)",
+      "finalFallbackDesc": "Wenn primärer und Fallback-Tiebreaker bei gleichem DKP-Gebot identische Werte liefern, wählt das System als letzte Stufe automatisch einen zufälligen Sieger. Die Wahl ist deterministisch (gleicher Bid → gleicher Sieger), damit Preview und Endergebnis konsistent bleiben."
+      }
   },
   "appData": {
     "tabs": {
