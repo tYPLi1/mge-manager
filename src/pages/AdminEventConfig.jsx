@@ -116,6 +116,22 @@ function EventEditor({ draft, onChange }) {
             />
           </div>
         )}
+        {draft.participation_type === "ranked" && (
+          <div>
+            <Label className="text-gray-500 text-xs block mb-1">
+              Top Split Cutoff (XX)
+              <span className="text-gray-600 font-normal ml-1">(Top XX by power get split DKP)</span>
+            </Label>
+            <Input
+              type="number"
+              min={1}
+              value={draft.top_split_rank_cutoff ?? ""}
+              onChange={(e) => set("top_split_rank_cutoff", e.target.value === "" ? null : Number(e.target.value))}
+              className="bg-white/5 border-white/10 text-amber-400 font-mono h-8"
+              placeholder="20"
+            />
+          </div>
+        )}
       </div>
 
       {draft.participation_type === "ranked" ? (
@@ -261,6 +277,7 @@ function CreateEventModal({ onClose, onCreate }) {
     war_top20_fallback: 20,
     war_outside_fallback: 0,
     war_ranking_cutoff: 100,
+    top_split_rank_cutoff: 20,
     dkp_table_prep: "[]",
     dkp_table_prep_top20: "[]",
     dkp_table_prep_outside: "[]",
@@ -313,6 +330,15 @@ function CreateEventModal({ onClose, onCreate }) {
                   <span className="text-gray-600 font-normal ml-1">(Top N qualified for DKP)</span>
                 </Label>
                 <Input type="number" value={form.war_ranking_cutoff ?? ""} onChange={(e) => set("war_ranking_cutoff", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-white" />
+              </div>
+            )}
+            {!isYN && (
+              <div className="sm:col-span-2">
+                <Label className="text-gray-500 text-xs block mb-1">
+                  Top Split Cutoff (XX)
+                  <span className="text-gray-600 font-normal ml-1">(Top XX by power get split DKP, also defines override range)</span>
+                </Label>
+                <Input type="number" min={1} value={form.top_split_rank_cutoff ?? ""} onChange={(e) => set("top_split_rank_cutoff", e.target.value === "" ? null : Number(e.target.value))} className="bg-white/5 border-white/10 text-amber-400 font-mono" placeholder="20" />
               </div>
             )}
           </div>
@@ -426,6 +452,7 @@ function CreateEventModal({ onClose, onCreate }) {
 const COMPARE_KEYS = [
   "display_name", "key", "participation_type", "has_prep_stage", "has_war_stage",
   "prep_top20_enabled", "war_top20_enabled",
+  "top_split_rank_cutoff",
   "dkp_table_prep", "dkp_table_prep_top20", "dkp_table_prep_outside",
   "prep_top20_fallback", "prep_outside_fallback",
   "dkp_table_war_top20", "dkp_table_war_outside",

@@ -270,29 +270,30 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
             });
           }
         } else {
-          const top20TableType = effectiveStage === "prep" ? "prep_top20" : "war_top20";
+          const topSplitCutoff = Math.max(1, Number(selectedEventType.top_split_rank_cutoff) || 20);
+          const topTableType = effectiveStage === "prep" ? "prep_top20" : "war_top20";
           const outsideTableType = effectiveStage === "prep" ? "prep_outside" : "war_outside";
           const allPlayersByPower = [...players].sort((a, b) => (b.power || 0) - (a.power || 0));
-          const top20PlayerIds = new Set(allPlayersByPower.slice(0, 20).map(p => p.id));
+          const topPlayerIds = new Set(allPlayersByPower.slice(0, topSplitCutoff).map(p => p.id));
 
-          const top20Entries = [];
+          const topEntries = [];
           const outsideEntries = [];
           for (const entry of parsed) {
-            if (entry.player && top20PlayerIds.has(entry.player.id)) {
-              top20Entries.push(entry);
+            if (entry.player && topPlayerIds.has(entry.player.id)) {
+              topEntries.push(entry);
             } else {
               outsideEntries.push(entry);
             }
           }
 
-          top20Entries.sort((a, b) => a.serverRank - b.serverRank);
+          topEntries.sort((a, b) => a.serverRank - b.serverRank);
           outsideEntries.sort((a, b) => a.serverRank - b.serverRank);
 
           const claimedRanks = new Set();
           const outsideOverride = [];
           const outsideRegular = [];
           for (const entry of outsideEntries) {
-            if (entry.serverRank >= 1 && entry.serverRank <= 10) {
+            if (entry.serverRank >= 1 && entry.serverRank <= topSplitCutoff) {
               outsideOverride.push(entry);
               claimedRanks.add(entry.serverRank);
             } else {
@@ -303,7 +304,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
           let outsideGroupRank = 1;
           for (const entry of outsideOverride) {
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            const dkp = rankToDkp(selectedEventType, top20TableType, entry.serverRank, withinCutoff);
+            const dkp = rankToDkp(selectedEventType, topTableType, entry.serverRank, withinCutoff);
             results.push({
               playerId: entry.player?.id || null,
               playerName: entry.playerName,
@@ -322,12 +323,12 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
           }
 
           let effectiveRank = 1;
-          for (const entry of top20Entries) {
+          for (const entry of topEntries) {
             const withinCutoff = entry.serverRank <= (selectedEventType.war_ranking_cutoff ?? 100);
-            while (effectiveRank <= 10 && claimedRanks.has(effectiveRank)) {
+            while (effectiveRank <= topSplitCutoff && claimedRanks.has(effectiveRank)) {
               effectiveRank++;
             }
-            const dkp = rankToDkp(selectedEventType, top20TableType, effectiveRank, withinCutoff);
+            const dkp = rankToDkp(selectedEventType, topTableType, effectiveRank, withinCutoff);
             results.push({
               playerId: entry.player?.id || null,
               playerName: entry.playerName,
@@ -336,7 +337,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
               serverRank: entry.serverRank,
               groupRank: effectiveRank,
               dkp,
-              group: "Top 20",
+              group: `Top ${topSplitCutoff}`,
               power: entry.power,
               merits: entry.merits,
               note: entry.note,
