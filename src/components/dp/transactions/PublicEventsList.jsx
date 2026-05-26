@@ -177,6 +177,7 @@ export default function PublicEventsList() {
                         <thead>
                           <tr style={{ background: "var(--dp-bg-elevated)" }}>
                             {[
+                              "Rank",
                               t("transactions.columns.player"),
                               t("transactions.columns.alliance"),
                               t("transactions.columns.amount"),
@@ -203,10 +204,17 @@ export default function PublicEventsList() {
                           </tr>
                         </thead>
                         <tbody>
-                          {event.transactions.map(tx => {
+                          {[...event.transactions].sort((a, b) => {
+                            const ar = a.rank == null ? Infinity : Number(a.rank);
+                            const br = b.rank == null ? Infinity : Number(b.rank);
+                            return ar - br;
+                          }).map(tx => {
                             const alliance = playerMap[tx.player_id]?.alliance || "";
                             return (
                               <tr key={tx.id} style={{ borderTop: "1px solid var(--dp-border)" }}>
+                                <td className="dp-mono" style={{ padding: "6px 12px", color: "var(--dp-accent)", fontWeight: 600 }}>
+                                  {tx.rank != null ? `#${tx.rank}` : <span style={{ color: "var(--dp-text-dim)" }}>—</span>}
+                                </td>
                                 <td style={{ padding: "6px 12px", color: "var(--dp-text)", fontWeight: 500 }}>
                                   <PlayerLink playerId={tx.player_id} playerName={tx.player_name} />
                                 </td>

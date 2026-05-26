@@ -248,6 +248,7 @@ export default function RecentEventsList() {
                     <table className="w-full text-xs">
                       <thead className="bg-[#0d1117] sticky top-0">
                         <tr>
+                          <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Rank</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Player</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">Alliance</th>
                           <th className="px-3 py-2 text-left font-semibold text-gray-400 uppercase">DKP</th>
@@ -256,8 +257,13 @@ export default function RecentEventsList() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
-                        {event.transactions.map(tx => (
+                        {[...event.transactions].sort((a, b) => {
+                          const ar = a.rank == null ? Infinity : Number(a.rank);
+                          const br = b.rank == null ? Infinity : Number(b.rank);
+                          return ar - br;
+                        }).map(tx => (
                           <tr key={tx.id} className="hover:bg-white/[0.02]">
+                            <td className="px-3 py-1.5 text-amber-400 font-mono">{tx.rank != null ? `#${tx.rank}` : <span className="text-gray-600">—</span>}</td>
                             <td className="px-3 py-1.5 text-white">{tx.player_name}</td>
                             <td className="px-3 py-1.5 text-gray-300">{playerMap[tx.player_id]?.alliance || <span className="text-gray-600">—</span>}</td>
                             <td className={`px-3 py-1.5 font-mono font-semibold ${tx.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>

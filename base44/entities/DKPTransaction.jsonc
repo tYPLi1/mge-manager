@@ -1,0 +1,75 @@
+{
+  "name": "DKPTransaction",
+  "type": "object",
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Player name for display"
+    },
+    "amount": {
+      "type": "number",
+      "description": "DKP amount (positive or negative)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "earn",
+        "bid",
+        "penalty",
+        "bonus",
+        "compensation",
+        "king_allocation"
+      ],
+      "description": "Transaction type"
+    },
+    "source": {
+      "type": "string",
+      "description": "Event source (MEE, GEE, DDE, MGE, KING, etc.)"
+    },
+    "source_stage": {
+      "type": "string",
+      "description": "Event stage (prep, war, etc.)"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the event"
+    },
+    "note": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "number",
+      "description": "Server rank of the player at this event (from the upload)"
+    }
+  },
+  "required": [
+    "player_id",
+    "amount",
+    "type",
+    "source",
+    "event_date"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

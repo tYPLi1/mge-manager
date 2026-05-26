@@ -469,6 +469,7 @@ export default function EventUpload({ players = [], eventTypes = [] }) {
         source_stage: isYN ? null : effectiveStage,
         event_date: eventDate,
         note: entry.note || null,
+        rank: entry.serverRank != null ? Number(entry.serverRank) : null,
       };
     }).filter(t => t.player_id);
     const txBatchPromises = [];
