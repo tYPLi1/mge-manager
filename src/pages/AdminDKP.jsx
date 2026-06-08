@@ -7,6 +7,7 @@ import EventUpload from "@/components/dkp/EventUpload";
 import DeleteEventData from "@/components/dkp/DeleteEventData";
 import ResendLastEventNotification from "@/components/dkp/ResendLastEventNotification.jsx";
 import RecentEventsList from "@/components/dkp/RecentEventsList";
+import SyncDKPPanel from "@/components/dkp/SyncDKPPanel";
 import { writeAuditLog } from "@/lib/auditLog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -157,6 +158,7 @@ export default function AdminDKP() {
 
       <EventUpload players={players} eventTypes={eventTypes} />
       <RecentEventsList />
+      <SyncDKPPanel />
       <DeleteEventData />
     </div>
   );
