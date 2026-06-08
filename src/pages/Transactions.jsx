@@ -46,7 +46,7 @@ export default function Transactions() {
 
   const { data: players = [] } = useQuery({
     queryKey: ["players-list"],
-    queryFn: () => base44.entities.Player.list("name", 500),
+    queryFn: () => base44.entities.Player.list("name", 100000),
   });
 
   const { data: alliancesJson = "" } = useQuery({
