@@ -13,6 +13,7 @@ Deno.serve(async (req) => {
     const transactions = await service.entities.DKPTransaction.list('-event_date', 1000000);
 
     const updates = [];
+    const diffs = [];
 
     for (const player of players) {
       const playerTxns = transactions
@@ -42,8 +43,19 @@ Deno.serve(async (req) => {
         .filter(t => t.type === 'bid')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      if (player.total_dkp !== total_dkp || player.dkp_spent !== dkp_spent) {
+      const oldTotal = player.total_dkp || 0;
+      const oldSpent = player.dkp_spent || 0;
+      if (oldTotal !== total_dkp || oldSpent !== dkp_spent) {
         updates.push({ id: player.id, data: { total_dkp, dkp_spent } });
+        diffs.push({
+          name: player.name,
+          old_total: oldTotal,
+          new_total: total_dkp,
+          total_diff: total_dkp - oldTotal,
+          old_spent: oldSpent,
+          new_spent: dkp_spent,
+          spent_diff: dkp_spent - oldSpent,
+        });
       }
     }
 
@@ -55,7 +67,8 @@ Deno.serve(async (req) => {
     return Response.json({ 
       success: true, 
       players_processed: players.length,
-      players_updated: updates.length
+      players_updated: updates.length,
+      diffs,
     });
   } catch (error) {
     console.error('syncPlayerDKP error:', error);
