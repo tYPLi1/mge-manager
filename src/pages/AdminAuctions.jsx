@@ -164,7 +164,7 @@ export default function AdminAuctions() {
 
   const { data: players = [] } = useQuery({
     queryKey: ["players"],
-    queryFn: () => base44.entities.Player.list("name", 500),
+    queryFn: () => base44.entities.Player.list("name", 5000),
   });
 
   const { data: settings = [] } = useQuery({
