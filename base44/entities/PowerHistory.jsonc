@@ -1,0 +1,49 @@
+{
+  "name": "PowerHistory",
+  "type": "object",
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player"
+    },
+    "player_name": {
+      "type": "string"
+    },
+    "power": {
+      "type": "number",
+      "description": "Power value recorded"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of recording"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of power data (manual, upload, etc.)"
+    }
+  },
+  "required": [
+    "player_id",
+    "power",
+    "recorded_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

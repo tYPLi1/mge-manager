@@ -1,0 +1,67 @@
+{
+  "name": "Penalty",
+  "type": "object",
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player"
+    },
+    "player_name": {
+      "type": "string"
+    },
+    "level": {
+      "type": "number",
+      "description": "Penalty level 1-3"
+    },
+    "offense_count": {
+      "type": "number",
+      "default": 1
+    },
+    "offense_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "eligible_reset_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "probation",
+        "reset"
+      ],
+      "default": "probation"
+    },
+    "note": {
+      "type": "string"
+    },
+    "dkp_deducted": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "player_id",
+    "level",
+    "offense_date"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

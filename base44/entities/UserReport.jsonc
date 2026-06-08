@@ -1,0 +1,81 @@
+{
+  "name": "UserReport",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "translation",
+        "other"
+      ],
+      "default": "bug",
+      "description": "Type of report"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Short summary"
+    },
+    "message": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "page": {
+      "type": "string",
+      "description": "Page path where report was submitted"
+    },
+    "locale": {
+      "type": "string",
+      "description": "Locale active when reporting (en, de, tr, es, fr, ko, zh)"
+    },
+    "reporter_name": {
+      "type": "string",
+      "description": "Optional in-game name for follow-up"
+    },
+    "screenshot_url": {
+      "type": "string",
+      "description": "Optional uploaded screenshot URL"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser user agent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "in_progress",
+        "resolved",
+        "wont_fix"
+      ],
+      "default": "new",
+      "description": "Triage status"
+    },
+    "admin_note": {
+      "type": "string",
+      "description": "Internal admin note"
+    }
+  },
+  "required": [
+    "type",
+    "message"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

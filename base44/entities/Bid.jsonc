@@ -1,0 +1,61 @@
+{
+  "name": "Bid",
+  "type": "object",
+  "properties": {
+    "auction_id": {
+      "type": "string",
+      "description": "Reference to Auction"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Player name for display"
+    },
+    "dkp_bid": {
+      "type": "number",
+      "description": "DKP amount bid"
+    },
+    "mge_score": {
+      "type": "number",
+      "description": "Optional MGE score"
+    },
+    "want_friendly_zone": {
+      "type": "boolean",
+      "default": false,
+      "description": "Player opts in to friendly zone slot"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "deleted_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "auction_id",
+    "player_id",
+    "dkp_bid"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

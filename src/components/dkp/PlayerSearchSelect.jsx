@@ -69,7 +69,7 @@ export default function PlayerSearchSelect({ players, value, onValueChange, plac
               className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-600 focus:outline-none"
             />
           </div>
-          <div className="max-h-52 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto">
             {filtered.length === 0 && (
               <div className="px-3 py-3 text-xs text-gray-500 text-center">
                 {t("playerSearch.noResults")}

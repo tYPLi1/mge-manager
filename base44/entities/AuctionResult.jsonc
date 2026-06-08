@@ -1,0 +1,66 @@
+{
+  "name": "AuctionResult",
+  "type": "object",
+  "properties": {
+    "auction_id": {
+      "type": "string",
+      "description": "Reference to Auction"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "Reference to Player"
+    },
+    "player_name": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "number",
+      "description": "Rank 1-10"
+    },
+    "bid_id": {
+      "type": "string",
+      "description": "Reference to winning Bid"
+    },
+    "dkp_bid": {
+      "type": "number"
+    },
+    "target_score": {
+      "type": "number"
+    },
+    "hero_medals": {
+      "type": "number"
+    },
+    "tiebreaker_note": {
+      "type": "string",
+      "description": "Tiebreaker reason if applicable (e.g. 'Activity: 450')"
+    },
+    "is_friendly_zone": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this slot was awarded via Friendly Zone"
+    }
+  },
+  "required": [
+    "auction_id",
+    "player_id",
+    "rank"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
