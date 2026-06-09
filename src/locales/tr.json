@@ -446,7 +446,12 @@
   "auctionResults": {
     "button": "Sonuçlar",
     "hide": "Sonuçları gizle",
-    "resend": "Discord mesajını yeniden gönder"
+    "resend": "Discord mesajını yeniden gönder",
+    "rankReason": "Sıralama Nedeni",
+    "reasonFixed": "Sabit atandı",
+    "reasonReserved": "Önceki MGE'den rezerve",
+    "reasonFriendlyZone": "Dostluk Bölgesi",
+    "reasonHighestBid": "En yüksek DKP teklifi"
   },
   "auctionActions": {
      "viewBids": "Teklifleri Göster",

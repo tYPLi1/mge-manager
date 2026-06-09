@@ -11,6 +11,35 @@ export default function ConfirmedAuctionResults({ auction, channelId }) {
   const { t } = useTranslation();
   const [showDiscordPreview, setShowDiscordPreview] = useState(false);
 
+  // Derive a human-readable "why this rank" badge from the stored AuctionResult.
+  // The tiebreaker_note already encodes Fixed / ReservedNext / Tiebreak / Fallback / Random.
+  const reasonInfo = (r, note, isFixed, isReserved) => {
+    if (isFixed) {
+      return { label: `📌 ${note.replace(/^Fixed:\s*/, t("auctionResults.reasonFixed") + ": ")}`, cls: "text-amber-400 bg-amber-500/10 border border-amber-500/20" };
+    }
+    if (isReserved) {
+      const rest = note.replace(/^ReservedNext:\s*/, "").trim();
+      return { label: `🔄 ${t("auctionResults.reasonReserved")}${rest ? " · " + rest : ""}`, cls: "text-blue-400 bg-blue-500/10 border border-blue-500/20" };
+    }
+    if (r.is_friendly_zone) {
+      return { label: `🤝 ${t("auctionResults.reasonFriendlyZone")}`, cls: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" };
+    }
+    if (note.startsWith("Tiebreak")) {
+      return { label: `⚖ ${note}`, cls: "text-purple-400 bg-purple-500/10 border border-purple-500/20" };
+    }
+    if (note.startsWith("Fallback")) {
+      return { label: note, cls: "text-blue-400 bg-blue-500/10 border border-blue-500/20" };
+    }
+    if (note.startsWith("Random")) {
+      return { label: note, cls: "text-orange-400 bg-orange-500/10 border border-orange-500/20" };
+    }
+    if (note) {
+      return { label: note, cls: "text-purple-400 bg-purple-500/10 border border-purple-500/20" };
+    }
+    // No note → normal highest-bid winner
+    return { label: t("auctionResults.reasonHighestBid"), cls: "text-gray-500" };
+  };
+
   const { data: results = [], isLoading } = useQuery({
     queryKey: ["auction-results", auction.id],
     queryFn: () => base44.entities.AuctionResult.filter({ auction_id: auction.id }, "rank", 100),
@@ -83,14 +112,17 @@ export default function ConfirmedAuctionResults({ auction, channelId }) {
                 <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.dkpBid")}</th>
                 <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">{t("results.columns.medals")}</th>
                 <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">{t("results.columns.targetScore")}</th>
-                <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("results.columns.notes")}</th>
+                <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("auctionResults.rankReason")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {results.map((r) => {
-                const isFixed = typeof r.tiebreaker_note === "string" && r.tiebreaker_note.startsWith("Fixed:");
+                const note = typeof r.tiebreaker_note === "string" ? r.tiebreaker_note : "";
+                const isFixed = note.startsWith("Fixed:");
+                const isReserved = note.startsWith("ReservedNext:");
+                const reason = reasonInfo(r, note, isFixed, isReserved);
                 return (
-                  <tr key={r.id} className={isFixed ? "bg-amber-500/5" : r.is_friendly_zone ? "bg-emerald-500/5" : ""}>
+                  <tr key={r.id} className={isFixed ? "bg-amber-500/5" : isReserved ? "bg-blue-500/5" : r.is_friendly_zone ? "bg-emerald-500/5" : ""}>
                     <td className="px-2 py-1.5">
                       <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                         r.rank <= 3 ? "bg-amber-500/20 text-amber-400" : "bg-gray-700/50 text-gray-400"
@@ -107,14 +139,10 @@ export default function ConfirmedAuctionResults({ auction, channelId }) {
                     </td>
                     <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{r.hero_medals ?? "—"}</td>
                     <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{r.target_score ? r.target_score.toLocaleString() : "—"}</td>
-                    <td className="px-2 py-1.5 hidden md:table-cell">
-                      {r.tiebreaker_note ? (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded inline-block max-w-[260px] truncate align-middle ${
-                          isFixed
-                            ? "text-amber-400 bg-amber-500/10 border border-amber-500/20"
-                            : "text-purple-400 bg-purple-500/10 border border-purple-500/20"
-                        }`} title={r.tiebreaker_note}>
-                          {r.tiebreaker_note}
+                    <td className="px-2 py-1.5">
+                      {reason ? (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded inline-block max-w-[280px] truncate align-middle ${reason.cls}`} title={reason.label}>
+                          {reason.label}
                         </span>
                       ) : <span className="text-xs text-gray-600">—</span>}
                     </td>

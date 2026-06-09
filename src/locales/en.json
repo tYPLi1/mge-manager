@@ -446,7 +446,12 @@
   "auctionResults": {
     "button": "Results",
     "hide": "Hide Results",
-    "resend": "Resend Discord message"
+    "resend": "Resend Discord message",
+    "rankReason": "Rank Reason",
+    "reasonFixed": "Fixed",
+    "reasonReserved": "Reserved from previous MGE",
+    "reasonFriendlyZone": "Friendly Zone",
+    "reasonHighestBid": "Highest DKP bid"
   },
   "auctionActions": {
      "viewBids": "View Bids",

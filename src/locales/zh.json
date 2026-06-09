@@ -417,7 +417,12 @@
   "auctionResults": {
     "button": "结果",
     "hide": "隐藏结果",
-    "resend": "重新发送 Discord 消息"
+    "resend": "重新发送 Discord 消息",
+    "rankReason": "排名原因",
+    "reasonFixed": "固定分配",
+    "reasonReserved": "来自上次 MGE 的预留",
+    "reasonFriendlyZone": "友好区",
+    "reasonHighestBid": "最高 DKP 出价"
   },
   "auctionActions": {
      "viewBids": "查看出价",

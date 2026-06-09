@@ -417,7 +417,12 @@
   "auctionResults": {
     "button": "결과",
     "hide": "결과 숨기기",
-    "resend": "디스코드 메시지 다시 보내기"
+    "resend": "디스코드 메시지 다시 보내기",
+    "rankReason": "순위 사유",
+    "reasonFixed": "고정 배정",
+    "reasonReserved": "이전 MGE에서 예약",
+    "reasonFriendlyZone": "프렌들리 존",
+    "reasonHighestBid": "최고 DKP 입찰"
   },
   "auctionActions": {
      "viewBids": "입찰가 보기",
