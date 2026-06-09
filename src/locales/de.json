@@ -443,6 +443,11 @@
       "amount": "DKP"
     }
   },
+  "auctionResults": {
+    "button": "Resultate",
+    "hide": "Resultate ausblenden",
+    "resend": "Discord-Nachricht erneut senden"
+  },
   "auctionActions": {
     "viewBids": "Gebote anzeigen",
     "processAuction": "Auktion verarbeiten",

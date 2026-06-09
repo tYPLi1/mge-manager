@@ -424,6 +424,11 @@
       "amount": "DKP"
     }
   },
+  "auctionResults": {
+    "button": "Resultados",
+    "hide": "Ocultar resultados",
+    "resend": "Reenviar mensaje de Discord"
+  },
   "auctionActions": {
      "viewBids": "Ver ofertas",
      "processAuction": "Procesar subasta",

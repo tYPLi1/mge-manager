@@ -418,6 +418,11 @@
       "amount": "DKP"
     }
   },
+  "auctionResults": {
+    "button": "Résultats",
+    "hide": "Masquer les résultats",
+    "resend": "Renvoyer le message Discord"
+  },
   "auctionActions": {
      "viewBids": "Voir les enchères",
      "processAuction": "Traiter l'enchère",

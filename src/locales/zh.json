@@ -414,6 +414,11 @@
       "amount": "DKP"
     }
   },
+  "auctionResults": {
+    "button": "结果",
+    "hide": "隐藏结果",
+    "resend": "重新发送 Discord 消息"
+  },
   "auctionActions": {
      "viewBids": "查看出价",
      "processAuction": "处理拍卖",

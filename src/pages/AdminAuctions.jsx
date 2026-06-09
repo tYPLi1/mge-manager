@@ -15,6 +15,7 @@ import DiscordPreviewModal from "@/components/dkp/DiscordPreviewModal";
 import FixedAssignmentsEditor from "@/components/dkp/FixedAssignmentsEditor";
 import InlineFixedAssignmentsEditor from "@/components/dkp/InlineFixedAssignmentsEditor";
 import ReopenAuctionModal from "@/components/dkp/ReopenAuctionModal";
+import ConfirmedAuctionResults from "@/components/dkp/ConfirmedAuctionResults";
 import { writeAuditLog } from "@/lib/auditLog";
 
 const DEFAULT_MGE_TARGETS = [
@@ -137,6 +138,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
 export default function AdminAuctions() {
   const { t } = useTranslation();
   const [compensationAuction, setCompensationAuction] = useState(null);
+  const [resultsAuctionId, setResultsAuctionId] = useState(null);
   const [title, setTitle] = useState("");
   const [scheduledOpen, setScheduledOpen] = useState("");
   const [scheduledClose, setScheduledClose] = useState("");
@@ -1231,6 +1233,15 @@ export default function AdminAuctions() {
                 {a.status === "confirmed" && (
                   <Button
                     size="sm"
+                    onClick={() => setResultsAuctionId(resultsAuctionId === a.id ? null : a.id)}
+                    className="bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs hover:bg-blue-500/30"
+                  >
+                    <Eye className="w-3 h-3 mr-1" /> {resultsAuctionId === a.id ? t("auctionResults.hide") : t("auctionResults.button")}
+                  </Button>
+                )}
+                {a.status === "confirmed" && (
+                  <Button
+                    size="sm"
                     onClick={() => setCompensationAuction(a)}
                     className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs hover:bg-amber-500/30"
                   >
@@ -1474,6 +1485,11 @@ export default function AdminAuctions() {
                 </Button>
                 <p className="text-xs text-gray-500 mt-2">DKP will be deducted, cooldowns set and results published publicly.</p>
               </div>
+            )}
+
+            {/* Confirmed auction results + manual Discord resend */}
+            {a.status === "confirmed" && resultsAuctionId === a.id && (
+              <ConfirmedAuctionResults auction={a} channelId={channelId} />
             )}
           </div>
         ))}

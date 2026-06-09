@@ -443,6 +443,11 @@
       "amount": "DKP"
     }
   },
+  "auctionResults": {
+    "button": "Sonuçlar",
+    "hide": "Sonuçları gizle",
+    "resend": "Discord mesajını yeniden gönder"
+  },
   "auctionActions": {
      "viewBids": "Teklifleri Göster",
      "processAuction": "Açık Artırmayı İşle",
