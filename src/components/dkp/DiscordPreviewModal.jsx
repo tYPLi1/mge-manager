@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n";
 
 export default function DiscordPreviewModal({ embed, embeds, channelId, onClose, onSent, sendNow = true, notifType }) {
+  const { t } = useTranslation();
   const [extraText, setExtraText] = useState("");
   const [sending, setSending] = useState(false);
-  
+
   const embedsToSend = embeds || (embed ? [embed] : []);
 
   const getSession = () => {
@@ -22,7 +24,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
   const handleSend = async () => {
     // If sendNow is false, we just save without sending (for deferred sends like auction creation)
     if (sendNow === false) {
-      toast.success("Discord message will be sent on start");
+      toast.success(t("discordModal.willSendOnStart"));
       onSent?.(extraText);
       onClose();
       return;
@@ -31,7 +33,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
     setSending(true);
     const session = getSession();
     if (!session) {
-      toast.error("No admin session found");
+      toast.error(t("discordModal.noSession"));
       setSending(false);
       onSent?.();
       onClose();
@@ -47,16 +49,16 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
       });
 
       if (!res.data?.success) {
-        toast.error(`Discord error: ${res.data?.error || "Unknown"}`);
+        toast.error(t("discordModal.sendFailed", { error: res.data?.error || "Unknown" }));
         setSending(false);
         onSent?.(extraText);
         onClose();
         return;
       }
-      toast.success(`Discord message${embedsToSend.length > 1 ? 's' : ''} sent!`);
+      toast.success(t("discordModal.sent"));
     } catch (error) {
       console.error("Discord send error:", error);
-      toast.error(`Failed to send: ${error.message}`);
+      toast.error(t("discordModal.sendFailed", { error: error.message }));
     }
 
     setSending(false);
@@ -93,8 +95,8 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
       <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-indigo-400" /> Discord Preview
-            {embedsToSend.length > 1 && <span className="text-xs text-gray-400">({embedsToSend.length} messages)</span>}
+            <MessageSquare className="w-5 h-5 text-indigo-400" /> {t("discordModal.title")}
+            {embedsToSend.length > 1 && <span className="text-xs text-gray-400">({t("discordModal.messages", { count: embedsToSend.length })})</span>}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white">
             <X className="w-5 h-5" />
@@ -105,7 +107,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
          {embedsToSend.length > 1 && (
            <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-3">
              <p className="text-blue-300 text-xs">
-               ⚠️ Event wird in <strong>{embedsToSend.length} Discord-Nachrichten</strong> geteilt (zu viele Daten für eine Nachricht)
+               {t("discordModal.splitInfo", { count: embedsToSend.length })}
              </p>
            </div>
          )}
@@ -119,7 +121,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
              return (
                <div key={idx} className="flex items-center justify-between text-xs">
                  <span className="text-slate-400">
-                   Nachricht {idx + 1}: <strong className={charCount > limit ? 'text-red-400' : 'text-slate-300'}>{charCount}</strong> / {limit} Zeichen
+                   {t("discordModal.message", { n: idx + 1 })}: <strong className={charCount > limit ? 'text-red-400' : 'text-slate-300'}>{charCount}</strong> / {limit} {t("discordModal.chars")}
                  </span>
                  <div className="w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                    <div 
@@ -139,7 +141,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
                <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
                <div className="p-3 flex-1 space-y-2">
                  {embedsToSend.length > 1 && (
-                   <p className="text-gray-500 text-[10px] font-semibold">Nachricht {idx + 1}/{embedsToSend.length}</p>
+                   <p className="text-gray-500 text-[10px] font-semibold">{t("discordModal.message", { n: idx + 1 })}/{embedsToSend.length}</p>
                  )}
                  {embedItem.title && (
                    <p className="text-white font-semibold text-sm">{embedItem.title}</p>
@@ -170,7 +172,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
              <div className="flex">
                <div className="w-1 shrink-0" style={{ backgroundColor: colorHex }} />
                <div className="p-3 flex-1">
-                 <p className="text-gray-400 text-xs font-semibold mb-1">📝 Event Notes</p>
+                 <p className="text-gray-400 text-xs font-semibold mb-1">{t("discordModal.eventNotes")}</p>
                  <p className="text-gray-200 text-xs whitespace-pre-wrap">{extraText}</p>
                </div>
              </div>
@@ -180,10 +182,10 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
         {/* Extra Text Input */}
         <div>
           <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">
-            Additional Text (optional)
+            {t("discordModal.additionalText")}
           </Label>
           <Textarea
-            placeholder="e.g. notes, comments..."
+            placeholder={t("discordModal.placeholder")}
             value={extraText}
             onChange={(e) => setExtraText(e.target.value)}
             rows={3}
@@ -198,14 +200,14 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
              onClick={onClose}
              className="flex-1 border-white/10 text-gray-400 hover:text-white"
            >
-             Abbrechen
+             {t("common.cancel")}
            </Button>
            <Button
              variant="outline"
              onClick={handleSkip}
              className="flex-1 border-white/10 text-gray-400 hover:text-white"
            >
-             Ohne Discord
+             {t("discordModal.skip")}
            </Button>
            <Button
              onClick={handleSend}
@@ -213,7 +215,7 @@ export default function DiscordPreviewModal({ embed, embeds, channelId, onClose,
              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
            >
              <Send className="w-4 h-4 mr-1.5" />
-             {sending ? "Sending..." : sendNow === false ? "Save & Create" : "Send & Continue"}
+             {sending ? t("discordModal.sending") : sendNow === false ? t("discordModal.saveCreate") : t("discordModal.sendContinue")}
            </Button>
          </div>
       </div>

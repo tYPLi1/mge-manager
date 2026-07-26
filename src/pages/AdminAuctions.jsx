@@ -53,6 +53,7 @@ function formatUTCDate(dateStr) {
 }
 
 function DeleteModal({ auction, players, onClose, onDelete }) {
+  const { t } = useTranslation();
   const [refundDkp, setRefundDkp] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
@@ -73,18 +74,18 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
       <div className="bg-[#111827] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-bold text-lg">Delete Auction</h2>
+          <h2 className="text-white font-bold text-lg">{t("adminAuctions.deleteModal.title")}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
           <p className="text-white font-semibold text-sm mb-1">"{auction.title}"</p>
-          <p className="text-gray-400 text-xs">Status: <span className="text-red-400 font-medium">{auction.status}</span></p>
+          <p className="text-gray-400 text-xs">{t("adminAuctions.deleteModal.statusLabel")}: <span className="text-red-400 font-medium">{t(`adminAuctions.status.${auction.status}`)}</span></p>
         </div>
 
         {isConfirmed && (
           <div className="space-y-3">
-            <p className="text-gray-300 text-sm">This auction has already been confirmed and DKP was deducted. Do you want to refund the DKP?</p>
+            <p className="text-gray-300 text-sm">{t("adminAuctions.deleteModal.refundQuestion")}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setRefundDkp(true)}
@@ -94,7 +95,7 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
                     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                 }`}
               >
-                ✓ Yes, refund DKP
+                {t("adminAuctions.deleteModal.refundYes")}
               </button>
               <button
                 onClick={() => setRefundDkp(false)}
@@ -104,30 +105,30 @@ function DeleteModal({ auction, players, onClose, onDelete }) {
                     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                 }`}
               >
-                ✗ No, just delete
+                {t("adminAuctions.deleteModal.refundNo")}
               </button>
             </div>
             <p className="text-xs text-gray-500">
               {refundDkp
-                ? 'DKP will be refunded as "Compensation" and deducted from dkp_spent. Cooldowns will be cleared.'
-                : 'Cooldowns will be cleared. DKP will not be refunded.'}
+                ? t("adminAuctions.deleteModal.refundHintYes")
+                : t("adminAuctions.deleteModal.refundHintNo")}
             </p>
           </div>
         )}
 
         {!isConfirmed && (
-          <p className="text-gray-400 text-sm">The auction and all associated bids will be permanently deleted.</p>
+          <p className="text-gray-400 text-sm">{t("adminAuctions.deleteModal.notConfirmedNote")}</p>
         )}
 
         <div className="flex gap-3 pt-1">
-          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">Cancel</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1 border-white/10 text-gray-400 hover:text-white">{t("common.cancel")}</Button>
           <Button
             onClick={handleDelete}
             disabled={deleting}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white"
           >
             <Trash2 className="w-4 h-4 mr-1" />
-            {deleting ? "Deleting..." : "Delete"}
+            {deleting ? t("adminAuctions.deleteModal.deleting") : t("adminAuctions.deleteModal.delete")}
           </Button>
         </div>
       </div>
@@ -571,7 +572,7 @@ export default function AdminAuctions() {
     });
 
     queryClient.invalidateQueries({ queryKey: ["auctions"] });
-    toast.success(`Auction "${auction.title}" reopened`);
+    toast.success(t("adminAuctions.reopenedToast", { title: auction.title }));
   };
 
   const [deletingBidId, setDeletingBidId] = useState(null);
@@ -582,11 +583,11 @@ export default function AdminAuctions() {
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["bids", viewBids?.id] });
-      toast.success("Bid deleted");
+      toast.success(t("adminAuctions.bidDeleted"));
       setDeletingBidId(null);
     },
     onError: () => {
-      toast.error("Failed to delete bid");
+      toast.error(t("adminAuctions.bidDeleteFailed"));
       setDeletingBidId(null);
     },
   });
@@ -639,7 +640,7 @@ export default function AdminAuctions() {
     const freshAuctions = await adminEntities.Auction.filter({ id: viewBids.id });
     const freshAuction = freshAuctions[0];
     if (!freshAuction || freshAuction.status === "confirmed") {
-      toast.error("This auction has already been confirmed!");
+      toast.error(t("adminAuctions.alreadyConfirmed"));
       setConfirming(false);
       setShowPreview(false);
       setViewBids(null);
@@ -921,7 +922,7 @@ export default function AdminAuctions() {
       related_id: auction.id,
     });
 
-    toast.success(`Auction "${auction.title}" deleted (${auctionBids.length} bids removed)`);
+    toast.success(t("adminAuctions.deletedToast", { title: auction.title, count: auctionBids.length }));
 
     if (viewBids?.id === auction.id) {
       setViewBids(null);
@@ -1062,7 +1063,7 @@ export default function AdminAuctions() {
     };
 
     return effectiveTop.map((b, i) => {
-      let rankReason = b._friendlyZone ? "Friendly Zone (Platz 10)" : "Highest DKP bid";
+      let rankReason = b._friendlyZone ? t("auctionResults.reasonFriendlyZone") : t("auctionResults.reasonHighestBid");
       const prev = effectiveTop[i - 1];
       const next = effectiveTop[i + 1];
       const tiedWithPrev = i > 0 && prev && !prev._friendlyZone && prev.dkp_bid === b.dkp_bid;
@@ -1090,7 +1091,7 @@ export default function AdminAuctions() {
       }
       return { ...b, _rank: i + 1, _rankReason: rankReason };
     });
-  }, [activeBids, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores, friendlyZoneEnabled, friendlyZoneThreshold, players]);
+  }, [activeBids, tiebreaker, tiebreakerFallback, activityScores, lastEventDkpScores, friendlyZoneEnabled, friendlyZoneThreshold, players, t]);
 
   // Compute effective status client-side
   const getEffectiveStatus = (auction) => {
@@ -1126,35 +1127,35 @@ export default function AdminAuctions() {
 
   return (
     <div>
-      <PageHeader title="Auction Management" icon={Gavel} />
+      <PageHeader title={t("adminAuctions.title")} icon={Gavel} />
 
       {/* Create Auction */}
       <div className="bg-[#111827] rounded-xl border border-white/5 p-5 mb-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Create New Auction</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">{t("adminAuctions.createTitle")}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. MGE Round 15" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">{t("adminAuctions.titleLabel")}</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("adminAuctions.titlePlaceholder")} className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
           </div>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Start UTC (auto-open)
+              <Clock className="w-3 h-3" /> {t("adminAuctions.startLabel")}
             </Label>
             <Input type="datetime-local" value={scheduledOpen} onChange={(e) => setScheduledOpen(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">End Date / Time (UTC)</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">{t("adminAuctions.endLabel")}</Label>
             <Input type="datetime-local" value={scheduledClose} onChange={(e) => setScheduledClose(e.target.value)} className="bg-white/5 border-white/10 text-white" />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">Password (optional)</Label>
-            <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Empty = no password" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+            <Label className="text-gray-400 text-xs uppercase tracking-wider mb-1.5 block">{t("adminAuctions.passwordLabel")}</Label>
+            <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("adminAuctions.passwordPlaceholder")} className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
           </div>
         </div>
         {scheduledOpen && (
           <p className="text-xs text-amber-400/70 mt-2 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            Auction auto-opens on {formatUTCDate(scheduledOpen)}
+            {t("adminAuctions.autoOpens", { date: formatUTCDate(scheduledOpen) })}
           </p>
         )}
 
@@ -1169,7 +1170,7 @@ export default function AdminAuctions() {
         </div>
 
         <Button onClick={handleCreate} disabled={!title || createMutation.isPending} className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-          <Plus className="w-4 h-4 mr-1" /> Create Auction
+          <Plus className="w-4 h-4 mr-1" /> {t("adminAuctions.createButton")}
         </Button>
       </div>
 
@@ -1194,40 +1195,40 @@ export default function AdminAuctions() {
                     a.status === "confirmed" ? "bg-blue-500/15 text-blue-400" :
                     "bg-gray-500/15 text-gray-400"
                   }`}>
-                    {getEffectiveStatus(a) !== a.status ? "syncing..." : a.status}
+                    {getEffectiveStatus(a) !== a.status ? t("adminAuctions.status.syncing") : t(`adminAuctions.status.${a.status}`)}
                   </span>
                   {a.scheduled_open && a.status === "draft" && (
                     <span className="text-xs text-amber-400/70 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> Opens: {formatUTCDate(a.scheduled_open)}
+                      <Clock className="w-3 h-3" /> {t("adminAuctions.opens", { date: formatUTCDate(a.scheduled_open) })}
                     </span>
                   )}
-                  {a.scheduled_close && <span className="text-xs text-gray-500">Closes: {formatUTCDate(a.scheduled_close)}</span>}
+                  {a.scheduled_close && <span className="text-xs text-gray-500">{t("adminAuctions.closes", { date: formatUTCDate(a.scheduled_close) })}</span>}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {a.status === "draft" && (
                   <Button size="sm" onClick={() => handleOpenAuction(a)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
-                    <Play className="w-3 h-3 mr-1" /> Open
+                    <Play className="w-3 h-3 mr-1" /> {t("adminAuctions.openButton")}
                   </Button>
                 )}
                 {a.status === "open" && (
                   <Button size="sm" onClick={() => statusMutation.mutate({ id: a.id, status: "closed", auction: a })} className="bg-red-600 hover:bg-red-700 text-white text-xs">
-                    <Square className="w-3 h-3 mr-1" /> Close
+                    <Square className="w-3 h-3 mr-1" /> {t("adminAuctions.closeButton")}
                   </Button>
                 )}
                 {a.status === "closed" && (
                   <Button size="sm" onClick={() => setReopenModal(a)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
-                    <RotateCcw className="w-3 h-3 mr-1" /> Reopen
+                    <RotateCcw className="w-3 h-3 mr-1" /> {t("adminAuctions.reopenButton")}
                   </Button>
                 )}
                 {(a.status === "draft" || a.status === "open" || a.status === "closed") && (
                   <Button size="sm" variant="outline" onClick={() => { setViewBids(viewBids?.id === a.id ? null : a); setShowPreview(false); }} className="border-white/10 text-gray-300 text-xs hover:bg-white/5">
-                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? "Hide" : (a.status === "closed" ? t("auctionActions.processAuction") : a.status === "draft" ? "Edit" : t("auctionActions.viewBids"))}
+                    <Eye className="w-3 h-3 mr-1" /> {viewBids?.id === a.id ? t("adminAuctions.hideBids") : (a.status === "closed" ? t("auctionActions.processAuction") : a.status === "draft" ? t("adminAuctions.edit") : t("auctionActions.viewBids"))}
                   </Button>
                 )}
                 {a.status === "closed" && viewBids?.id === a.id && (
                   <Button size="sm" onClick={() => setShowPreview(!showPreview)} className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs hover:bg-amber-500/30">
-                    {showPreview ? "Hide Preview" : "Ranking Preview"}
+                    {showPreview ? t("adminAuctions.hidePreview") : t("adminAuctions.rankingPreview")}
                   </Button>
                 )}
                 {a.status === "confirmed" && (
@@ -1252,7 +1253,7 @@ export default function AdminAuctions() {
                 <button
                   onClick={() => setDeleteModal(a)}
                   className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded hover:bg-red-500/10"
-                  title="Delete auction"
+                  title={t("adminAuctions.deleteTooltip")}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -1274,7 +1275,7 @@ export default function AdminAuctions() {
                 ) : currentFixedAssignments.length > 0 && (
                   <div className="mb-3 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
                     <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1">
-                      📌 Fix vergebene Ränge
+                      📌 {t("fixedRanks.inlineTitle")}
                     </p>
                     <div className="space-y-1">
                       {currentFixedAssignments.map(fa => (
@@ -1288,10 +1289,10 @@ export default function AdminAuctions() {
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                  <p className="text-xs text-gray-500">{activeBids.length} active bids{deletedBids.length > 0 ? ` · ${deletedBids.length} deleted` : ""}</p>
+                  <p className="text-xs text-gray-500">{t("adminAuctions.activeBids", { count: activeBids.length })}{deletedBids.length > 0 ? ` · ${t("adminAuctions.deletedBids", { count: deletedBids.length })}` : ""}</p>
                   {friendlyZoneEnabled && (
                     <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5">
-                      Friendly Zone active (≤ {friendlyZoneThreshold} DKP)
+                      {t("adminAuctions.fzActive", { threshold: friendlyZoneThreshold })}
                     </span>
                   )}
                 </div>
@@ -1299,15 +1300,15 @@ export default function AdminAuctions() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Rank</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Bid Time (UTC)</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell" title="Activity Score">Activity</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell" title="DKP earned in last configured event">Last Event</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Rank Reason</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">FZ</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Actions</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.rank")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.player")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.dkpBid")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("adminAuctions.cols.bidTime")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("adminAuctions.cols.activity")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("adminAuctions.cols.lastEvent")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">{t("auctionResults.rankReason")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("adminAuctions.cols.fz")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("adminAuctions.cols.actions")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -1388,7 +1389,7 @@ export default function AdminAuctions() {
                             </button>
                             <button
                               onClick={() => {
-                                const reason = prompt("Reason for deleting this bid:");
+                                const reason = prompt(t("adminAuctions.deleteBidPrompt"));
                                 if (reason !== null) deleteBidMutation.mutate({ id: b.id, reason });
                               }}
                               disabled={deletingBidId === b.id}
@@ -1405,7 +1406,7 @@ export default function AdminAuctions() {
                   </tbody>
                 </table>
                 </div>
-                {rankedBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">No bids yet</p>}
+                {rankedBids.length === 0 && <p className="text-center text-gray-500 text-xs py-4">{t("adminAuctions.noBids")}</p>}
               </div>
             )}
 
@@ -1413,22 +1414,22 @@ export default function AdminAuctions() {
             {viewBids?.id === a.id && showPreview && (
               <div className="mt-4 border-t border-white/5 pt-4">
                 <div className="flex items-center justify-between mb-3">
-                   <p className="text-sm font-semibold text-white">Preview: Top {auctionMaxRanks} Ranking</p>
+                   <p className="text-sm font-semibold text-white">{t("adminAuctions.previewTitle", { count: auctionMaxRanks })}</p>
                   {friendlyZoneEnabled && (
                     <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5">
-                      Friendly Zone active (Threshold: {friendlyZoneThreshold} DKP)
+                      {t("adminAuctions.fzActive", { threshold: friendlyZoneThreshold })}
                     </span>
                   )}
                 </div>
                 <table className="w-full mb-4">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Rank</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">Player</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">DKP Bid</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Medals</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Target Score</th>
-                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Cooldown</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.rank")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.player")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase">{t("results.columns.dkpBid")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">{t("results.columns.medals")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">{t("results.columns.targetScore")}</th>
+                      <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">{t("adminAuctions.cols.cooldown")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -1447,15 +1448,15 @@ export default function AdminAuctions() {
                           {entry.player_name}
                           {entry._fixed && (
                             <span className="ml-2 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-1.5 py-0.5">
-                              📌 Fix: {entry._fixedReason}
+                              📌 {t("fixedRanks.fixBadge")}: {entry._fixedReason}
                             </span>
                           )}
                           {isReservedRank && (
                             <span className="ml-2 text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/30 rounded px-1.5 py-0.5">
-                              🔄 Reserved for next MGE
+                              🔄 {t("adminAuctions.reservedBadge")}
                             </span>
                           )}
-                          {entry._friendlyZone && <span className="ml-2 text-xs text-emerald-400">(Friendly Zone)</span>}
+                          {entry._friendlyZone && <span className="ml-2 text-xs text-emerald-400">({t("auction.friendlyZone")})</span>}
                           {entry._tiebreaker && (
                             <span className="ml-2 text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded px-1.5 py-0.5">
                               ⚖ {entry._tiebreaker}
@@ -1468,7 +1469,7 @@ export default function AdminAuctions() {
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden sm:table-cell">{entry.medals}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 font-mono hidden sm:table-cell">{entry.target?.toLocaleString()}</td>
                         <td className="px-2 py-1.5 text-xs text-gray-400 hidden md:table-cell">
-                          +{cooldownTable[entry.rank] || 7} days
+                          {t("adminAuctions.cooldownDays", { days: cooldownTable[entry.rank] || 7 })}
                         </td>
                       </tr>
                       );
@@ -1481,9 +1482,9 @@ export default function AdminAuctions() {
                   className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  {confirmMutation.isPending || confirming ? "Confirming..." : "Confirm & Publish Results"}
+                  {confirmMutation.isPending || confirming ? t("adminAuctions.confirming") : t("adminAuctions.confirmPublish")}
                 </Button>
-                <p className="text-xs text-gray-500 mt-2">DKP will be deducted, cooldowns set and results published publicly.</p>
+                <p className="text-xs text-gray-500 mt-2">{t("adminAuctions.confirmNote")}</p>
               </div>
             )}
 

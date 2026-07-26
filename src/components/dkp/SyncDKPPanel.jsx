@@ -4,8 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n";
 
 export default function SyncDKPPanel() {
+  const { t } = useTranslation();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [report, setReport] = useState(null);
@@ -20,9 +22,9 @@ export default function SyncDKPPanel() {
       const data = res?.data || res;
       setReport(data);
       queryClient.invalidateQueries({ queryKey: ["players"] });
-      toast.success(`Sync abgeschlossen: ${data.players_updated} von ${data.players_processed} Spielern korrigiert`);
+      toast.success(t("syncDkp.successToast", { updated: data.players_updated, processed: data.players_processed }));
     } catch (err) {
-      toast.error(err?.message || "Sync fehlgeschlagen");
+      toast.error(err?.message || t("syncDkp.failedToast"));
     } finally {
       setRunning(false);
     }
@@ -35,10 +37,10 @@ export default function SyncDKPPanel() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
         <div>
           <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 text-amber-400" /> DKP neu berechnen
+            <RefreshCw className="w-4 h-4 text-amber-400" /> {t("syncDkp.title")}
           </h3>
           <p className="text-xs text-gray-400 mt-1">
-            Synchronisiert <span className="text-gray-200">total_dkp</span> und <span className="text-gray-200">dkp_spent</span> aller Spieler mit den DKPTransaktionen. Listet anschließend alle gefundenen Differenzen auf.
+            {t("syncDkp.desc")}
           </p>
         </div>
         <Button
@@ -47,7 +49,7 @@ export default function SyncDKPPanel() {
           className="bg-gradient-to-r from-amber-500 to-orange-600 text-white shrink-0"
         >
           <RefreshCw className={`w-4 h-4 mr-1 ${running ? "animate-spin" : ""}`} />
-          {running ? "Läuft..." : "Jetzt neu berechnen"}
+          {running ? t("syncDkp.running") : t("syncDkp.run")}
         </Button>
       </div>
 
@@ -56,25 +58,24 @@ export default function SyncDKPPanel() {
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span className="text-sm text-white">
-              <span className="font-semibold text-emerald-400">{report.players_updated}</span>{" "}
-              von <span className="font-semibold">{report.players_processed}</span> Spielern korrigiert
+              {t("syncDkp.summary", { updated: report.players_updated, processed: report.players_processed })}
             </span>
           </div>
 
           {diffs.length === 0 ? (
-            <div className="text-xs text-gray-400">Keine Differenzen — alle Spielerwerte sind synchron. ✨</div>
+            <div className="text-xs text-gray-400">{t("syncDkp.noDiffs")}</div>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-white/5 bg-black/20">
               <table className="w-full text-xs">
                 <thead className="bg-white/5 text-gray-400 uppercase tracking-wider">
                   <tr>
-                    <th className="text-left px-3 py-2 font-medium">Spieler</th>
-                    <th className="text-right px-3 py-2 font-medium">total_dkp alt</th>
-                    <th className="text-right px-3 py-2 font-medium">total_dkp neu</th>
-                    <th className="text-right px-3 py-2 font-medium">Δ total</th>
-                    <th className="text-right px-3 py-2 font-medium">dkp_spent alt</th>
-                    <th className="text-right px-3 py-2 font-medium">dkp_spent neu</th>
-                    <th className="text-right px-3 py-2 font-medium">Δ spent</th>
+                    <th className="text-left px-3 py-2 font-medium">{t("syncDkp.cols.player")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.oldTotal")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.newTotal")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.deltaTotal")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.oldSpent")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.newSpent")}</th>
+                    <th className="text-right px-3 py-2 font-medium">{t("syncDkp.cols.deltaSpent")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -109,9 +110,9 @@ export default function SyncDKPPanel() {
                 <AlertTriangle className="w-5 h-5 text-amber-400" />
               </div>
               <div className="flex-1">
-                <h4 className="text-base font-semibold text-white">DKP-Werte aller Spieler neu berechnen?</h4>
+                <h4 className="text-base font-semibold text-white">{t("syncDkp.confirmTitle")}</h4>
                 <p className="text-sm text-gray-400 mt-1">
-                  Liest alle DKPTransaktionen, berechnet <span className="text-gray-200">total_dkp</span> und <span className="text-gray-200">dkp_spent</span> neu und schreibt Korrekturen zurück. Diese Aktion kann einige Sekunden dauern.
+                  {t("syncDkp.confirmDesc")}
                 </p>
               </div>
               <button onClick={() => setConfirmOpen(false)} className="text-gray-500 hover:text-white">
@@ -120,10 +121,10 @@ export default function SyncDKPPanel() {
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setConfirmOpen(false)} className="bg-transparent border-white/10 text-gray-300 hover:bg-white/5 hover:text-white">
-                Abbrechen
+                {t("common.cancel")}
               </Button>
               <Button onClick={runSync} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-                <RefreshCw className="w-4 h-4 mr-1" /> Jetzt starten
+                <RefreshCw className="w-4 h-4 mr-1" /> {t("syncDkp.startNow")}
               </Button>
             </div>
           </div>
